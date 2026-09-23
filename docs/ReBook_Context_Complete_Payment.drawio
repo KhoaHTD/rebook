@@ -1,0 +1,919 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.0.6 Chrome/138.0.7204.100 Electron/37.2.3 Safari/537.36" pages="10">
+  <diagram name="01 Context with Payment Gateway" id="context-payment">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="3400" pageHeight="2150" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;strokeColor=none;fontSize=42;fontStyle=1;" value="BOOKBID — CONTEXT DIAGRAM" vertex="1">
+          <mxGeometry height="70" width="2600" x="400" y="35" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;strokeColor=none;fontSize=25;" value="Used Book Marketplace and Auction System · Proposed third-party payment scope" vertex="1">
+          <mxGeometry height="50" width="2600" x="400" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="system" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;ellipse;fillColor=#f1f5fa;fontSize=39;fontStyle=1;" value="BOOKBID&#xa;&#xa;Used Book Marketplace&#xa;and Auction System" vertex="1">
+          <mxGeometry height="1300" width="1300" x="1050" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="seller" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fontSize=37;fontStyle=1;" value="SELLER" vertex="1">
+          <mxGeometry height="530" width="470" x="50" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="buyer" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fontSize=37;fontStyle=1;" value="BUYER" vertex="1">
+          <mxGeometry height="550" width="470" x="50" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="admin" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fontSize=37;fontStyle=1;" value="ADMIN" vertex="1">
+          <mxGeometry height="530" width="470" x="2880" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="guest" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fontSize=37;fontStyle=1;" value="GUEST" vertex="1">
+          <mxGeometry height="550" width="470" x="2880" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fontSize=37;fontStyle=1;fillColor=#e8f4ef;" value="PAYMENT GATEWAY" vertex="1">
+          <mxGeometry height="160" width="1300" x="1050" y="1870" as="geometry" />
+        </mxCell>
+        <mxCell id="seller-0" edge="1" parent="1" source="seller" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.0660377358490566;entryX=0.29870978295185346;entryY=0.04230769230769231;" target="system" value="Account and query data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="335" as="sourcePoint" />
+            <mxPoint x="1438.3227178374095" y="335" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-1" edge="1" parent="1" source="seller" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.1624737945492662;entryX=0.22620908450026456;entryY=0.0816239316239316;" target="system" value="Listing and fulfillment data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="386.1111111111111" as="sourcePoint" />
+            <mxPoint x="1344.071809850344" y="386.1111111111111" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-2" edge="1" parent="1" source="seller" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.2589098532494759;entryX=0.1739422658590458;entryY=0.12094017094017094;" target="system" value="Report and dispute data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="437.22222222222223" as="sourcePoint" />
+            <mxPoint x="1276.1249456167595" y="437.22222222222223" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-3" edge="1" parent="1" source="seller" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.3553459119496856;entryX=0.1331563095429615;entryY=0.1602564102564103;" target="system" value="Auction request">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="488.33333333333337" as="sourcePoint" />
+            <mxPoint x="1223.10320240585" y="488.33333333333337" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-4" edge="1" parent="1" source="seller" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.4517819706498952;entryX=0.10032086980278546;entryY=0.19957264957264959;" target="system" value="Request status query">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="539.4444444444445" as="sourcePoint" />
+            <mxPoint x="1180.417130743621" y="539.4444444444445" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-5" edge="1" parent="1" source="seller" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.5482180293501048;entryX=0.0735952771669608;entryY=0.23888888888888887;" target="system" value="Auction opening request">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="590.5555555555555" as="sourcePoint" />
+            <mxPoint x="1145.673860317049" y="590.5555555555555" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-6" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.05188502050757506;exitY=0.27820512820512827;entryX=1.0;entryY=0.6446540880503147;" target="seller" value="Account and query results">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1117.4505266598476" y="641.6666666666667" as="sourcePoint" />
+            <mxPoint x="520" y="641.6666666666667" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-7" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.03448786408007786;exitY=0.31752136752136756;entryX=1.0;entryY=0.7410901467505242;" target="seller" value="Listing and sales information">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1094.8342233041012" y="692.7777777777778" as="sourcePoint" />
+            <mxPoint x="520" y="692.7777777777778" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-8" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.020933690201433226;exitY=0.35683760683760685;entryX=1.0;entryY=0.8375262054507338;" target="seller" value="Case outcomes and notifications">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1077.2137972618632" y="743.8888888888889" as="sourcePoint" />
+            <mxPoint x="520" y="743.8888888888889" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="seller-9" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.010902896827878452;exitY=0.39615384615384613;entryX=1.0;entryY=0.9339622641509434;" target="seller" value="Auction request status">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1064.173765876242" y="795" as="sourcePoint" />
+            <mxPoint x="520" y="795" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-0" edge="1" parent="1" source="buyer" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.06363636363636363;entryX=0.001793156237695257;entryY=0.5423076923076923;" target="system" value="Account and query data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="985" as="sourcePoint" />
+            <mxPoint x="1052.3311031090038" y="985" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-1" edge="1" parent="1" source="buyer" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.17272727272727273;entryX=0.007887658950704953;entryY=0.5884615384615385;" target="system" value="Purchase and bidding data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="1045" as="sourcePoint" />
+            <mxPoint x="1060.2539566359164" y="1045" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-2" edge="1" parent="1" source="buyer" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.2818181818181818;entryX=0.018462152863503258;entryY=0.6346153846153846;" target="system" value="Review, report and dispute data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="1105" as="sourcePoint" />
+            <mxPoint x="1074.0007987225542" y="1105" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-3" edge="1" parent="1" source="buyer" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.39090909090909093;entryX=0.03382140202804189;entryY=0.6807692307692308;" target="system" value="Payment initiation request">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="1165" as="sourcePoint" />
+            <mxPoint x="1093.9678226364545" y="1165" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-4" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.05445997131597324;exitY=0.7269230769230769;entryX=1.0;entryY=0.5;" target="buyer" value="Account and query results">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1120.7979627107652" y="1225" as="sourcePoint" />
+            <mxPoint x="520" y="1225" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-5" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.08115755458306256;exitY=0.7730769230769231;entryX=1.0;entryY=0.6090909090909091;" target="buyer" value="Purchase and auction results">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1155.5048209579813" y="1285" as="sourcePoint" />
+            <mxPoint x="520" y="1285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-6" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.1151731350641806;exitY=0.8192307692307692;entryX=1.0;entryY=0.7181818181818181;" target="buyer" value="Case outcomes and notifications">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1199.7250755834348" y="1345" as="sourcePoint" />
+            <mxPoint x="520" y="1345" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-7" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.15868770482117603;exitY=0.8653846153846154;entryX=1.0;entryY=0.8272727272727273;" target="buyer" value="Payment instructions">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1256.2940162675288" y="1405" as="sourcePoint" />
+            <mxPoint x="520" y="1405" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="buyer-8" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.2160350467495043;exitY=0.9115384615384615;entryX=1.0;entryY=0.9363636363636364;" target="buyer" value="Payment status">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1330.8455607743556" y="1465" as="sourcePoint" />
+            <mxPoint x="520" y="1465" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="admin-0" edge="1" parent="1" source="admin" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.0;exitY=0.0660377358490566;entryX=0.7012902170481465;entryY=0.04230769230769231;" target="system" value="Admin authentication data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2880" y="335" as="sourcePoint" />
+            <mxPoint x="1961.6772821625905" y="335" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="admin-1" edge="1" parent="1" source="admin" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.0;exitY=0.19002695417789758;entryX=0.7902321379130007;entryY=0.09285714285714286;" target="system" value="Administrative query criteria">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2880" y="400.7142857142857" as="sourcePoint" />
+            <mxPoint x="2077.301779286901" y="400.7142857142857" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="admin-2" edge="1" parent="1" source="admin" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.0;exitY=0.3140161725067386;entryX=0.8504870074255384;entryY=0.14340659340659342;" target="system" value="Administrative decisions">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2880" y="466.42857142857144" as="sourcePoint" />
+            <mxPoint x="2155.6331096532" y="466.42857142857144" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="admin-3" edge="1" parent="1" source="admin" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.0;exitY=0.43800539083557943;entryX=0.8953948620922697;entryY=0.19395604395604393;" target="system" value="Auction approval / rejection">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2880" y="532.1428571428571" as="sourcePoint" />
+            <mxPoint x="2214.0133207199506" y="532.1428571428571" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="admin-4" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.9297936221747806;exitY=0.24450549450549453;entryX=0.0;entryY=0.5619946091644206;" target="admin" value="Admin authentication result">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2258.731708827215" y="597.8571428571429" as="sourcePoint" />
+            <mxPoint x="2880" y="597.8571428571429" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="admin-5" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.9560674560342672;exitY=0.29505494505494506;entryX=0.0;entryY=0.6859838274932615;" target="admin" value="Administrative information">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2292.8876928445475" y="663.5714285714286" as="sourcePoint" />
+            <mxPoint x="2880" y="663.5714285714286" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="admin-6" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.9755649244249581;exitY=0.34560439560439554;entryX=0.0;entryY=0.8099730458221023;" target="admin" value="Decision processing results">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2318.2344017524456" y="729.2857142857142" as="sourcePoint" />
+            <mxPoint x="2880" y="729.2857142857142" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="admin-7" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.9890971031721214;exitY=0.39615384615384613;entryX=0.0;entryY=0.9339622641509434;" target="admin" value="Auction requests for review">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2335.826234123758" y="795" as="sourcePoint" />
+            <mxPoint x="2880" y="795" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="guest-0" edge="1" parent="1" source="guest" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.0;exitY=0.06363636363636363;entryX=0.9982068437623047;entryY=0.5423076923076923;" target="system" value="Registration and login data">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2880" y="985" as="sourcePoint" />
+            <mxPoint x="2347.668896890996" y="985" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="guest-1" edge="1" parent="1" source="guest" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.0;exitY=0.35454545454545455;entryX=0.9718558349687783;entryY=0.6653846153846154;" target="system" value="Book and auction query criteria">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2880" y="1145" as="sourcePoint" />
+            <mxPoint x="2313.4125854594117" y="1145" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="guest-2" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.9083992419537558;exitY=0.7884615384615384;entryX=0.0;entryY=0.6454545454545455;" target="guest" value="Authentication results">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2230.9190145398825" y="1305" as="sourcePoint" />
+            <mxPoint x="2880" y="1305" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="guest-3" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.7839649532504959;exitY=0.9115384615384615;entryX=0.0;entryY=0.9363636363636364;" target="guest" value="Public catalog information">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2069.1544392256446" y="1465" as="sourcePoint" />
+            <mxPoint x="2880" y="1465" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gateway-0" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.13076923076923078;exitY=0.8371478000124788;entryX=0.13076923076923078;entryY=0.0;" target="gateway" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1220" y="1368.2921400162224" as="sourcePoint" />
+            <mxPoint x="1220" y="1870" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gateway-label-0" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=none;strokeColor=#25364a;strokeWidth=2;strokeColor=none;" value="Payment request" vertex="1">
+          <mxGeometry height="60" width="290" x="1075" y="1710" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway-1" edge="1" parent="1" source="system" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.3769230769230769;exitY=0.9846153846153847;entryX=0.3769230769230769;entryY=0.0;" target="gateway" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1540" y="1560" as="sourcePoint" />
+            <mxPoint x="1540" y="1870" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gateway-label-1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=none;strokeColor=#25364a;strokeWidth=2;strokeColor=none;" value="Refund request" vertex="1">
+          <mxGeometry height="60" width="290" x="1395" y="1710" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway-2" edge="1" parent="1" source="gateway" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.6230769230769231;exitY=0.0;entryX=0.6230769230769231;entryY=0.9846153846153847;" target="system" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1860" y="1870" as="sourcePoint" />
+            <mxPoint x="1860" y="1560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gateway-label-2" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=none;strokeColor=#25364a;strokeWidth=2;strokeColor=none;" value="Payment response" vertex="1">
+          <mxGeometry height="60" width="290" x="1715" y="1710" as="geometry" />
+        </mxCell>
+        <mxCell id="gateway-3" edge="1" parent="1" source="gateway" style="edgeStyle=none;html=0;endArrow=block;endFill=1;strokeColor=#25364a;strokeWidth=2;fontFamily=Arial;fontSize=24;labelBackgroundColor=#ffffff;verticalAlign=bottom;spacingBottom=7;exitPerimeter=0;entryPerimeter=0;exitX=0.8692307692307693;exitY=0.0;entryX=0.8692307692307693;entryY=0.8371478000124788;" target="system" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="2180" y="1870" as="sourcePoint" />
+            <mxPoint x="2180" y="1368.2921400162224" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="gateway-label-3" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=none;strokeColor=#25364a;strokeWidth=2;strokeColor=none;" value="Refund result" vertex="1">
+          <mxGeometry height="60" width="290" x="2035" y="1710" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="02 Consolidated flow traceability" id="page-2">
+    <mxGraphModel dx="1580" dy="856" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1580" pageHeight="917" math="0" shadow="0">
+      <root>
+        <mxCell id="0" value="" />
+        <mxCell id="1" parent="0" value="" />
+        <mxCell id="title" value="02 Consolidated flow traceability" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=26;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1500" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="t0_0" value="Consolidated flow" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="85" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t0_1" value="Direction" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="85" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t0_2" value="Original detailed IDs" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="730" y="85" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t0_3" value="SRS reference" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="85" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_0" value="G-IN1 · Registration and login data" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="151" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="151" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_2" value="G01, G03" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="151" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_3" value="FR-01/02" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="151" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_0" value="G-OUT1 · Authentication results" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="217" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="217" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_2" value="G02, G04" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="217" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_3" value="FR-01/02" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="217" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_0" value="G-IN2 · Book and auction query criteria" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="283" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="283" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_2" value="G05, G07, G09" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="283" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_3" value="FR-10–14,30,33; §12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="283" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_0" value="G-OUT2 · Public catalog information" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="349" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="349" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_2" value="G06, G08, G10" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="349" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_3" value="FR-10–14,30,33,50; §12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="349" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t5_0" value="B-IN1 · Account and query data" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="415" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t5_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="415" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t5_2" value="B01, B03, B05, B07, B09" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="415" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t5_3" value="FR-02–05,10–15; §12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="415" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t6_0" value="B-OUT1 · Account and query results" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="481" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t6_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="481" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t6_2" value="B02, B04, B06, B08, B10" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="481" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t6_3" value="FR-02–05,10–15; §12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="481" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t7_0" value="B-IN2 · Purchase and bidding data" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="547" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t7_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="547" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t7_2" value="B11, B13, B16, B17, B18, B20, B22, B23, B25" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="547" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t7_3" value="FR-30–49; §§6–9,12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="547" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t8_0" value="B-OUT2 · Purchase and auction results" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="613" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t8_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="613" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t8_2" value="B12, B14, B15, B19, B21, B24, B26" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="613" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t8_3" value="FR-30–49; §§6–9,12.2,14.1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="613" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t9_0" value="B-IN3 · Review, report and dispute data" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="679" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t9_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="679" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t9_2" value="B27, B29, B31, B32, B33" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="679" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t9_3" value="FR-49–51; §§9,12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="679" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t10_0" value="B-OUT3 · Case outcomes and notifications" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="745" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t10_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="745" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t10_2" value="B28, B30, B34, B35, B36" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="745" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t10_3" value="FR-49–51,56; §§7.4,9,14.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="745" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t11_0" value="S-IN1 · Account and query data" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="811" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t11_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="811" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t11_2" value="S01, S03, S05, S07, S09" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="811" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t11_3" value="FR-02–05,10–15; §12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="811" width="310" height="66" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="03 Consolidated flow traceability" id="page-3">
+    <mxGraphModel dx="1580" dy="856" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1580" pageHeight="917" math="0" shadow="0">
+      <root>
+        <mxCell id="0" value="" />
+        <mxCell id="1" parent="0" value="" />
+        <mxCell id="title" value="03 Consolidated flow traceability" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=26;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1500" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="t0_0" value="Consolidated flow" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="85" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t0_1" value="Direction" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="85" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t0_2" value="Original detailed IDs" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="730" y="85" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t0_3" value="SRS reference" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;align=left;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="85" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_0" value="S-OUT1 · Account and query results" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="151" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="151" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_2" value="S02, S04, S06, S08, S10" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="151" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t1_3" value="FR-02–05,10–15; §12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="151" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_0" value="S-IN2 · Listing and fulfillment data" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="217" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="217" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_2" value="S11, S12, S13, S14, S15, S16, S17, S18, S19, S24, S25, S26, S29, S31" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="217" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t2_3" value="FR-20–24,43,45,48; §§5,8,9" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="217" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_0" value="S-OUT2 · Listing and sales information" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="283" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="283" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_2" value="S20, S21, S22, S23, S27, S28, S30, S32" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="283" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t3_3" value="FR-20–24,34,35,41–48" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="283" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_0" value="S-IN3 · Report and dispute data" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="349" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="349" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_2" value="S33, S35, S36, S37" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="349" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t4_3" value="FR-49/51; §9" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="349" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t5_0" value="S-OUT3 · Case outcomes and notifications" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="415" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t5_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="415" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t5_2" value="S34, S38, S39" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="415" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t5_3" value="FR-49/51/56; §14.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="415" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t6_0" value="A-IN1 · Admin authentication data" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="481" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t6_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="481" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t6_2" value="A01" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="481" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t6_3" value="FR-02/03/05" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="481" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t7_0" value="A-OUT1 · Admin authentication result" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="547" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t7_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="547" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t7_2" value="A02" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="547" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t7_3" value="FR-02/03/05" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="547" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t8_0" value="A-IN2 · Administrative query criteria" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="613" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t8_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="613" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t8_2" value="A03" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="613" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t8_3" value="FR-52/55; §§3,12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="613" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t9_0" value="A-OUT2 · Administrative information" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="679" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t9_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="679" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t9_2" value="A04, A05, A06, A07, A13, A15, A19, A20, A21, A22, A23" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="679" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t9_3" value="FR-49,51–57; §§3,8,9,14" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="679" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t10_0" value="A-IN3 · Administrative decisions" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="745" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t10_1" value="Actor → BookBid" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="745" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t10_2" value="A08, A09, A10, A11, A12, A14, A16, A17, A18" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="745" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t10_3" value="FR-49,51–54,57; §§9,12.2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="745" width="310" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t11_0" value="A-OUT3 · Decision processing results" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="40" y="811" width="480" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t11_1" value="BookBid → actor" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="520" y="811" width="210" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t11_2" value="NEW — no original ID" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="730" y="811" width="500" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="t11_3" value="§§12.1,12.2,12.4" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=18;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#F5F7FA;strokeColor=#CBD5E1;spacing=6;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="811" width="310" height="66" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="04 Data dictionary" id="page-4">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" value="" />
+        <mxCell id="1" parent="0" value="" />
+        <mxCell id="title" value="DATA DICTIONARY — 1–6" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=28;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="code0" value="G-IN1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def0" value="Registration fields and login credentials." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="90" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code1" value="G-OUT1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="215" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def1" value="Registration outcome and authentication result." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="215" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code2" value="G-IN2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def2" value="Search/filter/sort criteria; requested listing ID, auction ID or seller ID; category and public review queries." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="340" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code3" value="G-OUT2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="465" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def3" value="Book results/details; public auction data/history; public categories and seller reviews. Categories and reviews are explicit SRS coverage additions." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="465" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code4" value="B-IN1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="590" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def4" value="Authentication/session/password data; profile/address data; book queries; favorite selections; notification ID and read acknowledgement (added)." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="590" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code5" value="B-OUT1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="715" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def5" value="Authentication result, profile, address book, book results and favorites; includes public categories and seller reviews." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="715" width="1360" height="125" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="05 Data dictionary" id="page-5">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" value="" />
+        <mxCell id="1" parent="0" value="" />
+        <mxCell id="title" value="DATA DICTIONARY — 7–12" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=28;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="code0" value="B-IN2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def0" value="Bid amount; auction/history queries including My bids; checkout address, selected payment method and order confirmation; receipt/COD declarations; cancellation details. Online payment initiation is defined separately on page 10." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="90" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code1" value="B-OUT2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="215" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def1" value="Bid/auction results and progress; My bids history; purchase order, delivery and cancellation status. Online payment instructions and status are separate flows on page 10." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="215" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code2" value="B-IN3" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def2" value="Review content, violation report, dispute opening details/evidence and return-shipment declaration." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="340" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code3" value="B-OUT3" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="465" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def3" value="Recorded review; report/dispute outcomes; refund processing result; in-app notifications." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="465" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code4" value="S-IN1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="590" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def4" value="Authentication/session/password, profile/address, book query and favorite-selection data; notification ID and read acknowledgement (added)." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="590" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code5" value="S-OUT1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="715" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def5" value="Authentication result, profile, addresses, book results and favorites; includes public categories and seller reviews." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="715" width="1360" height="125" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="06 Data dictionary" id="page-6">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" value="" />
+        <mxCell id="1" parent="0" value="" />
+        <mxCell id="title" value="DATA DICTIONARY — 13–18" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=28;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="code0" value="S-IN2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def0" value="Listing update record: description, images, price, fee, auction configuration, listing ID and update type (publish/withdraw/draft deletion/relist). Order acceptance, shipment/tracking, cancellation and response decision." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="90" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code1" value="S-OUT2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="215" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def1" value="Seller listings, auction results, sales orders, delivery addresses, delivery/payment status, buyer cancellation request and cancellation outcome." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="215" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code2" value="S-IN3" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def2" value="Violation report, dispute opening details, evidence and returned-book receipt declaration." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="340" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code3" value="S-OUT3" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="465" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def3" value="Report/dispute processing information and in-app notifications." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="465" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code4" value="A-IN1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="590" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def4" value="Authentication, session and password-change data." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="590" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code5" value="A-OUT1" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="715" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def5" value="Authentication/session operation result." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="715" width="1360" height="125" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="07 Data dictionary" id="page-7">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" value="" />
+        <mxCell id="1" parent="0" value="" />
+        <mxCell id="title" value="DATA DICTIONARY — 19–22" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=28;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1520" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="code0" value="A-IN2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def0" value="Search, filter and pagination criteria for administrative records." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="90" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code1" value="A-OUT2" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="215" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def1" value="Account, listing, auction, order, report, dispute and category records; dashboard statistics; audit history; overdue alerts." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="215" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code2" value="A-IN3" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def2" value="Blocking/unblocking, hiding/unhiding, auction cancellation, report/dispute resolution, evidence and category visibility. Explicit addition: pre-shipment order cancellation with reason/evidence; dispute decisions include return verification." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="340" width="1360" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="code3" value="A-OUT3" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=21;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#E8F0FA;strokeColor=#CBD5E1;spacing=6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="465" width="160" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="def3" value="Result of administrative decisions: accepted/rejected operation, resulting state and errors; includes pre-shipment cancellation and dispute resolution. Auction approval is defined separately in A-IN4 and S-OUT4." style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#172B4D;align=center;verticalAlign=middle;fillColor=#FFFFFF;strokeColor=#CBD5E1;spacing=6;align=left;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="465" width="1360" height="125" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page7" name="08 Auction approval — added flow definitions">
+    <mxGraphModel page="1" pageWidth="1800" pageHeight="1110">
+      <root>
+        <mxCell id="0" value="" />
+        <mxCell id="1" parent="0" value="" />
+        <mxCell id="title" value="08 Auction approval — added flow definitions" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="30" width="1720" height="70" />
+        </mxCell>
+        <mxCell id="k0" value="S-IN4 | Seller → BookBid" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="130" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v0" value="Auction request for exactly one book: book/listing identifier, title, photos and condition. Seller identity comes from the authenticated account. This submits for review; it does not start an auction." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="130" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k1" value="A-OUT4 | BookBid → Admin" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="285" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v1" value="Auction requests awaiting review, with request identifier, book details and requesting seller. This dedicated flow is separate from general administrative information." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="285" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k2" value="A-IN4 | Admin → BookBid" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="440" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v2" value="Decision tied to the request: approve or reject, with a reason where applicable. Approval authorizes later opening by the seller; it does not open the session automatically." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="440" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k3" value="S-IN5 | Seller → BookBid" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="595" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v3" value="Request identifier or query criteria for viewing the seller’s own submitted requests (View request status)." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="595" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k4" value="S-OUT4 | BookBid → Seller" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="750" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v4" value="Request status: PENDING, APPROVED or REJECTED, with its request/book identifiers and decision information. The seller sees the status of their own request." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="750" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k5" value="S-IN6 | Seller → BookBid" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="905" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v5" value="Request to open a session for an approved auction request, with the required auction configuration. Session information and subsequent results return through S-OUT2. An opening attempt must not create duplicate active sessions." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="905" width="1380" height="145" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="page8" name="09 Scope and completeness notes">
+    <mxGraphModel page="1" pageWidth="1800" pageHeight="1420">
+      <root>
+        <mxCell id="0" value="" />
+        <mxCell id="1" parent="0" value="" />
+        <mxCell id="title" value="09 Scope and completeness notes" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="30" width="1720" height="70" />
+        </mxCell>
+        <mxCell id="k0" value="Ranh giới hệ thống" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="130" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v0" value="BookBid gồm ứng dụng, backend, worker, cơ sở dữ liệu và lưu trữ ảnh. Có 5 tác nhân ngoài: Guest, Buyer, Seller, Admin và Payment Gateway. Thanh toán online qua cổng bên thứ ba; COD và vận chuyển vẫn tự khai báo. Không tích hợp hãng vận chuyển." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="130" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k1" value="Vai trò và mức tổng quan" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="285" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v1" value="Buyer và Seller là hai vai trò giao dịch của cùng loại tài khoản USER. Mỗi mũi tên là một luồng dữ liệu có hướng; các nhóm dữ liệu được giải thích ở trang 04–08. Các trường như tên và ảnh nằm trong một yêu cầu, không phải từng tác nhân hoặc tiến trình riêng." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="285" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k2" value="Bán giá cố định" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="440" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v2" value="Bán giá cố định: Seller gửi tin đăng qua Listing and fulfillment data; Buyer xác nhận mua qua Purchase and bidding data. Thanh toán online dùng các luồng Payment initiation request, Payment instructions và Payment status riêng. COD được khai báo khi nhận hàng. Không yêu cầu duyệt đấu giá cho bán giá cố định." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="440" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k3" value="Điểm thay đổi so với SRS" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="595" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v3" value="Yêu cầu bổ sung của người dùng: Seller gửi yêu cầu đấu giá → Admin duyệt/từ chối → Seller xem trạng thái → Seller chủ động mở phiên đã duyệt. Các luồng mới ở trang 08 thay đổi điều kiện publish auction của SRS v2; cần cập nhật SRS khi dùng bản này làm baseline." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="595" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k4" value="Thời lượng phiên" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="750" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v4" value="Khoảng 15 phút là thời lượng ban đầu theo yêu cầu bổ sung. Nếu giữ anti-sniping của SRS, phiên có thể gia hạn khi có bid hợp lệ sát hạn. Buyer được xem mà không bắt buộc bid. Nếu không có bid, không tạo đơn thắng đấu giá." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="750" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k5" value="Đối chiếu dữ liệu" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="905" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v5" value="Trang tổng quan có 35 luồng: 28 luồng nền và xét duyệt, 3 luồng thanh toán riêng với Buyer, 4 luồng với Payment Gateway. Các bảng truy vết cũ chỉ áp dụng cho 22 luồng nền; các bổ sung được định nghĩa ở trang 08 và 10." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="905" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k6" value="Nhất quán nghiệp vụ" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="1060" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v6" value="Dữ liệu của S-IN4 phải khớp sách thực tế khi mở phiên. Đề xuất: thay đổi nội dung đã duyệt phải gửi duyệt lại. Backend kiểm tra quyền, yêu cầu đã duyệt, chống mở trùng, chống tự bid và chống bán trùng. Quy tắc này cần đặc tả và kiểm thử, không được chứng minh chỉ bằng context diagram." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="1060" width="1380" height="145" />
+        </mxCell>
+        <mxCell id="k7" value="Cách đọc kết quả" style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#E8F0FA;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="1215" width="340" height="145" />
+        </mxCell>
+        <mxCell id="v7" value="S-OUT2 gồm thông tin phiên, kết quả đấu giá, đơn bán và trạng thái giao nhận/thanh toán. B-OUT2 gồm kết quả bid, kết quả phiên, đơn mua và trạng thái giao nhận; payment instructions/status có luồng riêng. A-OUT3 là kết quả xử lý của Admin; S-OUT4 là trạng thái duyệt trả Seller." style="rounded=0;whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=24;align=left;verticalAlign=middle;spacing=20;strokeColor=#CBD5E1;fillColor=#FFFFFF;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="380" y="1215" width="1380" height="145" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="10 Payment gateway — proposed flow" id="payment-definitions">
+    <mxGraphModel page="1" pageWidth="1800" pageHeight="1600">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="paytitle" value="PAYMENT GATEWAY — ĐỀ XUẤT BỔ SUNG PHẠM VI" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fontSize=30;fontStyle=1;strokeColor=none;">
+          <mxGeometry x="50" y="20" width="1700" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="head0" value="Buyer → BookBid | Payment initiation request" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="110" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body0" value="Yêu cầu thanh toán online cho đơn của buyer: order ID và khóa chống xử lý trùng. Backend tính số tiền từ đơn; không tin số tiền do client gửi. Áp dụng cho mua trực tiếp và đơn thắng đấu giá sau checkout." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="110" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head1" value="BookBid → Payment Gateway | Payment request" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="255" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body1" value="Tạo giao dịch: merchant order/reference, payment attempt ID, số tiền VND, mô tả, địa chỉ nhận thông báo và trang quay về. Đây là dữ liệu yêu cầu, không phải mũi tên biểu diễn tiền." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="255" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head2" value="Payment Gateway → BookBid | Payment response" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="400" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body2" value="Nhóm phản hồi giao dịch: mã giao dịch và URL thanh toán khi tạo thành công; thông báo trạng thái sau xử lý (pending/succeeded/failed/cancelled). Hai phản hồi có thể xảy ra ở các thời điểm khác nhau. URL thất bại hoặc khởi tạo thành công không đồng nghĩa đã trả tiền." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="400" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head3" value="BookBid → Buyer | Payment instructions" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="545" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body3" value="Trả URL thanh toán do cổng cung cấp hoặc lỗi khởi tạo. Buyer thực hiện thanh toán trên giao diện do cổng quản lý. Dữ liệu thẻ, mật khẩu và OTP không gửi về BookBid." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="545" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head4" value="BookBid → Buyer | Payment status" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="690" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body4" value="Trả trạng thái đã được backend xác minh và mã tham chiếu. Buyer xem lại trạng thái qua yêu cầu tra cứu cá nhân. Không tin riêng kết quả redirect trên trình duyệt. Seller nhận trạng thái qua Listing and sales information." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="690" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head5" value="BookBid → Payment Gateway | Refund request" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="835" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body5" value="Khi hủy đơn/giải quyết tranh chấp đủ điều kiện và đã thu tiền: gửi mã giao dịch gốc, mã hoàn tiền duy nhất, số tiền và lý do. Đề xuất chỉ hoàn toàn bộ khoản online đã thu, không hoàn vượt số tiền đó." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="835" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head6" value="Payment Gateway → BookBid | Refund result" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="980" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body6" value="Mã hoàn tiền và trạng thái pending/succeeded/failed. Chỉ đánh dấu REFUNDED khi cổng xác nhận thành công; gửi kết quả tới Buyer/Seller qua Case outcomes and notifications. Lỗi hoàn tiền được đưa vào thông tin quản trị để xử lý." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="980" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head7" value="Quy tắc đề xuất cần đưa vào SRS" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="1125" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body7" value="Xác minh chữ ký/xác thực callback, mã đơn, số tiền và VND. Callback trùng không cập nhật hai lần; kết quả thất bại cũ không ghi đè giao dịch đã thành công. Nếu cổng báo thành công sau khi đơn đã hủy/hết hạn: không mở lại đơn, chuyển xử lý hoàn tiền. Không giao hàng online khi chưa xác nhận đã thanh toán." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="1125" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head8" value="Phạm vi và quan hệ ngoài ranh giới" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="1270" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body8" value="COD không qua gateway; xác nhận COD vẫn nằm trong dữ liệu nhận hàng. Bản context chỉ vẽ dữ liệu qua ranh giới BookBid; tương tác Buyer trên trang cổng không nối trực tiếp giữa hai tác nhân. Quyết toán cho seller theo cấu hình thương mại của cổng, chưa thiết kế ví, escrow hoặc payout tự động trong BookBid." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="1270" width="1200" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="head9" value="Thay đổi baseline" vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;fillColor=#e8f4ef;align=left;spacing=15;fontSize=23;fontStyle=1;">
+          <mxGeometry x="50" y="1415" width="500" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="body9" value="Đây là flow đề xuất theo yêu cầu mới, thay thế thanh toán MOCK_ONLINE nội bộ. Cổng cụ thể chưa được chọn; có thể tích hợp sandbox trước. Các trang truy vết cũ tham chiếu SRS v2 chỉ làm nền, không chứng minh phần tích hợp mới đã có trong SRS. Luồng duyệt đấu giá giữ nguyên." vertex="1" parent="1" style="whiteSpace=wrap;html=0;fontFamily=Arial;fontSize=25;align=center;verticalAlign=middle;fillColor=#ffffff;strokeColor=#25364a;strokeWidth=2;align=left;spacing=15;fontSize=23;">
+          <mxGeometry x="550" y="1415" width="1200" height="135" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
