@@ -1,0 +1,35 @@
+# Danh sách package ĐƯỢC PHÉP trong pubspec.yaml.
+# Hook của Claude Code và CI đều chặn package không có trong file này.
+#
+# Muốn thêm package mới:
+#   1. Hỏi tech lead / mở thảo luận với team (lý do, có package sẵn nào làm được chưa?).
+#   2. Thêm vào đây kèm lý do, commit riêng, review riêng.
+#   3. Sau đó mới `flutter pub add`.
+
+dependencies:
+  flutter: SDK
+  flutter_localizations: SDK — đa ngôn ngữ
+  flutter_web_plugins: SDK — path URL strategy cho web
+  flutter_riverpod: state management + DI
+  riverpod_annotation: annotation cho riverpod_generator
+  go_router: điều hướng, deep link web
+  dio: HTTP client
+  retrofit: runtime cho client sinh từ OpenAPI
+  json_annotation: runtime cho json_serializable
+  freezed_annotation: runtime cho freezed (entity bất biến)
+  web_socket_channel: realtime đấu giá
+  flutter_secure_storage: lưu JWT
+  cached_network_image: ảnh bìa sách có cache
+  intl: format tiền, ngày, plural
+
+dev_dependencies:
+  flutter_test: SDK
+  flutter_lints: lint chuẩn
+  build_runner: chạy code generation
+  riverpod_generator: sinh provider
+  freezed: sinh entity
+  json_serializable: sinh fromJson/toJson cho DTO
+  retrofit_generator: sinh REST client
+  swagger_parser: OpenAPI -> client + DTO
+  mocktail: mock trong test
+  yaml: dùng bởi tool/ (hook, arch check)

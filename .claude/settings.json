@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub get)",
+      "Bash(dart analyze:*)",
+      "Bash(flutter test:*)",
+      "Bash(flutter gen-l10n)",
+      "Bash(flutter build web:*)",
+      "Bash(dart format:*)",
+      "Bash(dart run build_runner:*)",
+      "Bash(dart run swagger_parser)",
+      "Bash(dart run tool/arch_check.dart)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./apps/*/.env)",
+      "Read(./apps/*/.env.*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dart \"$CLAUDE_PROJECT_DIR/apps/frontend/tool/hooks/claude_hook.dart\" pre",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dart \"$CLAUDE_PROJECT_DIR/apps/frontend/tool/hooks/claude_hook.dart\" post",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dart \"$CLAUDE_PROJECT_DIR/apps/frontend/tool/hooks/claude_hook.dart\" stop",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}

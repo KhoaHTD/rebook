@@ -1,0 +1,6 @@
+# Giữ LF cho mọi máy (Windows/macOS/Linux) để dart format và CI không báo khác biệt.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.jar binary

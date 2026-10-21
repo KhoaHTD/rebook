@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "dart": {
+      "command": "dart",
+      "args": [
+        "mcp-server",
+        "--disable",
+        "pub",
+        "--disable",
+        "pub_dev_search",
+        "--disable",
+        "create_project"
+      ]
+    }
+  }
+}
