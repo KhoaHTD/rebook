@@ -1,0 +1,62 @@
+name: Frontend deploy (Firebase Hosting)
+
+# Cần secret FIREBASE_SERVICE_ACCOUNT (JSON service account có quyền Firebase Hosting Admin)
+# và project id thật trong apps/frontend/.firebaserc.
+# Chưa có secret thì job vẫn build nhưng bỏ qua bước deploy (không báo đỏ).
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/frontend/**
+      - .github/workflows/frontend-deploy.yml
+  pull_request:
+    paths:
+      - apps/frontend/**
+      - .github/workflows/frontend-deploy.yml
+
+defaults:
+  run:
+    working-directory: apps/frontend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # PR từ fork không có secret -> bỏ qua preview.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    env:
+      HAS_FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.5
+          channel: stable
+          cache: true
+
+      - name: Build
+        run: |
+          flutter pub get
+          flutter gen-l10n
+          dart run build_runner build
+          flutter build web --release --no-pub \
+            --dart-define-from-file=${{ github.event_name == 'push' && 'env/prod.json' || 'env/dev.json' }}
+
+      # push lên main -> live; PR -> kênh preview riêng, link được comment vào PR.
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        if: env.HAS_FIREBASE_SECRET == 'true'
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          entryPoint: apps/frontend
+          channelId: ${{ github.event_name == 'push' && 'live' || '' }}
+          expires: 7d
+
+      - name: Nhắc cấu hình Firebase
+        if: env.HAS_FIREBASE_SECRET != 'true'
+        run: echo "::warning::Chưa có secret FIREBASE_SERVICE_ACCOUNT nên bỏ qua deploy. Xem apps/frontend/README.md mục Deploy."

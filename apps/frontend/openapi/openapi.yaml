@@ -1,0 +1,174 @@
+# PLACEHOLDER spec — thay bằng file OpenAPI thật từ team backend rồi chạy /sync-api.
+# Giữ nguyên đường dẫn openapi/openapi.yaml (hoặc sửa schema_path trong swagger_parser.yaml).
+openapi: 3.0.3
+info:
+  title: Book Marketplace API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Auth
+  - name: Books
+  - name: Auctions
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      operationId: refresh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+  /books:
+    get:
+      tags: [Books]
+      operationId: listBooks
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/BookDto' }
+  /books/{id}:
+    get:
+      tags: [Books]
+      operationId: getBook
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BookDto' }
+  /auctions:
+    get:
+      tags: [Auctions]
+      operationId: listAuctions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AuctionDto' }
+  /auctions/{id}:
+    get:
+      tags: [Auctions]
+      operationId: getAuction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuctionDto' }
+  /auctions/{id}/bids:
+    post:
+      tags: [Auctions]
+      operationId: placeBid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PlaceBidRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuctionDto' }
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string }
+    TokenPair:
+      type: object
+      required: [accessToken, refreshToken]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+    BookCondition:
+      type: string
+      enum: [like_new, good, fair, worn]
+    BookDto:
+      type: object
+      required: [id, title, author, condition, price, sellerName]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        author: { type: string }
+        condition: { $ref: '#/components/schemas/BookCondition' }
+        price:
+          type: integer
+          description: Giá theo VND
+        imageUrl: { type: string }
+        sellerName: { type: string }
+        description: { type: string }
+    AuctionDto:
+      type: object
+      required: [id, book, currentPrice, minIncrement, endsAt, bidCount]
+      properties:
+        id: { type: string }
+        book: { $ref: '#/components/schemas/BookDto' }
+        currentPrice: { type: integer }
+        minIncrement: { type: integer }
+        endsAt: { type: string, format: date-time }
+        bidCount: { type: integer }
+        highestBidder: { type: string }
+    PlaceBidRequest:
+      type: object
+      required: [amount]
+      properties:
+        amount: { type: integer }

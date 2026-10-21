@@ -1,0 +1,15 @@
+# Sinh REST client + DTO từ OpenAPI. Chạy bằng skill /sync-api hoặc:
+#   dart run swagger_parser && dart run build_runner build -d
+swagger_parser:
+  schema_path: openapi/openapi.yaml
+  output_directory: lib/api/generated
+  name: api
+  language: dart
+  json_serializer: json_serializable
+  root_client: true
+  root_client_name: RestClient
+  export_file: true
+  put_clients_in_folder: true
+  path_method_name: false
+  unknown_enum_value: true
+  mark_files_as_generated: true

@@ -1,0 +1,56 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    paths:
+      - apps/frontend/**
+      - .github/workflows/frontend-ci.yml
+  push:
+    branches: [main]
+    paths:
+      - apps/frontend/**
+      - .github/workflows/frontend-ci.yml
+
+concurrency:
+  group: frontend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/frontend
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.5
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Format check (bỏ qua code sinh tự động)
+        run: dart format --output=none --set-exit-if-changed lib/main.dart lib/app lib/core lib/shared lib/features test tool
+
+      - name: Code generation
+        run: |
+          flutter gen-l10n
+          dart run build_runner build
+
+      - name: Analyze
+        run: dart analyze --fatal-infos  # dart analyze (không phải flutter analyze) mới chạy riverpod_lint
+
+      - name: Architecture rules + package allowlist
+        run: dart run tool/arch_check.dart
+
+      - name: Test
+        run: flutter test --no-pub
+
+      - name: Build web
+        run: flutter build web --release --no-pub --dart-define-from-file=env/dev.json
