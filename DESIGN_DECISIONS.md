@@ -16,3 +16,15 @@ Quyết định đã được người dùng xác nhận (2026-10-22).
 | 10 | Mức bám mẫu (2026-10-22) | Người dùng muốn **y chang** Apple Books: sidebar nổi bo góc, font kiểu SF (Inter), tiêu đề serif đậm (Newsreader 800), bìa có gáy sáng + bóng đổ, badge MỚI/ĐẤU GIÁ + "···", mobile: header mờ kính, kệ nền xám/trắng xen kẽ, tab bar pill mờ kính. Luật "no shadow/glass/gradient" của taste-skill KHÔNG áp dụng cho dự án này. |
 | 11 | Template sơ bộ style Apple Books (2026-10-22) | `design-preview/png/apple-desktop.png` (sidebar + lưới **4 poster lớn/hàng**), `design-preview/png/apple-mobile.png` (kệ ngang, poster lớn, tab bar nổi). Nguồn vẽ: `design-preview/apple-style/`. Bản 6 poster/hàng của phiên trước (`ab-desktop.html`, `png/desktop-home.jpg`) giữ lại để so sánh |
 | 12 | **ĐÃ DUYỆT (2026-10-22)** | Người dùng duyệt style Apple Books theo `design-preview/png/apple-desktop.png` (4 poster lớn/hàng) + `design-preview/png/apple-mobile.png`. Đây là chuẩn giao diện khi triển khai sau này. Giai đoạn thiết kế xong, chờ SRS |
+
+## Triển khai theo SRS (2026-10-22)
+
+SRS: `D:\Study\FPTUniversity\Semester8\PRM393\Đặc-tả-ứng-dụng-mua-bán-đấu-giá-sách-cũ.docx` (người dùng gửi, @Khoa, 21/10/2026).
+
+| # | Chủ đề | Quyết định của người dùng |
+|---|---|---|
+| S1 | Tái dụng nhánh backup `feat/srs-frontend` | Lấy logic (OpenAPI, entity, FakeStore, provider, test), **vẽ lại toàn bộ UI** theo style Apple Books đã duyệt |
+| S2 | Package mới | Duyệt cả 5: stomp_dart_client, image_picker, url_launcher, firebase_core, firebase_messaging (lấy lại allowlist đã duyệt từ backup) |
+| S3 | Nền tảng | App người mua/bán chạy mobile + web (web dùng bố cục sidebar 4 poster/hàng); web quản trị Staff/Admin là entrypoint riêng, cùng style |
+| S4 | Cách chạy | Trình kế hoạch 1 lần → tự làm theo giai đoạn, mỗi giai đoạn analyze + test + commit local, ghi tiến độ; không push khi chưa được bảo |
+| S5 | Giao diện | Giao diện Apple Books hiện tại là **khung**; người dùng sẽ thêm thắt sau. Mọi màn mới tuân theo style này |
