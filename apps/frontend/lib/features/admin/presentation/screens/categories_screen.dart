@@ -126,11 +126,11 @@ class CategoriesScreen extends ConsumerWidget {
       showBack: false,
       onRefresh: () => ref.refresh(adminCategoriesProvider.future),
       actions: [
-        FilledButton.icon(
+        HeaderAction(
+          icon: Icons.add_rounded,
+          label: l10n.addCategory,
           onPressed: () =>
               _edit(context, ref, cats.value ?? const <Category>[]),
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(l10n.addCategory),
         ),
       ],
       children: [

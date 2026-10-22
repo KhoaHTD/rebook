@@ -205,6 +205,51 @@ class _MobileHeader extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
+/// Hành động chính ở đầu trang ([AppPage.actions]): nút viên thuốc có chữ trên desktop,
+/// nút tròn chỉ có biểu tượng trên mobile (thanh đầu hẹp, tránh đè tiêu đề).
+class HeaderAction extends StatelessWidget {
+  const HeaderAction({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.primary = true,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+
+  /// false → kiểu phụ (chữ, không nền) trên desktop.
+  final bool primary;
+
+  @override
+  Widget build(BuildContext context) {
+    if (context.windowSize.isCompact) {
+      return IconButton(
+        tooltip: label,
+        onPressed: onPressed,
+        icon: Icon(icon),
+        style: primary
+            ? IconButton.styleFrom(
+                backgroundColor: context.colors.onSurface,
+                foregroundColor: context.colors.surface,
+              )
+            : null,
+      );
+    }
+    final child = Text(label);
+    final iconWidget = Icon(icon, size: 18);
+    return primary
+        ? FilledButton.icon(
+            onPressed: onPressed,
+            icon: iconWidget,
+            label: child,
+          )
+        : TextButton.icon(onPressed: onPressed, icon: iconWidget, label: child);
+  }
+}
+
 /// Nút quay lại tròn có viền mảnh (như mockup mobile).
 class CircleBackButton extends StatelessWidget {
   const CircleBackButton({super.key, required this.onPressed});

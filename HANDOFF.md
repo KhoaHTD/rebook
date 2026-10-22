@@ -1,5 +1,7 @@
-> **TRẠNG THÁI HIỆN TẠI (2026-10-22): ĐANG TRIỂN KHAI frontend theo SRS** (người dùng đã duyệt kế hoạch 8 giai đoạn, giao phó làm hết).
-> Tiến độ chi tiết + bước tiếp theo: `apps/frontend/docs/PROGRESS.md` (làm mục `[ ]` đầu tiên). Nhánh `design/apple-books`, không push.
+> **TRẠNG THÁI HIỆN TẠI (2026-10-22): ĐÃ TRIỂN KHAI XONG frontend theo SRS** — 8 giai đoạn trong `apps/frontend/docs/PROGRESS.md` đều `[x]`.
+> Nhánh `design/apple-books`, commit local, **chưa push**. Phần bên dưới là lịch sử giai đoạn thiết kế, giữ để tham khảo.
+> Việc còn mở: backend thật (spec `apps/frontend/openapi/openapi.yaml`), các ghi chú "Nên thêm … vào openapi.yaml" trong `apps/frontend/docs/DECISIONS.md`, site Firebase thứ hai cho web quản trị.
+
 
 # HANDOFF
 

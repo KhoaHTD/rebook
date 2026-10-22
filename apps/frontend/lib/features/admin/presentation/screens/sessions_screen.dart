@@ -30,10 +30,10 @@ class SessionsScreen extends ConsumerWidget {
       onRefresh: () => ref.refresh(adminSessionsProvider.future),
       actions: [
         if (isAdmin)
-          FilledButton.icon(
+          HeaderAction(
+            icon: Icons.add_rounded,
+            label: l10n.newSession,
             onPressed: () => context.go(AdminRoutes.newSession),
-            icon: const Icon(Icons.add_rounded, size: 18),
-            label: Text(l10n.newSession),
           ),
       ],
       children: [

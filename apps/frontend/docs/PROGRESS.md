@@ -58,4 +58,4 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 - [x] Admin: duyệt tin, khóa tài khoản, danh mục, tạo phiên + xếp lô, cấu hình phí, khiếu nại, dashboard
 
 ## Giai đoạn 7 — Hoàn thiện
-- [ ] analyze + arch_check + test sạch, build web 2 app, chụp màn hình so mockup, cập nhật README/ARCHITECTURE
+- [x] analyze + arch_check + test sạch, build web 2 app, chụp màn hình so mockup, cập nhật README/ARCHITECTURE

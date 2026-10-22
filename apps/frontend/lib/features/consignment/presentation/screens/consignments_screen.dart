@@ -28,10 +28,10 @@ class ConsignmentsScreen extends ConsumerWidget {
       subtitle: l10n.consignIntro(fees.sellerCommissionPercent.round()),
       onRefresh: () => ref.refresh(myConsignmentsProvider.future),
       actions: [
-        FilledButton.icon(
+        HeaderAction(
+          icon: Icons.add_rounded,
+          label: l10n.newConsignment,
           onPressed: () => context.go(Routes.newConsignment),
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(l10n.newConsignment),
         ),
       ],
       children: [

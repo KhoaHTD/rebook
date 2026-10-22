@@ -1,6 +1,7 @@
 # Chợ Sách Cũ — Book Marketplace
 
 Mua bán sách cũ và đấu giá realtime. Flutter cho **web + Android + iOS**, deploy web lên **Firebase Hosting**.
+Giao diện theo style **Apple Books** (xem `../../design-preview/png/apple-desktop.png`, `apple-mobile.png` và mục 6 của [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
 
 ## Bắt đầu
 
@@ -13,8 +14,26 @@ dart run build_runner build
 flutter run -d chrome --dart-define-from-file=env/dev.json
 ```
 
-`env/dev.json` bật `USE_MOCK=true`: app chạy hoàn toàn bằng dữ liệu giả, chưa cần backend.
-Ở chế độ mock, đăng nhập bằng email bất kỳ và mật khẩu từ 6 ký tự trở lên.
+`env/dev.json` bật `USE_MOCK=true`: app chạy hoàn toàn bằng một backend giả trong bộ nhớ
+(`lib/shared/data/fake/`), có cả phiên đấu giá chạy thật với người trả giá ảo.
+
+Hai ứng dụng trong cùng project:
+
+| App | Lệnh | Dành cho |
+|---|---|---|
+| Người dùng (web + Android + iOS) | `flutter run -d chrome --dart-define-from-file=env/dev.json` | mua, bán, ký gửi, đấu giá |
+| Web quản trị | `flutter run -d chrome -t lib/main_admin.dart --dart-define-from-file=env/dev.json` | Staff (kho, kiểm định), Admin |
+
+Tài khoản mẫu (mật khẩu đều `123456`, mã OTP luôn `123456`):
+
+| Email | Vai trò |
+|---|---|
+| `minhanh@rebook.vn` | người dùng có shop, đã đăng ký phiên đang LIVE (số bài #027) |
+| `khoa@rebook.vn` | người dùng chưa có shop |
+| `staff@rebook.vn` | nhân viên kho (mã lịch hẹn mẫu để nhận sách: `KG-4521`) |
+| `admin@rebook.vn` | quản trị |
+
+Ở chế độ mock, VNPay được thay bằng màn "Cổng VNPay giả lập" (chọn giao dịch thành công / thất bại).
 
 Code sinh tự động (`*.g.dart`, `*.freezed.dart`, l10n) **không commit**. Sau mỗi lần `git pull`, nếu thấy lỗi thiếu file thì chạy lại 2 lệnh codegen ở trên
 (hoặc để `dart run build_runner watch` chạy nền).
@@ -22,7 +41,9 @@ Code sinh tự động (`*.g.dart`, `*.freezed.dart`, l10n) **không commit**. S
 ## Tài liệu
 
 - [CLAUDE.md](CLAUDE.md): luật và quy ước ngắn gọn (Claude Code tự đọc file này).
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): kiến trúc chi tiết, luồng dữ liệu, cách thêm feature.
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): kiến trúc chi tiết, luồng dữ liệu, cách thêm feature, giao diện.
+- [docs/SRS.txt](docs/SRS.txt): đặc tả nghiệp vụ gốc. [docs/DECISIONS.md](docs/DECISIONS.md): các quyết định ở chỗ SRS chưa nói rõ.
+- [docs/PROGRESS.md](docs/PROGRESS.md): tiến độ triển khai theo giai đoạn.
 
 ## Vibecode với Claude Code
 
@@ -53,12 +74,15 @@ Gợi ý cách prompt: *"Dùng /new-feature cart: giỏ hàng, thêm sách từ 
 
 ## API
 
-- Spec: `openapi/openapi.yaml`. File hiện tại là **placeholder**, cần thay bằng spec thật của backend.
-- Realtime đấu giá: WebSocket `WS_BASE_URL/auctions/<id>?token=<jwt>`, mỗi message là một `AuctionDto` JSON.
-  Backend dùng STOMP / SignalR / Socket.IO thì chỉ cần sửa `lib/core/realtime/realtime_client.dart`.
+- Spec: `openapi/openapi.yaml` — viết từ SRS (auth, catalog, giỏ/đơn, ví/VNPay, ký gửi, kho, đấu giá, quản trị). Backend nên triển khai đúng spec này; đổi spec thì chạy `/sync-api`.
+- Mọi chuyển đổi DTO ↔ entity nằm ở `lib/shared/data/api_mappers.dart`.
+- Realtime đấu giá: STOMP qua WebSocket `WS_BASE_URL`, kênh `/topic/sessions/{id}`, message là `AuctionEventDto`
+  (`LOT_OPENED`, `BID_PLACED`, `LOT_CLOSED`, `SESSION_PAUSED`, `SESSION_RESUMED`, `SESSION_ENDED`). Khi vào phòng / kết nối lại, app gọi `GET /sessions/{id}/state`.
+- Mã lỗi nghiệp vụ trong body `{code, message}`: xem `ErrorCodes` trong `lib/core/error/app_exception.dart`.
 
 ## Deploy
 
 1. Sửa project id trong `apps/frontend/.firebaserc`.
 2. Thêm secret `FIREBASE_SERVICE_ACCOUNT` vào GitHub repo.
 3. Sửa `env/prod.json` trỏ tới API thật.
+4. Web quản trị build riêng: `flutter build web -t lib/main_admin.dart -o build/web_admin`. Muốn deploy cần thêm một site Firebase Hosting thứ hai (chưa cấu hình).

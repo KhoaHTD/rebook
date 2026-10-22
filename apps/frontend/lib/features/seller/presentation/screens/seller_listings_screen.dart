@@ -58,10 +58,10 @@ class _SellerListingsScreenState extends ConsumerState<SellerListingsScreen> {
       showBack: true,
       onRefresh: () => ref.refresh(sellerListingsProvider.future),
       actions: [
-        FilledButton.icon(
+        HeaderAction(
+          icon: Icons.add_rounded,
+          label: l10n.newListing,
           onPressed: () => context.go(Routes.newListing),
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(l10n.newListing),
         ),
       ],
       children: [

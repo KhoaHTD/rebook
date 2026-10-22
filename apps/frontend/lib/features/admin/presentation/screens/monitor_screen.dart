@@ -44,7 +44,9 @@ class MonitorScreen extends ConsumerWidget {
       showBack: true,
       actions: [
         if (s != null && s.session.isLive)
-          FilledButton.icon(
+          HeaderAction(
+            icon: paused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+            label: paused ? l10n.resume : l10n.pause,
             onPressed: busy
                 ? null
                 : () => run(
@@ -53,11 +55,6 @@ class MonitorScreen extends ConsumerWidget {
                       [DataArea.auctions],
                     ),
                   ),
-            icon: Icon(
-              paused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-              size: 18,
-            ),
-            label: Text(paused ? l10n.resume : l10n.pause),
           ),
       ],
       children: [

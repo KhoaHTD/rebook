@@ -33,10 +33,10 @@ class SellerHubScreen extends ConsumerWidget {
       },
       actions: [
         if (shop.value != null)
-          FilledButton.icon(
+          HeaderAction(
+            icon: Icons.add_rounded,
+            label: l10n.newListing,
             onPressed: () => context.go(Routes.newListing),
-            icon: const Icon(Icons.add_rounded, size: 18),
-            label: Text(l10n.newListing),
           ),
       ],
       children: [

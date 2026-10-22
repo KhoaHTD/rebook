@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-Cập nhật: 2026-10-22 — ĐANG TRIỂN KHAI theo SRS, xem apps/frontend/docs/PROGRESS.md
+Cập nhật: 2026-10-22 — ĐÃ TRIỂN KHAI XONG frontend theo SRS (GĐ0–7, commit local trên `design/apple-books`, chưa push). Chi tiết: apps/frontend/docs/PROGRESS.md. Các mục bên dưới là lịch sử giai đoạn thiết kế.
 
 ## Giai đoạn hiện tại: THIẾT KẾ (chưa code website)
 

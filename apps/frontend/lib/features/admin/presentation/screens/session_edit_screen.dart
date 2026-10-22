@@ -51,7 +51,9 @@ class SessionEditScreen extends ConsumerWidget {
       showBack: true,
       actions: [
         if (s != null && s.status == SessionStatus.draft)
-          FilledButton.icon(
+          HeaderAction(
+            icon: Icons.campaign_outlined,
+            label: l10n.publish,
             onPressed: busy
                 ? null
                 : () async {
@@ -66,14 +68,12 @@ class SessionEditScreen extends ConsumerWidget {
                       );
                     }
                   },
-            icon: const Icon(Icons.campaign_outlined, size: 18),
-            label: Text(l10n.publish),
           ),
         if (s != null && s.isLive)
-          FilledButton.icon(
+          HeaderAction(
+            icon: Icons.monitor_heart_outlined,
+            label: l10n.monitor,
             onPressed: () => context.go(AdminRoutes.monitor(s.id)),
-            icon: const Icon(Icons.monitor_heart_outlined, size: 18),
-            label: Text(l10n.monitor),
           ),
       ],
       children: [

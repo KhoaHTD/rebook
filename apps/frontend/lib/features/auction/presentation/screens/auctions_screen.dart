@@ -45,10 +45,11 @@ class _AuctionsScreenState extends ConsumerState<AuctionsScreen> {
       subtitle: l10n.auctionsTagline,
       onRefresh: () => ref.refresh(auctionSessionsProvider.future),
       actions: [
-        TextButton.icon(
+        HeaderAction(
+          icon: Icons.timer_outlined,
+          label: l10n.myAuctions,
           onPressed: () => context.go(Routes.myAuctions),
-          icon: const Icon(Icons.timer_outlined, size: 18),
-          label: Text(l10n.myAuctions),
+          primary: false,
         ),
       ],
       children: [
