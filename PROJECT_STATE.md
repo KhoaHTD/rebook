@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-Cập nhật: 2026-10-22 (đã đổi hướng sang Apple Books — xem cuối file)
+Cập nhật: 2026-10-22 — style Apple Books ĐÃ DUYỆT, đang chờ SRS
 
 ## Giai đoạn hiện tại: THIẾT KẾ (chưa code website)
 
@@ -62,3 +62,8 @@ Chỉ chuyển sang code khi người dùng gửi SRS **và** yêu cầu triển
 - [x] `design-preview/ab-desktop.html`, `design-preview/ab-mobile.html` + ảnh `design-preview/png/`.
 - [ ] Chờ người dùng duyệt. Sau đó chờ SRS.
 - [x] Làm lại 2 template sát Apple Books hơn (theo yêu cầu "y chang"), ảnh mới trong `design-preview/png/`. Chờ duyệt.
+
+## Cập nhật 2026-10-22 (duyệt)
+
+- [x] Người dùng duyệt style Apple Books (`design-preview/png/apple-desktop.png`, `apple-mobile.png`).
+- [ ] **Chờ SRS.** Chưa code website.

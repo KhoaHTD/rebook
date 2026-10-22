@@ -1,6 +1,8 @@
-> **Mới nhất (2026-10-22, 13:57):** người dùng chọn style **giống y Apple Books**, chỉ cần ảnh sơ bộ. Đã xuất
-> `design-preview/png/apple-desktop.png` (4 poster lớn/hàng) + `design-preview/png/apple-mobile.png`.
-> Bước tiếp theo: **chờ người dùng duyệt style**. Nếu được duyệt: chờ SRS. Không code website. Hướng "contact sheet" (home.html) đã bị bỏ.
+> **TRẠNG THÁI HIỆN TẠI (2026-10-22): STYLE ĐÃ DUYỆT — ĐANG CHỜ SRS.**
+> Chuẩn giao diện: `design-preview/png/apple-desktop.png` + `design-preview/png/apple-mobile.png` (nguồn vẽ `design-preview/apple-style/`).
+> Không làm gì thêm cho tới khi người dùng gửi SRS và yêu cầu triển khai. Khi có SRS: đọc SRS, phân tích nghiệp vụ,
+> lập kế hoạch triển khai trên code nền tảng `3326d28` (nhánh `design/apple-books`), trình kế hoạch trước khi code.
+> Duyệt mockup KHÔNG phải là cho phép code. Không reset Git, không đụng tag `backup/*`.
 
 # HANDOFF
 
