@@ -1,91 +1,73 @@
-import 'dart:async';
-import 'dart:math';
-
-import 'package:book_marketplace/core/error/app_exception.dart';
-import 'package:book_marketplace/features/auction/domain/auction.dart';
 import 'package:book_marketplace/features/auction/domain/auction_repository.dart';
-import 'package:book_marketplace/shared/data/fake_books.dart';
+import 'package:book_marketplace/shared/data/fake/fake_store.dart';
+import 'package:book_marketplace/shared/domain/auction.dart';
+import 'package:book_marketplace/shared/domain/commerce.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 
-/// Giả lập phiên đấu giá: thỉnh thoảng có "người khác" trả giá để thấy realtime.
+/// Phiên "LIVE" chạy thật trong bộ nhớ: mỗi lô 60 giây, có bot trả giá.
 class FakeAuctionRepository implements AuctionRepository {
-  FakeAuctionRepository({this.simulateOtherBidders = true}) {
-    final now = DateTime.now();
-    for (final (i, book) in fakeBooks.take(4).indexed) {
-      _auctions['a${i + 1}'] = Auction(
-        id: 'a${i + 1}',
-        book: book,
-        currentPrice: book.price,
-        minIncrement: 5000,
-        endsAt: now.add(Duration(minutes: 3 + i * 7)),
-        bidCount: i,
-        highestBidder: i == 0 ? null : 'reader_$i',
-      );
-    }
-  }
+  FakeAuctionRepository(this._store);
 
-  final bool simulateOtherBidders;
-  final _auctions = <String, Auction>{};
-  final _changes = StreamController<Auction>.broadcast();
-  final _random = Random();
-
-  static const _otherBidders = [
-    'mot_sach',
-    'thu_vien_nho',
-    'book_lover',
-    'gac_sach_cu',
-  ];
+  final FakeStore _store;
 
   @override
-  Future<List<Auction>> listAuctions() async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    return _auctions.values.toList();
-  }
+  Future<List<AuctionSession>> sessions({SessionStatus? status}) =>
+      fakeCall(() => _store.listSessions(status: status));
 
   @override
-  Stream<Auction> watchAuction(String id) async* {
-    final initial = _auctions[id];
-    if (initial == null) throw const ServerException(404, 'Auction not found');
-    yield initial;
-
-    Timer? bot;
-    if (simulateOtherBidders) {
-      bot = Timer.periodic(const Duration(seconds: 6), (_) {
-        final a = _auctions[id]!;
-        if (a.isEndedAt(DateTime.now()) || _random.nextBool()) return;
-        _apply(
-          a,
-          a.nextMinBid,
-          _otherBidders[_random.nextInt(_otherBidders.length)],
-        );
+  Future<(AuctionSession, List<Lot>)> catalogue(String sessionId) =>
+      fakeCall(() {
+        final c = _store.catalogue(sessionId);
+        return (c.session, c.lots);
       });
-    }
-    try {
-      yield* _changes.stream.where((a) => a.id == id);
-    } finally {
-      bot?.cancel();
-    }
-  }
 
   @override
-  Future<Auction> placeBid(String id, int amount) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    final a = _auctions[id];
-    if (a == null) throw const ServerException(404, 'Auction not found');
-    if (a.isEndedAt(DateTime.now())) {
-      throw const ServerException(409, 'Auction ended');
-    }
-    if (amount < a.nextMinBid) throw const ServerException(422, 'Bid too low');
-    return _apply(a, amount, 'you');
-  }
+  Future<Lot> lot(String lotId) => fakeCall(() => _store.lot(lotId));
 
-  Auction _apply(Auction a, int amount, String bidder) {
-    final updated = a.copyWith(
-      currentPrice: amount,
-      bidCount: a.bidCount + 1,
-      highestBidder: bidder,
-    );
-    _auctions[a.id] = updated;
-    _changes.add(updated);
-    return updated;
-  }
+  @override
+  Future<List<Bid>> lotBids(String lotId) =>
+      fakeCall(() => _store.lotBids(lotId));
+
+  @override
+  Future<Registration?> myRegistration(String sessionId) =>
+      fakeCall(() => _store.myRegistration(sessionId), ms: 80);
+
+  @override
+  Future<List<Registration>> myRegistrations() =>
+      fakeCall(_store.myRegistrations);
+
+  @override
+  Future<Registration> register(String sessionId, int deposit) =>
+      fakeCall(() => _store.registerSession(sessionId, deposit), ms: 500);
+
+  @override
+  Future<Lot> watch(String lotId, {required bool on}) =>
+      fakeCall(() => _store.watch(lotId, on: on), ms: 80);
+
+  @override
+  Future<void> setProxyBid(String lotId, int maxAmount) =>
+      fakeCall(() => _store.setProxy(lotId, maxAmount));
+
+  @override
+  Future<Bid> placeBid(String lotId, int amount) =>
+      fakeCall(() => _store.placeBid(lotId, amount), ms: 120);
+
+  @override
+  Future<SessionState> sessionState(String sessionId) =>
+      fakeCall(() => _store.sessionState(sessionId), ms: 120);
+
+  @override
+  Stream<AuctionEvent> events(String sessionId) =>
+      _store.sessionEvents(sessionId);
+
+  @override
+  Stream<void> get reconnects => const Stream.empty();
+
+  @override
+  Future<SessionResult> results(String sessionId) =>
+      fakeCall(() => _store.sessionResults(sessionId));
+
+  @override
+  Future<Wallet> wallet() =>
+      fakeCall(() => _store.walletOf(_store.currentUserId!));
 }

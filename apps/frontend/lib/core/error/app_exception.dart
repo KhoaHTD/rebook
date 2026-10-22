@@ -1,11 +1,32 @@
 import 'package:dio/dio.dart';
 
+/// Mã lỗi nghiệp vụ backend trả về trong `ErrorResponse.code` (openapi.yaml).
+/// UI dịch từng mã sang câu dễ hiểu; mã lạ hiện thông báo chung.
+abstract final class ErrorCodes {
+  static const ownListing = 'OWN_LISTING';
+  static const priceChanged = 'PRICE_CHANGED';
+  static const bidTooLow = 'BID_TOO_LOW';
+  static const alreadyLeading = 'ALREADY_LEADING';
+  static const limitExceeded = 'LIMIT_EXCEEDED';
+  static const notRegistered = 'NOT_REGISTERED';
+  static const lotClosed = 'LOT_CLOSED';
+  static const registrationClosed = 'REGISTRATION_CLOSED';
+  static const auctionBanned = 'AUCTION_BANNED';
+  static const outOfStock = 'OUT_OF_STOCK';
+  static const insufficientBalance = 'INSUFFICIENT_BALANCE';
+  static const invalidTransition = 'INVALID_TRANSITION';
+  static const invalidCredentials = 'INVALID_CREDENTIALS';
+  static const invalidOtp = 'INVALID_OTP';
+  static const emailTaken = 'EMAIL_TAKEN';
+  static const notFound = 'NOT_FOUND';
+}
+
 /// Lỗi chuẩn hoá của app. Tầng data bắt mọi exception và ném lại dạng này
 /// (qua [guardApi]); UI chỉ cần biết các case dưới đây.
 sealed class AppException implements Exception {
   const AppException([this.message]);
 
-  /// Thông điệp kỹ thuật từ server (nếu có) — không hiển thị trực tiếp cho người dùng.
+  /// Thông điệp kỹ thuật — không hiển thị trực tiếp cho người dùng.
   final String? message;
 
   factory AppException.from(Object error) {
@@ -20,10 +41,11 @@ sealed class AppException implements Exception {
           return const NetworkException();
         case DioExceptionType.badResponse:
           final status = error.response?.statusCode ?? 0;
-          if (status == 401 || status == 403) {
-            return const UnauthorizedException();
-          }
-          return ServerException(status, error.response?.statusMessage);
+          if (status == 401) return const UnauthorizedException();
+          final data = error.response?.data;
+          final code = data is Map ? data['code'] as String? : null;
+          final msg = data is Map ? data['message'] as String? : null;
+          return ServerException(status, code: code, message: msg);
         case DioExceptionType.cancel:
         case DioExceptionType.badCertificate:
         case DioExceptionType.unknown:
@@ -46,8 +68,12 @@ final class UnauthorizedException extends AppException {
 }
 
 final class ServerException extends AppException {
-  const ServerException(this.statusCode, [super.message]);
+  const ServerException(this.statusCode, {this.code, String? message})
+    : super(message);
   final int statusCode;
+
+  /// Mã nghiệp vụ, xem [ErrorCodes].
+  final String? code;
 }
 
 final class UnknownException extends AppException {

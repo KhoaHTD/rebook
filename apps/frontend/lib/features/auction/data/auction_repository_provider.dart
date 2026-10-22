@@ -6,12 +6,13 @@ import 'package:book_marketplace/core/realtime/realtime_client.dart';
 import 'package:book_marketplace/features/auction/data/api_auction_repository.dart';
 import 'package:book_marketplace/features/auction/data/fake_auction_repository.dart';
 import 'package:book_marketplace/features/auction/domain/auction_repository.dart';
+import 'package:book_marketplace/shared/data/fake/fake_store.dart';
 
 part 'auction_repository_provider.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 AuctionRepository auctionRepository(Ref ref) => Env.useMock
-    ? FakeAuctionRepository()
+    ? FakeAuctionRepository(ref.watch(fakeStoreProvider))
     : ApiAuctionRepository(
         ref.watch(restClientProvider),
         ref.watch(realtimeClientProvider),

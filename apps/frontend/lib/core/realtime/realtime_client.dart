@@ -1,87 +1,102 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import 'package:book_marketplace/app/env.dart';
 import 'package:book_marketplace/core/auth/token_storage.dart';
 
 part 'realtime_client.g.dart';
 
-/// Kết nối WebSocket tới backend, tự kết nối lại với backoff.
-/// Mỗi [subscribe] mở một kênh `<WS_BASE_URL>/<channel>?token=<jwt>`
-/// và phát ra từng message JSON đã decode.
+/// Kết nối WebSocket STOMP tới backend (SRS 10.3).
 ///
-/// Nếu backend dùng giao thức khác (STOMP, SignalR, Socket.IO) thì chỉ sửa file này —
-/// các repository bên trên vẫn nhận `Stream<Map<String, dynamic>>` như cũ.
+/// - Nghe: `subscribe('/topic/sessions/{id}')`, lỗi riêng: `subscribe('/user/queue/errors')`.
+/// - Gửi: `send('/app/lots/{lotId}/bid', {'amount': ...})`.
+///
+/// Một kết nối dùng chung cho cả app; tự kết nối lại (reconnectDelay). Khi kết nối lại,
+/// repository phải gọi `GET /sessions/{id}/state` rồi mới nghe tiếp (xem auction feature).
 class RealtimeClient {
-  RealtimeClient({required this._baseUri, required this._accessToken});
+  RealtimeClient({required this.url, required this.accessToken});
 
-  final Uri _baseUri;
-  final Future<String?> Function() _accessToken;
+  final String url;
+  final Future<String?> Function() accessToken;
 
-  Stream<Map<String, dynamic>> subscribe(String channel) {
+  StompClient? _client;
+  Completer<void>? _connected;
+  final _reconnects = StreamController<void>.broadcast();
+
+  /// Phát mỗi lần kết nối (lại) thành công — dùng để tải lại ảnh chụp trạng thái.
+  Stream<void> get onReconnect => _reconnects.stream;
+
+  Future<StompClient> _ensureConnected() async {
+    if (_client != null && _connected != null) {
+      await _connected!.future;
+      return _client!;
+    }
+    final token = await accessToken();
+    _connected = Completer<void>();
+    final client = StompClient(
+      config: StompConfig(
+        url: url,
+        reconnectDelay: const Duration(seconds: 3),
+        stompConnectHeaders: {
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        onConnect: (_) {
+          if (!(_connected?.isCompleted ?? true)) _connected!.complete();
+          _reconnects.add(null);
+        },
+        onWebSocketError: (dynamic e) => debugPrint('STOMP error: $e'),
+        onStompError: (frame) => debugPrint('STOMP frame error: ${frame.body}'),
+      ),
+    );
+    _client = client..activate();
+    await _connected!.future;
+    return client;
+  }
+
+  /// Nghe một destination; mỗi message là JSON đã decode.
+  Stream<Map<String, dynamic>> subscribe(String destination) {
     late StreamController<Map<String, dynamic>> controller;
-    WebSocketChannel? socket;
-    StreamSubscription<dynamic>? sub;
-    var attempt = 0;
-    var closed = false;
-
-    Future<void> connect() async {
-      void reconnect() {
-        if (closed) return;
-        final seconds = min(30, pow(2, attempt++).toInt());
-        Timer(Duration(seconds: seconds), connect);
-      }
-
-      if (closed) return;
-      final token = await _accessToken();
-      final uri = _baseUri.replace(
-        path: '${_baseUri.path}/$channel',
-        queryParameters: {'token': ?token},
-      );
-      try {
-        socket = WebSocketChannel.connect(uri);
-        await socket!.ready;
-        attempt = 0;
-        sub = socket!.stream.listen(
-          (raw) {
-            final decoded = jsonDecode(raw as String);
+    void Function({Map<String, String>? unsubscribeHeaders})? unsubscribe;
+    controller = StreamController<Map<String, dynamic>>(
+      onListen: () async {
+        final client = await _ensureConnected();
+        unsubscribe = client.subscribe(
+          destination: destination,
+          callback: (frame) {
+            final body = frame.body;
+            if (body == null) return;
+            final decoded = jsonDecode(body);
             if (decoded is Map<String, dynamic>) controller.add(decoded);
           },
-          onDone: () => reconnect(),
-          onError: (Object e) {
-            debugPrint('Realtime[$channel] error: $e');
-            reconnect();
-          },
-          cancelOnError: true,
         );
-      } catch (e) {
-        debugPrint('Realtime[$channel] connect failed: $e');
-        reconnect();
-      }
-    }
-
-    controller = StreamController<Map<String, dynamic>>(
-      onListen: connect,
-      onCancel: () async {
-        closed = true;
-        await sub?.cancel();
-        await socket?.sink.close();
       },
+      onCancel: () => unsubscribe?.call(),
     );
     return controller.stream;
+  }
+
+  Future<void> send(String destination, Map<String, Object?> body) async {
+    final client = await _ensureConnected();
+    client.send(destination: destination, body: jsonEncode(body));
+  }
+
+  void dispose() {
+    _client?.deactivate();
+    _reconnects.close();
   }
 }
 
 @Riverpod(keepAlive: true)
 RealtimeClient realtimeClient(Ref ref) {
   final storage = ref.watch(tokenStorageProvider);
-  return RealtimeClient(
-    baseUri: Uri.parse(Env.wsBaseUrl),
+  final client = RealtimeClient(
+    url: Env.wsBaseUrl,
     accessToken: () async => (await storage.read())?.accessToken,
   );
+  ref.onDispose(client.dispose);
+  return client;
 }

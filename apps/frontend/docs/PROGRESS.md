@@ -17,10 +17,12 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 - [x] Luật mới trong CLAUDE.md (Firebase chỉ cho FCM, style Apple Books)
 
 ## Giai đoạn 1 — Tầng dữ liệu (từ backup)
-- [ ] `openapi/openapi.yaml` đầy đủ + sinh client
-- [ ] Entity `shared/domain`, mapper `shared/data/api_mappers.dart`, `FakeStore` + bộ máy phiên giả lập
-- [ ] Core: data_changes, realtime STOMP, notifications (FCM), auth/session, settings
-- [ ] Repository + provider của từng feature (không lấy màn hình), test logic
+- [x] `openapi/openapi.yaml` đầy đủ + sinh client
+- [x] Entity `shared/domain`, mapper `shared/data/api_mappers.dart`, `FakeStore` + bộ máy phiên giả lập
+- [x] Core: data_changes, realtime STOMP, notifications (FCM), auth/session, settings (mặc định theme sáng)
+- [x] Repository + provider của từng feature (không lấy màn hình), 43 test logic pass
+- Ghi chú: `app_router.dart` đang là router TẠM (1 trang chờ); `ErrorView` tối giản; `status_labels` cũ đã bỏ (làm lại ở GĐ2).
+  Bảng đường dẫn đầy đủ: `lib/app/router/routes.dart` (từ backup).
 
 ## Giai đoạn 2 — Bộ giao diện Apple Books + khung app
 - [ ] Theme sáng (trắng, sidebar xám, Newsreader + Be Vietnam Pro), token

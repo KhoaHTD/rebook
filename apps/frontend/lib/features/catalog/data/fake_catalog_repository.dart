@@ -1,33 +1,49 @@
-import 'package:book_marketplace/core/error/app_exception.dart';
 import 'package:book_marketplace/features/catalog/domain/catalog_repository.dart';
-import 'package:book_marketplace/shared/data/fake_books.dart';
-import 'package:book_marketplace/shared/domain/book.dart';
+import 'package:book_marketplace/shared/data/fake/fake_store.dart';
+import 'package:book_marketplace/shared/domain/auction.dart';
+import 'package:book_marketplace/shared/domain/catalog.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/domain/user.dart';
 
 class FakeCatalogRepository implements CatalogRepository {
-  FakeCatalogRepository({this.latency = const Duration(milliseconds: 400)});
+  FakeCatalogRepository(this._store);
 
-  final Duration latency;
-
-  @override
-  Future<List<Book>> listBooks({String? query}) async {
-    await Future<void>.delayed(latency);
-    final q = query?.trim().toLowerCase() ?? '';
-    if (q.isEmpty) return fakeBooks;
-    return fakeBooks
-        .where(
-          (b) =>
-              b.title.toLowerCase().contains(q) ||
-              b.author.toLowerCase().contains(q),
-        )
-        .toList();
-  }
+  final FakeStore _store;
 
   @override
-  Future<Book> getBook(String id) async {
-    await Future<void>.delayed(latency);
-    return fakeBooks.firstWhere(
-      (b) => b.id == id,
-      orElse: () => throw const ServerException(404, 'Book not found'),
+  Future<HomeFeed> homeFeed() => fakeCall(() {
+    final feed = _store.homeFeed();
+    return HomeFeed(
+      featuredShops: feed.shops,
+      trending: feed.trending,
+      newArrivals: feed.fresh,
+      liveSessions: _store.listSessions(status: SessionStatus.live),
     );
-  }
+  });
+
+  @override
+  Future<Paged<Listing>> search(ListingQuery query, {int page = 0}) =>
+      fakeCall(() => _store.searchListings(query, page: page));
+
+  @override
+  Future<Listing> listing(String id) => fakeCall(() => _store.listing(id));
+
+  @override
+  Future<Shop> shop(String id) => fakeCall(() => _store.shop(id));
+
+  @override
+  Future<List<Review>> shopReviews(String shopId) =>
+      fakeCall(() => _store.shopReviews(shopId));
+
+  @override
+  Future<List<Category>> categories() =>
+      fakeCall(() => List.of(_store.categories));
+
+  @override
+  Future<void> addToCart(String listingId, int quantity) =>
+      fakeCall(() => _store.addToCart(listingId, quantity));
+
+  @override
+  Future<SessionState> liveState(String sessionId) =>
+      fakeCall(() => _store.sessionState(sessionId), ms: 60);
 }

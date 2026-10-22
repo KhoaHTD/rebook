@@ -9,7 +9,7 @@ Chợ sách cũ: bán giá cố định + đấu giá.
 | `docs/` | SRS, use case, workflow, context diagram |
 
 - Làm việc với frontend: đọc `apps/frontend/CLAUDE.md` trước, chạy lệnh Flutter/Dart **trong `apps/frontend`**.
-- Hợp đồng API giữa frontend và backend là `apps/frontend/openapi/openapi.yaml` (hiện là placeholder).
+- Hợp đồng API giữa frontend và backend là `apps/frontend/openapi/openapi.yaml` (viết từ SRS, bao phủ toàn bộ nghiệp vụ).
   Backend cập nhật spec thì frontend chạy `/sync-api`.
 - Workflow CI nằm ở `.github/workflows/` (gốc repo), mỗi app một file `<app>-*.yml`, lọc theo `paths`.
 - Hooks trong `.claude/settings.json` chỉ tác động lên file trong `apps/frontend/`.

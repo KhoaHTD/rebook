@@ -4,7 +4,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'book_condition.dart';
+import 'book_image_dto.dart';
+import 'condition_grade.dart';
 
 part 'book_dto.g.dart';
 
@@ -14,11 +15,17 @@ class BookDto {
     required this.id,
     required this.title,
     required this.author,
-    required this.condition,
-    required this.price,
-    required this.sellerName,
-    this.imageUrl,
+    required this.conditionGrade,
+    required this.images,
+    this.publisher,
+    this.publishYear,
+    this.isbn,
+    this.language,
+    this.pages,
+    this.categoryId,
+    this.categoryName,
     this.description,
+    this.weightGram,
   });
 
   factory BookDto.fromJson(Map<String, Object?> json) =>
@@ -27,13 +34,17 @@ class BookDto {
   final String id;
   final String title;
   final String author;
-  final BookCondition condition;
-
-  /// Giá theo VND
-  final int price;
-  final String? imageUrl;
-  final String sellerName;
+  final String? publisher;
+  final int? publishYear;
+  final String? isbn;
+  final String? language;
+  final int? pages;
+  final String? categoryId;
+  final String? categoryName;
+  final ConditionGrade conditionGrade;
   final String? description;
+  final int? weightGram;
+  final List<BookImageDto> images;
 
   Map<String, Object?> toJson() => _$BookDtoToJson(this);
 }
