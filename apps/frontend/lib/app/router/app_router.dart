@@ -7,6 +7,12 @@ import 'package:book_marketplace/app/router/app_shell.dart';
 import 'package:book_marketplace/app/router/placeholder_page.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/features/account/presentation/screens/account_screen.dart';
+import 'package:book_marketplace/features/account/presentation/screens/addresses_screen.dart';
+import 'package:book_marketplace/features/account/presentation/screens/profile_screen.dart';
+import 'package:book_marketplace/features/account/presentation/screens/settings_screen.dart';
+import 'package:book_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:book_marketplace/features/wallet/presentation/screens/wallet_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/register_screen.dart';
@@ -15,6 +21,8 @@ import 'package:book_marketplace/features/cart/presentation/screens/cart_screen.
 import 'package:book_marketplace/features/cart/presentation/screens/checkout_screen.dart';
 import 'package:book_marketplace/features/cart/presentation/screens/payment_result_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/home_screen.dart';
+import 'package:book_marketplace/features/orders/presentation/screens/order_detail_screen.dart';
+import 'package:book_marketplace/features/orders/presentation/screens/orders_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/listing_detail_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/search_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/shop_screen.dart';
@@ -164,7 +172,7 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.notifications,
-                builder: (c, _) => _soon(c, (l) => l.notificationsTitle),
+                builder: (_, _) => const NotificationsScreen(),
               ),
             ],
           ),
@@ -173,33 +181,34 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.account,
-                builder: (c, _) => _soon(c, (l) => l.accountTitle),
+                builder: (_, _) => const AccountScreen(),
                 routes: [
                   GoRoute(
                     path: 'profile',
-                    builder: (c, _) => _soon(c, (l) => l.accountTitle),
+                    builder: (_, _) => const ProfileScreen(),
                   ),
                   GoRoute(
                     path: 'addresses',
-                    builder: (c, _) => _soon(c, (l) => l.deliveryAddress),
+                    builder: (_, _) => const AddressesScreen(),
                   ),
                   GoRoute(
                     path: 'settings',
-                    builder: (c, _) => _soon(c, (l) => l.accountTitle),
+                    builder: (_, _) => const SettingsScreen(),
                   ),
                   GoRoute(
                     path: 'orders',
-                    builder: (c, _) => _soon(c, (l) => l.myOrders),
+                    builder: (_, _) => const OrdersScreen(),
                     routes: [
                       GoRoute(
                         path: ':id',
-                        builder: (c, _) => _soon(c, (l) => l.myOrders),
+                        builder: (_, s) =>
+                            OrderDetailScreen(orderId: s.pathParameters['id']!),
                       ),
                     ],
                   ),
                   GoRoute(
                     path: 'wallet',
-                    builder: (c, _) => _soon(c, (l) => l.wallet),
+                    builder: (_, _) => const WalletScreen(),
                   ),
                   GoRoute(
                     path: 'seller',

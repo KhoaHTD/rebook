@@ -105,7 +105,9 @@ class DrawnCover extends StatelessWidget {
     final h = _hash(seed);
     final (bg, ink) = CoverPalette.pairs[h % CoverPalette.pairs.length];
     final motifColor = CoverPalette.motif[(h ~/ 7) % CoverPalette.motif.length];
-    final motif = _Motif.values[_hash('$seed·motif') % _Motif.values.length];
+    // Trộn băm để id liền nhau (l1, l2…) không ra cùng một hình; giữ < 2^32 để web (số JS) cho cùng kết quả.
+    final mixed = ((h & 0xffff) * 40503 + (h >> 16) * 7) & 0x7fffffff;
+    final motif = _Motif.values[(mixed >> 11) % _Motif.values.length];
 
     return LayoutBuilder(
       builder: (context, box) {

@@ -155,8 +155,11 @@ class _Info extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(book.title, style: context.textStyles.displaySmall),
-        const SizedBox(height: AppSpacing.sm),
+        // Desktop đã có tên sách ở tiêu đề trang; mobile tiêu đề nhỏ nên nhắc lại cỡ lớn.
+        if (context.windowSize.isCompact) ...[
+          Text(book.title, style: context.textStyles.displaySmall),
+          const SizedBox(height: AppSpacing.sm),
+        ],
         Text(
           book.author,
           style: context.textStyles.titleLarge?.copyWith(

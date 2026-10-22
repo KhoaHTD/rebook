@@ -128,7 +128,7 @@ class _Hero extends StatelessWidget {
                   title: b.$1,
                   author: b.$2,
                   seed: 'hero-$i',
-                  width: 120,
+                  width: 104,
                 ),
             ],
           ),

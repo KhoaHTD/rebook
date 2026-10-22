@@ -33,10 +33,14 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 - Xem trước: `flutter build web --release --dart-define-from-file=env/dev.json` rồi phục vụ `build/web` (SPA).
 
 ## Giai đoạn 3 — Người mua
-- [ ] Đăng nhập / đăng ký / OTP / quên mật khẩu
-- [ ] Trang chủ, tìm kiếm + lọc + sắp xếp, chi tiết sách (nhiều bản / nhiều người bán), trang shop
-- [ ] Giỏ nhiều shop, checkout (COD / ví / VNPay), đơn của tôi, chi tiết + lịch sử trạng thái, hủy, đã nhận, đánh giá, trả hàng
-- [ ] Ví (số dư, nạp, lịch sử), thông báo, hồ sơ, sổ địa chỉ, cài đặt
+- [x] Đăng nhập / đăng ký / OTP / quên mật khẩu (`AuthLayout`: tấm giới thiệu + form; dùng lại cho web quản trị)
+- [x] Trang chủ (desktop lưới 4/hàng, mobile kệ ngang), tìm kiếm + lọc + sắp xếp, chi tiết sách + "Các bản khác của cuốn này"
+      (provider `otherOffers`: cùng tên sách, shop khác), trang shop
+- [x] Giỏ nhiều shop, checkout (COD / ví / VNPay + cổng giả lập), đơn mua, chi tiết + hành trình, hủy / yêu cầu hủy,
+      đã nhận, trả hàng (ảnh), đánh giá, thanh toán hóa đơn đấu giá (giao tận nơi / nhận tại kho)
+- [x] Ví (số dư, nạp, rút cho người bán, lịch sử), thông báo, tài khoản, hồ sơ, sổ địa chỉ, cài đặt (theme, ngôn ngữ)
+- Widget dùng chung mới: `listing_tile`, `session_tile`, `app_image` (mem:// khi mock), `photo_picker`, `money_summary`,
+  `order_widgets` (OrderCard, StatusTimeline, OrderMoney, OrderItemsList), `SelectTile` trong `ui.dart`
 
 ## Giai đoạn 4 — Đấu giá
 - [ ] Lịch phiên, catalogue, chi tiết lô (báo cáo tình trạng), theo dõi lô
