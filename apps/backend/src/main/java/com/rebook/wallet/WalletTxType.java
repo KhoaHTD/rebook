@@ -1,0 +1,5 @@
+package com.rebook.wallet;
+
+public enum WalletTxType {
+    TOP_UP, PAYMENT, REFUND, DEPOSIT_HOLD, DEPOSIT_RELEASE, DEPOSIT_FORFEIT, SALE_PENDING, SALE_RELEASE, FEE, WITHDRAW
+}
