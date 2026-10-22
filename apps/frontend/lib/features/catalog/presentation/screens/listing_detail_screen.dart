@@ -34,73 +34,60 @@ class ListingDetailScreen extends ConsumerWidget {
     return AppPage(
       title: l?.book.title ?? '',
       showBack: true,
+      // Nền cả trang = chính bìa sách, phóng to + làm mờ; chữ nằm trong khung kính.
+      background: l == null
+          ? null
+          : BookBackdrop(
+              title: l.book.title,
+              author: l.book.author,
+              coverUrl: l.book.coverUrl,
+              seed: l.book.id,
+            ),
       bottomBar: compact && l != null ? _BuyBar(listing: l) : null,
       children: [
         AsyncValueView(
           value: listing,
           onRetry: () => ref.invalidate(listingProvider(listingId)),
-          data: (l) => Stack(
-            clipBehavior: Clip.none,
+          data: (l) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Màu của chính cuốn sách loang lên đầu trang, mờ dần xuống dưới.
-              Positioned(
-                left: compact ? -20 : -AppSpacing.pageX,
-                right: compact ? -20 : -AppSpacing.pageX - 12,
-                top: compact ? -160 : -40,
-                height: compact ? 560 : 520,
-                child: IgnorePointer(
-                  child: Opacity(
-                    opacity: 0.32,
-                    child: BlurredCover(
+              if (compact) ...[
+                Center(
+                  child: BookPoster(
+                    title: l.book.title,
+                    author: l.book.author,
+                    coverUrl: l.book.coverUrl,
+                    seed: l.book.id,
+                    width: 220,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                Glass(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: _Info(listing: l),
+                ),
+              ] else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BookPoster(
                       title: l.book.title,
                       author: l.book.author,
                       coverUrl: l.book.coverUrl,
                       seed: l.book.id,
-                      sigma: 60,
-                      softEdges: true,
+                      width: 300,
                     ),
-                  ),
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (compact) ...[
-                    Center(
-                      child: BookPoster(
-                        title: l.book.title,
-                        author: l.book.author,
-                        coverUrl: l.book.coverUrl,
-                        seed: l.book.id,
-                        width: 220,
+                    const SizedBox(width: 48),
+                    Expanded(
+                      child: Glass(
+                        padding: const EdgeInsets.all(AppSpacing.xl),
+                        child: _Info(listing: l),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xl),
-                    _Info(listing: l),
-                  ] else
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BookPoster(
-                          title: l.book.title,
-                          author: l.book.author,
-                          coverUrl: l.book.coverUrl,
-                          seed: l.book.id,
-                          width: 300,
-                        ),
-                        const SizedBox(width: 56),
-                        Expanded(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 560),
-                            child: _Info(listing: l),
-                          ),
-                        ),
-                      ],
-                    ),
-                  const SizedBox(height: 56),
-                  _OtherOffers(listingId: listingId),
-                ],
-              ),
+                  ],
+                ),
+              const SizedBox(height: 56),
+              _OtherOffers(listingId: listingId),
             ],
           ),
         ),

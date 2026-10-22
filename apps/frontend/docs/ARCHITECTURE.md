@@ -116,7 +116,8 @@ DTO dùng `json_serializable` (swagger_parser chưa sinh được cú pháp free
 
 Style **Liquid Glass** (chuẩn: `../../design-preview/png/lg-desktop.png`, `lg-mobile.png`):
 
-- **Chữ San Francisco**: `AppFonts.family` = `null` trên iOS / macOS (Flutter dùng SF của hệ thống) và `Inter` trên web / Android
+- **Tiêu đề serif mềm** (`AppFonts.serif` = Newsreader, giống New York của Apple): `displaySmall`, `headlineMedium`, `headlineSmall` và dòng sự kiện trong băng chuyền; nhãn nhỏ phía trên là chữ hoa tracking rộng.
+- **Chữ San Francisco** (nội dung): `AppFonts.family` = `null` trên iOS / macOS (Flutter dùng SF của hệ thống) và `Inter` trên web / Android
   (`assets/fonts/Inter-*.ttf`). Giấy phép Apple không cho đóng gói SF vào app, nên **không thêm file SF vào assets**.
 - **Nền màu loang** (`AmbientBackground`, `shared/widgets/glass.dart`): các vệt màu lấy tông từ bìa sách (`AmbientPalette`), tính theo
   toạ độ màn hình. Vẽ ở `MaterialApp.builder` (sau sidebar) **và** trong mỗi `AppPage` — hai lớp khớp nhau nên trang vẫn đặc khi chuyển trang.
@@ -124,6 +125,9 @@ Style **Liquid Glass** (chuẩn: `../../design-preview/png/lg-desktop.png`, `lg-
   Làm mờ chỉ cho phần nổi: sidebar, tab bar + nút tìm kiếm tròn, thanh đầu trang mobile, nút tròn (quay lại, ···), thanh mua hàng.
   Khối trong danh sách cuộn dùng kính trong không làm mờ (`InfoPanel` = `Glass(blur: false)`) để cuộn mượt.
 - **Màu nhấn xanh** `AppColors.tint`: nút chính, mục đang chọn (sidebar: viên kính ánh xanh `tintSoft`; tab bar: "thấu kính" sáng), liên kết.
+- **Sidebar tràn màn hình** (`SidebarPanel`): kính làm mờ cao hết màn hình, sát mép trái, ngăn bằng đường kẻ sáng bên phải (không còn khối bo góc nổi).
+- **Băng chuyền trang chủ** (`HeroCarousel`): thẻ phiên LIVE, gợi ý, ký gửi, mới lên kệ, mở shop; nền thẻ là bìa sách mờ, quạt bìa + khung kính chứa chữ; tự chuyển 7 giây, kéo bằng chuột / cảm ứng.
+- **Chi tiết sách / lô**: `AppPage(background: BookBackdrop(...))` — bìa phóng to, làm mờ mạnh làm nền cả trang; nội dung nằm trong `Glass`.
 - Chip MỚI / ĐẤU GIÁ / LIVE là chip kính đặt lên góc bìa (`BookPoster.badge`).
 - Màu của chính cuốn sách: `BlurredCover` (bìa phóng to + làm mờ) làm nền thẻ phiên đang diễn ra (`LiveHero`) và đầu trang chi tiết sách.
 - Sách là trung tâm: `BookPoster` (tỉ lệ 2:3, có gáy + bóng). Sách chưa có ảnh dùng `DrawnCover` — màu + hình vẽ chọn ổn định theo id (`CoverPalette` trong `app_tokens.dart`).

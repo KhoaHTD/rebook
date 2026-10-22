@@ -8,7 +8,7 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/catalog/domain/catalog_repository.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
-import 'package:book_marketplace/features/catalog/presentation/widgets/live_hero.dart';
+import 'package:book_marketplace/features/catalog/presentation/widgets/hero_carousel.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/listing_tile.dart';
@@ -89,11 +89,10 @@ class _DesktopSections extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (feed.liveSessions.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
-            child: LiveHero(session: feed.liveSessions.first),
-          ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+          child: HeroCarousel(feed: feed),
+        ),
         if (feed.trending.isNotEmpty)
           section(l10n.trending, () => context.go(Routes.search), [
             for (final l in feed.trending.take(8))
@@ -160,11 +159,15 @@ class _MobileShelves extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (feed.liveSessions.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, AppSpacing.md, 20, 0),
-            child: LiveHero(session: feed.liveSessions.first),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            20,
+            AppSpacing.md,
+            0,
+            AppSpacing.md,
           ),
+          child: HeroCarousel(feed: feed),
+        ),
         for (var i = 0; i < shelves.length; i++)
           // Kệ chẵn phủ kính trong, kệ lẻ để lộ nền màu loang.
           shelves[i] is Shelf

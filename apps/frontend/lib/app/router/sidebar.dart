@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 
-/// Sidebar nổi bằng kính lỏng, dùng chung cho app người dùng và web quản trị.
+/// Sidebar kính tràn hết chiều cao màn hình, sát mép trái (như Apple Books / Music trên macOS),
+/// ngăn với nội dung bằng một đường kẻ sáng mảnh. Dùng chung cho app người dùng và web quản trị.
 class SidebarPanel extends StatelessWidget {
   const SidebarPanel({super.key, required this.child});
 
@@ -11,11 +12,24 @@ class SidebarPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: SizedBox(
-        width: 248,
-        child: Glass(borderRadius: AppRadius.sidebar, child: child),
+    final c = context.appColors;
+    return SizedBox(
+      width: 268,
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: Glass.filter,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [c.glassTop, c.glassBottom],
+              ),
+              border: Border(right: BorderSide(color: c.glassBorder)),
+            ),
+            child: SafeArea(right: false, child: child),
+          ),
+        ),
       ),
     );
   }

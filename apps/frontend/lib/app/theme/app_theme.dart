@@ -45,8 +45,9 @@ abstract final class AppTheme {
       double height,
       double track, [
       Color? color,
+      bool serif = false,
     ]) => TextStyle(
-      fontFamily: family,
+      fontFamily: serif ? AppFonts.serif : family,
       fontSize: size,
       fontWeight: weight,
       height: height,
@@ -54,9 +55,9 @@ abstract final class AppTheme {
       color: color ?? ink,
     );
     final text = TextTheme(
-      displaySmall: t(34, FontWeight.w700, 1.1, -0.9),
-      headlineMedium: t(28, FontWeight.w700, 1.12, -0.6),
-      headlineSmall: t(22, FontWeight.w700, 1.18, -0.45),
+      displaySmall: t(36, FontWeight.w600, 1.08, -0.5, null, true),
+      headlineMedium: t(30, FontWeight.w600, 1.12, -0.3, null, true),
+      headlineSmall: t(24, FontWeight.w600, 1.16, -0.2, null, true),
       titleLarge: t(19, FontWeight.w700, 1.2, -0.35),
       titleMedium: t(16, FontWeight.w600, 1.3, -0.2),
       titleSmall: t(13, FontWeight.w600, 1.3, -0.08),

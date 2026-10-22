@@ -45,7 +45,19 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    # Bìa sách mẫu (chế độ mock) — xem lib/shared/data/fake/fake_catalog.dart.
+    - assets/books/
   fonts:
+    # Tiêu đề / dòng sự kiện: serif mềm kiểu New York của Apple (Newsreader, OFL — Google Fonts).
+    - family: Newsreader
+      fonts:
+        - asset: assets/fonts/Newsreader-500.ttf
+          weight: 500
+        - asset: assets/fonts/Newsreader-600.ttf
+          weight: 600
+        - asset: assets/fonts/Newsreader-700.ttf
+          weight: 700
     # Chữ giao diện trên web / Android (iPhone, Mac dùng SF của hệ thống). OFL — Google Fonts.
     - family: Inter
       fonts:

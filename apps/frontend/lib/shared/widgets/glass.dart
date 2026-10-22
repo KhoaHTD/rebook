@@ -48,7 +48,8 @@ class Glass extends StatelessWidget {
   final bool clear;
   final VoidCallback? onTap;
 
-  static final _filter = ui.ImageFilter.compose(
+  /// Làm mờ + tăng bão hoà phía sau kính (dùng chung cho sidebar / thanh đầu trang).
+  static final filter = ui.ImageFilter.compose(
     outer: const ColorFilter.matrix(_saturate),
     inner: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
   );
@@ -111,7 +112,7 @@ class Glass extends StatelessWidget {
     if (blur) {
       body = ClipRRect(
         borderRadius: borderRadius,
-        child: BackdropFilter(filter: _filter, child: body),
+        child: BackdropFilter(filter: filter, child: body),
       );
     }
     if (!shadow) return body;

@@ -307,3 +307,38 @@ class BlurredCover extends StatelessWidget {
     );
   }
 }
+
+/// Nền cả trang cho màn chi tiết một cuốn sách: bìa phóng to, làm mờ mạnh, phủ lớp sáng/tối nhẹ
+/// để chữ (đặt trong khung kính) luôn đọc được. Đặt vào `AppPage.background`.
+class BookBackdrop extends StatelessWidget {
+  const BookBackdrop({
+    super.key,
+    required this.title,
+    required this.author,
+    this.coverUrl,
+    this.seed,
+  });
+
+  final String title;
+  final String author;
+  final String? coverUrl;
+  final String? seed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        BlurredCover(
+          title: title,
+          author: author,
+          coverUrl: coverUrl,
+          seed: seed,
+          sigma: 48,
+        ),
+        // Lớp phủ cùng tông nền app: giữ màu của bìa nhưng không làm chữ phụ bị chìm.
+        ColoredBox(color: context.appColors.background.withValues(alpha: 0.38)),
+      ],
+    );
+  }
+}

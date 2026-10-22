@@ -680,5 +680,22 @@
   "nextLots": "Up next",
   "depositOption": "Deposit {amount} · limit {limit}",
   "viewSession": "View session",
-  "lotStory": "Story & provenance"
+  "lotStory": "Story & provenance",
+  "heroLiveEyebrow": "Live auction",
+  "heroPicksEyebrow": "ReBook picks",
+  "heroPicksHeadline": "The books everyone is hunting.",
+  "heroPicksBody": "Hand-picked used books from many shops, fixed prices and rated sellers.",
+  "heroPicksCta": "Explore",
+  "heroNewEyebrow": "Just shelved",
+  "heroNewHeadline": "New editions just arrived.",
+  "heroNewBody": "Updated daily by shops: classic, modern and illustrated covers.",
+  "heroNewCta": "See new arrivals",
+  "heroConsignEyebrow": "Consign to auction",
+  "heroConsignHeadline": "A rare book deserves an auction.",
+  "heroConsignBody": "ReBook receives, inspects and photographs your book, then lists it in an auction. Commission is charged only when it sells.",
+  "heroConsignCta": "Consign a book",
+  "heroShopEyebrow": "For sellers",
+  "heroShopHeadline": "Turn your old shelf into income.",
+  "heroShopBody": "Open a shop and list books at fixed prices. ReBook holds the money safely until the buyer receives the book.",
+  "heroShopCta": "Open a shop"
 }

@@ -7,7 +7,7 @@ Nghiệp vụ: [docs/SRS.txt](docs/SRS.txt) (đặc tả gốc, @Khoa 21/10/2026
 
 **Giao diện: style Liquid Glass đã duyệt (2026-10-22)** — chuẩn là `../../design-preview/png/lg-desktop.png` và `lg-mobile.png`
 (nền màu loang lấy tông từ bìa sách, sidebar / tab bar / thanh đầu trang / thanh mua hàng bằng kính mờ nổi, màu nhấn xanh,
-chữ San Francisco — SF hệ thống trên iPhone/Mac, Inter trên web/Android, không đóng gói SF —, poster sách lớn có gáy + bóng,
+chữ nội dung San Francisco — SF hệ thống trên iPhone/Mac, Inter trên web/Android, không đóng gói SF —, tiêu đề trang / tiêu đề kệ / dòng sự kiện là serif mềm Newsreader (giống New York của Apple), sidebar kính tràn hết chiều cao sát mép trái, băng chuyền `HeroCarousel` ở trang chủ, chi tiết sách lấy bìa phóng to + làm mờ làm nền cả trang (`AppPage.background` + `BookBackdrop`) với chữ trong khung kính, poster sách lớn có gáy + bóng,
 lưới 4 poster/hàng trên desktop, kệ cuộn ngang + tab bar kính nổi trên mobile). Mọi màn mới theo đúng style này:
 dùng `Glass`, `InfoPanel`, `AppPage`, `HeaderAction` trong `shared/widgets/` thay vì tự vẽ nền / viền.
 

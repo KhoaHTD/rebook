@@ -93,3 +93,11 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Thêm màu nhấn xanh (`AppColors.tint`) — trước đây chỉ đen trắng. Người dùng đồng ý.
 - Kính làm mờ tốn GPU → chỉ dùng cho phần nổi; khối trong danh sách dùng kính trong không làm mờ.
 - Mobile: chi tiết sách có thanh mua hàng kính nổi phía trên tab bar (nút mua trong trang chỉ còn ở desktop). Tab bar kèm nút tìm kiếm tròn kiểu iOS 26.
+
+### Sách mẫu thật + băng chuyền (2026-10-23)
+- Toàn bộ sách mock được thay bằng **16 cuốn** từ 16 thư mục Google Drive người dùng cung cấp. Tên sách = tên thư mục (các tên viết thường hoàn toàn được viết hoa chữ đầu mỗi từ cho đồng nhất: Dế Mèn Phiêu Lưu Ký, Số Đỏ, Đắc Nhân Tâm). Ảnh nén JPEG (cao ≤ 1000px, ~3 MB tổng) đặt ở `assets/books/`.
+- **Mỗi ảnh trong thư mục là một ấn bản (bìa) khác nhau** của cùng cuốn → mỗi ảnh thành một tin bán từ một shop khác nhau (32 tin), nên khối "Các bản khác của cuốn này" có dữ liệu thật. Ấn bản xếp theo: cổ điển → bìa khác → hiện đại → trừu tượng.
+- Tác giả, nhà xuất bản, năm, số trang, giá, mô tả tình trạng là **dữ liệu mẫu do dev điền** (thư mục chỉ cung cấp tên + ảnh) — nằm trong `lib/shared/data/fake/fake_catalog.dart`, sửa tại đó.
+- Danh mục không còn sách bị bỏ: Truyện tranh, Kinh tế, Ngoại ngữ. Còn: Văn học VN, Văn học nước ngoài, Giáo trình (CNTT), Kỹ năng sống, Thiếu nhi, Sách hiếm & cổ.
+- Phiên đấu giá, lô, ký gửi mẫu cũng dùng 16 cuốn này (tên phiên đổi theo: "Văn học Việt Nam bản xưa", "Sách hay, bìa hiện đại", "Ấn bản đặc biệt", "Giáo trình và tư liệu", "Sách hiếm Việt Nam").
+- Font: tiêu đề + dòng sự kiện đổi sang serif mềm Newsreader (theo ảnh tham chiếu Apple Books); nội dung vẫn SF / Inter. Sidebar tràn hết chiều cao thay cho khối bo góc.

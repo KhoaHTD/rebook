@@ -29,6 +29,7 @@ import 'package:book_marketplace/shared/domain/rules.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 
 part 'fake_store.g.dart';
+part 'fake_catalog.dart';
 part 'fake_seed.dart';
 part 'fake_commerce.dart';
 part 'fake_consignment.dart';

@@ -25,6 +25,7 @@ class AppPage extends StatelessWidget {
     this.bottomBar,
     this.onRefresh,
     this.contentPadding,
+    this.background,
   }) : assert(slivers != null || children != null);
 
   final String title;
@@ -40,6 +41,9 @@ class AppPage extends StatelessWidget {
 
   /// Lề nội dung. Mặc định: lề trang desktop / 20 trên mobile.
   final EdgeInsets? contentPadding;
+
+  /// Nền thay cho nền màu loang (vd. [BookBackdrop] ở trang chi tiết sách). Đứng yên khi cuộn.
+  final Widget? background;
 
   @override
   Widget build(BuildContext context) {
@@ -107,17 +111,27 @@ class AppPage extends StatelessWidget {
     }
 
     // Trang tự vẽ nền loang (khớp toạ độ với nền khung app) để trang luôn đặc khi chuyển trang.
+    final page = Scaffold(
+      extendBodyBehindAppBar: compact,
+      // Có thanh kính nổi ở đáy → nội dung cuộn xuống dưới lớp kính.
+      extendBody: bottomBar != null,
+      appBar: compact
+          ? _MobileHeader(title: title, actions: actions, canBack: canBack)
+          : null,
+      body: scroll,
+      bottomNavigationBar: bottomBar,
+    );
+    // Trang tự vẽ nền (màu loang khớp toạ độ với nền khung app, hoặc [background]) nên luôn đặc khi chuyển trang.
     return AmbientBackground(
-      child: Scaffold(
-        extendBodyBehindAppBar: compact,
-        // Có thanh kính nổi ở đáy → nội dung cuộn xuống dưới lớp kính.
-        extendBody: bottomBar != null,
-        appBar: compact
-            ? _MobileHeader(title: title, actions: actions, canBack: canBack)
-            : null,
-        body: scroll,
-        bottomNavigationBar: bottomBar,
-      ),
+      child: background == null
+          ? page
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                Positioned.fill(child: background!),
+                page,
+              ],
+            ),
     );
   }
 }

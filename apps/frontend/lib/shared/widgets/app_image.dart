@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/network/upload_service.dart';
 
-/// Ảnh từ URL thật (cache) hoặc ảnh vừa upload ở chế độ mock (`mem://`).
+/// Ảnh từ URL thật (cache), ảnh vừa upload ở chế độ mock (`mem://`) hoặc ảnh đóng gói sẵn trong app (`assets/...`, bìa sách mẫu).
 class AppImage extends StatelessWidget {
   const AppImage(this.url, {super.key, this.fit = BoxFit.cover, this.fallback});
 
@@ -18,6 +18,9 @@ class AppImage extends StatelessWidget {
     if (MemoryImages.isMemory(url)) {
       final bytes = MemoryImages.get(url);
       return bytes == null ? placeholder : Image.memory(bytes, fit: fit);
+    }
+    if (url.startsWith('assets/')) {
+      return Image.asset(url, fit: fit, errorBuilder: (_, _, _) => placeholder);
     }
     return CachedNetworkImage(
       imageUrl: url,

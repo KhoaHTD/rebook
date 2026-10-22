@@ -29,8 +29,8 @@ void main() {
     final prices = all.items.map((l) => l.price).toList();
     expect(prices, [...prices]..sort());
 
-    final hit = await repo.search(const ListingQuery(q: 'mắt biếc'));
-    expect(hit.items.single.book.title, 'Mắt Biếc');
+    final hit = await repo.search(const ListingQuery(q: 'nhà giả kim'));
+    expect(hit.items.single.book.title, 'Nhà Giả Kim');
   });
 
   test('lọc theo tình trạng và khoảng giá', () async {

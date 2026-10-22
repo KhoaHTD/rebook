@@ -1100,5 +1100,22 @@
     }
   },
   "viewSession": "Xem phiên",
-  "lotStory": "Câu chuyện & nguồn gốc"
+  "lotStory": "Câu chuyện & nguồn gốc",
+  "heroLiveEyebrow": "Đấu giá trực tiếp",
+  "heroPicksEyebrow": "Gợi ý của ReBook",
+  "heroPicksHeadline": "Những cuốn đang được săn nhiều nhất.",
+  "heroPicksBody": "Sách cũ chọn lọc từ nhiều shop, giá cố định rõ ràng, người bán có đánh giá.",
+  "heroPicksCta": "Khám phá",
+  "heroNewEyebrow": "Mới lên kệ",
+  "heroNewHeadline": "Vừa có thêm những ấn bản mới.",
+  "heroNewBody": "Cập nhật mỗi ngày từ các shop: bìa cổ điển, bìa hiện đại, bìa minh hoạ.",
+  "heroNewCta": "Xem sách mới",
+  "heroConsignEyebrow": "Ký gửi đấu giá",
+  "heroConsignHeadline": "Sách quý xứng đáng một phiên đấu giá.",
+  "heroConsignBody": "ReBook nhận sách, kiểm định, chụp ảnh chuẩn và đưa lên phiên đấu giá. Hoa hồng chỉ tính khi bán được.",
+  "heroConsignCta": "Gửi sách ký gửi",
+  "heroShopEyebrow": "Dành cho người bán",
+  "heroShopHeadline": "Biến kệ sách cũ thành thu nhập.",
+  "heroShopBody": "Mở shop, đăng sách với giá cố định. ReBook giữ tiền an toàn cho đến khi người mua nhận được sách.",
+  "heroShopCta": "Mở shop"
 }

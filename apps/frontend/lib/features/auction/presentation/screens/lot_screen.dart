@@ -15,6 +15,7 @@ import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
+import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -34,6 +35,14 @@ class LotScreen extends ConsumerWidget {
           ? ''
           : context.l10n.lotNumber(lot.value!.lotNumber),
       showBack: true,
+      background: lot.value == null
+          ? null
+          : BookBackdrop(
+              title: lot.value!.book.title,
+              author: lot.value!.book.author,
+              coverUrl: lot.value!.book.coverUrl,
+              seed: lot.value!.book.id,
+            ),
       onRefresh: () => ref.refresh(lotDetailProvider(lotId).future),
       children: [
         AsyncValueView(
@@ -52,7 +61,10 @@ class LotScreen extends ConsumerWidget {
                 children: [
                   poster,
                   const SizedBox(height: AppSpacing.xl),
-                  _Info(lot: l),
+                  Glass(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: _Info(lot: l),
+                  ),
                 ],
               );
             }
@@ -62,8 +74,8 @@ class LotScreen extends ConsumerWidget {
                 poster,
                 const SizedBox(width: 56),
                 Expanded(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 560),
+                  child: Glass(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
                     child: _Info(lot: l),
                   ),
                 ),

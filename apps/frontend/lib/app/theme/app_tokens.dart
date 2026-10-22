@@ -51,6 +51,9 @@ abstract final class AppDurations {
 abstract final class AppFonts {
   static const inter = 'Inter';
 
+  /// Tiêu đề trang, tiêu đề kệ, dòng sự kiện: serif mềm (giống New York của Apple) cho chữ mềm mại hơn.
+  static const serif = 'Newsreader';
+
   /// null → để Flutter dùng chữ hệ thống (SF) trên iOS / macOS.
   static String? get family {
     if (kIsWeb) return inter;
