@@ -8,6 +8,7 @@ import 'package:book_marketplace/app/router/admin_router.dart';
 import 'package:book_marketplace/app/router/app_router.dart';
 import 'package:book_marketplace/app/theme/app_theme.dart';
 import 'package:book_marketplace/core/settings/app_settings_controller.dart';
+import 'package:book_marketplace/shared/widgets/glass.dart';
 
 /// App người dùng (web + Android + iOS).
 class BookMarketplaceApp extends ConsumerWidget {
@@ -55,6 +56,9 @@ class _RebookMaterialApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       routerConfig: router,
+      // Nền màu loang phía sau mọi trang (kính cần có màu phía sau mới "khúc xạ").
+      builder: (context, child) =>
+          AmbientBackground(child: child ?? const SizedBox.shrink()),
     );
   }
 }

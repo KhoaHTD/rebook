@@ -114,7 +114,6 @@ class _Hero extends StatelessWidget {
           Text(
             l10n.appTitle,
             style: context.textStyles.titleLarge?.copyWith(
-              fontFamily: AppFonts.serif,
               fontWeight: FontWeight.w800,
             ),
           ),

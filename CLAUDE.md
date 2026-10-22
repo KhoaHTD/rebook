@@ -16,8 +16,8 @@ Chợ sách cũ: bán giá cố định + đấu giá.
 
 ## Giai đoạn hiện tại: frontend ĐÃ XONG theo SRS (GĐ0–7) — tiếp theo là thêm thắt theo yêu cầu người dùng (đọc `HANDOFF.md`, `apps/frontend/docs/PROGRESS.md`)
 
-- Người dùng đã duyệt style Apple Books + kế hoạch 8 giai đoạn (2026-10-22); cả 8 giai đoạn đã xong. Thay đổi mới: hỏi người dùng trước, giữ đúng style.
-- Lấy logic (OpenAPI, entity, FakeStore, provider, test) từ tag `backup/srs-frontend-2026-10-22`; **giao diện làm mới** theo style Apple Books.
+- Người dùng đã duyệt kế hoạch 8 giai đoạn (2026-10-22); cả 8 giai đoạn đã xong. Giao diện đã đổi sang **Liquid Glass + chữ SF** (người dùng duyệt bản vẽ `design-preview/png/lg-*.png`). Thay đổi mới: hỏi người dùng trước, giữ đúng style.
+- Lấy logic (OpenAPI, entity, FakeStore, provider, test) từ tag `backup/srs-frontend-2026-10-22`; **giao diện làm mới** (nay là style Liquid Glass, xem `apps/frontend/CLAUDE.md`).
 - Mỗi giai đoạn: `dart analyze --fatal-infos` + `dart run tool/arch_check.dart` + `flutter test` sạch → commit local → cập nhật PROGRESS.md.
 - Không push, không force-push, không xoá branch/tag `backup/*`, không reset Git. Không tự suy diễn ngoài SRS; chỗ SRS thiếu → ghi vào `apps/frontend/docs/DECISIONS.md`.
 - Commit không thêm dòng `Co-Authored-By` hay ghi tên Claude.

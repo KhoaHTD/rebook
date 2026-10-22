@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Design tokens — style Apple Books đã duyệt (`design-preview/png/apple-*.png`).
+/// Design tokens — style Liquid Glass đã duyệt (`design-preview/png/lg-*.png`).
 /// Widget KHÔNG hardcode số đo / màu — luôn lấy từ đây hoặc từ Theme.
 abstract final class AppSpacing {
   static const xxs = 2.0;
@@ -21,9 +22,9 @@ abstract final class AppSpacing {
 }
 
 abstract final class AppRadius {
-  static const sm = Radius.circular(7);
-  static const md = Radius.circular(12);
-  static const lg = Radius.circular(14);
+  static const sm = Radius.circular(10);
+  static const md = Radius.circular(20);
+  static const lg = Radius.circular(26);
   static const pill = Radius.circular(999);
 
   static const card = BorderRadius.all(md);
@@ -33,10 +34,10 @@ abstract final class AppRadius {
 
   /// Bìa sách: gáy (trái) bo ít, mép (phải) bo hơn — như cuốn sách thật.
   static const poster = BorderRadius.only(
-    topLeft: Radius.circular(2),
-    bottomLeft: Radius.circular(2),
-    topRight: Radius.circular(5),
-    bottomRight: Radius.circular(5),
+    topLeft: Radius.circular(3),
+    bottomLeft: Radius.circular(3),
+    topRight: Radius.circular(6),
+    bottomRight: Radius.circular(6),
   );
 }
 
@@ -45,16 +46,23 @@ abstract final class AppDurations {
   static const normal = Duration(milliseconds: 250);
 }
 
+/// Chữ San Francisco: trên iPhone / Mac dùng SF có sẵn của hệ điều hành
+/// (giấy phép Apple không cho đóng gói SF vào app). Web và Android dùng Inter — gần SF nhất, OFL.
 abstract final class AppFonts {
-  /// Tiêu đề trang, tên sách trên bìa.
-  static const serif = 'Newsreader';
+  static const inter = 'Inter';
 
-  /// Toàn bộ chữ giao diện.
-  static const sans = 'BeVietnamPro';
+  /// null → để Flutter dùng chữ hệ thống (SF) trên iOS / macOS.
+  static String? get family {
+    if (kIsWeb) return inter;
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.iOS || TargetPlatform.macOS => null,
+      _ => inter,
+    };
+  }
 }
 
-/// Màu riêng của style Apple Books, ngoài ColorScheme.
-/// Dùng: `context.appColors.sidebar`.
+/// Màu riêng của style Liquid Glass, ngoài ColorScheme.
+/// Dùng: `context.appColors.tint`.
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
@@ -73,71 +81,107 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.info,
     required this.tabBar,
     required this.posterShadow,
+    required this.tint,
+    required this.tintSoft,
+    required this.glassTop,
+    required this.glassBottom,
+    required this.glassBorder,
+    required this.glassShadow,
+    required this.background,
   });
 
-  /// Nền sidebar desktop.
+  /// Nền khối thông tin trong trang (kính trong, không làm mờ).
   final Color sidebar;
 
-  /// Mục đang chọn trong sidebar / tab.
+  /// Lựa chọn "mạnh" (chip đang chọn, chấm hiện tại): nền xanh, chữ trắng.
   final Color selected;
   final Color onSelected;
 
   /// Nền xen kẽ giữa các kệ trên mobile.
   final Color shelfAlt;
 
-  /// Nền ô tìm kiếm, nút phụ, tab đang chọn trên mobile.
+  /// Nền ô nhập, nút phụ.
   final Color fill;
   final Color separator;
   final Color secondaryText;
   final Color tertiaryText;
 
-  /// Badge "MỚI".
+  /// Chip "MỚI" đặt lên bìa (kính tối).
   final Color badgeNew;
 
-  /// Đấu giá đang diễn ra, badge "ĐẤU GIÁ", đồng hồ.
+  /// Đấu giá đang diễn ra, chip "ĐẤU GIÁ", đồng hồ.
   final Color live;
   final Color success;
   final Color warning;
   final Color info;
 
-  /// Tab bar nổi trên mobile.
+  /// Lớp kính sáng của mục đang chọn trên tab bar.
   final Color tabBar;
   final Color posterShadow;
 
+  /// Màu nhấn xanh: nút chính, mục đang chọn, liên kết.
+  final Color tint;
+
+  /// Nền kính ánh xanh của mục đang chọn trong sidebar.
+  final Color tintSoft;
+
+  /// Kính lỏng: dải màu trên → dưới, viền sáng, bóng.
+  final Color glassTop;
+  final Color glassBottom;
+  final Color glassBorder;
+  final Color glassShadow;
+
+  /// Nền dưới lớp màu loang.
+  final Color background;
+
   static const light = AppColors(
-    sidebar: Color(0xFFF5F5F7),
-    selected: Color(0xFF3A3A3C),
+    sidebar: Color(0x8CFFFFFF),
+    selected: Color(0xFF0A6CFF),
     onSelected: Color(0xFFFFFFFF),
-    shelfAlt: Color(0xFFF5F5F6),
-    fill: Color(0xFFECECEE),
-    separator: Color(0xFFE5E5EA),
+    shelfAlt: Color(0x59FFFFFF),
+    fill: Color(0x12000000),
+    separator: Color(0x1A000000),
     secondaryText: Color(0xFF6E6E73),
-    tertiaryText: Color(0xFFAEAEB2),
-    badgeNew: Color(0xFF1A3A8F),
-    live: Color(0xFFB3261E),
-    success: Color(0xFF248A3D),
+    tertiaryText: Color(0xFF8E8E93),
+    badgeNew: Color(0x611E1E20),
+    live: Color(0xFFE5352B),
+    success: Color(0xFF1F8A46),
     warning: Color(0xFFB25000),
-    info: Color(0xFF0A66D8),
-    tabBar: Color(0xF5FAFAFA),
-    posterShadow: Color(0x59000000),
+    info: Color(0xFF0A6CFF),
+    tabBar: Color(0xB8FFFFFF),
+    posterShadow: Color(0x73000000),
+    tint: Color(0xFF0A6CFF),
+    tintSoft: Color(0x290A6CFF),
+    glassTop: Color(0xA8FFFFFF),
+    glassBottom: Color(0x57FFFFFF),
+    glassBorder: Color(0xB3FFFFFF),
+    glassShadow: Color(0x2219233C),
+    background: Color(0xFFECEEF3),
   );
 
   static const dark = AppColors(
-    sidebar: Color(0xFF2C2C2E),
-    selected: Color(0xFFEBEBF0),
-    onSelected: Color(0xFF1C1C1E),
-    shelfAlt: Color(0xFF242426),
-    fill: Color(0xFF3A3A3C),
-    separator: Color(0xFF38383A),
+    sidebar: Color(0x332C2C2E),
+    selected: Color(0xFF0A84FF),
+    onSelected: Color(0xFFFFFFFF),
+    shelfAlt: Color(0x1FFFFFFF),
+    fill: Color(0x1FFFFFFF),
+    separator: Color(0x26FFFFFF),
     secondaryText: Color(0xFF98989D),
     tertiaryText: Color(0xFF636366),
-    badgeNew: Color(0xFF5E8BFF),
+    badgeNew: Color(0x611E1E20),
     live: Color(0xFFFF6961),
     success: Color(0xFF30D158),
     warning: Color(0xFFFF9F0A),
     info: Color(0xFF64A8FF),
-    tabBar: Color(0xF22C2C2E),
+    tabBar: Color(0x2EFFFFFF),
     posterShadow: Color(0x99000000),
+    tint: Color(0xFF0A84FF),
+    tintSoft: Color(0x3D0A84FF),
+    glassTop: Color(0x6B3A3A3C),
+    glassBottom: Color(0x4D1C1C1E),
+    glassBorder: Color(0x26FFFFFF),
+    glassShadow: Color(0x66000000),
+    background: Color(0xFF111114),
   );
 
   @override
@@ -157,6 +201,13 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? info,
     Color? tabBar,
     Color? posterShadow,
+    Color? tint,
+    Color? tintSoft,
+    Color? glassTop,
+    Color? glassBottom,
+    Color? glassBorder,
+    Color? glassShadow,
+    Color? background,
   }) => AppColors(
     sidebar: sidebar ?? this.sidebar,
     selected: selected ?? this.selected,
@@ -173,6 +224,13 @@ class AppColors extends ThemeExtension<AppColors> {
     info: info ?? this.info,
     tabBar: tabBar ?? this.tabBar,
     posterShadow: posterShadow ?? this.posterShadow,
+    tint: tint ?? this.tint,
+    tintSoft: tintSoft ?? this.tintSoft,
+    glassTop: glassTop ?? this.glassTop,
+    glassBottom: glassBottom ?? this.glassBottom,
+    glassBorder: glassBorder ?? this.glassBorder,
+    glassShadow: glassShadow ?? this.glassShadow,
+    background: background ?? this.background,
   );
 
   @override
@@ -195,8 +253,32 @@ class AppColors extends ThemeExtension<AppColors> {
       info: l(info, other.info),
       tabBar: l(tabBar, other.tabBar),
       posterShadow: l(posterShadow, other.posterShadow),
+      tint: l(tint, other.tint),
+      tintSoft: l(tintSoft, other.tintSoft),
+      glassTop: l(glassTop, other.glassTop),
+      glassBottom: l(glassBottom, other.glassBottom),
+      glassBorder: l(glassBorder, other.glassBorder),
+      glassShadow: l(glassShadow, other.glassShadow),
+      background: l(background, other.background),
     );
   }
+}
+
+/// Các vệt màu loang phía sau kính (lấy tông từ bìa sách): màu, tâm (theo tỉ lệ màn hình), bán kính (theo cạnh ngắn).
+abstract final class AmbientPalette {
+  static const light = <(Color, Alignment, double)>[
+    (Color(0xCCD9A066), Alignment(-0.55, -0.75), 0.75),
+    (Color(0xCC6F8FC9), Alignment(0.55, -0.9), 0.8),
+    (Color(0x80C5574A), Alignment(0.8, 0.55), 0.65),
+    (Color(0x997FA58A), Alignment(-0.35, 0.85), 0.7),
+  ];
+
+  static const dark = <(Color, Alignment, double)>[
+    (Color(0x667A4A22), Alignment(-0.55, -0.75), 0.75),
+    (Color(0x66243C70), Alignment(0.55, -0.9), 0.8),
+    (Color(0x4D6E2620), Alignment(0.8, 0.55), 0.65),
+    (Color(0x4D2D4A36), Alignment(-0.35, 0.85), 0.7),
+  ];
 }
 
 /// Cặp màu cho bìa tự vẽ (khi sách chưa có ảnh). Màu đến từ bìa, giao diện giữ trung tính.

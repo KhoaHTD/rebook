@@ -153,9 +153,7 @@ class WalletScreen extends ConsumerWidget {
                       Text(l10n.available, style: context.textStyles.bodySmall),
                       PriceText(
                         w.available,
-                        style: context.textStyles.headlineMedium?.copyWith(
-                          fontFamily: AppFonts.sans,
-                        ),
+                        style: context.textStyles.headlineMedium?.copyWith(),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(

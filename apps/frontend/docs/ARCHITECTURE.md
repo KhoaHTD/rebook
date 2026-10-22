@@ -114,13 +114,22 @@ DTO dùng `json_serializable` (swagger_parser chưa sinh được cú pháp free
 
 ## 6. Giao diện, theme & responsive
 
-Style **Apple Books** (chuẩn: `../../design-preview/png/apple-desktop.png`, `apple-mobile.png`):
+Style **Liquid Glass** (chuẩn: `../../design-preview/png/lg-desktop.png`, `lg-mobile.png`):
 
-- Nền trắng, sidebar nổi xám nhạt bo góc (mục đang chọn nền gần đen), tiêu đề serif **Newsreader** đậm, chữ **Be Vietnam Pro** (font nằm trong `assets/fonts/`).
+- **Chữ San Francisco**: `AppFonts.family` = `null` trên iOS / macOS (Flutter dùng SF của hệ thống) và `Inter` trên web / Android
+  (`assets/fonts/Inter-*.ttf`). Giấy phép Apple không cho đóng gói SF vào app, nên **không thêm file SF vào assets**.
+- **Nền màu loang** (`AmbientBackground`, `shared/widgets/glass.dart`): các vệt màu lấy tông từ bìa sách (`AmbientPalette`), tính theo
+  toạ độ màn hình. Vẽ ở `MaterialApp.builder` (sau sidebar) **và** trong mỗi `AppPage` — hai lớp khớp nhau nên trang vẫn đặc khi chuyển trang.
+- **Kính** (`Glass`): làm mờ + tăng bão hoà phía sau, dải trắng trong, viền sáng, vệt phản chiếu, bóng mềm.
+  Làm mờ chỉ cho phần nổi: sidebar, tab bar + nút tìm kiếm tròn, thanh đầu trang mobile, nút tròn (quay lại, ···), thanh mua hàng.
+  Khối trong danh sách cuộn dùng kính trong không làm mờ (`InfoPanel` = `Glass(blur: false)`) để cuộn mượt.
+- **Màu nhấn xanh** `AppColors.tint`: nút chính, mục đang chọn (sidebar: viên kính ánh xanh `tintSoft`; tab bar: "thấu kính" sáng), liên kết.
+- Chip MỚI / ĐẤU GIÁ / LIVE là chip kính đặt lên góc bìa (`BookPoster.badge`).
+- Màu của chính cuốn sách: `BlurredCover` (bìa phóng to + làm mờ) làm nền thẻ phiên đang diễn ra (`LiveHero`) và đầu trang chi tiết sách.
 - Sách là trung tâm: `BookPoster` (tỉ lệ 2:3, có gáy + bóng). Sách chưa có ảnh dùng `DrawnCover` — màu + hình vẽ chọn ổn định theo id (`CoverPalette` trong `app_tokens.dart`).
-- Desktop: lưới 4 poster/hàng (`PosterGrid`, 3 ở medium, 2 ở compact); mobile: kệ cuộn ngang (`Shelf`) + tab bar viên thuốc nổi ở đáy.
+- Desktop: lưới 4 poster/hàng (`PosterGrid`, 3 ở medium, 2 ở compact); mobile: kệ cuộn ngang (`Shelf`) + tab bar kính nổi ở đáy.
 - Mỗi màn dùng `AppPage` (`shared/widgets/ui.dart`): tiêu đề lớn, nút quay lại tròn, hành động bên phải, kéo để tải lại.
-  Khối thông tin nền xám: `InfoPanel`; trạng thái: `StatusPill`; tiền: `PriceText` / `MoneyLine`; bảng trượt: `shared/widgets/sheets.dart`.
+  Khối thông tin bằng kính trong: `InfoPanel`; nút chính đầu trang: `HeaderAction`; trạng thái: `StatusPill`; tiền: `PriceText` / `MoneyLine`; bảng trượt: `shared/widgets/sheets.dart`.
 - Đổi giao diện toàn app chỉ cần sửa: `app/theme/app_tokens.dart` (token, `AppColors`, `CoverPalette`), `app/theme/app_theme.dart`, và widget trong `shared/widgets/`.
 - Theme mặc định **sáng**, ngôn ngữ mặc định **tiếng Việt**; người dùng đổi trong Cài đặt.
 - Khung app: `app/router/app_shell.dart` (sidebar 3 nhóm trên desktop, tab bar trên mobile); web quản trị: `app/router/admin_shell.dart`.

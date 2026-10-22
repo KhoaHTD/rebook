@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -5,8 +7,9 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/widgets/glass.dart';
 
-/// Khung một trang theo style Apple Books.
+/// Khung một trang theo style Liquid Glass (trang tự vẽ nền màu loang nên luôn đặc khi chuyển trang).
 /// - Desktop: tiêu đề serif lớn trên cùng bên trái, hành động góc phải.
 /// - Mobile: thanh đầu có nút quay lại tròn + tiêu đề ở giữa, kẻ mảnh bên dưới.
 /// Nội dung truyền qua [slivers] (linh hoạt) hoặc [children] (cột thường).
@@ -45,7 +48,12 @@ class AppPage extends StatelessWidget {
     final pad =
         contentPadding ??
         (compact
-            ? const EdgeInsets.fromLTRB(20, AppSpacing.md, 20, 120)
+            ? EdgeInsets.fromLTRB(
+                20,
+                AppSpacing.md,
+                20,
+                bottomBar == null ? 120 : 260,
+              )
             : const EdgeInsets.fromLTRB(
                 AppSpacing.pageX,
                 0,
@@ -54,6 +62,13 @@ class AppPage extends StatelessWidget {
               ));
 
     final body = <Widget>[
+      // Mobile: nội dung cuộn bên dưới thanh đầu bằng kính.
+      if (compact)
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.paddingOf(context).top + _MobileHeader.height,
+          ),
+        ),
       if (!compact)
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
@@ -91,12 +106,18 @@ class AppPage extends StatelessWidget {
       scroll = RefreshIndicator(onRefresh: onRefresh!, child: scroll);
     }
 
-    return Scaffold(
-      appBar: compact
-          ? _MobileHeader(title: title, actions: actions, canBack: canBack)
-          : null,
-      body: scroll,
-      bottomNavigationBar: bottomBar,
+    // Trang tự vẽ nền loang (khớp toạ độ với nền khung app) để trang luôn đặc khi chuyển trang.
+    return AmbientBackground(
+      child: Scaffold(
+        extendBodyBehindAppBar: compact,
+        // Có thanh kính nổi ở đáy → nội dung cuộn xuống dưới lớp kính.
+        extendBody: bottomBar != null,
+        appBar: compact
+            ? _MobileHeader(title: title, actions: actions, canBack: canBack)
+            : null,
+        body: scroll,
+        bottomNavigationBar: bottomBar,
+      ),
     );
   }
 }
@@ -160,44 +181,59 @@ class _MobileHeader extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget> actions;
   final bool canBack;
 
+  static const height = 57.0;
+
   @override
-  Size get preferredSize => const Size.fromHeight(57);
+  Size get preferredSize => const Size.fromHeight(height);
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: context.appColors.separator),
+    final c = context.appColors;
+    // Thanh đầu bằng kính: làm mờ nội dung cuộn phía dưới, kẻ sáng mảnh ở đáy.
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [c.glassTop, c.glassBottom],
+            ),
+            border: Border(bottom: BorderSide(color: c.separator, width: 0.5)),
           ),
-        ),
-        child: SizedBox(
-          height: 56,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 60),
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyles.titleLarge,
-                ),
+          child: SafeArea(
+            bottom: false,
+            child: SizedBox(
+              height: 56,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 60),
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyles.titleLarge,
+                    ),
+                  ),
+                  if (canBack)
+                    Positioned(
+                      left: 12,
+                      child: CircleBackButton(onPressed: () => context.pop()),
+                    ),
+                  if (actions.isNotEmpty)
+                    Positioned(
+                      right: 8,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: actions,
+                      ),
+                    ),
+                ],
               ),
-              if (canBack)
-                Positioned(
-                  left: 12,
-                  child: CircleBackButton(onPressed: () => context.pop()),
-                ),
-              if (actions.isNotEmpty)
-                Positioned(
-                  right: 8,
-                  child: Row(mainAxisSize: MainAxisSize.min, children: actions),
-                ),
-            ],
+            ),
           ),
         ),
       ),
@@ -232,8 +268,8 @@ class HeaderAction extends StatelessWidget {
         icon: Icon(icon),
         style: primary
             ? IconButton.styleFrom(
-                backgroundColor: context.colors.onSurface,
-                foregroundColor: context.colors.surface,
+                backgroundColor: context.appColors.tint,
+                foregroundColor: context.colors.onPrimary,
               )
             : null,
       );
@@ -250,7 +286,7 @@ class HeaderAction extends StatelessWidget {
   }
 }
 
-/// Nút quay lại tròn có viền mảnh (như mockup mobile).
+/// Nút quay lại tròn bằng kính.
 class CircleBackButton extends StatelessWidget {
   const CircleBackButton({super.key, required this.onPressed});
 
@@ -260,17 +296,11 @@ class CircleBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: context.l10n.back,
-      child: Material(
-        shape: CircleBorder(
-          side: BorderSide(color: context.appColors.separator),
-        ),
-        color: context.colors.surface,
-        child: InkWell(
-          customBorder: const CircleBorder(),
+      child: SizedBox.square(
+        dimension: 40,
+        child: Glass.circle(
           onTap: onPressed,
-          child: const SizedBox(
-            width: 40,
-            height: 40,
+          child: const Center(
             child: Icon(Icons.chevron_left_rounded, size: 26),
           ),
         ),
@@ -279,7 +309,7 @@ class CircleBackButton extends StatelessWidget {
   }
 }
 
-/// Nút "•••" tròn trắng (góc phải trang desktop) hoặc dấu ba chấm nhỏ dưới poster.
+/// Nút "•••" tròn bằng kính (góc phải trang) hoặc dấu ba chấm nhỏ dưới poster.
 class DotsButton extends StatelessWidget {
   const DotsButton({
     super.key,
@@ -308,23 +338,9 @@ class DotsButton extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: compact
           ? Padding(padding: const EdgeInsets.all(2), child: icon)
-          : Container(
-              width: 44,
-              height: 30,
-              decoration: ShapeDecoration(
-                color: context.colors.surface,
-                shape: const StadiumBorder(),
-                shadows: [
-                  BoxShadow(
-                    color: context.appColors.posterShadow.withValues(
-                      alpha: 0.25,
-                    ),
-                    blurRadius: 6,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-              ),
-              child: icon,
+          : SizedBox.square(
+              dimension: 40,
+              child: Glass.circle(child: Center(child: icon)),
             ),
     );
   }
@@ -376,7 +392,7 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
-/// Badge viên thuốc nhỏ: "MỚI" (xanh), "ĐẤU GIÁ" (đỏ).
+/// Chip kính nhỏ: "MỚI" (kính tối), "ĐẤU GIÁ" (kính đỏ). Thường đặt lên góc bìa ([BookPoster.badge]).
 class PillBadge extends StatelessWidget {
   const PillBadge(this.text, {super.key, this.color});
 
@@ -390,16 +406,27 @@ class PillBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: ShapeDecoration(
-        color: color ?? context.appColors.badgeNew,
-        shape: const StadiumBorder(),
-      ),
-      child: Text(
-        text,
-        style: context.textStyles.labelSmall?.copyWith(
-          color: context.colors.surface,
+    final c = context.appColors;
+    final base = color ?? c.badgeNew;
+    return ClipRRect(
+      borderRadius: AppRadius.chip,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: ShapeDecoration(
+            color: base.a >= 0.99 ? base.withValues(alpha: 0.72) : base,
+            shape: StadiumBorder(
+              side: BorderSide(
+                color: c.glassBorder.withValues(alpha: 0.45),
+                width: 0.5,
+              ),
+            ),
+          ),
+          child: Text(
+            text,
+            style: context.textStyles.labelSmall?.copyWith(color: c.onSelected),
+          ),
         ),
       ),
     );
@@ -484,7 +511,7 @@ class EmptyState extends StatelessWidget {
   }
 }
 
-/// Khối nội dung nền xám nhạt bo góc (thông tin, biểu mẫu, tóm tắt).
+/// Khối nội dung bằng kính trong (thông tin, biểu mẫu, tóm tắt). Không làm mờ để cuộn mượt.
 class InfoPanel extends StatelessWidget {
   const InfoPanel({
     super.key,
@@ -497,18 +524,12 @@ class InfoPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.appColors.sidebar,
-        borderRadius: AppRadius.card,
-      ),
-      child: Padding(padding: padding, child: child),
-    );
+    return Glass(blur: false, padding: padding, child: child);
   }
 }
 
 /// Ô lựa chọn một trong nhiều (địa chỉ, phương thức thanh toán, mức cọc…):
-/// nền xám nhạt, viền đậm + dấu tích khi được chọn.
+/// nền kính trong, viền xanh + dấu tích khi được chọn.
 class SelectTile extends StatelessWidget {
   const SelectTile({
     super.key,

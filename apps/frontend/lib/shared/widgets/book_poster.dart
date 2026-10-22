@@ -1,9 +1,11 @@
+import 'dart:ui' show ImageFilter, TileMode;
+
 import 'package:flutter/material.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
 
-/// Poster sách kiểu Apple Books: tỉ lệ 2:3, gáy sáng bên trái, bóng đổ mềm.
+/// Poster sách: tỉ lệ 2:3, gáy sáng bên trái, bóng đổ mềm. [badge] là chip kính đặt ở góc dưới trái bìa.
 /// Có ảnh bìa ([coverUrl]) thì hiện ảnh; chưa có thì tự vẽ bìa từ tên sách.
 class BookPoster extends StatelessWidget {
   const BookPoster({
@@ -14,6 +16,7 @@ class BookPoster extends StatelessWidget {
     this.seed,
     this.width,
     this.shadow = true,
+    this.badge,
   });
 
   final String title;
@@ -24,6 +27,9 @@ class BookPoster extends StatelessWidget {
   final String? seed;
   final double? width;
   final bool shadow;
+
+  /// Chip kính trên bìa (MỚI / ĐẤU GIÁ / giờ mở phiên).
+  final Widget? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +83,8 @@ class BookPoster extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (badge != null)
+                  Positioned(left: 7, bottom: 7, child: badge!),
               ],
             ),
           ),
@@ -86,7 +94,7 @@ class BookPoster extends StatelessWidget {
   }
 }
 
-/// Bìa tự vẽ: nền một màu, tên sách serif, tác giả, một hình vẽ phẳng.
+/// Bìa tự vẽ: nền một màu, tên sách đậm, tác giả, một hình vẽ phẳng.
 /// Màu và hình chọn theo [seed] nên cùng một cuốn luôn giống nhau.
 class DrawnCover extends StatelessWidget {
   const DrawnCover({
@@ -128,7 +136,6 @@ class DrawnCover extends StatelessWidget {
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: AppFonts.serif,
                         fontWeight: FontWeight.w600,
                         fontSize: w * 0.12,
                         height: 1.05,
@@ -141,7 +148,6 @@ class DrawnCover extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: AppFonts.sans,
                         fontSize: w * 0.058,
                         color: ink.withValues(alpha: 0.85),
                       ),
@@ -252,4 +258,52 @@ class _MotifPainter extends CustomPainter {
   @override
   bool shouldRepaint(_MotifPainter old) =>
       old.motif != motif || old.ink != ink || old.accent != accent;
+}
+
+/// Bìa sách phóng to + làm mờ, phủ kín vùng của nó — nền màu cho các khối kính
+/// (thẻ phiên đang diễn ra, đầu trang chi tiết sách).
+class BlurredCover extends StatelessWidget {
+  const BlurredCover({
+    super.key,
+    required this.title,
+    required this.author,
+    this.coverUrl,
+    this.seed,
+    this.sigma = 34,
+    this.softEdges = false,
+  });
+
+  final String title;
+  final String author;
+  final String? coverUrl;
+  final String? seed;
+  final double sigma;
+
+  /// true → mép mờ dần ra trong suốt (vệt màu loang); false → phủ kín đến mép (nền thẻ).
+  final bool softEdges;
+
+  @override
+  Widget build(BuildContext context) {
+    return ImageFiltered(
+      imageFilter: ImageFilter.blur(
+        sigmaX: sigma,
+        sigmaY: sigma,
+        tileMode: softEdges ? TileMode.decal : TileMode.clamp,
+      ),
+      child: FittedBox(
+        fit: BoxFit.cover,
+        clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: 200,
+          child: BookPoster(
+            title: title,
+            author: author,
+            coverUrl: coverUrl,
+            seed: seed,
+            shadow: false,
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -24,23 +24,18 @@ class SessionTile extends StatelessWidget {
         author: l10n.lotsCount(session.lotCount),
         coverUrl: session.coverImageUrl,
         seed: session.id,
+        badge: session.isLive
+            ? PillBadge(l10n.live, color: context.appColors.live)
+            : PillBadge.auction(context),
       ),
       title: session.title,
       onTap: onTap,
-      meta: Row(
-        children: [
-          if (session.isLive) ...[
-            PillBadge(l10n.live, color: context.appColors.live),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(l10n.registeredCount(session.registeredCount)),
-            ),
-          ] else ...[
-            PillBadge.auction(context),
-            const SizedBox(width: 6),
-            Flexible(child: Text(formatShortDateTime(session.startAt))),
-          ],
-        ],
+      meta: Text(
+        session.isLive
+            ? l10n.registeredCount(session.registeredCount)
+            : formatShortDateTime(session.startAt),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

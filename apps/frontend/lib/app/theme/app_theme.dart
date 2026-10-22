@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 
-/// Theme style Apple Books. Cỡ chữ theo mockup đã duyệt:
-/// - displaySmall: tiêu đề trang desktop (serif 34, đậm)
+/// Theme style Liquid Glass (chữ SF trên iPhone/Mac, Inter trên web/Android). Cỡ chữ:
+/// - displaySmall: tiêu đề trang desktop (34, đậm)
 /// - headlineSmall: tiêu đề trang mobile / tiêu đề kệ (sans 22, rất đậm)
 /// - titleMedium: tiêu đề khối (sans 17, đậm)
 /// - titleSmall: tên sách dưới poster (sans 13, đậm vừa)
@@ -19,7 +19,7 @@ abstract final class AppTheme {
 
     final scheme =
         ColorScheme.fromSeed(
-          seedColor: c.selected,
+          seedColor: c.tint,
           brightness: brightness,
         ).copyWith(
           surface: surface,
@@ -38,89 +38,34 @@ abstract final class AppTheme {
           error: c.live,
         );
 
-    const sans = AppFonts.sans;
-    const serif = AppFonts.serif;
+    final family = AppFonts.family;
+    TextStyle t(
+      double size,
+      FontWeight weight,
+      double height,
+      double track, [
+      Color? color,
+    ]) => TextStyle(
+      fontFamily: family,
+      fontSize: size,
+      fontWeight: weight,
+      height: height,
+      letterSpacing: track,
+      color: color ?? ink,
+    );
     final text = TextTheme(
-      displaySmall: TextStyle(
-        fontFamily: serif,
-        fontSize: 34,
-        fontWeight: FontWeight.w800,
-        height: 1.05,
-        letterSpacing: -0.3,
-        color: ink,
-      ),
-      headlineMedium: TextStyle(
-        fontFamily: serif,
-        fontSize: 28,
-        fontWeight: FontWeight.w800,
-        height: 1.1,
-        color: ink,
-      ),
-      headlineSmall: TextStyle(
-        fontFamily: sans,
-        fontSize: 22,
-        fontWeight: FontWeight.w800,
-        height: 1.15,
-        color: ink,
-      ),
-      titleLarge: TextStyle(
-        fontFamily: sans,
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-        color: ink,
-      ),
-      titleMedium: TextStyle(
-        fontFamily: sans,
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        height: 1.3,
-        color: ink,
-      ),
-      titleSmall: TextStyle(
-        fontFamily: sans,
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        height: 1.3,
-        color: ink,
-      ),
-      bodyLarge: TextStyle(
-        fontFamily: sans,
-        fontSize: 16,
-        height: 1.5,
-        color: ink,
-      ),
-      bodyMedium: TextStyle(
-        fontFamily: sans,
-        fontSize: 14.5,
-        height: 1.45,
-        color: ink,
-      ),
-      bodySmall: TextStyle(
-        fontFamily: sans,
-        fontSize: 12,
-        height: 1.35,
-        color: c.secondaryText,
-      ),
-      labelLarge: TextStyle(
-        fontFamily: sans,
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: ink,
-      ),
-      labelMedium: TextStyle(
-        fontFamily: sans,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: ink,
-      ),
-      labelSmall: TextStyle(
-        fontFamily: sans,
-        fontSize: 10,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.2,
-        color: ink,
-      ),
+      displaySmall: t(34, FontWeight.w700, 1.1, -0.9),
+      headlineMedium: t(28, FontWeight.w700, 1.12, -0.6),
+      headlineSmall: t(22, FontWeight.w700, 1.18, -0.45),
+      titleLarge: t(19, FontWeight.w700, 1.2, -0.35),
+      titleMedium: t(16, FontWeight.w600, 1.3, -0.2),
+      titleSmall: t(13, FontWeight.w600, 1.3, -0.08),
+      bodyLarge: t(16, FontWeight.w400, 1.47, -0.2),
+      bodyMedium: t(14.5, FontWeight.w400, 1.42, -0.12),
+      bodySmall: t(12, FontWeight.w400, 1.35, 0, c.secondaryText),
+      labelLarge: t(14.5, FontWeight.w600, 1.2, -0.12),
+      labelMedium: t(12, FontWeight.w500, 1.2, 0),
+      labelSmall: t(10.5, FontWeight.w700, 1.2, 0.2),
     );
 
     const pill = StadiumBorder();
@@ -128,15 +73,16 @@ abstract final class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
-      fontFamily: sans,
+      fontFamily: family,
       textTheme: text,
-      scaffoldBackgroundColor: surface,
+      // Trang và khung app trong suốt: nền màu loang (AmbientBackground) nằm phía sau.
+      scaffoldBackgroundColor: Colors.transparent,
       canvasColor: surface,
       dividerColor: c.separator,
       splashFactory: InkSparkle.splashFactory,
       extensions: [c],
       appBarTheme: AppBarTheme(
-        backgroundColor: surface,
+        backgroundColor: Colors.transparent,
         foregroundColor: ink,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -157,8 +103,8 @@ abstract final class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: ink,
-          foregroundColor: surface,
+          backgroundColor: c.tint,
+          foregroundColor: Colors.white,
           minimumSize: const Size(64, 44),
           padding: const EdgeInsets.symmetric(horizontal: 20),
           shape: pill,
@@ -178,7 +124,7 @@ abstract final class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: c.info,
+          foregroundColor: c.tint,
           textStyle: text.labelLarge,
         ),
       ),
@@ -204,7 +150,7 @@ abstract final class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: AppRadius.card,
-          borderSide: BorderSide(color: c.selected, width: 1.5),
+          borderSide: BorderSide(color: c.tint, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: AppRadius.card,
@@ -234,8 +180,8 @@ abstract final class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: c.selected,
-        contentTextStyle: text.bodyMedium?.copyWith(color: c.onSelected),
+        backgroundColor: ink,
+        contentTextStyle: text.bodyMedium?.copyWith(color: surface),
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.card),
       ),
       bottomSheetTheme: BottomSheetThemeData(

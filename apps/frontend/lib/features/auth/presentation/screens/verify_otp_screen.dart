@@ -80,10 +80,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
           keyboardType: TextInputType.number,
           maxLength: 6,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: context.textStyles.headlineMedium?.copyWith(
-            letterSpacing: 12,
-            fontFamily: AppFonts.sans,
-          ),
+          style: context.textStyles.headlineMedium?.copyWith(letterSpacing: 12),
           decoration: InputDecoration(labelText: l10n.otpCode, counterText: ''),
           onChanged: (v) {
             if (v.length == 6) _submit();

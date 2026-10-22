@@ -128,7 +128,7 @@ class Shelf extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: alt ? context.appColors.shelfAlt : context.colors.surface,
+      color: alt ? context.appColors.shelfAlt : Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.only(top: 26, bottom: 30),
         child: Column(

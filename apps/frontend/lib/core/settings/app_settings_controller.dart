@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_settings_controller.g.dart';
 
-/// Lựa chọn giao diện. Mặc định [light] — style Apple Books đã duyệt là nền sáng.
+/// Lựa chọn giao diện. Mặc định [light] — style Liquid Glass đã duyệt là nền sáng.
 enum ThemePref { light, dark, system }
 
 /// Tuỳ chọn giao diện của người dùng (theme, ngôn ngữ).

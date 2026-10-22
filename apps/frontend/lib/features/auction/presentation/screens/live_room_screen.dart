@@ -345,9 +345,7 @@ class _BidPanel extends ConsumerWidget {
           Text(l10n.currentPrice, style: context.textStyles.bodySmall),
           PriceText(
             lot.currentPrice,
-            style: context.textStyles.displaySmall?.copyWith(
-              fontFamily: AppFonts.sans,
-            ),
+            style: context.textStyles.displaySmall?.copyWith(),
           ),
           Text(
             lot.leadingPaddle == null
@@ -365,7 +363,6 @@ class _BidPanel extends ConsumerWidget {
               Text(
                 formatCountdown(remaining),
                 style: context.textStyles.headlineMedium?.copyWith(
-                  fontFamily: AppFonts.sans,
                   color: phase == HammerPhase.open ? null : c.live,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),

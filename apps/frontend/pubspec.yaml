@@ -46,26 +46,15 @@ flutter:
   uses-material-design: true
   generate: true
   fonts:
-    # Tiêu đề, tên sách (serif, kiểu Apple Books). OFL — Google Fonts.
-    - family: Newsreader
+    # Chữ giao diện trên web / Android (iPhone, Mac dùng SF của hệ thống). OFL — Google Fonts.
+    - family: Inter
       fonts:
-        - asset: assets/fonts/Newsreader-500.ttf
+        - asset: assets/fonts/Inter-400.ttf
+        - asset: assets/fonts/Inter-500.ttf
           weight: 500
-        - asset: assets/fonts/Newsreader-600.ttf
+        - asset: assets/fonts/Inter-600.ttf
           weight: 600
-        - asset: assets/fonts/Newsreader-700.ttf
+        - asset: assets/fonts/Inter-700.ttf
           weight: 700
-        - asset: assets/fonts/Newsreader-800.ttf
-          weight: 800
-    # Chữ giao diện, thiết kế cho tiếng Việt. OFL — Google Fonts.
-    - family: BeVietnamPro
-      fonts:
-        - asset: assets/fonts/BeVietnamPro-400.ttf
-        - asset: assets/fonts/BeVietnamPro-500.ttf
-          weight: 500
-        - asset: assets/fonts/BeVietnamPro-600.ttf
-          weight: 600
-        - asset: assets/fonts/BeVietnamPro-700.ttf
-          weight: 700
-        - asset: assets/fonts/BeVietnamPro-800.ttf
+        - asset: assets/fonts/Inter-800.ttf
           weight: 800

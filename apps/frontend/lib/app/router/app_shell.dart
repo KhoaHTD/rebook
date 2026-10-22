@@ -11,10 +11,11 @@ import 'package:book_marketplace/features/cart/presentation/providers/cart_provi
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/notifications/presentation/providers/notifications_providers.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/widgets/glass.dart';
 
-/// Khung app người dùng theo style Apple Books.
-/// - Desktop/tablet: sidebar nổi bo góc bên trái (Khám phá · Của tôi · Kệ sách, người dùng ở đáy).
-/// - Điện thoại: tab bar viên thuốc nổi ở đáy, 4 nhánh theo SRS 11.2.
+/// Khung app người dùng theo style Liquid Glass.
+/// - Desktop/tablet: sidebar kính nổi bên trái (Khám phá · Của tôi · Kệ sách, người dùng ở đáy).
+/// - Điện thoại: tab bar kính nổi ở đáy (4 nhánh theo SRS 11.2) + nút tìm kiếm tròn.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.navigationShell});
 
@@ -86,7 +87,6 @@ class _Sidebar extends ConsumerWidget {
             child: Text(
               l10n.appTitle,
               style: context.textStyles.titleLarge?.copyWith(
-                fontFamily: AppFonts.serif,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -220,40 +220,52 @@ class _TabBar extends ConsumerWidget {
       (Icons.person_rounded, l10n.navAccount, 0),
     ];
 
+    // Kiểu iOS 26: viên kính chứa 4 tab + nút tìm kiếm tròn tách riêng.
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 14),
-        child: Container(
-          height: 68,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          decoration: ShapeDecoration(
-            color: c.tabBar,
-            shape: StadiumBorder(
-              side: BorderSide(color: c.separator.withValues(alpha: 0.7)),
-            ),
-            shadows: [
-              BoxShadow(
-                color: c.posterShadow.withValues(alpha: 0.22),
-                blurRadius: 24,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              for (var i = 0; i < tabs.length; i++)
-                Expanded(
-                  child: _Tab(
-                    icon: tabs[i].$1,
-                    label: tabs[i].$2,
-                    badge: tabs[i].$3,
-                    selected: i == index,
-                    onTap: () => onSelect(i),
+        padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+        child: Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 64,
+                child: Glass(
+                  borderRadius: AppRadius.chip,
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < tabs.length; i++)
+                        Expanded(
+                          child: _Tab(
+                            icon: tabs[i].$1,
+                            label: tabs[i].$2,
+                            badge: tabs[i].$3,
+                            selected: i == index,
+                            onTap: () => onSelect(i),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-            ],
-          ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox.square(
+              dimension: 64,
+              child: Glass.circle(
+                onTap: () => context.go(Routes.search),
+                child: Center(
+                  child: Icon(
+                    Icons.search_rounded,
+                    size: 26,
+                    semanticLabel: l10n.search,
+                    color: c.secondaryText,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -285,10 +297,20 @@ class _Tab extends StatelessWidget {
       child: InkWell(
         customBorder: const StadiumBorder(),
         onTap: onTap,
+        // Tab đang chọn: "thấu kính" sáng nổi lên trong viên kính, màu nhấn xanh.
         child: Ink(
           decoration: ShapeDecoration(
-            color: selected ? c.fill : Colors.transparent,
+            color: selected ? c.tabBar : Colors.transparent,
             shape: const StadiumBorder(),
+            shadows: selected
+                ? [
+                    BoxShadow(
+                      color: c.glassShadow,
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -297,14 +319,22 @@ class _Tab extends StatelessWidget {
                 isLabelVisible: badge > 0,
                 label: Text('$badge'),
                 backgroundColor: c.live,
-                child: Icon(icon, size: 24),
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: selected ? c.tint : context.colors.onSurface,
+                ),
               ),
               const SizedBox(height: 3),
               Text(
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: context.textStyles.labelMedium,
+                style: context.textStyles.labelSmall?.copyWith(
+                  color: selected ? c.tint : context.colors.onSurface,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0,
+                ),
               ),
             ],
           ),

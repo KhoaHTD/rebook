@@ -41,6 +41,7 @@ class ListingTile extends StatelessWidget {
         author: book.author,
         coverUrl: book.coverUrl,
         seed: book.id,
+        badge: isNew(listing) ? PillBadge.newItem(context) : null,
       ),
       title: book.title,
       onTap: onTap,
@@ -48,10 +49,6 @@ class ListingTile extends StatelessWidget {
       onMenuSelected: onMenuSelected,
       meta: Row(
         children: [
-          if (isNew(listing)) ...[
-            PillBadge.newItem(context),
-            const SizedBox(width: 6),
-          ],
           Flexible(
             child: Text.rich(
               TextSpan(

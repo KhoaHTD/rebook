@@ -36,18 +36,13 @@ class LotTile extends StatelessWidget {
         author: book.author,
         coverUrl: book.coverUrl,
         seed: book.id,
+        badge: lot.status == LotStatus.live
+            ? PillBadge(l10n.live, color: context.appColors.live)
+            : null,
       ),
       title: '${l10n.lotNumber(lot.lotNumber)} · ${book.title}',
       onTap: onTap,
-      meta: Row(
-        children: [
-          if (lot.status == LotStatus.live) ...[
-            PillBadge(l10n.live, color: context.appColors.live),
-            const SizedBox(width: 6),
-          ],
-          Flexible(child: Text(meta)),
-        ],
-      ),
+      meta: Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis),
     );
   }
 }

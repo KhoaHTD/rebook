@@ -9,7 +9,7 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/auth_user.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 
-/// Khung web quản trị: cùng sidebar style Apple Books với app người dùng.
+/// Khung web quản trị: cùng sidebar kính với app người dùng.
 /// Staff chỉ thấy nhóm Kho; Admin thấy thêm nhóm Quản trị.
 class AdminShell extends ConsumerWidget {
   const AdminShell({super.key, required this.location, required this.child});
@@ -46,7 +46,6 @@ class AdminShell extends ConsumerWidget {
                   child: Text(
                     l10n.adminAppTitle,
                     style: context.textStyles.titleLarge?.copyWith(
-                      fontFamily: AppFonts.serif,
                       fontWeight: FontWeight.w800,
                     ),
                   ),

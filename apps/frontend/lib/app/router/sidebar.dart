@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/shared/widgets/glass.dart';
 
-/// Khung sidebar nổi bo góc dùng chung cho app người dùng và web quản trị.
+/// Sidebar nổi bằng kính lỏng, dùng chung cho app người dùng và web quản trị.
 class SidebarPanel extends StatelessWidget {
   const SidebarPanel({super.key, required this.child});
 
@@ -10,17 +11,12 @@ class SidebarPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 250,
-      margin: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: context.appColors.sidebar,
-        borderRadius: AppRadius.sidebar,
-        border: Border.all(
-          color: context.appColors.separator.withValues(alpha: 0.6),
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: SizedBox(
+        width: 248,
+        child: Glass(borderRadius: AppRadius.sidebar, child: child),
       ),
-      child: child,
     );
   }
 }
@@ -32,11 +28,12 @@ class SidebarHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(8, 20, 8, 6),
+    padding: const EdgeInsets.fromLTRB(12, 20, 12, 6),
     child: Text(
       text,
-      style: context.textStyles.titleSmall?.copyWith(
-        fontWeight: FontWeight.w700,
+      style: context.textStyles.labelMedium?.copyWith(
+        color: context.appColors.tertiaryText,
+        fontWeight: FontWeight.w600,
       ),
     ),
   );
@@ -84,18 +81,23 @@ class SidebarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final fg = selected ? c.onSelected : context.colors.onSurface;
+    // Mục đang chọn: viên kính ánh xanh, chữ và biểu tượng màu nhấn.
+    final fg = selected ? c.tint : context.colors.onSurface;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: Material(
-        color: selected ? c.selected : Colors.transparent,
-        borderRadius: AppRadius.item,
+        color: selected ? c.tintSoft : Colors.transparent,
+        shape: StadiumBorder(
+          side: selected
+              ? BorderSide(color: c.tint.withValues(alpha: 0.22), width: 0.5)
+              : BorderSide.none,
+        ),
         child: InkWell(
-          borderRadius: AppRadius.item,
+          customBorder: const StadiumBorder(),
           onTap: onTap,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: 8,
+              horizontal: 12,
               vertical: leading == null ? 7 : 6,
             ),
             child: Row(
@@ -114,7 +116,9 @@ class SidebarItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: context.textStyles.bodyMedium?.copyWith(
                       color: fg,
-                      fontWeight: leading == null ? null : FontWeight.w600,
+                      fontWeight: selected || leading != null
+                          ? FontWeight.w600
+                          : null,
                     ),
                   ),
                 ),
@@ -122,7 +126,7 @@ class SidebarItem extends StatelessWidget {
                   Text(
                     '$count',
                     style: context.textStyles.labelMedium?.copyWith(
-                      color: selected ? fg : c.secondaryText,
+                      color: c.secondaryText,
                     ),
                   ),
               ],

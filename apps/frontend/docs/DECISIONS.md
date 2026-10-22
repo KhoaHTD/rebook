@@ -85,3 +85,11 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Phòng đấu giá trực tiếp (`/auctions/sessions/:id/live`) **không cần đăng nhập** để xem — SRS mục 2: khách xem trực tiếp
   phiên, không được trả giá. Chưa đăng ký thì phòng hiện lời nhắc + nút "Đăng ký tham gia" (đăng ký vẫn cần đăng nhập).
 - Màn hình con mở từ sidebar desktop (Đơn mua, Ví…) giữ sidebar; phòng đấu giá phủ toàn màn hình.
+
+### Giao diện Liquid Glass + chữ SF (2026-10-22)
+- Người dùng duyệt bản vẽ `design-preview/png/lg-desktop.png`, `lg-mobile.png`, thay style Apple Books (nền trắng, serif Newsreader).
+- Chữ: người dùng muốn toàn bộ chữ là San Francisco. Giấy phép SF của Apple chỉ cho dùng trên nền tảng Apple, không cho đóng gói
+  vào app web / Android → iPhone / Mac dùng SF có sẵn của hệ điều hành, web và Android dùng **Inter** (OFL, gần SF nhất). Người dùng đồng ý.
+- Thêm màu nhấn xanh (`AppColors.tint`) — trước đây chỉ đen trắng. Người dùng đồng ý.
+- Kính làm mờ tốn GPU → chỉ dùng cho phần nổi; khối trong danh sách dùng kính trong không làm mờ.
+- Mobile: chi tiết sách có thanh mua hàng kính nổi phía trên tab bar (nút mua trong trang chỉ còn ở desktop). Tab bar kèm nút tìm kiếm tròn kiểu iOS 26.

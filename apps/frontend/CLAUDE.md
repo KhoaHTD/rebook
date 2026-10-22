@@ -5,9 +5,11 @@ Firebase chỉ dùng cho **hosting bản web** và **FCM (thông báo đẩy)**:
 
 Nghiệp vụ: [docs/SRS.txt](docs/SRS.txt) (đặc tả gốc, @Khoa 21/10/2026) + 3 sơ đồ `docs/srs-*.png`. Tiến độ: [docs/PROGRESS.md](docs/PROGRESS.md).
 
-**Giao diện: style Apple Books đã duyệt** — chuẩn là `../../design-preview/png/apple-desktop.png` và `apple-mobile.png`
-(nền trắng, sidebar xám nhạt trên desktop, tiêu đề serif Newsreader đậm, chữ Be Vietnam Pro, poster sách lớn có gáy + bóng,
-lưới 4 poster/hàng trên desktop, kệ cuộn ngang + tab bar nổi trên mobile). Mọi màn mới theo đúng style này.
+**Giao diện: style Liquid Glass đã duyệt (2026-10-22)** — chuẩn là `../../design-preview/png/lg-desktop.png` và `lg-mobile.png`
+(nền màu loang lấy tông từ bìa sách, sidebar / tab bar / thanh đầu trang / thanh mua hàng bằng kính mờ nổi, màu nhấn xanh,
+chữ San Francisco — SF hệ thống trên iPhone/Mac, Inter trên web/Android, không đóng gói SF —, poster sách lớn có gáy + bóng,
+lưới 4 poster/hàng trên desktop, kệ cuộn ngang + tab bar kính nổi trên mobile). Mọi màn mới theo đúng style này:
+dùng `Glass`, `InfoPanel`, `AppPage`, `HeaderAction` trong `shared/widgets/` thay vì tự vẽ nền / viền.
 
 Chi tiết kiến trúc, lý do và ví dụ: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Đọc file đó trước khi thêm feature mới.
 
