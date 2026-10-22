@@ -461,3 +461,79 @@ class InfoPanel extends StatelessWidget {
     );
   }
 }
+
+/// Ô lựa chọn một trong nhiều (địa chỉ, phương thức thanh toán, mức cọc…):
+/// nền xám nhạt, viền đậm + dấu tích khi được chọn.
+class SelectTile extends StatelessWidget {
+  const SelectTile({
+    super.key,
+    required this.selected,
+    required this.title,
+    this.subtitle,
+    this.leading,
+    this.trailing,
+    this.onTap,
+  });
+
+  final bool selected;
+  final String title;
+  final String? subtitle;
+  final Widget? leading;
+  final Widget? trailing;
+
+  /// null = không chọn được (vd số dư ví không đủ).
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    final enabled = onTap != null;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Material(
+        color: c.sidebar,
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.card,
+          side: BorderSide(
+            color: selected ? c.selected : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: InkWell(
+          customBorder: const RoundedRectangleBorder(
+            borderRadius: AppRadius.card,
+          ),
+          onTap: onTap,
+          child: Opacity(
+            opacity: enabled ? 1 : 0.45,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  if (leading != null) ...[leading!, const SizedBox(width: 12)],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title, style: context.textStyles.titleMedium),
+                        if (subtitle != null)
+                          Text(subtitle!, style: context.textStyles.bodySmall),
+                      ],
+                    ),
+                  ),
+                  ?trailing,
+                  Icon(
+                    selected
+                        ? Icons.check_circle_rounded
+                        : Icons.circle_outlined,
+                    color: selected ? c.selected : c.tertiaryText,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

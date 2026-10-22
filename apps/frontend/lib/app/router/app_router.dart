@@ -11,6 +11,9 @@ import 'package:book_marketplace/features/auth/presentation/screens/forgot_passw
 import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/register_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/verify_otp_screen.dart';
+import 'package:book_marketplace/features/cart/presentation/screens/cart_screen.dart';
+import 'package:book_marketplace/features/cart/presentation/screens/checkout_screen.dart';
+import 'package:book_marketplace/features/cart/presentation/screens/payment_result_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/home_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/listing_detail_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/search_screen.dart';
@@ -95,17 +98,18 @@ GoRouter appRouter(Ref ref) {
                   ),
                   GoRoute(
                     path: 'cart',
-                    builder: (c, _) => _soon(c, (l) => l.cartTitle),
+                    builder: (_, _) => const CartScreen(),
                     routes: [
                       GoRoute(
                         path: 'checkout',
-                        builder: (c, _) => _soon(c, (l) => l.checkout),
+                        builder: (_, _) => const CheckoutScreen(),
                       ),
                     ],
                   ),
                   GoRoute(
                     path: 'payments/:id',
-                    builder: (c, _) => _soon(c, (l) => l.checkout),
+                    builder: (_, s) =>
+                        PaymentResultScreen(paymentId: s.pathParameters['id']!),
                   ),
                   GoRoute(
                     path: 'shops/:id',
