@@ -69,7 +69,7 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Spec chưa có GET một đơn của shop → ApiSellerRepository.shopOrder lấy từ danh sách. Nên thêm GET /seller/orders/{id} vào openapi.yaml.
 
 ### Web quản trị
-- Hai feature riêng: `staff` (ký gửi, nhận sách, kiểm định, kho, giao lô) và `admin` (tổng quan, phiên, duyệt tin, người dùng, danh mục, cấu hình, rút tiền, khiếu nại). Staff chỉ thấy và vào được phần kho; vào trang Admin bị chuyển về "Yêu cầu ký gửi".
+- Hai feature riêng: `staff` (ký gửi, nhận sách, kiểm định, kho, giao lô) và `admin` (tổng quan, phiên, duyệt tin, người dùng, danh mục, cấu hình, rút tiền, khiếu nại). Staff thấy và vào được phần kho + danh sách phiên và màn giám sát (SRS 2: Staff / Auctioneer giám sát phiên tự động — tạm dừng / tiếp tục / hủy lô); tạo / sửa phiên và các trang Admin khác bị chuyển về "Yêu cầu ký gửi". Màn giám sát gọi các endpoint admin pause/resume/cancelLot — backend cần cho phép cả role STAFF.
 - Màn giám sát phiên hỏi lại GET /sessions/{id}/state mỗi 2 giây thay vì mở STOMP (đủ cho người vận hành, đỡ phụ thuộc feature auction).
 - Chạy: `flutter run -d chrome -t lib/main_admin.dart --dart-define-from-file=env/dev.json` (tài khoản staff@rebook.vn / admin@rebook.vn, mật khẩu 123456).
 

@@ -214,7 +214,14 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: c.fill,
         selectedColor: c.selected,
-        labelStyle: text.labelMedium,
+        // FilterChip không dùng secondaryLabelStyle → đổi màu chữ theo trạng thái chọn.
+        labelStyle: text.labelMedium?.copyWith(
+          color: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? c.onSelected
+                : text.labelMedium?.color ?? ink,
+          ),
+        ),
         secondaryLabelStyle: text.labelMedium?.copyWith(color: c.onSelected),
         side: BorderSide.none,
         shape: pill,

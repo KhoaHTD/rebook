@@ -8,13 +8,26 @@ import 'package:book_marketplace/app/router/placeholder_page.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/auth_user.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/categories_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/config_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/dashboard_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/disputes_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/listing_review_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/monitor_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/session_edit_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/sessions_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/users_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/withdrawals_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
+import 'package:book_marketplace/features/staff/presentation/screens/appointments_screen.dart';
+import 'package:book_marketplace/features/staff/presentation/screens/auction_orders_screen.dart';
+import 'package:book_marketplace/features/staff/presentation/screens/inspection_screen.dart';
+import 'package:book_marketplace/features/staff/presentation/screens/staff_consignments_screen.dart';
+import 'package:book_marketplace/features/staff/presentation/screens/warehouse_screen.dart';
 
 part 'admin_router.g.dart';
 
-typedef _Title = String Function(AppLocalizations l);
-
-/// Router của web quản trị: chỉ Staff / Admin vào được; Staff chỉ thấy phần kho.
+/// Router của web quản trị: chỉ Staff / Admin vào được; Staff thấy phần kho + giám sát phiên.
 @Riverpod(keepAlive: true)
 GoRouter adminRouter(Ref ref) {
   final refresh = ValueNotifier(0);
@@ -57,33 +70,43 @@ GoRouter adminRouter(Ref ref) {
         builder: (_, state, child) =>
             AdminShell(location: state.matchedLocation, child: child),
         routes: [
-          _page(AdminRoutes.dashboard, (l) => l.navDashboard),
+          _page(AdminRoutes.dashboard, (_) => const DashboardScreen()),
           _page(
             AdminRoutes.consignments,
-            (l) => l.navConsignments,
-            routes: [_page(':id', (l) => l.navConsignments)],
-          ),
-          _page(AdminRoutes.appointments, (l) => l.navAppointments),
-          _page(AdminRoutes.warehouse, (l) => l.navWarehouse),
-          _page(AdminRoutes.auctionOrders, (l) => l.navAuctionOrders),
-          _page(
-            AdminRoutes.sessions,
-            (l) => l.navSessions,
+            (_) => const StaffConsignmentsScreen(),
             routes: [
-              _page('new', (l) => l.navSessions),
               _page(
                 ':id',
-                (l) => l.navSessions,
-                routes: [_page('monitor', (l) => l.navSessions)],
+                (s) => InspectionScreen(consignmentId: s.pathParameters['id']!),
               ),
             ],
           ),
-          _page(AdminRoutes.listings, (l) => l.navListingReview),
-          _page(AdminRoutes.users, (l) => l.navUsers),
-          _page(AdminRoutes.categories, (l) => l.navCategories),
-          _page(AdminRoutes.config, (l) => l.navConfig),
-          _page(AdminRoutes.withdrawals, (l) => l.navWithdrawals),
-          _page(AdminRoutes.disputes, (l) => l.navDisputes),
+          _page(AdminRoutes.appointments, (_) => const AppointmentsScreen()),
+          _page(AdminRoutes.warehouse, (_) => const WarehouseScreen()),
+          _page(AdminRoutes.auctionOrders, (_) => const AuctionOrdersScreen()),
+          _page(
+            AdminRoutes.sessions,
+            (_) => const SessionsScreen(),
+            routes: [
+              _page('new', (_) => const SessionEditScreen()),
+              _page(
+                ':id',
+                (s) => SessionEditScreen(sessionId: s.pathParameters['id']),
+                routes: [
+                  _page(
+                    'monitor',
+                    (s) => MonitorScreen(sessionId: s.pathParameters['id']!),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          _page(AdminRoutes.listings, (_) => const ListingReviewScreen()),
+          _page(AdminRoutes.users, (_) => const UsersScreen()),
+          _page(AdminRoutes.categories, (_) => const CategoriesScreen()),
+          _page(AdminRoutes.config, (_) => const ConfigScreen()),
+          _page(AdminRoutes.withdrawals, (_) => const WithdrawalsScreen()),
+          _page(AdminRoutes.disputes, (_) => const DisputesScreen()),
         ],
       ),
     ],
@@ -94,18 +117,26 @@ String _home(AuthUser user) => user.role == AuthRole.admin
     ? AdminRoutes.dashboard
     : AdminRoutes.consignments;
 
-bool _staffAllowed(String location) => [
-  AdminRoutes.consignments,
-  AdminRoutes.appointments,
-  AdminRoutes.warehouse,
-  AdminRoutes.auctionOrders,
-].any((p) => location == p || location.startsWith('$p/'));
+/// Staff: phần kho + danh sách phiên và màn giám sát (SRS 2 — Staff / Auctioneer).
+/// Tạo / sửa phiên chỉ Admin.
+bool _staffAllowed(String location) =>
+    location == AdminRoutes.sessions ||
+    (location.startsWith('${AdminRoutes.sessions}/') &&
+        location.endsWith('/monitor')) ||
+    [
+      AdminRoutes.consignments,
+      AdminRoutes.appointments,
+      AdminRoutes.warehouse,
+      AdminRoutes.auctionOrders,
+    ].any((p) => location == p || location.startsWith('$p/'));
 
-/// Trang trong khung admin, không hiệu ứng chuyển trang. Giai đoạn 6 thay trang tạm bằng màn thật.
-GoRoute _page(String path, _Title title, {List<RouteBase> routes = const []}) =>
-    GoRoute(
-      path: path,
-      pageBuilder: (context, state) =>
-          NoTransitionPage(child: PlaceholderPage(title: title(context.l10n))),
-      routes: routes,
-    );
+/// Trang trong khung admin: không hiệu ứng chuyển trang (giống web truyền thống).
+GoRoute _page(
+  String path,
+  Widget Function(GoRouterState state) build, {
+  List<RouteBase> routes = const [],
+}) => GoRoute(
+  path: path,
+  pageBuilder: (_, state) => NoTransitionPage(child: build(state)),
+  routes: routes,
+);

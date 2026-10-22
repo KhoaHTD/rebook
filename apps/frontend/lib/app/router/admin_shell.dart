@@ -82,13 +82,14 @@ class AdminShell extends ConsumerWidget {
                         l10n.navAuctionOrders,
                         AdminRoutes.auctionOrders,
                       ),
+                      // Staff giám sát phiên tự động (SRS 2 — Staff / Auctioneer).
+                      item(
+                        Icons.gavel_rounded,
+                        l10n.navSessions,
+                        AdminRoutes.sessions,
+                      ),
                       if (isAdmin) ...[
                         SidebarHeading(l10n.adminRole),
-                        item(
-                          Icons.gavel_rounded,
-                          l10n.navSessions,
-                          AdminRoutes.sessions,
-                        ),
                         item(
                           Icons.fact_check_outlined,
                           l10n.navListingReview,

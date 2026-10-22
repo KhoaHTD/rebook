@@ -54,8 +54,8 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 - [x] Ký gửi + đặt lịch, kết quả kiểm định, quyết định giá, kết quả phiên, doanh thu / rút tiền
 
 ## Giai đoạn 6 — Web quản trị (Flutter Web)
-- [ ] Staff: lịch hẹn, nhận sách, phiếu kiểm định, kho, giám sát phiên
-- [ ] Admin: duyệt tin, khóa tài khoản, danh mục, tạo phiên + xếp lô, cấu hình phí, khiếu nại, dashboard
+- [x] Staff: lịch hẹn, nhận sách, phiếu kiểm định, kho, giám sát phiên
+- [x] Admin: duyệt tin, khóa tài khoản, danh mục, tạo phiên + xếp lô, cấu hình phí, khiếu nại, dashboard
 
 ## Giai đoạn 7 — Hoàn thiện
 - [ ] analyze + arch_check + test sạch, build web 2 app, chụp màn hình so mockup, cập nhật README/ARCHITECTURE
