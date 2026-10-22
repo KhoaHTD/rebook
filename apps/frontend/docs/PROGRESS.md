@@ -49,9 +49,9 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 - [x] Kết quả phiên, hóa đơn lô thắng (đơn AUCTION)
 
 ## Giai đoạn 5 — Người bán
-- [ ] Bật shop, đăng / sửa / ẩn sách, quản lý tin, tồn kho
-- [ ] Đơn của shop: xác nhận, chuẩn bị, giao, hủy
-- [ ] Ký gửi + đặt lịch, kết quả kiểm định, quyết định giá, kết quả phiên, doanh thu / rút tiền
+- [x] Bật shop, đăng / sửa / ẩn sách, quản lý tin, tồn kho
+- [x] Đơn của shop: xác nhận, chuẩn bị, giao, hủy
+- [x] Ký gửi + đặt lịch, kết quả kiểm định, quyết định giá, kết quả phiên, doanh thu / rút tiền
 
 ## Giai đoạn 6 — Web quản trị (Flutter Web)
 - [ ] Staff: lịch hẹn, nhận sách, phiếu kiểm định, kho, giám sát phiên

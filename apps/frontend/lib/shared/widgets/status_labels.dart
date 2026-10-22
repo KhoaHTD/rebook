@@ -209,6 +209,8 @@ class StatusPill extends StatelessWidget {
       ),
       child: Text(
         label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: context.textStyles.labelMedium?.copyWith(
           color: color,
           fontWeight: FontWeight.w600,

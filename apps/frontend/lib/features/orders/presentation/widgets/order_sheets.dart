@@ -9,93 +9,15 @@ import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/widgets/photo_picker.dart';
+import 'package:book_marketplace/shared/widgets/sheets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
-
-/// Khung chung của các bảng trượt: tiêu đề + nội dung + nút xác nhận.
-Future<T?> _sheet<T>(
-  BuildContext context, {
-  required String title,
-  required Widget Function(BuildContext, StateSetter) body,
-}) => showModalBottomSheet<T>(
-  context: context,
-  isScrollControlled: true,
-  builder: (c) => StatefulBuilder(
-    builder: (c, setState) => Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        0,
-        20,
-        20 + MediaQuery.viewInsetsOf(c).bottom,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(title, style: c.textStyles.titleLarge),
-            const SizedBox(height: AppSpacing.md),
-            body(c, setState),
-          ],
-        ),
-      ),
-    ),
-  ),
-);
-
-/// Hỏi xác nhận có / không.
-Future<bool> confirmDialog(BuildContext context, String question) async {
-  final l10n = context.l10n;
-  final ok = await showDialog<bool>(
-    context: context,
-    builder: (c) => AlertDialog(
-      content: Text(question),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(c, false),
-          child: Text(l10n.cancel),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(c, true),
-          child: Text(l10n.confirm),
-        ),
-      ],
-    ),
-  );
-  return ok ?? false;
-}
-
-/// Chọn lý do hủy. [reasons]: chuỗi "a|b|c" trong file dịch.
-Future<String?> showCancelSheet(BuildContext context, String reasons) {
-  final l10n = context.l10n;
-  String? picked;
-  return _sheet<String>(
-    context,
-    title: l10n.cancelReason,
-    body: (c, setState) => Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final r in reasons.split('|'))
-          SelectTile(
-            selected: picked == r,
-            title: r,
-            onTap: () => setState(() => picked = r),
-          ),
-        const SizedBox(height: AppSpacing.md),
-        FilledButton(
-          onPressed: () => picked == null ? null : Navigator.pop(c, picked),
-          child: Text(l10n.confirm),
-        ),
-      ],
-    ),
-  );
-}
 
 /// Yêu cầu trả hàng: mô tả + ảnh minh chứng (chỉ khi sách khác mô tả — SRS 4.4).
 Future<(String, List<String>)?> showReturnSheet(BuildContext context) {
   final l10n = context.l10n;
   final reason = TextEditingController();
   var photos = <String>[];
-  return _sheet<(String, List<String>)>(
+  return showAppSheet<(String, List<String>)>(
     context,
     title: l10n.requestReturn,
     body: (c, setState) => Column(
@@ -132,7 +54,7 @@ Future<(int, String?)?> showReviewSheet(BuildContext context) {
   final l10n = context.l10n;
   final comment = TextEditingController();
   var stars = 5;
-  return _sheet<(int, String?)>(
+  return showAppSheet<(int, String?)>(
     context,
     title: l10n.writeReview,
     body: (c, setState) => Column(
@@ -187,7 +109,7 @@ Future<InvoiceChoice?> showPayInvoiceSheet(
   var pickup = false;
   var method = PaymentMethod.wallet;
   String? addressId;
-  return _sheet<InvoiceChoice>(
+  return showAppSheet<InvoiceChoice>(
     context,
     title: l10n.choosePayment,
     body: (c, setState) => Consumer(

@@ -33,17 +33,19 @@ import 'package:book_marketplace/features/orders/presentation/screens/orders_scr
 import 'package:book_marketplace/features/catalog/presentation/screens/listing_detail_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/search_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/shop_screen.dart';
+import 'package:book_marketplace/features/consignment/presentation/screens/consignment_detail_screen.dart';
+import 'package:book_marketplace/features/consignment/presentation/screens/consignments_screen.dart';
+import 'package:book_marketplace/features/consignment/presentation/screens/new_consignment_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/listing_form_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/open_shop_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/seller_hub_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/seller_listings_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/seller_order_detail_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/seller_orders_screen.dart';
 
 part 'app_router.g.dart';
 
 final _rootKey = GlobalKey<NavigatorState>();
-
-typedef _Title = String Function(AppLocalizations l);
-
-/// Trang chưa làm xong: khung Apple Books + thông báo "đang làm".
-/// Giai đoạn 3–6 thay từng chỗ bằng màn hình thật.
-Widget _soon(BuildContext context, _Title title) =>
-    PlaceholderPage(title: title(context.l10n));
 
 /// Thêm màn hình mới: (1) thêm path vào [Routes], (2) thêm GoRoute ở đây.
 @Riverpod(keepAlive: true)
@@ -225,33 +227,37 @@ GoRouter appRouter(Ref ref) {
                   ),
                   GoRoute(
                     path: 'seller',
-                    builder: (c, _) => _soon(c, (l) => l.sellerHub),
+                    builder: (_, _) => const SellerHubScreen(),
                     routes: [
                       GoRoute(
                         path: 'open',
-                        builder: (c, _) => _soon(c, (l) => l.sellerHub),
+                        builder: (_, _) => const OpenShopScreen(),
                       ),
                       GoRoute(
                         path: 'listings',
-                        builder: (c, _) => _soon(c, (l) => l.sellerHub),
+                        builder: (_, _) => const SellerListingsScreen(),
                         routes: [
                           GoRoute(
                             path: 'new',
-                            builder: (c, _) => _soon(c, (l) => l.newListing),
+                            builder: (_, _) => const ListingFormScreen(),
                           ),
                           GoRoute(
                             path: ':id',
-                            builder: (c, _) => _soon(c, (l) => l.newListing),
+                            builder: (_, s) => ListingFormScreen(
+                              listingId: s.pathParameters['id'],
+                            ),
                           ),
                         ],
                       ),
                       GoRoute(
                         path: 'orders',
-                        builder: (c, _) => _soon(c, (l) => l.shopOrders),
+                        builder: (_, _) => const SellerOrdersScreen(),
                         routes: [
                           GoRoute(
                             path: ':id',
-                            builder: (c, _) => _soon(c, (l) => l.shopOrders),
+                            builder: (_, s) => SellerOrderDetailScreen(
+                              orderId: s.pathParameters['id']!,
+                            ),
                           ),
                         ],
                       ),
@@ -259,15 +265,17 @@ GoRouter appRouter(Ref ref) {
                   ),
                   GoRoute(
                     path: 'consignments',
-                    builder: (c, _) => _soon(c, (l) => l.myConsignments),
+                    builder: (_, _) => const ConsignmentsScreen(),
                     routes: [
                       GoRoute(
                         path: 'new',
-                        builder: (c, _) => _soon(c, (l) => l.newConsignment),
+                        builder: (_, _) => const NewConsignmentScreen(),
                       ),
                       GoRoute(
                         path: ':id',
-                        builder: (c, _) => _soon(c, (l) => l.myConsignments),
+                        builder: (_, s) => ConsignmentDetailScreen(
+                          consignmentId: s.pathParameters['id']!,
+                        ),
                       ),
                     ],
                   ),
