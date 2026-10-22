@@ -48,18 +48,18 @@ class AuthInterceptor extends QueuedInterceptor {
     if (current == null) return handler.next(err);
 
     try {
-      final pair = await _authClient.refresh(
+      final pair = await _authClient.postAuthRefresh(
         body: RefreshRequest(refreshToken: current.refreshToken),
       );
+      final access = pair.accessToken;
+      final refresh = pair.refreshToken;
+      if (access == null || refresh == null) throw StateError('No tokens');
       await _storage.write(
-        AuthTokens(
-          accessToken: pair.accessToken,
-          refreshToken: pair.refreshToken,
-        ),
+        AuthTokens(accessToken: access, refreshToken: refresh),
       );
       options
         ..extra[_retriedKey] = true
-        ..headers['Authorization'] = 'Bearer ${pair.accessToken}';
+        ..headers['Authorization'] = 'Bearer $access';
       handler.resolve(await _retryDio.fetch<dynamic>(options));
     } catch (_) {
       await _onSessionExpired();

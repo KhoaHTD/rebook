@@ -92,6 +92,7 @@ public final class OrderDtos {
                               boolean reviewed, boolean canReview, boolean canRequestReturn) {
     }
 
+    @io.swagger.v3.oas.annotations.media.Schema(name = "ReasonRequest")
     public record CancelRequest(@NotBlank @Size(max = 500) String reason) {
     }
 

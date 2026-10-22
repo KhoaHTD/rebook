@@ -1,5 +1,6 @@
 package com.rebook.auth;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,6 +22,7 @@ import java.time.Instant;
 @NoArgsConstructor
 public class OtpCode {
 
+    @Schema(name = "OtpPurpose", enumAsRef = true)
     public enum Purpose { VERIFY_EMAIL, VERIFY_PHONE, RESET_PASSWORD }
 
     @Id

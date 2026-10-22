@@ -1,5 +1,6 @@
 package com.rebook.wallet;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,10 +25,13 @@ import java.time.Instant;
 @NoArgsConstructor
 public class Payment {
 
+    @Schema(name = "PaymentPurpose", enumAsRef = true)
     public enum Purpose { ORDER, TOP_UP }
 
+    @Schema(name = "PaymentMethod", enumAsRef = true)
     public enum Method { COD, WALLET, VNPAY }
 
+    @Schema(name = "PaymentStatus", enumAsRef = true)
     public enum Status { PENDING, SUCCESS, FAILED, EXPIRED }
 
     @Id

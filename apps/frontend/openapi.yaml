@@ -1,0 +1,5298 @@
+openapi: 3.1.0
+info:
+  title: ReBook API
+  description: "Chợ sách cũ: bán giá cố định + đấu giá. Realtime đấu giá qua WebSocket\
+    \ ws://<host>/ws/sessions/{id}"
+  version: 0.1.0
+servers:
+- url: http://localhost:8080
+security:
+- bearerAuth: []
+paths:
+  /staff/warehouse/{id}:
+    put:
+      tags:
+      - Consignment
+      summary: "[Staff] Cập nhật vị trí kệ"
+      operationId: shelf
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShelfRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WarehouseResponse"
+  /seller/listings/{id}:
+    put:
+      tags:
+      - Catalog
+      operationId: update
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+    delete:
+      tags:
+      - Catalog
+      summary: Ẩn tin đăng
+      operationId: hide
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+  /seller/listings/{id}/stock:
+    put:
+      tags:
+      - Catalog
+      summary: Cập nhật tồn kho
+      operationId: updateStock
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StockRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+  /me:
+    get:
+      tags:
+      - User
+      summary: Hồ sơ của tôi
+      operationId: me
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+    put:
+      tags:
+      - User
+      operationId: updateProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /me/shop:
+    get:
+      tags:
+      - User
+      summary: Shop của tôi (kèm thông tin nhận tiền)
+      operationId: myShop
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ShopResponse"
+    put:
+      tags:
+      - User
+      summary: Bật shop / cập nhật thông tin shop
+      operationId: upsertShop
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ShopResponse"
+  /me/addresses/{id}:
+    put:
+      tags:
+      - User
+      operationId: updateAddress
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AddressResponse"
+    delete:
+      tags:
+      - User
+      operationId: deleteAddress
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+  /lots/{id}/proxy-bid:
+    put:
+      tags:
+      - Auction
+      summary: Đặt giá tối đa tự động (proxy bid) — đặt trước khi lô mở cũng được
+      operationId: proxy
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProxyBidRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: number
+    delete:
+      tags:
+      - Auction
+      operationId: cancelProxy
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+  /cart/{listingId}:
+    put:
+      tags:
+      - Order
+      operationId: updateCart
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCartRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+    delete:
+      tags:
+      - Order
+      operationId: removeFromCart
+      parameters:
+      - name: listingId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+  /admin/users/{id}/role:
+    put:
+      tags:
+      - Admin
+      summary: Đổi role (USER / STAFF / ADMIN)
+      operationId: role
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /admin/shops/{id}/trusted:
+    put:
+      tags:
+      - Admin
+      summary: Đánh dấu shop uy tín (tin đăng được tự duyệt)
+      operationId: trusted
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrustedRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ShopResponse"
+  /admin/sessions/{id}:
+    get:
+      tags:
+      - Auction
+      operationId: adminSession
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionDetail"
+    put:
+      tags:
+      - Auction
+      operationId: update_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionSummary"
+  /admin/sessions/{id}/lots:
+    put:
+      tags:
+      - Auction
+      summary: "[Admin] Xếp lô vào phiên theo thứ tự chạy"
+      operationId: assignLots
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignLotsRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionDetail"
+  /admin/configs/{key}:
+    put:
+      tags:
+      - Admin
+      operationId: updateConfig
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfigRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SystemConfig"
+  /admin/categories/{id}:
+    put:
+      tags:
+      - Catalog
+      operationId: updateCategory
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+    delete:
+      tags:
+      - Catalog
+      operationId: deleteCategory
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+  /wallet/withdrawals:
+    get:
+      tags:
+      - Wallet
+      operationId: myWithdrawals
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WithdrawResponse"
+    post:
+      tags:
+      - Wallet
+      summary: Tạo yêu cầu rút tiền (Admin duyệt)
+      operationId: withdraw
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawCreateRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WithdrawResponse"
+  /wallet/top-up:
+    post:
+      tags:
+      - Wallet
+      summary: Nạp tiền qua VNPay sandbox — trả về paymentUrl để mở trình duyệt
+      operationId: topUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TopUpRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+  /staff/warehouse/{id}/return:
+    post:
+      tags:
+      - Consignment
+      summary: "[Staff] Xuất kho trả sách cho người bán (thu phí lưu kho nếu quá hạ\
+        n)"
+      operationId: returnToSeller
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WarehouseResponse"
+  /staff/sessions/{id}/resume:
+    post:
+      tags:
+      - Auction
+      summary: "[Staff] Tiếp tục phiên"
+      operationId: resume
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionSummary"
+  /staff/sessions/{id}/pause:
+    post:
+      tags:
+      - Auction
+      summary: "[Staff] Tạm dừng phiên"
+      operationId: pause
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionSummary"
+  /staff/orders/{id}/ship:
+    post:
+      tags:
+      - Order management
+      summary: "[Staff] Xuất kho, giao cho shipper"
+      operationId: staffShip
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShipRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /staff/orders/{id}/return-decision:
+    post:
+      tags:
+      - Order management
+      summary: "[Staff] Xử lý trả hàng lô đấu giá (sàn chịu trách nhiệm)"
+      operationId: staffReturnDecision
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /staff/orders/{id}/delivery-failed:
+    post:
+      tags:
+      - Order management
+      operationId: staffFailed
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /staff/orders/{id}/delivered:
+    post:
+      tags:
+      - Order management
+      summary: "[Staff] Giao thành công / bàn giao tại kho"
+      operationId: staffDelivered
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /staff/orders/{id}/confirm:
+    post:
+      tags:
+      - Order management
+      operationId: staffConfirm
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /staff/lots/{id}/cancel:
+    post:
+      tags:
+      - Auction
+      summary: "[Staff] Huỷ một lô khi có sự cố"
+      operationId: cancelLot
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}
+  /staff/consignments/{id}/review:
+    post:
+      tags:
+      - Consignment
+      summary: "[Staff] Sơ duyệt online"
+      operationId: review
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /staff/consignments/{id}/inspection:
+    post:
+      tags:
+      - Consignment
+      summary: "[Staff] Phiếu kiểm định + đề xuất giá"
+      operationId: inspect
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InspectionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /staff/consignments/{id}/check-in:
+    post:
+      tags:
+      - Consignment
+      summary: "[Staff] Nhận sách tại kho, tạo phiếu nhập kho"
+      operationId: checkIn
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckInRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /sessions/{id}/register:
+    post:
+      tags:
+      - Auction
+      summary: "Đăng ký tham gia + đặt cọc (khoá tiền trong ví), nhận số bài"
+      operationId: register
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RegistrationResponse"
+  /sessions/{id}/deposit:
+    post:
+      tags:
+      - Auction
+      summary: Cọc thêm để nâng hạn mức trả giá
+      operationId: addDeposit
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddDepositRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RegistrationResponse"
+  /seller/orders/{id}/ship:
+    post:
+      tags:
+      - Order management
+      summary: "Đã giao cho shipper (nhập mã vận đơn, bỏ trống để tự sinh)"
+      operationId: sellerShip
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShipRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /seller/orders/{id}/return-decision:
+    post:
+      tags:
+      - Order management
+      summary: Đồng ý / từ chối trả hàng (từ chối → Admin phân xử)
+      operationId: sellerReturnDecision
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /seller/orders/{id}/delivery-failed:
+    post:
+      tags:
+      - Order management
+      summary: "[Giả lập] Giao thất bại"
+      operationId: sellerFailed
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /seller/orders/{id}/delivered:
+    post:
+      tags:
+      - Order management
+      summary: "[Giả lập] Đã giao thành công"
+      operationId: sellerDelivered
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /seller/orders/{id}/confirm:
+    post:
+      tags:
+      - Order management
+      summary: Xác nhận đơn (trong 24h)
+      operationId: sellerConfirm
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /seller/orders/{id}/cancel:
+    post:
+      tags:
+      - Order management
+      operationId: sellerCancel
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /seller/orders/{id}/cancel-request:
+    post:
+      tags:
+      - Order management
+      summary: Đồng ý / từ chối yêu cầu huỷ của người mua
+      operationId: respondCancel
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /seller/listings:
+    get:
+      tags:
+      - Catalog
+      summary: Tin đăng của shop tôi
+      operationId: myListings
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - PENDING_REVIEW
+          - ACTIVE
+          - OUT_OF_STOCK
+          - HIDDEN
+          - REJECTED
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseListingSummary"
+    post:
+      tags:
+      - Catalog
+      summary: Đăng bán sách giá cố định (tối thiểu 3 ảnh)
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListingRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+  /seller/listings/{id}/show:
+    post:
+      tags:
+      - Catalog
+      summary: Hiện lại tin đã ẩn
+      operationId: show
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+  /payments/{code}/simulate:
+    post:
+      tags:
+      - Wallet
+      summary: "[DEV] Giả lập VNPay trả về thành công (chỉ khi app.payment.simulate-enabled=true)"
+      operationId: simulate
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+  /orders/{id}/review:
+    post:
+      tags:
+      - Order
+      summary: "Đánh giá shop (1–5 sao, mỗi đơn một lần)"
+      operationId: review_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReviewResponse"
+  /orders/{id}/return:
+    post:
+      tags:
+      - Order
+      summary: Yêu cầu trả hàng (chỉ khi sách khác mô tả)
+      operationId: requestReturn
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReturnCreateRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /orders/{id}/pay:
+    post:
+      tags:
+      - Order
+      summary: Thanh toán đơn đang chờ (cả hoá đơn lô đấu giá) bằng WALLET hoặc VNPAY
+      operationId: pay
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PayRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PayResponse"
+  /orders/{id}/delivery-option:
+    post:
+      tags:
+      - Auction
+      summary: "Hoá đơn lô thắng: giao tận nơi hoặc nhận tại kho"
+      operationId: deliveryOption
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliveryOptionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /orders/{id}/decline-second-chance:
+    post:
+      tags:
+      - Auction
+      summary: Từ chối lời mời mua lần hai (second chance offer)
+      operationId: declineSecondChance
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+  /orders/{id}/confirm-received:
+    post:
+      tags:
+      - Order
+      summary: "Xác nhận đã nhận hàng → hoàn tất, giải ngân cho người bán"
+      operationId: confirmReceived
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /orders/{id}/cancel:
+    post:
+      tags:
+      - Order
+      summary: Huỷ đơn (chưa xác nhận) hoặc gửi yêu cầu huỷ (đã xác nhận)
+      operationId: cancel
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /orders/checkout:
+    post:
+      tags:
+      - Order
+      summary: "Đặt hàng: mỗi shop một đơn, giữ hàng ngay"
+      description: "COD → đơn vào thẳng PENDING_CONFIRM. WALLET → trừ ví ngay. VNPAY\
+        \ → trả về payment.paymentUrl, hạn 15 phút."
+      operationId: checkout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CheckoutResponse"
+  /orders/checkout/preview:
+    post:
+      tags:
+      - Order
+      summary: "Xem trước: tách đơn theo shop + phí ship"
+      operationId: preview
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutPreviewRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CheckoutPreview"
+  /notifications/{id}/read:
+    post:
+      tags:
+      - Notification
+      operationId: read
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+  /notifications/read-all:
+    post:
+      tags:
+      - Notification
+      operationId: readAll
+      responses:
+        "204":
+          description: No Content
+  /me/password:
+    post:
+      tags:
+      - User
+      operationId: changePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+  /me/addresses:
+    get:
+      tags:
+      - User
+      summary: Sổ địa chỉ
+      operationId: addresses
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddressResponse"
+    post:
+      tags:
+      - User
+      operationId: addAddress
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AddressResponse"
+  /lots/{id}/watch:
+    post:
+      tags:
+      - Auction
+      summary: Theo dõi lô (nhận nhắc trước phiên)
+      operationId: watch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+    delete:
+      tags:
+      - Auction
+      operationId: unwatch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+  /lots/{id}/bids:
+    post:
+      tags:
+      - Auction
+      summary: Trả giá. 409 PRICE_CHANGED nếu người khác vừa trả trước
+      operationId: bid
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BidRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BidResponse"
+  /consignments:
+    get:
+      tags:
+      - Consignment
+      operationId: mine
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsignmentResponse"
+    post:
+      tags:
+      - Consignment
+      summary: Gửi yêu cầu ký gửi đấu giá (giá mong muốn ≥ 300.000đ)
+      operationId: create_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsignmentCreateRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /consignments/{id}/withdraw:
+    post:
+      tags:
+      - Consignment
+      operationId: withdraw_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /consignments/{id}/unsold-decision:
+    post:
+      tags:
+      - Consignment
+      summary: "Lô không bán được: RELIST | CONVERT_TO_LISTING | RETURN"
+      operationId: unsoldDecision
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnsoldDecisionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /consignments/{id}/decision:
+    post:
+      tags:
+      - Consignment
+      summary: Chấp nhận / đề nghị giá sàn khác / rút sách sau kiểm định
+      operationId: decision
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SellerDecisionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /consignments/{id}/appointment:
+    post:
+      tags:
+      - Consignment
+      summary: Đặt / đổi lịch hẹn mang sách tới kho
+      operationId: appointment
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /cart:
+    get:
+      tags:
+      - Order
+      summary: Giỏ hàng (gom theo shop)
+      operationId: cart
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+    post:
+      tags:
+      - Order
+      operationId: addToCart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCartRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+    delete:
+      tags:
+      - Order
+      operationId: clearCart
+      responses:
+        "204":
+          description: No Content
+  /auth/verify-otp:
+    post:
+      tags:
+      - Auth
+      summary: Xác thực OTP email / SĐT (cần đăng nhập)
+      operationId: verifyOtp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyOtpRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+  /auth/send-otp:
+    post:
+      tags:
+      - Auth
+      summary: Gửi OTP xác thực email / SĐT (cần đăng nhập)
+      operationId: sendOtp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOtpRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OtpSentResponse"
+  /auth/reset-password:
+    post:
+      tags:
+      - Auth
+      operationId: resetPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+  /auth/register:
+    post:
+      tags:
+      - Auth
+      summary: Đăng ký — gửi OTP xác thực email
+      operationId: register_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /auth/refresh:
+    post:
+      tags:
+      - Auth
+      summary: Đổi refresh token lấy cặp token mới
+      operationId: refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /auth/logout:
+    post:
+      tags:
+      - Auth
+      operationId: logout
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+  /auth/login:
+    post:
+      tags:
+      - Auth
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /auth/forgot-password:
+    post:
+      tags:
+      - Auth
+      operationId: forgotPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OtpSentResponse"
+  /admin/withdrawals/{id}:
+    post:
+      tags:
+      - Admin
+      summary: Duyệt rút tiền (giả lập đã chuyển khoản) hoặc từ chối
+      operationId: processWithdrawal
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcessRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WithdrawResponse"
+  /admin/users/{id}/unlock:
+    post:
+      tags:
+      - Admin
+      operationId: unlock
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /admin/users/{id}/lock:
+    post:
+      tags:
+      - Admin
+      summary: Khoá tài khoản vi phạm
+      operationId: lock
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LockRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /admin/users/{id}/lift-auction-ban:
+    post:
+      tags:
+      - Admin
+      operationId: liftBan
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /admin/sessions:
+    get:
+      tags:
+      - Auction
+      operationId: allSessions
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseSessionSummary"
+    post:
+      tags:
+      - Auction
+      operationId: create_2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionSummary"
+  /admin/sessions/{id}/start:
+    post:
+      tags:
+      - Auction
+      summary: "[Admin] Mở phiên ngay (demo) — phiên tự mở đúng giờ nên bình thườ\
+        ng không cần"
+      operationId: startNow
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionSummary"
+  /admin/sessions/{id}/publish:
+    post:
+      tags:
+      - Auction
+      summary: "[Admin] Công bố catalogue, mở đăng ký"
+      operationId: publish
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionSummary"
+  /admin/sessions/{id}/cancel:
+    post:
+      tags:
+      - Auction
+      operationId: cancel_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionSummary"
+  /admin/listings/{id}/reject:
+    post:
+      tags:
+      - Catalog
+      operationId: reject
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RejectRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+  /admin/listings/{id}/approve:
+    post:
+      tags:
+      - Catalog
+      operationId: approve
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+  /admin/disputes/{orderId}/resolve:
+    post:
+      tags:
+      - Order management
+      summary: "[Admin] Phân xử: approve=true hoàn tiền người mua, false giữ đơn hoà\
+        n tất"
+      operationId: resolve
+      parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DecisionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /admin/categories:
+    post:
+      tags:
+      - Catalog
+      operationId: createCategory
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CategoryResponse"
+  /wallet:
+    get:
+      tags:
+      - Wallet
+      summary: Số dư ví
+      operationId: wallet
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WalletResponse"
+  /wallet/transactions:
+    get:
+      tags:
+      - Wallet
+      summary: Lịch sử giao dịch ví (sổ cái)
+      operationId: transactions
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseTransactionResponse"
+  /staff/warehouse:
+    get:
+      tags:
+      - Consignment
+      summary: "[Staff] Sách trong kho"
+      operationId: warehouse
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - IN_STOCK
+          - RESERVED
+          - SHIPPED
+          - RETURNED
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseWarehouseResponse"
+  /staff/orders:
+    get:
+      tags:
+      - Order management
+      summary: "[Staff] Đơn lô đấu giá cần xuất kho / giao"
+      operationId: auctionOrders
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - PENDING_PAYMENT
+          - PENDING_CONFIRM
+          - PREPARING
+          - SHIPPING
+          - DELIVERED
+          - RETURN_REQUESTED
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - FAILED_DELIVERY
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseOrderSummary"
+  /staff/consignments:
+    get:
+      tags:
+      - Consignment
+      summary: "[Staff] Danh sách yêu cầu ký gửi"
+      operationId: search
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
+          - APPOINTMENT_BOOKED
+          - EXPIRED
+          - RECEIVED
+          - INSPECTION_FAILED
+          - AWAITING_SELLER
+          - ACCEPTED
+          - WITHDRAWN
+          - RETURNED
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseConsignmentResponse"
+  /staff/appointments:
+    get:
+      tags:
+      - Consignment
+      summary: "[Staff] Lịch hẹn nhận sách (mặc định 7 ngày tới)"
+      operationId: appointments
+      parameters:
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsignmentResponse"
+  /staff/appointments/{code}:
+    get:
+      tags:
+      - Consignment
+      summary: "[Staff] Tra lịch hẹn theo mã QR"
+      operationId: byCode
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /shops/{shopId}/reviews:
+    get:
+      tags:
+      - Order
+      summary: Đánh giá của shop (công khai)
+      operationId: shopReviews
+      parameters:
+      - name: shopId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseReviewResponse"
+  /shops/{id}:
+    get:
+      tags:
+      - User
+      summary: Trang shop công khai
+      operationId: shop
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ShopResponse"
+  /sessions:
+    get:
+      tags:
+      - Auction
+      summary: Lịch phiên đấu giá
+      operationId: sessions
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - DRAFT
+          - PUBLISHED
+          - POSTPONED
+          - CONFIRMED
+          - LIVE
+          - PAUSED
+          - ENDED
+          - CANCELLED
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseSessionSummary"
+  /sessions/{id}:
+    get:
+      tags:
+      - Auction
+      summary: "Catalogue phiên: danh sách lô, ảnh, giá ước tính"
+      operationId: session
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionDetail"
+  /sessions/{id}/state:
+    get:
+      tags:
+      - Auction
+      summary: Ảnh chụp trạng thái phòng đấu giá (gọi khi vào phòng / kết nối lại
+        WebSocket)
+      description: "Sau đó nghe ws://<host>/ws/sessions/{id} để nhận LOT_OPENED, BID_PLACED,\
+        \ LOT_CLOSED, SESSION_*"
+      operationId: state
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionState"
+  /sessions/{id}/results:
+    get:
+      tags:
+      - Auction
+      summary: Bảng kết quả phiên (số bài + giá)
+      operationId: results
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LotResult"
+  /seller/orders:
+    get:
+      tags:
+      - Order management
+      operationId: sellerOrders
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - PENDING_PAYMENT
+          - PENDING_CONFIRM
+          - PREPARING
+          - SHIPPING
+          - DELIVERED
+          - RETURN_REQUESTED
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - FAILED_DELIVERY
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseOrderSummary"
+  /payments/{code}:
+    get:
+      tags:
+      - Wallet
+      summary: Trạng thái một thanh toán
+      operationId: payment
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PaymentResponse"
+  /payments/vnpay/return:
+    get:
+      tags:
+      - Wallet
+      summary: Return URL của VNPay
+      operationId: vnpayReturn
+      parameters:
+      - name: params
+        in: query
+        required: true
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /payments/vnpay/ipn:
+    get:
+      tags:
+      - Wallet
+      summary: IPN VNPay gọi về (server-to-server)
+      operationId: vnpayIpn
+      parameters:
+      - name: params
+        in: query
+        required: true
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+  /orders:
+    get:
+      tags:
+      - Order
+      operationId: myOrders
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - PENDING_PAYMENT
+          - PENDING_CONFIRM
+          - PREPARING
+          - SHIPPING
+          - DELIVERED
+          - RETURN_REQUESTED
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - FAILED_DELIVERY
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseOrderSummary"
+  /orders/{id}:
+    get:
+      tags:
+      - Order
+      summary: Chi tiết đơn + lịch sử trạng thái
+      operationId: detail
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OrderDetail"
+  /notifications:
+    get:
+      tags:
+      - Notification
+      operationId: list
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseNotificationResponse"
+  /notifications/unread-count:
+    get:
+      tags:
+      - Notification
+      operationId: unread
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int64
+  /me/watching:
+    get:
+      tags:
+      - Auction
+      operationId: watching
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LotPublic"
+  /me/registrations:
+    get:
+      tags:
+      - Auction
+      operationId: myRegistrations
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RegistrationResponse"
+  /lots/{id}:
+    get:
+      tags:
+      - Auction
+      summary: Chi tiết lô + báo cáo tình trạng
+      operationId: lot
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LotDetail"
+  /listings:
+    get:
+      tags:
+      - Catalog
+      summary: Tìm kiếm / lọc sách đang bán
+      description: "sort: newest | price_asc | price_desc | best_selling. category\
+        \ lọc cả danh mục con."
+      operationId: search_1
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: category
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: author
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: condition
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - NEW
+          - LIKE_NEW
+          - VERY_GOOD
+          - GOOD
+          - ACCEPTABLE
+      - name: minPrice
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: maxPrice
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: shopId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+          default: newest
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseListingSummary"
+  /listings/{id}:
+    get:
+      tags:
+      - Catalog
+      summary: Chi tiết sách đang bán
+      operationId: detail_1
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+  /consignments/{id}:
+    get:
+      tags:
+      - Consignment
+      summary: "Chi tiết ký gửi: kết quả kiểm định, lô, kho"
+      operationId: detail_2
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ConsignmentResponse"
+  /categories:
+    get:
+      tags:
+      - Catalog
+      summary: Cây danh mục thể loại
+      operationId: categories
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryResponse"
+  /admin/withdrawals:
+    get:
+      tags:
+      - Admin
+      operationId: withdrawals
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseWithdrawResponse"
+  /admin/users:
+    get:
+      tags:
+      - Admin
+      operationId: users
+      parameters:
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - USER
+          - STAFF
+          - ADMIN
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - ACTIVE
+          - LOCKED
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseUserResponse"
+  /admin/platform-wallet:
+    get:
+      tags:
+      - Admin
+      summary: Số dư ví sàn (phí đã thu)
+      operationId: platformWallet
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/WalletResponse"
+  /admin/lots/ready:
+    get:
+      tags:
+      - Auction
+      summary: "[Admin] Lô chờ xếp phiên"
+      operationId: readyLots
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 50
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseLotPublic"
+  /admin/listings/{id}:
+    get:
+      tags:
+      - Catalog
+      summary: "[Admin] Chi tiết tin (mọi trạng thái)"
+      operationId: adminDetail
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+  /admin/listings/pending:
+    get:
+      tags:
+      - Catalog
+      summary: "[Admin] Tin chờ duyệt"
+      operationId: pending
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseListingSummary"
+  /admin/disputes:
+    get:
+      tags:
+      - Order management
+      summary: "[Admin] Khiếu nại trả hàng chờ phân xử"
+      operationId: disputes
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseReturnResponse"
+  /admin/dashboard:
+    get:
+      tags:
+      - Admin
+      summary: "Dashboard: doanh thu, số đơn, tỷ lệ lô bán được"
+      operationId: dashboard
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/DashboardResponse"
+  /admin/configs:
+    get:
+      tags:
+      - Admin
+      summary: "Cấu hình phí sàn, hoa hồng, bước giá, thời hạn"
+      operationId: configs
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SystemConfig"
+components:
+  schemas:
+    ShelfRequest:
+      type: object
+      properties:
+        shelfCode:
+          type: string
+          maxLength: 30
+          minLength: 0
+      required:
+      - shelfCode
+    WarehouseResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+        consignmentId:
+          type: integer
+          format: int64
+        bookTitle:
+          type: string
+        shelfCode:
+          type: string
+        status:
+          type: string
+          enum:
+          - IN_STOCK
+          - RESERVED
+          - SHIPPED
+          - RETURNED
+        checkedInAt:
+          type: string
+          format: date-time
+        checkedOutAt:
+          type: string
+          format: date-time
+        checkoutReason:
+          type: string
+        returnNotifiedAt:
+          type: string
+          format: date-time
+        storageFee:
+          type: number
+    BookRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 300
+          minLength: 0
+        author:
+          type: string
+          maxLength: 200
+          minLength: 0
+        publisher:
+          type: string
+          maxLength: 200
+          minLength: 0
+        publishYear:
+          type: integer
+          format: int32
+          maximum: 2100
+          minimum: 1500
+        isbn:
+          type: string
+          maxLength: 20
+          minLength: 0
+        language:
+          type: string
+          maxLength: 50
+          minLength: 0
+        pages:
+          type: integer
+          format: int32
+          minimum: 1
+        categoryId:
+          type: integer
+          format: int64
+        conditionGrade:
+          type: string
+          enum:
+          - NEW
+          - LIKE_NEW
+          - VERY_GOOD
+          - GOOD
+          - ACCEPTABLE
+        description:
+          type: string
+          maxLength: 5000
+          minLength: 0
+        weightGram:
+          type: integer
+          format: int32
+          minimum: 1
+        imageUrls:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          maxItems: 10
+          minItems: 3
+      required:
+      - author
+      - categoryId
+      - conditionGrade
+      - imageUrls
+      - title
+      - weightGram
+    ListingRequest:
+      type: object
+      properties:
+        book:
+          $ref: "#/components/schemas/BookRequest"
+        price:
+          type: number
+          minimum: 1000
+        stock:
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+      - book
+      - price
+      - stock
+    BookResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: string
+        publishYear:
+          type: integer
+          format: int32
+        isbn:
+          type: string
+        language:
+          type: string
+        pages:
+          type: integer
+          format: int32
+        categoryId:
+          type: integer
+          format: int64
+        conditionGrade:
+          type: string
+          enum:
+          - NEW
+          - LIKE_NEW
+          - VERY_GOOD
+          - GOOD
+          - ACCEPTABLE
+        description:
+          type: string
+        weightGram:
+          type: integer
+          format: int32
+        coverUrl:
+          type: string
+        images:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImageResponse"
+    ImageResponse:
+      type: object
+      properties:
+        url:
+          type: string
+        source:
+          type: string
+          enum:
+          - SELLER
+          - STAFF
+    ListingDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        price:
+          type: number
+        stock:
+          type: integer
+          format: int32
+        soldCount:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - PENDING_REVIEW
+          - ACTIVE
+          - OUT_OF_STOCK
+          - HIDDEN
+          - REJECTED
+        rejectReason:
+          type: string
+        book:
+          $ref: "#/components/schemas/BookResponse"
+        shop:
+          $ref: "#/components/schemas/ShopBrief"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ShopBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        pickupProvince:
+          type: string
+        ratingAvg:
+          type: number
+        ratingCount:
+          type: integer
+          format: int32
+    StockRequest:
+      type: object
+      properties:
+        stock:
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+      - stock
+    UpdateProfileRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+          maxLength: 120
+          minLength: 0
+        phone:
+          type: string
+          pattern: "^0\\d{9,10}$"
+        avatarUrl:
+          type: string
+          maxLength: 500
+          minLength: 0
+      required:
+      - fullName
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        phone:
+          type: string
+        fullName:
+          type: string
+        avatarUrl:
+          type: string
+        role:
+          type: string
+          enum:
+          - USER
+          - STAFF
+          - ADMIN
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - LOCKED
+        emailVerified:
+          type: boolean
+        phoneVerified:
+          type: boolean
+        auctionBannedUntil:
+          type: string
+          format: date-time
+        shopId:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+    ShopRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 0
+        description:
+          type: string
+          maxLength: 2000
+          minLength: 0
+        pickupAddress:
+          type: string
+          maxLength: 500
+          minLength: 0
+        pickupProvince:
+          type: string
+          minLength: 1
+        bankName:
+          type: string
+          minLength: 1
+        bankAccountNumber:
+          type: string
+          maxLength: 50
+          minLength: 0
+        bankAccountHolder:
+          type: string
+          maxLength: 120
+          minLength: 0
+      required:
+      - bankAccountHolder
+      - bankAccountNumber
+      - bankName
+      - name
+      - pickupAddress
+      - pickupProvince
+    ShopResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        ownerId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        pickupProvince:
+          type: string
+        pickupAddress:
+          type: string
+        ratingAvg:
+          type: number
+        ratingCount:
+          type: integer
+          format: int32
+        trusted:
+          type: boolean
+        bankName:
+          type: string
+        bankAccountNumber:
+          type: string
+        bankAccountHolder:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AddressRequest:
+      type: object
+      properties:
+        receiverName:
+          type: string
+          maxLength: 120
+          minLength: 0
+        phone:
+          type: string
+          minLength: 1
+          pattern: "^0\\d{9,10}$"
+        province:
+          type: string
+          minLength: 1
+        district:
+          type: string
+          minLength: 1
+        ward:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          maxLength: 300
+          minLength: 0
+        isDefault:
+          type: boolean
+      required:
+      - detail
+      - district
+      - phone
+      - province
+      - receiverName
+      - ward
+    AddressResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        receiverName:
+          type: string
+        phone:
+          type: string
+        province:
+          type: string
+        district:
+          type: string
+        ward:
+          type: string
+        detail:
+          type: string
+        isDefault:
+          type: boolean
+    ProxyBidRequest:
+      type: object
+      properties:
+        maxAmount:
+          type: number
+      required:
+      - maxAmount
+    UpdateCartRequest:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+          maximum: 99
+          minimum: 1
+      required:
+      - quantity
+    CartLine:
+      type: object
+      properties:
+        listingId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        author:
+          type: string
+        coverUrl:
+          type: string
+        price:
+          type: number
+        quantity:
+          type: integer
+          format: int32
+        stock:
+          type: integer
+          format: int32
+        available:
+          type: boolean
+        lineTotal:
+          type: number
+    CartResponse:
+      type: object
+      properties:
+        shops:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartShopGroup"
+        totalQuantity:
+          type: integer
+          format: int32
+        subtotal:
+          type: number
+    CartShopGroup:
+      type: object
+      properties:
+        shopId:
+          type: integer
+          format: int64
+        shopName:
+          type: string
+        shopProvince:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartLine"
+        subtotal:
+          type: number
+    RoleRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+          - USER
+          - STAFF
+          - ADMIN
+      required:
+      - role
+    TrustedRequest:
+      type: object
+      properties:
+        trusted:
+          type: boolean
+    SessionRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          minLength: 0
+        description:
+          type: string
+          maxLength: 5000
+          minLength: 0
+        coverUrl:
+          type: string
+          maxLength: 500
+          minLength: 0
+        startAt:
+          type: string
+          format: date-time
+        registrationDeadline:
+          type: string
+          format: date-time
+        minParticipants:
+          type: integer
+          format: int32
+          minimum: 1
+        depositAmount:
+          type: number
+          minimum: 0
+        lotDurationSec:
+          type: integer
+          format: int32
+          maximum: 600
+          minimum: 10
+        softCloseSec:
+          type: integer
+          format: int32
+          maximum: 120
+          minimum: 5
+        lotGapSec:
+          type: integer
+          format: int32
+          maximum: 60
+          minimum: 0
+      required:
+      - depositAmount
+      - minParticipants
+      - registrationDeadline
+      - startAt
+      - title
+    SessionSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        coverUrl:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        registrationDeadline:
+          type: string
+          format: date-time
+        minParticipants:
+          type: integer
+          format: int32
+        depositAmount:
+          type: number
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - PUBLISHED
+          - POSTPONED
+          - CONFIRMED
+          - LIVE
+          - PAUSED
+          - ENDED
+          - CANCELLED
+        lotCount:
+          type: integer
+          format: int64
+        registeredCount:
+          type: integer
+          format: int64
+        endedAt:
+          type: string
+          format: date-time
+    AssignLotsRequest:
+      type: object
+      properties:
+        lotIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          minItems: 1
+      required:
+      - lotIds
+    LotPublic:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        lotNumber:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - READY
+          - SCHEDULED
+          - OPEN
+          - SOLD
+          - UNSOLD
+          - PAID
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - CONVERTED
+        closeResult:
+          type: string
+          enum:
+          - SOLD
+          - RESERVE_NOT_MET
+          - NO_BIDS
+          - CANCELLED
+        title:
+          type: string
+        author:
+          type: string
+        coverUrl:
+          type: string
+        conditionGrade:
+          type: string
+          enum:
+          - NEW
+          - LIKE_NEW
+          - VERY_GOOD
+          - GOOD
+          - ACCEPTABLE
+        estimateLow:
+          type: number
+        estimateHigh:
+          type: number
+        startPrice:
+          type: number
+        currentPrice:
+          type: number
+        bidCount:
+          type: integer
+          format: int32
+        endsAt:
+          type: string
+          format: date-time
+        hammerPrice:
+          type: number
+        winnerPaddle:
+          type: string
+        watching:
+          type: boolean
+    RegistrationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        sessionId:
+          type: integer
+          format: int64
+        paddle:
+          type: string
+        depositAmount:
+          type: number
+        bidLimit:
+          type: number
+        committed:
+          type: number
+        remainingLimit:
+          type: number
+        status:
+          type: string
+          enum:
+          - PENDING_DEPOSIT
+          - APPROVED
+          - REFUNDED
+          - APPLIED
+          - FORFEITED
+        createdAt:
+          type: string
+          format: date-time
+    SessionDetail:
+      type: object
+      properties:
+        session:
+          $ref: "#/components/schemas/SessionSummary"
+        lotDurationSec:
+          type: integer
+          format: int32
+        softCloseSec:
+          type: integer
+          format: int32
+        lots:
+          type: array
+          items:
+            $ref: "#/components/schemas/LotPublic"
+        myRegistration:
+          $ref: "#/components/schemas/RegistrationResponse"
+    ConfigRequest:
+      type: object
+      properties:
+        value:
+          type: string
+          maxLength: 500
+          minLength: 0
+      required:
+      - value
+    SystemConfig:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        description:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+    CategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          minLength: 0
+        slug:
+          type: string
+          maxLength: 120
+          minLength: 0
+        parentId:
+          type: integer
+          format: int64
+        sortOrder:
+          type: integer
+          format: int32
+      required:
+      - name
+      - slug
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        slug:
+          type: string
+        parentId:
+          type: integer
+          format: int64
+        sortOrder:
+          type: integer
+          format: int32
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryResponse"
+    WithdrawCreateRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          minimum: 50000
+        bankName:
+          type: string
+          minLength: 1
+        accountNumber:
+          type: string
+          minLength: 1
+        accountHolder:
+          type: string
+          minLength: 1
+      required:
+      - accountHolder
+      - accountNumber
+      - amount
+      - bankName
+    WithdrawResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+        bankName:
+          type: string
+        accountNumber:
+          type: string
+        accountHolder:
+          type: string
+        status:
+          type: string
+          enum:
+          - PENDING
+          - APPROVED
+          - REJECTED
+        note:
+          type: string
+        processedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    TopUpRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          minimum: 10000
+      required:
+      - amount
+    PaymentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+        purpose:
+          type: string
+          enum:
+          - ORDER
+          - TOP_UP
+        method:
+          type: string
+          enum:
+          - COD
+          - WALLET
+          - VNPAY
+        amount:
+          type: number
+        status:
+          type: string
+          enum:
+          - PENDING
+          - SUCCESS
+          - FAILED
+          - EXPIRED
+        paymentUrl:
+          type: string
+        simulateAvailable:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+    ShipRequest:
+      type: object
+      properties:
+        trackingCode:
+          type: string
+          maxLength: 50
+          minLength: 0
+    HistoryResponse:
+      type: object
+      properties:
+        fromStatus:
+          type: string
+          enum:
+          - PENDING_PAYMENT
+          - PENDING_CONFIRM
+          - PREPARING
+          - SHIPPING
+          - DELIVERED
+          - RETURN_REQUESTED
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - FAILED_DELIVERY
+        toStatus:
+          type: string
+          enum:
+          - PENDING_PAYMENT
+          - PENDING_CONFIRM
+          - PREPARING
+          - SHIPPING
+          - DELIVERED
+          - RETURN_REQUESTED
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - FAILED_DELIVERY
+        actorId:
+          type: integer
+          format: int64
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    OrderDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+        orderType:
+          type: string
+          enum:
+          - NORMAL
+          - AUCTION
+        status:
+          type: string
+          enum:
+          - PENDING_PAYMENT
+          - PENDING_CONFIRM
+          - PREPARING
+          - SHIPPING
+          - DELIVERED
+          - RETURN_REQUESTED
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - FAILED_DELIVERY
+        buyerId:
+          type: integer
+          format: int64
+        shopId:
+          type: integer
+          format: int64
+        shopName:
+          type: string
+        lotId:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemResponse"
+        subtotal:
+          type: number
+        shippingFee:
+          type: number
+        buyerPremium:
+          type: number
+        depositApplied:
+          type: number
+        total:
+          type: number
+        amountDue:
+          type: number
+        paymentMethod:
+          type: string
+          enum:
+          - COD
+          - WALLET
+          - VNPAY
+        paidAt:
+          type: string
+          format: date-time
+        address:
+          type: object
+          additionalProperties: {}
+        pickupAtWarehouse:
+          type: boolean
+        trackingCode:
+          type: string
+        note:
+          type: string
+        cancelReason:
+          type: string
+        cancelRequested:
+          type: boolean
+        secondChance:
+          type: boolean
+        paymentDueAt:
+          type: string
+          format: date-time
+        confirmDueAt:
+          type: string
+          format: date-time
+        deliveredAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        cancelledAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistoryResponse"
+        returnRequest:
+          $ref: "#/components/schemas/ReturnResponse"
+        reviewed:
+          type: boolean
+        canReview:
+          type: boolean
+        canRequestReturn:
+          type: boolean
+    OrderItemResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        listingId:
+          type: integer
+          format: int64
+        lotId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        imageUrl:
+          type: string
+        unitPrice:
+          type: number
+        quantity:
+          type: integer
+          format: int32
+        lineTotal:
+          type: number
+    ReturnResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        orderId:
+          type: integer
+          format: int64
+        reason:
+          type: string
+          enum:
+          - WRONG_CONDITION
+          - MISSING_PAGES
+          - WRONG_EDITION
+          - OTHER_NOT_AS_DESCRIBED
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+          - PENDING
+          - APPROVED
+          - DISPUTED
+          - REJECTED
+        sellerNote:
+          type: string
+        resolution:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    DecisionRequest:
+      type: object
+      properties:
+        approve:
+          type: boolean
+        note:
+          type: string
+          maxLength: 1000
+          minLength: 0
+    CancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 0
+      required:
+      - reason
+    ReviewRequest:
+      type: object
+      properties:
+        approve:
+          type: boolean
+        note:
+          type: string
+          maxLength: 500
+          minLength: 0
+    ConsignmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+        status:
+          type: string
+          enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
+          - APPOINTMENT_BOOKED
+          - EXPIRED
+          - RECEIVED
+          - INSPECTION_FAILED
+          - AWAITING_SELLER
+          - ACCEPTED
+          - WITHDRAWN
+          - RETURNED
+        sellerId:
+          type: integer
+          format: int64
+        sellerName:
+          type: string
+        book:
+          $ref: "#/components/schemas/BookResponse"
+        expectedPrice:
+          type: number
+        provenance:
+          type: string
+        reviewNote:
+          type: string
+        appointmentAt:
+          type: string
+          format: date-time
+        appointmentCode:
+          type: string
+        approvedAt:
+          type: string
+          format: date-time
+        receivedAt:
+          type: string
+          format: date-time
+        inspection:
+          $ref: "#/components/schemas/InspectionResponse"
+        lot:
+          $ref: "#/components/schemas/LotBrief"
+        warehouse:
+          $ref: "#/components/schemas/WarehouseResponse"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    InspectionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        result:
+          type: string
+          enum:
+          - PASS
+          - FAIL
+        checklist:
+          type: object
+          additionalProperties: {}
+        conditionGrade:
+          type: string
+          enum:
+          - NEW
+          - LIKE_NEW
+          - VERY_GOOD
+          - GOOD
+          - ACCEPTABLE
+        conditionReport:
+          type: string
+        estimateLow:
+          type: number
+        estimateHigh:
+          type: number
+        proposedStart:
+          type: number
+        proposedReserve:
+          type: number
+        sellerDecision:
+          type: string
+          enum:
+          - PENDING
+          - ACCEPTED
+          - COUNTER
+          - WITHDRAWN
+        sellerCounterReserve:
+          type: number
+        decidedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    LotBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        status:
+          type: string
+          enum:
+          - READY
+          - SCHEDULED
+          - OPEN
+          - SOLD
+          - UNSOLD
+          - PAID
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - CONVERTED
+        sessionId:
+          type: integer
+          format: int64
+        lotNumber:
+          type: integer
+          format: int32
+        startPrice:
+          type: number
+        reservePrice:
+          type: number
+        hammerPrice:
+          type: number
+        closeResult:
+          type: string
+          enum:
+          - SOLD
+          - RESERVE_NOT_MET
+          - NO_BIDS
+          - CANCELLED
+        rounds:
+          type: integer
+          format: int32
+    InspectionRequest:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+          - PASS
+          - FAIL
+        checklist:
+          type: object
+          additionalProperties: {}
+        conditionGrade:
+          type: string
+          enum:
+          - NEW
+          - LIKE_NEW
+          - VERY_GOOD
+          - GOOD
+          - ACCEPTABLE
+        conditionReport:
+          type: string
+          maxLength: 5000
+          minLength: 0
+        photoUrls:
+          type: array
+          items:
+            type: string
+            minLength: 1
+        estimateLow:
+          type: number
+        estimateHigh:
+          type: number
+        proposedStart:
+          type: number
+        proposedReserve:
+          type: number
+      required:
+      - conditionReport
+      - result
+    CheckInRequest:
+      type: object
+      properties:
+        shelfCode:
+          type: string
+          maxLength: 30
+          minLength: 0
+        photoUrls:
+          type: array
+          items:
+            type: string
+            minLength: 1
+    RegisterRequest:
+      type: object
+      properties:
+        agreeRules:
+          type: boolean
+    AddDepositRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          minimum: 10000
+      required:
+      - amount
+    ReviewResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        orderId:
+          type: integer
+          format: int64
+        reviewerName:
+          type: string
+        rating:
+          type: integer
+          format: int32
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    ReturnCreateRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          enum:
+          - WRONG_CONDITION
+          - MISSING_PAGES
+          - WRONG_EDITION
+          - OTHER_NOT_AS_DESCRIBED
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 0
+        images:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          maxItems: 10
+          minItems: 1
+      required:
+      - description
+      - images
+      - reason
+    PayRequest:
+      type: object
+      properties:
+        method:
+          type: string
+          enum:
+          - COD
+          - WALLET
+          - VNPAY
+      required:
+      - method
+    OrderSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        code:
+          type: string
+        orderType:
+          type: string
+          enum:
+          - NORMAL
+          - AUCTION
+        status:
+          type: string
+          enum:
+          - PENDING_PAYMENT
+          - PENDING_CONFIRM
+          - PREPARING
+          - SHIPPING
+          - DELIVERED
+          - RETURN_REQUESTED
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - FAILED_DELIVERY
+        shopId:
+          type: integer
+          format: int64
+        shopName:
+          type: string
+        buyerId:
+          type: integer
+          format: int64
+        itemCount:
+          type: integer
+          format: int32
+        firstItemTitle:
+          type: string
+        coverUrl:
+          type: string
+        total:
+          type: number
+        amountDue:
+          type: number
+        paymentMethod:
+          type: string
+          enum:
+          - COD
+          - WALLET
+          - VNPAY
+        paid:
+          type: boolean
+        cancelRequested:
+          type: boolean
+        paymentDueAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    PayResponse:
+      type: object
+      properties:
+        order:
+          $ref: "#/components/schemas/OrderSummary"
+        payment:
+          $ref: "#/components/schemas/PaymentResponse"
+    DeliveryOptionRequest:
+      type: object
+      properties:
+        addressId:
+          type: integer
+          format: int64
+        pickupAtWarehouse:
+          type: boolean
+    CheckoutRequest:
+      type: object
+      properties:
+        addressId:
+          type: integer
+          format: int64
+        paymentMethod:
+          type: string
+          enum:
+          - COD
+          - WALLET
+          - VNPAY
+        listingIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        note:
+          type: string
+          maxLength: 500
+          minLength: 0
+      required:
+      - addressId
+      - paymentMethod
+    CheckoutResponse:
+      type: object
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderSummary"
+        payment:
+          $ref: "#/components/schemas/PaymentResponse"
+    CheckoutPreviewRequest:
+      type: object
+      properties:
+        addressId:
+          type: integer
+          format: int64
+        listingIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+      required:
+      - addressId
+    CheckoutPreview:
+      type: object
+      properties:
+        shops:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopQuote"
+        subtotal:
+          type: number
+        shippingFee:
+          type: number
+        total:
+          type: number
+    ShopQuote:
+      type: object
+      properties:
+        shopId:
+          type: integer
+          format: int64
+        shopName:
+          type: string
+        subtotal:
+          type: number
+        shippingFee:
+          type: number
+        total:
+          type: number
+    ChangePasswordRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          maxLength: 72
+          minLength: 8
+      required:
+      - currentPassword
+      - newPassword
+    BidRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+      required:
+      - amount
+    BidResponse:
+      type: object
+      properties:
+        lot:
+          $ref: "#/components/schemas/LotLive"
+        leading:
+          type: boolean
+        me:
+          $ref: "#/components/schemas/RegistrationResponse"
+    BidView:
+      type: object
+      properties:
+        paddle:
+          type: string
+        amount:
+          type: number
+        auto:
+          type: boolean
+        at:
+          type: string
+          format: date-time
+    LotLive:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        lotNumber:
+          type: integer
+          format: int32
+        title:
+          type: string
+        coverUrl:
+          type: string
+        status:
+          type: string
+          enum:
+          - READY
+          - SCHEDULED
+          - OPEN
+          - SOLD
+          - UNSOLD
+          - PAID
+          - COMPLETED
+          - CANCELLED
+          - RETURNED
+          - CONVERTED
+        startPrice:
+          type: number
+        currentPrice:
+          type: number
+        nextMinBid:
+          type: number
+        increment:
+          type: number
+        bidCount:
+          type: integer
+          format: int32
+        endsAt:
+          type: string
+          format: date-time
+        leadingPaddle:
+          type: string
+        recentBids:
+          type: array
+          items:
+            $ref: "#/components/schemas/BidView"
+        closeResult:
+          type: string
+          enum:
+          - SOLD
+          - RESERVE_NOT_MET
+          - NO_BIDS
+          - CANCELLED
+        hammerPrice:
+          type: number
+    ConsignmentCreateRequest:
+      type: object
+      properties:
+        book:
+          $ref: "#/components/schemas/BookRequest"
+        expectedPrice:
+          type: number
+          minimum: 1000
+        provenance:
+          type: string
+          maxLength: 2000
+          minLength: 0
+      required:
+      - book
+      - expectedPrice
+    UnsoldDecisionRequest:
+      type: object
+      properties:
+        action:
+          type: string
+          enum:
+          - RELIST
+          - CONVERT_TO_LISTING
+          - RETURN
+        newReserve:
+          type: number
+        listingPrice:
+          type: number
+      required:
+      - action
+    SellerDecisionRequest:
+      type: object
+      properties:
+        decision:
+          type: string
+          enum:
+          - ACCEPT
+          - WITHDRAW
+        counterReserve:
+          type: number
+        agreeTerms:
+          type: boolean
+      required:
+      - decision
+    AppointmentRequest:
+      type: object
+      properties:
+        appointmentAt:
+          type: string
+          format: date-time
+      required:
+      - appointmentAt
+    AddCartRequest:
+      type: object
+      properties:
+        listingId:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+          maximum: 99
+          minimum: 1
+      required:
+      - listingId
+      - quantity
+    VerifyOtpRequest:
+      type: object
+      properties:
+        purpose:
+          type: string
+          enum:
+          - VERIFY_EMAIL
+          - VERIFY_PHONE
+          - RESET_PASSWORD
+        code:
+          type: string
+          minLength: 1
+      required:
+      - code
+      - purpose
+    SendOtpRequest:
+      type: object
+      properties:
+        purpose:
+          type: string
+          enum:
+          - VERIFY_EMAIL
+          - VERIFY_PHONE
+          - RESET_PASSWORD
+      required:
+      - purpose
+    OtpSentResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        devOtp:
+          type: string
+    ResetPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        code:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          maxLength: 72
+          minLength: 8
+      required:
+      - code
+      - email
+      - newPassword
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+        user:
+          $ref: "#/components/schemas/UserResponse"
+        devOtp:
+          type: string
+    RefreshRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          minLength: 1
+      required:
+      - refreshToken
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+      - email
+      - password
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    ProcessRequest:
+      type: object
+      properties:
+        approve:
+          type: boolean
+        note:
+          type: string
+    LockRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 0
+      required:
+      - reason
+    RejectRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 0
+      required:
+      - reason
+    WalletResponse:
+      type: object
+      properties:
+        availableBalance:
+          type: number
+        heldBalance:
+          type: number
+    PageResponseTransactionResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransactionResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    TransactionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        type:
+          type: string
+          enum:
+          - TOP_UP
+          - PAYMENT
+          - REFUND
+          - DEPOSIT_HOLD
+          - DEPOSIT_RELEASE
+          - DEPOSIT_FORFEIT
+          - SALE_PENDING
+          - SALE_RELEASE
+          - FEE
+          - WITHDRAW
+        availableChange:
+          type: number
+        heldChange:
+          type: number
+        availableAfter:
+          type: number
+        heldAfter:
+          type: number
+        refType:
+          type: string
+        refId:
+          type: integer
+          format: int64
+        note:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    PageResponseWarehouseResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/WarehouseResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseOrderSummary:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderSummary"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseConsignmentResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConsignmentResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseReviewResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReviewResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseSessionSummary:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SessionSummary"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    SessionState:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+        sessionId:
+          type: integer
+          format: int64
+        status:
+          type: string
+          enum:
+          - DRAFT
+          - PUBLISHED
+          - POSTPONED
+          - CONFIRMED
+          - LIVE
+          - PAUSED
+          - ENDED
+          - CANCELLED
+        currentLot:
+          $ref: "#/components/schemas/LotLive"
+        nextLotAt:
+          type: string
+          format: date-time
+        remainingLots:
+          type: integer
+          format: int64
+        pausedRemainingMs:
+          type: integer
+          format: int64
+        me:
+          $ref: "#/components/schemas/RegistrationResponse"
+        myProxyMax:
+          type: number
+    LotResult:
+      type: object
+      properties:
+        lotNumber:
+          type: integer
+          format: int32
+        lotId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        result:
+          type: string
+          enum:
+          - SOLD
+          - RESERVE_NOT_MET
+          - NO_BIDS
+          - CANCELLED
+        hammerPrice:
+          type: number
+        winnerPaddle:
+          type: string
+    ListingSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        author:
+          type: string
+        coverUrl:
+          type: string
+        conditionGrade:
+          type: string
+          enum:
+          - NEW
+          - LIKE_NEW
+          - VERY_GOOD
+          - GOOD
+          - ACCEPTABLE
+        price:
+          type: number
+        stock:
+          type: integer
+          format: int32
+        soldCount:
+          type: integer
+          format: int32
+        status:
+          type: string
+          enum:
+          - PENDING_REVIEW
+          - ACTIVE
+          - OUT_OF_STOCK
+          - HIDDEN
+          - REJECTED
+        shop:
+          $ref: "#/components/schemas/ShopBrief"
+        createdAt:
+          type: string
+          format: date-time
+    PageResponseListingSummary:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ListingSummary"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        type:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        data:
+          type: object
+          additionalProperties: {}
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    PageResponseNotificationResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    LotDetail:
+      type: object
+      properties:
+        lot:
+          $ref: "#/components/schemas/LotPublic"
+        book:
+          $ref: "#/components/schemas/BookResponse"
+        conditionReport:
+          type: string
+        checklist:
+          type: object
+          additionalProperties: {}
+        provenance:
+          type: string
+        session:
+          $ref: "#/components/schemas/SessionSummary"
+    PageResponseWithdrawResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/WithdrawResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseUserResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseLotPublic:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LotPublic"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    PageResponseReturnResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReturnResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
+    DashboardResponse:
+      type: object
+      properties:
+        revenueThisMonth:
+          type: number
+        ordersThisMonth:
+          type: integer
+          format: int64
+        ordersInProgress:
+          type: integer
+          format: int64
+        pendingListings:
+          type: integer
+          format: int64
+        activeListings:
+          type: integer
+          format: int64
+        liveSessions:
+          type: integer
+          format: int64
+        upcomingSessions:
+          type: integer
+          format: int64
+        lotSellThroughRate:
+          type: number
+          format: double
+        platformBalance:
+          type: number
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

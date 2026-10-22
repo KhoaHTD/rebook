@@ -1,5 +1,6 @@
 package com.rebook.order;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.rebook.wallet.Payment;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -32,6 +33,7 @@ import java.util.Map;
 public class Order {
 
     /** NORMAL: shop giao, shop nhận tiền. AUCTION: kho của sàn giao, người ký gửi nhận tiền. */
+    @Schema(name = "OrderType", enumAsRef = true)
     public enum Type { NORMAL, AUCTION }
 
     @Id

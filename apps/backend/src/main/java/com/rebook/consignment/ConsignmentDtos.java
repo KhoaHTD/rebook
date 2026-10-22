@@ -1,5 +1,6 @@
 package com.rebook.consignment;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.rebook.auction.Lot;
 import com.rebook.auction.LotStatus;
 import com.rebook.catalog.CatalogDtos.BookRequest;
@@ -32,6 +33,7 @@ public final class ConsignmentDtos {
     public record AppointmentRequest(@NotNull @Future Instant appointmentAt) {
     }
 
+    @Schema(name = "SellerDecisionAction", enumAsRef = true)
     public enum Decision { ACCEPT, WITHDRAW }
 
     /**
@@ -41,6 +43,7 @@ public final class ConsignmentDtos {
     public record SellerDecisionRequest(@NotNull Decision decision, BigDecimal counterReserve, boolean agreeTerms) {
     }
 
+    @Schema(name = "UnsoldAction", enumAsRef = true)
     public enum UnsoldAction { RELIST, CONVERT_TO_LISTING, RETURN }
 
     /** Lô không bán được: vào phiên sau (có thể hạ giá sàn), chuyển sang bán giá cố định, hoặc nhận lại. */

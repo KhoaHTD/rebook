@@ -1,5 +1,6 @@
 package com.rebook.consignment;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +25,7 @@ import java.time.Instant;
 @NoArgsConstructor
 public class WarehouseItem {
 
+    @Schema(name = "WarehouseStatus", enumAsRef = true)
     public enum Status { IN_STOCK, RESERVED, SHIPPED, RETURNED }
 
     @Id

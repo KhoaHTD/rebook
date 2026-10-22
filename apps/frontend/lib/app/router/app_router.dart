@@ -8,10 +8,13 @@ import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/auction_list_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/auction_room_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/lot_detail_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/book_detail_screen.dart';
-import 'package:book_marketplace/features/catalog/presentation/screens/catalog_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/search_screen.dart';
+import 'package:book_marketplace/features/home/presentation/screens/home_screen.dart';
 import 'package:book_marketplace/features/profile/presentation/screens/profile_screen.dart';
+import 'package:book_marketplace/features/sell/presentation/screens/sell_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -23,7 +26,7 @@ GoRouter appRouter(Ref ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
-    initialLocation: Routes.catalog,
+    initialLocation: Routes.home,
     refreshListenable: refresh,
     redirect: (context, state) {
       final session = ref.read(sessionControllerProvider);
@@ -39,7 +42,7 @@ GoRouter appRouter(Ref ref) {
         ).toString();
       }
       if (signedIn && location == Routes.login) {
-        return state.uri.queryParameters['from'] ?? Routes.catalog;
+        return state.uri.queryParameters['from'] ?? Routes.home;
       }
       return null;
     },
@@ -49,14 +52,43 @@ GoRouter appRouter(Ref ref) {
     ),
     routes: [
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
+      // Màn toàn màn hình, nằm trên thanh tab
+      GoRoute(
+        path: Routes.search,
+        pageBuilder: (_, state) =>
+            MaterialPage(key: state.pageKey, child: const SearchScreen()),
+      ),
+      GoRoute(
+        path: Routes.sell,
+        pageBuilder: (_, state) => MaterialPage(
+          key: state.pageKey,
+          fullscreenDialog: true,
+          child: const SellScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/lots/:id',
+        builder: (_, state) =>
+            LotDetailScreen(lotId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'live',
+            pageBuilder: (_, state) => MaterialPage(
+              key: state.pageKey,
+              fullscreenDialog: true,
+              child: AuctionRoomScreen(auctionId: state.pathParameters['id']!),
+            ),
+          ),
+        ],
+      ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AppShell(navigationShell: shell),
         branches: [
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: Routes.catalog,
-                builder: (_, _) => const CatalogScreen(),
+                path: Routes.home,
+                builder: (_, _) => const HomeScreen(),
                 routes: [
                   GoRoute(
                     path: 'books/:id',
@@ -72,14 +104,6 @@ GoRouter appRouter(Ref ref) {
               GoRoute(
                 path: Routes.auctions,
                 builder: (_, _) => const AuctionListScreen(),
-                routes: [
-                  GoRoute(
-                    path: ':id',
-                    builder: (_, state) => AuctionRoomScreen(
-                      auctionId: state.pathParameters['id']!,
-                    ),
-                  ),
-                ],
               ),
             ],
           ),

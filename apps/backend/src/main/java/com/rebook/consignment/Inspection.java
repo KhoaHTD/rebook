@@ -1,5 +1,6 @@
 package com.rebook.consignment;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.rebook.catalog.ConditionGrade;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,8 +28,10 @@ import java.util.Map;
 @NoArgsConstructor
 public class Inspection {
 
+    @Schema(name = "InspectionResult", enumAsRef = true)
     public enum Result { PASS, FAIL }
 
+    @Schema(name = "SellerDecision", enumAsRef = true)
     public enum SellerDecision { PENDING, ACCEPTED, COUNTER, WITHDRAWN }
 
     @Id

@@ -653,7 +653,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelRequest"
+              $ref: "#/components/schemas/ReasonRequest"
         required: true
       responses:
         "200":
@@ -718,7 +718,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelRequest"
+              $ref: "#/components/schemas/ReasonRequest"
         required: true
       responses:
         "200":
@@ -926,7 +926,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelRequest"
+              $ref: "#/components/schemas/ReasonRequest"
         required: true
       responses:
         "200":
@@ -991,7 +991,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelRequest"
+              $ref: "#/components/schemas/ReasonRequest"
         required: true
       responses:
         "200":
@@ -1037,13 +1037,7 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - PENDING_REVIEW
-          - ACTIVE
-          - OUT_OF_STOCK
-          - HIDDEN
-          - REJECTED
+          $ref: "#/components/schemas/ListingStatus"
       - name: page
         in: query
         required: false
@@ -1279,7 +1273,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelRequest"
+              $ref: "#/components/schemas/ReasonRequest"
         required: true
       responses:
         "200":
@@ -1958,7 +1952,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelRequest"
+              $ref: "#/components/schemas/ReasonRequest"
         required: true
       responses:
         "200":
@@ -2108,12 +2102,7 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - IN_STOCK
-          - RESERVED
-          - SHIPPED
-          - RETURNED
+          $ref: "#/components/schemas/WarehouseStatus"
       - name: page
         in: query
         required: false
@@ -2146,18 +2135,7 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - PENDING_PAYMENT
-          - PENDING_CONFIRM
-          - PREPARING
-          - SHIPPING
-          - DELIVERED
-          - RETURN_REQUESTED
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - FAILED_DELIVERY
+          $ref: "#/components/schemas/OrderStatus"
       - name: page
         in: query
         required: false
@@ -2190,19 +2168,7 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - SUBMITTED
-          - APPROVED
-          - REJECTED
-          - APPOINTMENT_BOOKED
-          - EXPIRED
-          - RECEIVED
-          - INSPECTION_FAILED
-          - AWAITING_SELLER
-          - ACCEPTED
-          - WITHDRAWN
-          - RETURNED
+          $ref: "#/components/schemas/ConsignmentStatus"
       - name: page
         in: query
         required: false
@@ -2336,16 +2302,7 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - DRAFT
-          - PUBLISHED
-          - POSTPONED
-          - CONFIRMED
-          - LIVE
-          - PAUSED
-          - ENDED
-          - CANCELLED
+          $ref: "#/components/schemas/SessionStatus"
       - name: page
         in: query
         required: false
@@ -2442,18 +2399,7 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - PENDING_PAYMENT
-          - PENDING_CONFIRM
-          - PREPARING
-          - SHIPPING
-          - DELIVERED
-          - RETURN_REQUESTED
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - FAILED_DELIVERY
+          $ref: "#/components/schemas/OrderStatus"
       - name: page
         in: query
         required: false
@@ -2550,18 +2496,7 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - PENDING_PAYMENT
-          - PENDING_CONFIRM
-          - PREPARING
-          - SHIPPING
-          - DELIVERED
-          - RETURN_REQUESTED
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - FAILED_DELIVERY
+          $ref: "#/components/schemas/OrderStatus"
       - name: page
         in: query
         required: false
@@ -2722,13 +2657,7 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - NEW
-          - LIKE_NEW
-          - VERY_GOOD
-          - GOOD
-          - ACCEPTABLE
+          $ref: "#/components/schemas/ConditionGrade"
       - name: minPrice
         in: query
         required: false
@@ -2869,19 +2798,12 @@ paths:
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - USER
-          - STAFF
-          - ADMIN
+          $ref: "#/components/schemas/Role"
       - name: status
         in: query
         required: false
         schema:
-          type: string
-          enum:
-          - ACTIVE
-          - LOCKED
+          $ref: "#/components/schemas/UserStatus"
       - name: page
         in: query
         required: false
@@ -3075,12 +2997,7 @@ components:
         shelfCode:
           type: string
         status:
-          type: string
-          enum:
-          - IN_STOCK
-          - RESERVED
-          - SHIPPED
-          - RETURNED
+          $ref: "#/components/schemas/WarehouseStatus"
         checkedInAt:
           type: string
           format: date-time
@@ -3094,6 +3011,13 @@ components:
           format: date-time
         storageFee:
           type: number
+    WarehouseStatus:
+      type: string
+      enum:
+      - IN_STOCK
+      - RESERVED
+      - SHIPPED
+      - RETURNED
     BookRequest:
       type: object
       properties:
@@ -3130,13 +3054,7 @@ components:
           type: integer
           format: int64
         conditionGrade:
-          type: string
-          enum:
-          - NEW
-          - LIKE_NEW
-          - VERY_GOOD
-          - GOOD
-          - ACCEPTABLE
+          $ref: "#/components/schemas/ConditionGrade"
         description:
           type: string
           maxLength: 5000
@@ -3159,6 +3077,14 @@ components:
       - imageUrls
       - title
       - weightGram
+    ConditionGrade:
+      type: string
+      enum:
+      - NEW
+      - LIKE_NEW
+      - VERY_GOOD
+      - GOOD
+      - ACCEPTABLE
     ListingRequest:
       type: object
       properties:
@@ -3201,13 +3127,7 @@ components:
           type: integer
           format: int64
         conditionGrade:
-          type: string
-          enum:
-          - NEW
-          - LIKE_NEW
-          - VERY_GOOD
-          - GOOD
-          - ACCEPTABLE
+          $ref: "#/components/schemas/ConditionGrade"
         description:
           type: string
         weightGram:
@@ -3225,10 +3145,12 @@ components:
         url:
           type: string
         source:
-          type: string
-          enum:
-          - SELLER
-          - STAFF
+          $ref: "#/components/schemas/ImageSource"
+    ImageSource:
+      type: string
+      enum:
+      - SELLER
+      - STAFF
     ListingDetail:
       type: object
       properties:
@@ -3244,13 +3166,7 @@ components:
           type: integer
           format: int32
         status:
-          type: string
-          enum:
-          - PENDING_REVIEW
-          - ACTIVE
-          - OUT_OF_STOCK
-          - HIDDEN
-          - REJECTED
+          $ref: "#/components/schemas/ListingStatus"
         rejectReason:
           type: string
         book:
@@ -3263,6 +3179,14 @@ components:
         updatedAt:
           type: string
           format: date-time
+    ListingStatus:
+      type: string
+      enum:
+      - PENDING_REVIEW
+      - ACTIVE
+      - OUT_OF_STOCK
+      - HIDDEN
+      - REJECTED
     ShopBrief:
       type: object
       properties:
@@ -3303,6 +3227,12 @@ components:
           minLength: 0
       required:
       - fullName
+    Role:
+      type: string
+      enum:
+      - USER
+      - STAFF
+      - ADMIN
     UserResponse:
       type: object
       properties:
@@ -3318,16 +3248,9 @@ components:
         avatarUrl:
           type: string
         role:
-          type: string
-          enum:
-          - USER
-          - STAFF
-          - ADMIN
+          $ref: "#/components/schemas/Role"
         status:
-          type: string
-          enum:
-          - ACTIVE
-          - LOCKED
+          $ref: "#/components/schemas/UserStatus"
         emailVerified:
           type: boolean
         phoneVerified:
@@ -3341,6 +3264,11 @@ components:
         createdAt:
           type: string
           format: date-time
+    UserStatus:
+      type: string
+      enum:
+      - ACTIVE
+      - LOCKED
     ShopRequest:
       type: object
       properties:
@@ -3536,11 +3464,7 @@ components:
       type: object
       properties:
         role:
-          type: string
-          enum:
-          - USER
-          - STAFF
-          - ADMIN
+          $ref: "#/components/schemas/Role"
       required:
       - role
     TrustedRequest:
@@ -3597,6 +3521,17 @@ components:
       - registrationDeadline
       - startAt
       - title
+    SessionStatus:
+      type: string
+      enum:
+      - DRAFT
+      - PUBLISHED
+      - POSTPONED
+      - CONFIRMED
+      - LIVE
+      - PAUSED
+      - ENDED
+      - CANCELLED
     SessionSummary:
       type: object
       properties:
@@ -3621,16 +3556,7 @@ components:
         depositAmount:
           type: number
         status:
-          type: string
-          enum:
-          - DRAFT
-          - PUBLISHED
-          - POSTPONED
-          - CONFIRMED
-          - LIVE
-          - PAUSED
-          - ENDED
-          - CANCELLED
+          $ref: "#/components/schemas/SessionStatus"
         lotCount:
           type: integer
           format: int64
@@ -3651,6 +3577,13 @@ components:
           minItems: 1
       required:
       - lotIds
+    LotCloseResult:
+      type: string
+      enum:
+      - SOLD
+      - RESERVE_NOT_MET
+      - NO_BIDS
+      - CANCELLED
     LotPublic:
       type: object
       properties:
@@ -3664,25 +3597,9 @@ components:
           type: integer
           format: int32
         status:
-          type: string
-          enum:
-          - READY
-          - SCHEDULED
-          - OPEN
-          - SOLD
-          - UNSOLD
-          - PAID
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - CONVERTED
+          $ref: "#/components/schemas/LotStatus"
         closeResult:
-          type: string
-          enum:
-          - SOLD
-          - RESERVE_NOT_MET
-          - NO_BIDS
-          - CANCELLED
+          $ref: "#/components/schemas/LotCloseResult"
         title:
           type: string
         author:
@@ -3690,13 +3607,7 @@ components:
         coverUrl:
           type: string
         conditionGrade:
-          type: string
-          enum:
-          - NEW
-          - LIKE_NEW
-          - VERY_GOOD
-          - GOOD
-          - ACCEPTABLE
+          $ref: "#/components/schemas/ConditionGrade"
         estimateLow:
           type: number
         estimateHigh:
@@ -3717,6 +3628,19 @@ components:
           type: string
         watching:
           type: boolean
+    LotStatus:
+      type: string
+      enum:
+      - READY
+      - SCHEDULED
+      - OPEN
+      - SOLD
+      - UNSOLD
+      - PAID
+      - COMPLETED
+      - CANCELLED
+      - RETURNED
+      - CONVERTED
     RegistrationResponse:
       type: object
       properties:
@@ -3737,16 +3661,18 @@ components:
         remainingLimit:
           type: number
         status:
-          type: string
-          enum:
-          - PENDING_DEPOSIT
-          - APPROVED
-          - REFUNDED
-          - APPLIED
-          - FORFEITED
+          $ref: "#/components/schemas/RegistrationStatus"
         createdAt:
           type: string
           format: date-time
+    RegistrationStatus:
+      type: string
+      enum:
+      - PENDING_DEPOSIT
+      - APPROVED
+      - REFUNDED
+      - APPLIED
+      - FORFEITED
     SessionDetail:
       type: object
       properties:
@@ -3863,11 +3789,7 @@ components:
         accountHolder:
           type: string
         status:
-          type: string
-          enum:
-          - PENDING
-          - APPROVED
-          - REJECTED
+          $ref: "#/components/schemas/WithdrawStatus"
         note:
           type: string
         processedAt:
@@ -3876,6 +3798,12 @@ components:
         createdAt:
           type: string
           format: date-time
+    WithdrawStatus:
+      type: string
+      enum:
+      - PENDING
+      - APPROVED
+      - REJECTED
     TopUpRequest:
       type: object
       properties:
@@ -3884,6 +3812,17 @@ components:
           minimum: 10000
       required:
       - amount
+    PaymentMethod:
+      type: string
+      enum:
+      - COD
+      - WALLET
+      - VNPAY
+    PaymentPurpose:
+      type: string
+      enum:
+      - ORDER
+      - TOP_UP
     PaymentResponse:
       type: object
       properties:
@@ -3893,25 +3832,13 @@ components:
         code:
           type: string
         purpose:
-          type: string
-          enum:
-          - ORDER
-          - TOP_UP
+          $ref: "#/components/schemas/PaymentPurpose"
         method:
-          type: string
-          enum:
-          - COD
-          - WALLET
-          - VNPAY
+          $ref: "#/components/schemas/PaymentMethod"
         amount:
           type: number
         status:
-          type: string
-          enum:
-          - PENDING
-          - SUCCESS
-          - FAILED
-          - EXPIRED
+          $ref: "#/components/schemas/PaymentStatus"
         paymentUrl:
           type: string
         simulateAvailable:
@@ -3922,6 +3849,13 @@ components:
         paidAt:
           type: string
           format: date-time
+    PaymentStatus:
+      type: string
+      enum:
+      - PENDING
+      - SUCCESS
+      - FAILED
+      - EXPIRED
     ShipRequest:
       type: object
       properties:
@@ -3933,31 +3867,9 @@ components:
       type: object
       properties:
         fromStatus:
-          type: string
-          enum:
-          - PENDING_PAYMENT
-          - PENDING_CONFIRM
-          - PREPARING
-          - SHIPPING
-          - DELIVERED
-          - RETURN_REQUESTED
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - FAILED_DELIVERY
+          $ref: "#/components/schemas/OrderStatus"
         toStatus:
-          type: string
-          enum:
-          - PENDING_PAYMENT
-          - PENDING_CONFIRM
-          - PREPARING
-          - SHIPPING
-          - DELIVERED
-          - RETURN_REQUESTED
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - FAILED_DELIVERY
+          $ref: "#/components/schemas/OrderStatus"
         actorId:
           type: integer
           format: int64
@@ -3975,23 +3887,9 @@ components:
         code:
           type: string
         orderType:
-          type: string
-          enum:
-          - NORMAL
-          - AUCTION
+          $ref: "#/components/schemas/OrderType"
         status:
-          type: string
-          enum:
-          - PENDING_PAYMENT
-          - PENDING_CONFIRM
-          - PREPARING
-          - SHIPPING
-          - DELIVERED
-          - RETURN_REQUESTED
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - FAILED_DELIVERY
+          $ref: "#/components/schemas/OrderStatus"
         buyerId:
           type: integer
           format: int64
@@ -4020,11 +3918,7 @@ components:
         amountDue:
           type: number
         paymentMethod:
-          type: string
-          enum:
-          - COD
-          - WALLET
-          - VNPAY
+          $ref: "#/components/schemas/PaymentMethod"
         paidAt:
           type: string
           format: date-time
@@ -4096,6 +3990,31 @@ components:
           format: int32
         lineTotal:
           type: number
+    OrderStatus:
+      type: string
+      enum:
+      - PENDING_PAYMENT
+      - PENDING_CONFIRM
+      - PREPARING
+      - SHIPPING
+      - DELIVERED
+      - RETURN_REQUESTED
+      - COMPLETED
+      - CANCELLED
+      - RETURNED
+      - FAILED_DELIVERY
+    OrderType:
+      type: string
+      enum:
+      - NORMAL
+      - AUCTION
+    ReturnReason:
+      type: string
+      enum:
+      - WRONG_CONDITION
+      - MISSING_PAGES
+      - WRONG_EDITION
+      - OTHER_NOT_AS_DESCRIBED
     ReturnResponse:
       type: object
       properties:
@@ -4106,12 +4025,7 @@ components:
           type: integer
           format: int64
         reason:
-          type: string
-          enum:
-          - WRONG_CONDITION
-          - MISSING_PAGES
-          - WRONG_EDITION
-          - OTHER_NOT_AS_DESCRIBED
+          $ref: "#/components/schemas/ReturnReason"
         description:
           type: string
         images:
@@ -4119,12 +4033,7 @@ components:
           items:
             type: string
         status:
-          type: string
-          enum:
-          - PENDING
-          - APPROVED
-          - DISPUTED
-          - REJECTED
+          $ref: "#/components/schemas/ReturnStatus"
         sellerNote:
           type: string
         resolution:
@@ -4132,6 +4041,13 @@ components:
         createdAt:
           type: string
           format: date-time
+    ReturnStatus:
+      type: string
+      enum:
+      - PENDING
+      - APPROVED
+      - DISPUTED
+      - REJECTED
     DecisionRequest:
       type: object
       properties:
@@ -4141,7 +4057,7 @@ components:
           type: string
           maxLength: 1000
           minLength: 0
-    CancelRequest:
+    ReasonRequest:
       type: object
       properties:
         reason:
@@ -4168,19 +4084,7 @@ components:
         code:
           type: string
         status:
-          type: string
-          enum:
-          - SUBMITTED
-          - APPROVED
-          - REJECTED
-          - APPOINTMENT_BOOKED
-          - EXPIRED
-          - RECEIVED
-          - INSPECTION_FAILED
-          - AWAITING_SELLER
-          - ACCEPTED
-          - WITHDRAWN
-          - RETURNED
+          $ref: "#/components/schemas/ConsignmentStatus"
         sellerId:
           type: integer
           format: int64
@@ -4217,6 +4121,20 @@ components:
         updatedAt:
           type: string
           format: date-time
+    ConsignmentStatus:
+      type: string
+      enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+      - APPOINTMENT_BOOKED
+      - EXPIRED
+      - RECEIVED
+      - INSPECTION_FAILED
+      - AWAITING_SELLER
+      - ACCEPTED
+      - WITHDRAWN
+      - RETURNED
     InspectionResponse:
       type: object
       properties:
@@ -4224,21 +4142,12 @@ components:
           type: integer
           format: int64
         result:
-          type: string
-          enum:
-          - PASS
-          - FAIL
+          $ref: "#/components/schemas/InspectionResult"
         checklist:
           type: object
           additionalProperties: {}
         conditionGrade:
-          type: string
-          enum:
-          - NEW
-          - LIKE_NEW
-          - VERY_GOOD
-          - GOOD
-          - ACCEPTABLE
+          $ref: "#/components/schemas/ConditionGrade"
         conditionReport:
           type: string
         estimateLow:
@@ -4250,12 +4159,7 @@ components:
         proposedReserve:
           type: number
         sellerDecision:
-          type: string
-          enum:
-          - PENDING
-          - ACCEPTED
-          - COUNTER
-          - WITHDRAWN
+          $ref: "#/components/schemas/SellerDecision"
         sellerCounterReserve:
           type: number
         decidedAt:
@@ -4264,6 +4168,11 @@ components:
         createdAt:
           type: string
           format: date-time
+    InspectionResult:
+      type: string
+      enum:
+      - PASS
+      - FAIL
     LotBrief:
       type: object
       properties:
@@ -4271,18 +4180,7 @@ components:
           type: integer
           format: int64
         status:
-          type: string
-          enum:
-          - READY
-          - SCHEDULED
-          - OPEN
-          - SOLD
-          - UNSOLD
-          - PAID
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - CONVERTED
+          $ref: "#/components/schemas/LotStatus"
         sessionId:
           type: integer
           format: int64
@@ -4296,34 +4194,27 @@ components:
         hammerPrice:
           type: number
         closeResult:
-          type: string
-          enum:
-          - SOLD
-          - RESERVE_NOT_MET
-          - NO_BIDS
-          - CANCELLED
+          $ref: "#/components/schemas/LotCloseResult"
         rounds:
           type: integer
           format: int32
+    SellerDecision:
+      type: string
+      enum:
+      - PENDING
+      - ACCEPTED
+      - COUNTER
+      - WITHDRAWN
     InspectionRequest:
       type: object
       properties:
         result:
-          type: string
-          enum:
-          - PASS
-          - FAIL
+          $ref: "#/components/schemas/InspectionResult"
         checklist:
           type: object
           additionalProperties: {}
         conditionGrade:
-          type: string
-          enum:
-          - NEW
-          - LIKE_NEW
-          - VERY_GOOD
-          - GOOD
-          - ACCEPTABLE
+          $ref: "#/components/schemas/ConditionGrade"
         conditionReport:
           type: string
           maxLength: 5000
@@ -4392,12 +4283,7 @@ components:
       type: object
       properties:
         reason:
-          type: string
-          enum:
-          - WRONG_CONDITION
-          - MISSING_PAGES
-          - WRONG_EDITION
-          - OTHER_NOT_AS_DESCRIBED
+          $ref: "#/components/schemas/ReturnReason"
         description:
           type: string
           maxLength: 1000
@@ -4417,11 +4303,7 @@ components:
       type: object
       properties:
         method:
-          type: string
-          enum:
-          - COD
-          - WALLET
-          - VNPAY
+          $ref: "#/components/schemas/PaymentMethod"
       required:
       - method
     OrderSummary:
@@ -4433,23 +4315,9 @@ components:
         code:
           type: string
         orderType:
-          type: string
-          enum:
-          - NORMAL
-          - AUCTION
+          $ref: "#/components/schemas/OrderType"
         status:
-          type: string
-          enum:
-          - PENDING_PAYMENT
-          - PENDING_CONFIRM
-          - PREPARING
-          - SHIPPING
-          - DELIVERED
-          - RETURN_REQUESTED
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - FAILED_DELIVERY
+          $ref: "#/components/schemas/OrderStatus"
         shopId:
           type: integer
           format: int64
@@ -4470,11 +4338,7 @@ components:
         amountDue:
           type: number
         paymentMethod:
-          type: string
-          enum:
-          - COD
-          - WALLET
-          - VNPAY
+          $ref: "#/components/schemas/PaymentMethod"
         paid:
           type: boolean
         cancelRequested:
@@ -4507,11 +4371,7 @@ components:
           type: integer
           format: int64
         paymentMethod:
-          type: string
-          enum:
-          - COD
-          - WALLET
-          - VNPAY
+          $ref: "#/components/schemas/PaymentMethod"
         listingIds:
           type: array
           items:
@@ -4603,7 +4463,6 @@ components:
         me:
           $ref: "#/components/schemas/RegistrationResponse"
     BidView:
-      type: object
       properties:
         paddle:
           type: string
@@ -4615,7 +4474,6 @@ components:
           type: string
           format: date-time
     LotLive:
-      type: object
       properties:
         id:
           type: integer
@@ -4628,18 +4486,7 @@ components:
         coverUrl:
           type: string
         status:
-          type: string
-          enum:
-          - READY
-          - SCHEDULED
-          - OPEN
-          - SOLD
-          - UNSOLD
-          - PAID
-          - COMPLETED
-          - CANCELLED
-          - RETURNED
-          - CONVERTED
+          $ref: "#/components/schemas/LotStatus"
         startPrice:
           type: number
         currentPrice:
@@ -4661,12 +4508,7 @@ components:
           items:
             $ref: "#/components/schemas/BidView"
         closeResult:
-          type: string
-          enum:
-          - SOLD
-          - RESERVE_NOT_MET
-          - NO_BIDS
-          - CANCELLED
+          $ref: "#/components/schemas/LotCloseResult"
         hammerPrice:
           type: number
     ConsignmentCreateRequest:
@@ -4684,29 +4526,33 @@ components:
       required:
       - book
       - expectedPrice
+    UnsoldAction:
+      type: string
+      enum:
+      - RELIST
+      - CONVERT_TO_LISTING
+      - RETURN
     UnsoldDecisionRequest:
       type: object
       properties:
         action:
-          type: string
-          enum:
-          - RELIST
-          - CONVERT_TO_LISTING
-          - RETURN
+          $ref: "#/components/schemas/UnsoldAction"
         newReserve:
           type: number
         listingPrice:
           type: number
       required:
       - action
+    SellerDecisionAction:
+      type: string
+      enum:
+      - ACCEPT
+      - WITHDRAW
     SellerDecisionRequest:
       type: object
       properties:
         decision:
-          type: string
-          enum:
-          - ACCEPT
-          - WITHDRAW
+          $ref: "#/components/schemas/SellerDecisionAction"
         counterReserve:
           type: number
         agreeTerms:
@@ -4735,15 +4581,17 @@ components:
       required:
       - listingId
       - quantity
+    OtpPurpose:
+      type: string
+      enum:
+      - VERIFY_EMAIL
+      - VERIFY_PHONE
+      - RESET_PASSWORD
     VerifyOtpRequest:
       type: object
       properties:
         purpose:
-          type: string
-          enum:
-          - VERIFY_EMAIL
-          - VERIFY_PHONE
-          - RESET_PASSWORD
+          $ref: "#/components/schemas/OtpPurpose"
         code:
           type: string
           minLength: 1
@@ -4754,11 +4602,7 @@ components:
       type: object
       properties:
         purpose:
-          type: string
-          enum:
-          - VERIFY_EMAIL
-          - VERIFY_PHONE
-          - RESET_PASSWORD
+          $ref: "#/components/schemas/OtpPurpose"
       required:
       - purpose
     OtpSentResponse:
@@ -4890,18 +4734,7 @@ components:
           type: integer
           format: int64
         type:
-          type: string
-          enum:
-          - TOP_UP
-          - PAYMENT
-          - REFUND
-          - DEPOSIT_HOLD
-          - DEPOSIT_RELEASE
-          - DEPOSIT_FORFEIT
-          - SALE_PENDING
-          - SALE_RELEASE
-          - FEE
-          - WITHDRAW
+          $ref: "#/components/schemas/WalletTxType"
         availableChange:
           type: number
         heldChange:
@@ -4920,6 +4753,19 @@ components:
         createdAt:
           type: string
           format: date-time
+    WalletTxType:
+      type: string
+      enum:
+      - TOP_UP
+      - PAYMENT
+      - REFUND
+      - DEPOSIT_HOLD
+      - DEPOSIT_RELEASE
+      - DEPOSIT_FORFEIT
+      - SALE_PENDING
+      - SALE_RELEASE
+      - FEE
+      - WITHDRAW
     PageResponseWarehouseResponse:
       type: object
       properties:
@@ -5025,16 +4871,7 @@ components:
           type: integer
           format: int64
         status:
-          type: string
-          enum:
-          - DRAFT
-          - PUBLISHED
-          - POSTPONED
-          - CONFIRMED
-          - LIVE
-          - PAUSED
-          - ENDED
-          - CANCELLED
+          $ref: "#/components/schemas/SessionStatus"
         currentLot:
           $ref: "#/components/schemas/LotLive"
         nextLotAt:
@@ -5062,12 +4899,7 @@ components:
         title:
           type: string
         result:
-          type: string
-          enum:
-          - SOLD
-          - RESERVE_NOT_MET
-          - NO_BIDS
-          - CANCELLED
+          $ref: "#/components/schemas/LotCloseResult"
         hammerPrice:
           type: number
         winnerPaddle:
@@ -5085,13 +4917,7 @@ components:
         coverUrl:
           type: string
         conditionGrade:
-          type: string
-          enum:
-          - NEW
-          - LIKE_NEW
-          - VERY_GOOD
-          - GOOD
-          - ACCEPTABLE
+          $ref: "#/components/schemas/ConditionGrade"
         price:
           type: number
         stock:
@@ -5101,13 +4927,7 @@ components:
           type: integer
           format: int32
         status:
-          type: string
-          enum:
-          - PENDING_REVIEW
-          - ACTIVE
-          - OUT_OF_STOCK
-          - HIDDEN
-          - REJECTED
+          $ref: "#/components/schemas/ListingStatus"
         shop:
           $ref: "#/components/schemas/ShopBrief"
         createdAt:
@@ -5291,6 +5111,25 @@ components:
           format: double
         platformBalance:
           type: number
+    AuctionEvent:
+      properties:
+        type:
+          type: string
+        sessionId:
+          type: integer
+          format: int64
+        serverTime:
+          type: string
+          format: date-time
+        sessionStatus:
+          $ref: "#/components/schemas/SessionStatus"
+        lot:
+          $ref: "#/components/schemas/LotLive"
+        nextLotAt:
+          type: string
+          format: date-time
+        message:
+          type: string
   securitySchemes:
     bearerAuth:
       type: http

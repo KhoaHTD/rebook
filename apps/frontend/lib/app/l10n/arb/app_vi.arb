@@ -7,25 +7,53 @@
   "searchBooksHint": "Tìm theo tên sách hoặc tác giả",
   "emptyBooks": "Chưa có cuốn sách nào phù hợp",
   "soldBy": "Người bán: {name}",
-  "@soldBy": { "placeholders": { "name": { "type": "String" } } },
+  "@soldBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "conditionLikeNew": "Như mới",
-  "conditionGood": "Tốt",
-  "conditionFair": "Khá",
-  "conditionWorn": "Cũ nhiều",
+  "conditionGood": "Khá",
   "conditionUnknown": "Không rõ",
   "buyNow": "Mua ngay",
   "description": "Mô tả",
   "auctionCurrentPrice": "Giá hiện tại",
   "auctionBidCount": "{count, plural, =0{Chưa có lượt trả giá} other{{count} lượt trả giá}}",
-  "@auctionBidCount": { "placeholders": { "count": { "type": "int" } } },
+  "@auctionBidCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "auctionEndsIn": "Kết thúc sau {duration}",
-  "@auctionEndsIn": { "placeholders": { "duration": { "type": "String" } } },
+  "@auctionEndsIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "auctionEnded": "Phiên đã kết thúc",
   "auctionLive": "Đang diễn ra",
   "auctionHighestBidder": "Người dẫn đầu: {name}",
-  "@auctionHighestBidder": { "placeholders": { "name": { "type": "String" } } },
-  "placeBid": "Trả giá {amount}",
-  "@placeBid": { "placeholders": { "amount": { "type": "String" } } },
+  "@auctionHighestBidder": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "placeBid": "Trả {amount}",
+  "@placeBid": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "bidPlaced": "Đã trả giá thành công",
   "loginTitle": "Đăng nhập",
   "email": "Email",
@@ -43,5 +71,483 @@
   "errorUnauthorized": "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.",
   "errorServer": "Máy chủ gặp lỗi. Vui lòng thử lại sau.",
   "errorUnknown": "Đã có lỗi xảy ra.",
-  "notFound": "Không tìm thấy trang"
+  "notFound": "Không tìm thấy trang",
+  "navHome": "Trang chủ",
+  "navSell": "Đăng bán",
+  "liveBadge": "LIVE",
+  "channelBuy": "Mua sách",
+  "channelAuction": "Đấu giá",
+  "collectionCaps": "BỘ SƯU TẬP",
+  "newNearYou": "Mới đăng gần bạn",
+  "browseByCategory": "Duyệt theo thể loại",
+  "escrowTitle": "Tiền được giữ an toàn",
+  "escrowBody": "Ví ReBook chỉ trả cho người bán sau khi bạn xác nhận đã nhận sách.",
+  "upcomingSessions": "Phiên sắp tới",
+  "upcomingLots": "Sắp mở",
+  "featuredLots": "Lô nổi bật",
+  "noAuctions": "Chưa có phiên đấu giá nào",
+  "enterAuctionRoom": "Vào phòng đấu giá",
+  "lotOfCount": "Lô {number} / {count}",
+  "@lotOfCount": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lotNumber": "Lô {number}",
+  "@lotNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "lotsCount": "{count} lô",
+  "@lotsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "depositShort": "cọc {amount}",
+  "@depositShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "monthShort": "THG {month}",
+  "@monthShort": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "currentPriceTimeLeft": "Giá hiện tại · còn {time}",
+  "@currentPriceTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "estimateShort": "Ước tính {range} tr",
+  "@estimateShort": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "estimateMillions": "Ước tính {range} triệu",
+  "@estimateMillions": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "accessoryStatus": "LIVE · {price} · còn {time}",
+  "@accessoryStatus": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bidShort": "Trả {amount}",
+  "@bidShort": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "leadingShort": "Dẫn đầu",
+  "searchTitle": "Tìm kiếm",
+  "backHome": "Về Trang chủ",
+  "clearSearch": "Xoá từ khoá",
+  "filters": "Bộ lọc",
+  "filtersCount": "Bộ lọc · {count}",
+  "@filtersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "anyCondition": "Mọi tình trạng",
+  "anyPrice": "Mọi mức giá",
+  "resultCount": "{count, plural, =0{Không có kết quả} other{{count} kết quả}}",
+  "@resultCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sortNewest": "Mới nhất",
+  "sortPriceAsc": "Giá thấp trước",
+  "sortPriceDesc": "Giá cao trước",
+  "condition": "Tình trạng",
+  "priceRange": "Khoảng giá",
+  "priceFrom": "Từ",
+  "priceTo": "Đến",
+  "shippingNote": "Cùng tỉnh ship 20.000đ, khác tỉnh 30.000đ (gói ≤ 1kg).",
+  "clearFilters": "Xoá bộ lọc",
+  "apply": "Áp dụng",
+  "cancel": "Huỷ",
+  "confirm": "Xác nhận",
+  "back": "Quay lại",
+  "conditionLikeNewDesc": "Đã đọc, không dấu vết",
+  "conditionGoodDesc": "Có ghi chú / gấp góc / ố vàng nhẹ, đủ trang",
+  "sellTitle": "Đăng bán",
+  "post": "Đăng",
+  "photoFront": "Bìa trước",
+  "photoBack": "Bìa sau",
+  "photoSpine": "Gáy sách",
+  "photoDamage": "Chỗ hư hỏng",
+  "bookInfo": "Thông tin sách",
+  "bookTitle": "Tên sách",
+  "bookAuthor": "Tác giả",
+  "publisher": "Nhà xuất bản",
+  "publishYear": "Năm in",
+  "sellPrice": "Giá bán",
+  "platformFee": "Phí sàn ({percent}%)",
+  "@platformFee": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "youReceive": "Bạn thực nhận",
+  "sellEscrowNote": "Ví ReBook giữ tiền đến khi người mua xác nhận đã nhận sách, hoặc tự hoàn tất 3 ngày sau khi giao. Phí ship do người mua trả.",
+  "consignInstead": "Ký gửi đấu giá thay vì bán",
+  "consignInsteadHint": "Cho sách hiếm từ 300.000đ, có chuyên gia kiểm định",
+  "priceSuggestion": "Giá gợi ý cho bản {condition}: {low}–{high}, dựa trên các tin cùng sách đã bán.",
+  "@priceSuggestion": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "useSuggested": "Dùng {amount}",
+  "@useSuggested": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "increasePrice": "Tăng {amount}",
+  "@increasePrice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "decreasePrice": "Giảm {amount}",
+  "@decreasePrice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sellMissingInfo": "Cần nhập tên sách, tác giả, thể loại, khối lượng và ít nhất 3 ảnh",
+  "listingSubmitted": "Đã gửi tin, đang chờ duyệt",
+  "setMaxBid": "Đặt giá tối đa",
+  "follow": "Theo dõi",
+  "following": "Đang theo dõi",
+  "statEstimate": "Ước tính",
+  "statStartPrice": "Khởi điểm",
+  "statCondition": "Tình trạng",
+  "statOpens": "Mở phiên",
+  "statIncrement": "Bước giá",
+  "millionDong": "triệu đồng",
+  "inspectionReport": "Báo cáo kiểm định",
+  "inspectedAtWarehouse": "Đã kiểm định tại kho ReBook",
+  "reserveHiddenNote": "Lô có giá sàn được giữ kín. Khi giá vượt giá sàn, phòng đấu giá sẽ báo “Đã đạt giá sàn”.",
+  "ifYouWinAt": "Nếu bạn thắng ở {amount}",
+  "@ifYouWinAt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "hammerPrice": "Giá gõ búa",
+  "buyerPremium": "Phí người mua ({percent}%)",
+  "@buyerPremium": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "shipFromWarehouse": "Giao từ kho TP.HCM",
+  "shipFeeRange": "20–30 nghìn",
+  "totalPayment": "Tổng thanh toán",
+  "approx": "≈ {amount}",
+  "@approx": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "payWithin48h": "Thanh toán trong 48 giờ sau khi thắng.",
+  "joinSession": "Tham gia phiên",
+  "deposit": "Tiền cọc",
+  "bidLimit": "Hạn mức trả giá",
+  "timePerLot": "Thời gian mỗi lô",
+  "seconds": "{count} giây",
+  "@seconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "participationNote": "Hạn mức bằng 10 lần tiền cọc. Có giá mới trong {seconds} giây cuối thì lô được cộng thêm thời gian. Không thắng thì cọc được hoàn về ví.",
+  "@participationNote": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "sessionStartsIn": "Phiên bắt đầu sau",
+  "daysAndClock": "{days} ngày {clock}",
+  "@daysAndClock": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "clock": {
+        "type": "String"
+      }
+    }
+  },
+  "register": "Đăng ký",
+  "registerWithDeposit": "Đăng ký · cọc {amount}",
+  "@registerWithDeposit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "registered": "Đã đăng ký",
+  "registeredSuccess": "Đăng ký thành công, tiền cọc đã được khoá trong ví",
+  "minimizeRoom": "Thu nhỏ phòng đấu giá",
+  "viewers": "Người đang xem",
+  "reserveMet": "Đã đạt giá sàn",
+  "reserveNotMet": "Chưa đạt giá sàn",
+  "youAreLeading": "Bạn đang dẫn đầu",
+  "outbid": "Có người trả cao hơn bạn",
+  "hammerDown": "Đã gõ búa",
+  "hammerDownCaps": "GÕ BÚA",
+  "timeLeft": "Còn {time}",
+  "@timeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "softCloseBonus": "+15s",
+  "noBidsYet": "Chưa có lượt trả giá",
+  "autoBidNote": "tự trả · giá tối đa",
+  "justNow": "vừa xong",
+  "secondsAgo": "{count} giây trước",
+  "@secondsAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "you": "Bạn",
+  "youInitials": "BẠN",
+  "bidderPaddle": "Người mua {paddle}",
+  "@bidderPaddle": {
+    "placeholders": {
+      "paddle": {
+        "type": "String"
+      }
+    }
+  },
+  "maxBidTitle": "Giá tối đa",
+  "maxBidTitleWithAmount": "Giá tối đa · {amount}",
+  "@maxBidTitleWithAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "maxBidHint": "Tự trả từng bước thay bạn đến mức này",
+  "maxBidOn": "Đã bật giá tối đa {amount}",
+  "@maxBidOn": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "maxBidOff": "Đã tắt giá tối đa",
+  "maxBidTooLow": "Tối thiểu {amount}",
+  "@maxBidTooLow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "maxBidExplain": "Hệ thống trả giá thay bạn mỗi khi có người vượt, cho tới mức này. Từ {min}, không vượt hạn mức {limit}.",
+  "@maxBidExplain": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "overBidLimit": "Vượt hạn mức",
+  "bidPriceChanged": "Giá vừa thay đổi hoặc lô đã đóng, vui lòng thử lại",
+  "bidLimitInfo": "Hạn mức {amount}",
+  "@bidLimitInfo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bidStepInfo": "bước giá {amount}",
+  "@bidStepInfo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "buyerPremiumInfo": "phí người mua {percent}%",
+  "@buyerPremiumInfo": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "resultYouWon": "Bạn đã thắng lô này",
+  "resultYouWonBody": "Giá gõ búa {hammer} + phí người mua {premium}. Thanh toán trong 48 giờ.",
+  "@resultYouWonBody": {
+    "placeholders": {
+      "hammer": {
+        "type": "String"
+      },
+      "premium": {
+        "type": "String"
+      }
+    }
+  },
+  "resultSold": "Lô đã bán",
+  "resultSoldBody": "Người mua {paddle} thắng với {amount}. Cọc của bạn vẫn giữ cho các lô tiếp theo.",
+  "@resultSoldBody": {
+    "placeholders": {
+      "paddle": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "resultReserveNotMet": "Chưa đạt giá sàn",
+  "resultReserveNotMetBody": "Lô không bán. Người ký gửi có thể đưa lô vào phiên sau.",
+  "backToAuctions": "Về danh sách đấu giá",
+  "conditionNew": "Mới",
+  "conditionVeryGood": "Tốt",
+  "conditionAcceptable": "Trung bình",
+  "conditionNewDesc": "Chưa đọc, còn nguyên",
+  "conditionVeryGoodDesc": "Dấu hiệu dùng nhẹ, không ghi chú",
+  "conditionAcceptableDesc": "Hư hại rõ, vẫn đọc được",
+  "errorForbidden": "Bạn không có quyền thực hiện thao tác này.",
+  "inspFullPagesOk": "Ruột đủ trang",
+  "inspFullPagesBad": "Thiếu trang",
+  "inspEditionOk": "Đúng ấn bản / lần in như mô tả",
+  "inspEditionBad": "Chưa xác minh được ấn bản",
+  "inspMoldOk": "Không ẩm mốc",
+  "inspMoldBad": "Có vết ẩm mốc",
+  "inspNotesOk": "Không có ghi chú, dấu mực",
+  "inspNotesBad": "Có ghi chú / dấu của chủ cũ",
+  "inspSignature": "Chữ ký: {note}",
+  "registerConfirmTitle": "Đăng ký tham gia phiên",
+  "registerConfirmBody": "Ví sẽ khoá {deposit} tiền cọc. Hạn mức trả giá của bạn là {limit}. Thắng mà không thanh toán trong 48 giờ sẽ mất cọc và bị cấm đấu giá 90 ngày. Không thắng lô nào thì cọc được hoàn ngay khi phiên kết thúc.",
+  "agreeAndRegister": "Đồng ý và đăng ký",
+  "@inspSignature": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "@registerConfirmBody": {
+    "placeholders": {
+      "deposit": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "photoMore": "Thêm ảnh",
+  "photoHintCount": "Đã có {count} ảnh — cần tối thiểu {min} ảnh thật (bìa trước, bìa sau, chỗ hư hỏng). Bấm vào ô để dán link ảnh.",
+  "photoUrlTitle": "Link ảnh",
+  "photoUrlHint": "https://…/anh-bia.jpg",
+  "remove": "Xoá",
+  "category": "Thể loại",
+  "chooseCategory": "Chọn",
+  "weightGram": "Khối lượng (g)",
+  "@photoHintCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "leadingBy": "Đang dẫn: {paddle}",
+  "@leadingBy": {
+    "placeholders": {
+      "paddle": {
+        "type": "String"
+      }
+    }
+  }
 }

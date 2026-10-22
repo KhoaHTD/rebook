@@ -1,5 +1,6 @@
 package com.rebook.wallet;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,6 +23,7 @@ import java.time.Instant;
 @NoArgsConstructor
 public class WithdrawRequest {
 
+    @Schema(name = "WithdrawStatus", enumAsRef = true)
     public enum Status { PENDING, APPROVED, REJECTED }
 
     @Id

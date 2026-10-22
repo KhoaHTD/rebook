@@ -10,6 +10,10 @@ String errorMessage(BuildContext context, Object error) {
   return switch (AppException.from(error)) {
     NetworkException() => l10n.errorNetwork,
     UnauthorizedException() => l10n.errorUnauthorized,
+    ForbiddenException(:final message) => message ?? l10n.errorForbidden,
+    // 4xx: backend đã viết sẵn thông báo cho người dùng (vd "Chỉ còn 1 cuốn").
+    final ServerException e when e.isClientError && e.message != null =>
+      e.message!,
     ServerException() => l10n.errorServer,
     UnknownException() => l10n.errorUnknown,
   };

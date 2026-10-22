@@ -1,5 +1,6 @@
 package com.rebook.order;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -30,8 +31,10 @@ import java.util.List;
 @NoArgsConstructor
 public class ReturnRequest {
 
+    @Schema(name = "ReturnReason", enumAsRef = true)
     public enum Reason { WRONG_CONDITION, MISSING_PAGES, WRONG_EDITION, OTHER_NOT_AS_DESCRIBED }
 
+    @Schema(name = "ReturnStatus", enumAsRef = true)
     public enum Status { PENDING, APPROVED, DISPUTED, REJECTED }
 
     @Id

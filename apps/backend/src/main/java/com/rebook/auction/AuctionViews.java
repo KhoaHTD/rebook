@@ -85,7 +85,7 @@ public class AuctionViews {
         boolean open = l.getStatus() == LotStatus.OPEN;
         boolean sold = l.getCloseResult() == Lot.CloseResult.SOLD;
         return new LotLive(l.getId(), l.getLotNumber(), b.getTitle(), b.coverUrl(), l.getStatus(), l.getStartPrice(),
-                l.getCurrentPrice(), open ? nextMinBid(l) : null, open ? increment(l.getCurrentPrice()) : null,
+                l.getCurrentPrice(), open ? nextMinBid(l) : null, open ? increment(l.getCurrentPrice() == null ? l.getStartPrice() : l.getCurrentPrice()) : null,
                 l.getBidCount(), l.getEndsAt(), paddles.get(l.getCurrentWinnerId()), recent, l.getCloseResult(),
                 sold ? l.getHammerPrice() : null);
     }

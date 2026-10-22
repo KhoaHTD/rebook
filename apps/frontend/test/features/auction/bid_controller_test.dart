@@ -32,7 +32,8 @@ void main() {
     final after = room.read().requireValue;
     expect(after.currentPrice, before.nextMinBid);
     expect(after.bidCount, before.bidCount + 1);
-    expect(after.highestBidder, 'you');
+    expect(after.youAreLeading, isTrue);
+    expect(after.recentBids.first.isYou, isTrue);
   });
 
   test('trả giá thấp hơn mức tối thiểu trả về lỗi', () async {

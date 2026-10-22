@@ -1,5 +1,6 @@
 package com.rebook.catalog;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class BookImage {
 
+    @Schema(name = "ImageSource", enumAsRef = true)
     public enum Source { SELLER, STAFF }
 
     @Id

@@ -1,5 +1,6 @@
 package com.rebook.auction;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import com.rebook.common.StatusFlow;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,6 +29,7 @@ import java.util.Set;
 public class AuctionRegistration {
 
     /** PENDING_DEPOSIT → APPROVED (đã khoá cọc) → REFUNDED | APPLIED | FORFEITED. */
+    @Schema(name = "RegistrationStatus", enumAsRef = true)
     public enum Status implements StatusFlow<Status> {
         PENDING_DEPOSIT, APPROVED, REFUNDED, APPLIED, FORFEITED;
 

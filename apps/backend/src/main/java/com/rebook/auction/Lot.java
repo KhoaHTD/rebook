@@ -1,5 +1,6 @@
 package com.rebook.auction;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,6 +26,7 @@ import java.time.Instant;
 @NoArgsConstructor
 public class Lot {
 
+    @Schema(name = "LotCloseResult", enumAsRef = true)
     public enum CloseResult { SOLD, RESERVE_NOT_MET, NO_BIDS, CANCELLED }
 
     @Id

@@ -27,7 +27,12 @@ class ProfileScreen extends ConsumerWidget {
       body: MaxWidthBox(
         maxWidth: 640,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.floatingBarInset,
+          ),
           children: [
             Text(l10n.settingsTheme, style: context.textStyles.titleSmall),
             const SizedBox(height: AppSpacing.sm),

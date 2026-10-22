@@ -11,12 +11,14 @@ class ApiAuthRepository implements AuthRepository {
   @override
   Future<AuthTokens> login({required String email, required String password}) =>
       guardApi(() async {
-        final pair = await _client.auth.login(
+        final res = await _client.auth.postAuthLogin(
           body: api.LoginRequest(email: email, password: password),
         );
-        return AuthTokens(
-          accessToken: pair.accessToken,
-          refreshToken: pair.refreshToken,
-        );
+        final access = res.accessToken;
+        final refresh = res.refreshToken;
+        if (access == null || refresh == null) {
+          throw const UnauthorizedException();
+        }
+        return AuthTokens(accessToken: access, refreshToken: refresh);
       });
 }
