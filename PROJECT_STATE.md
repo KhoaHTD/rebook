@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-Cập nhật: 2026-10-22
+Cập nhật: 2026-10-22 (TẠM DỪNG theo yêu cầu người dùng, giữa lúc hoàn thiện Home)
 
 ## Giai đoạn hiện tại: THIẾT KẾ (chưa code website)
 
@@ -45,4 +45,13 @@ Chỉ chuyển sang code khi người dùng gửi SRS **và** yêu cầu triển
       Be Vietnam Pro, lý do: văn học + dấu tiếng Việt). Bỏ lớp animation (người dùng cấm animation trang trí).
 - [x] Ảnh: 12 bìa thật Open Library (`design-preview/assets/covers/`, nguồn trong `credits.json`), 6 ảnh tư liệu
       Wikimedia Commons PD/CC (`design-preview/assets/`, nguồn trong `assets/credits.json`).
-- [ ] Đang làm: `design-preview/` Home desktop → Home mobile → Khám phá → Chi tiết sách → About → Home tối.
+- [x] `design-preview/styles.css` (token + component dùng chung), `design-preview/covers.js` (10 bìa concept có nhãn).
+- [~] `design-preview/home.html` — Home responsive (desktop 1440 + mobile 390 cùng một file). Đã qua 4 vòng inspector + xem ảnh.
+      Inspector lần cuối: 2 FAIL, 5 WARN.
+      * FAIL still-page (không animation) — CỐ Ý, theo yêu cầu người dùng cấm animation trang trí.
+      * FAIL eyebrow @768px: ô tìm kiếm trên thanh nav bị đo nhầm là nhãn trên tiêu đề → CHƯA SỬA (ở 768 nav xuống dòng?).
+      * WARN giữ có lý do: no-footage, font-not-dealt (đổi font có chủ đích), side-scroll (dải bìa kéo ngang),
+        size-count (chữ trong bìa concept), measure 112 ký tự (do thanh ghi chú mockup).
+      * Vừa sửa nhưng CHƯA xem lại ảnh: khối 3 ý dưới tiêu đề hero, hàng đấu giá trên điện thoại, nhãn concept chuyển xuống đáy bìa.
+- [ ] Chưa làm: explore.html, book.html (chi tiết sách + nhiều người bán), about.html, home-dark (data-theme="dark"),
+      index.html (mục lục mockup), credits.html, xuất PNG vào design-preview/png/.

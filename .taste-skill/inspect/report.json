@@ -1,0 +1,1671 @@
+{
+ "url": "design-preview/home.html",
+ "at": "2026-10-22T06:35:43.995Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 6,
+   "filled": [
+    0.66,
+    0.34,
+    0.4,
+    0.72,
+    0.48,
+    0.69
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 5276,
+     "screens": 5.9,
+     "words": 779,
+     "img": 31,
+     "video": 0,
+     "canvas": 0,
+     "svg": 21,
+     "sections": 5,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 22,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "ba-chi-em.jpg",
+      "toi-ac-va-hinh-phat.jpg",
+      "tram-nam-co-don.jpg",
+      "siddhartha.jpg",
+      "chien-tranh-va-hoa-binh.jpg",
+      "ong-gia-va-bien-ca.jpg",
+      "nhung-nguoi-khon-kho.jpg",
+      "kieu-hanh-va-dinh-kien.jpg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 1,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Sách cũ, đúng bản bạn tìm.",
+     "words": 6,
+     "chars": 26,
+     "lines": 1,
+     "size": 72,
+     "vw": 5,
+     "font": "Newsreader",
+     "weight": 400,
+     "tracking": -0.03,
+     "leading": 1,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.62,
+     "top": 152,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Sách cũ, đúng bản bạn tìm.",
+     "words": 6,
+     "lines": 1,
+     "size": 72,
+     "font": "Newsreader"
+    },
+    "headings": [
+     {
+      "text": "Sách cũ, đúng bản bạn tìm.",
+      "words": 6,
+      "chars": 26,
+      "lines": 1,
+      "size": 72,
+      "vw": 5,
+      "font": "Newsreader",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.62,
+      "top": 152,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "ReBook là chợ của những cuốn sách đã có một đời đọc. Mỗi tin đăng là một bản cụ thể: năm in, độ chắc của gáy, cả dòng ghi chú của chủ cũ.",
+      "words": 33,
+      "chars": 137,
+      "lines": 3,
+      "size": 34.9,
+      "vw": 2.4,
+      "font": "Newsreader",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.22,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.7,
+      "top": 4197,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "Người bán là những nhà sách cũ và người đọc muốn sách tiếp tục được đọc. Bản hiếm thì lên phiên đấu giá, có giờ kết thúc rõ ràng. Đọc thêm về ReBook.",
+      "words": 33,
+      "chars": 149,
+      "lines": 3,
+      "size": 34.9,
+      "vw": 2.4,
+      "font": "Newsreader",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.22,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.7,
+      "top": 4366,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "ReBook",
+      "words": 1,
+      "chars": 6,
+      "lines": 1,
+      "size": 158.4,
+      "vw": 11,
+      "font": "Newsreader",
+      "weight": 500,
+      "tracking": -0.04,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.66,
+      "top": 4866,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 4,
+     "maxLines": 3,
+     "over2Lines": 0,
+     "statements": 2,
+     "centered": 0,
+     "medianWords": 33,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.72,
+       "mono": false
+      },
+      {
+       "family": "Newsreader",
+       "share": 0.28,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      18,
+      22,
+      23,
+      26,
+      35,
+      72,
+      158
+     ],
+     "sizeCount": 10,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 18,
+      "leading": 1.55,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 12.3
+     },
+     "measureChars": 112,
+     "max": {
+      "size": 158.4,
+      "vw": 11,
+      "font": "Newsreader",
+      "text": "ReBook"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#eeecea",
+     "bodyBgHsl": {
+      "h": 30,
+      "s": 0.11,
+      "l": 0.93
+     },
+     "dark": false,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#2a2928",
+       "share": 0.48
+      },
+      {
+       "color": "#66625e",
+       "share": 0.35
+      },
+      {
+       "color": "#eeecea",
+       "share": 0.04
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.04
+      },
+      {
+       "color": "#3a2e22",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#4f5e48",
+      "hsl": {
+       "h": 101,
+       "s": 0.13,
+       "l": 0.33
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 2,
+     "inHero": 1,
+     "radius": 0,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Khám phá sách"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 18,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 7,
+     "fixed": false,
+     "height": 80,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "newsreader"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 5276,
+    "margins": {
+     "left": 48,
+     "right": 48
+    },
+    "sections": [
+     {
+      "sel": "section.hero",
+      "tag": "section",
+      "top": 124,
+      "height": 757,
+      "words": 209,
+      "media": 11,
+      "middle": 1088,
+      "heading": {
+       "text": "Sách cũ, đúng bản bạn tìm.",
+       "size": 72,
+       "tag": "h1"
+      },
+      "left": 48,
+      "right": 0,
+      "textLeft": 48,
+      "textRight": -1142,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section",
+      "tag": "section",
+      "top": 881,
+      "height": 686,
+      "words": 73,
+      "media": 5,
+      "middle": 26,
+      "heading": {
+       "text": "Tuyển chọn tuần này",
+       "size": 26,
+       "tag": "h2"
+      },
+      "left": 48,
+      "right": 113,
+      "textLeft": 48,
+      "textRight": 137,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#dau-gia",
+      "tag": "section",
+      "top": 1567,
+      "height": 957,
+      "words": 139,
+      "media": 1,
+      "middle": 138,
+      "heading": {
+       "text": "Đấu giá sắp kết thúc",
+       "size": 26,
+       "tag": "h2"
+      },
+      "left": 162,
+      "right": 48,
+      "textLeft": 162,
+      "textRight": 239,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#ke-sach",
+      "tag": "section",
+      "top": 2524,
+      "height": 1529,
+      "words": 174,
+      "media": 18,
+      "middle": 6,
+      "heading": {
+       "text": "Đi theo kệ sách",
+       "size": 26,
+       "tag": "h2"
+      },
+      "left": 48,
+      "right": 48,
+      "textLeft": 48,
+      "textRight": 54,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.about",
+      "tag": "section",
+      "top": 4053,
+      "height": 585,
+      "words": 62,
+      "media": 0,
+      "middle": 110,
+      "heading": {
+       "text": "ReBook là chợ của những cuốn sách đã có một đời đọ",
+       "size": 35,
+       "tag": "p"
+      },
+      "left": 48,
+      "right": 172,
+      "textLeft": 48,
+      "textRight": 172,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer",
+      "tag": "footer",
+      "top": 4638,
+      "height": 638,
+      "words": 66,
+      "media": 0,
+      "middle": 31,
+      "heading": {
+       "text": "ReBook",
+       "size": 158,
+       "tag": "span"
+      },
+      "left": 34,
+      "right": 187,
+      "textLeft": 34,
+      "textRight": 187,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Sách cũ, đúng bản bạn tìm.",
+      "size": 72,
+      "top": 152,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 48,
+      "n": 5
+     },
+     {
+      "x": 846,
+      "n": 2
+     },
+     {
+      "x": 162,
+      "n": 1
+     },
+     {
+      "x": 276,
+      "n": 1
+     },
+     {
+      "x": 419,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 10,
+    "bodySize": 18,
+    "stage": false,
+    "explains": true,
+    "slivers": [],
+    "voidShare": 0.05,
+    "voidBox": {
+     "x": 900,
+     "y": 120,
+     "w": 540,
+     "h": 120
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 6,
+   "filled": [
+    0.68,
+    0.49,
+    0.25,
+    0.49,
+    0.61,
+    0.74
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 5470,
+     "screens": 5.3,
+     "words": 777,
+     "img": 31,
+     "video": 0,
+     "canvas": 0,
+     "svg": 21,
+     "sections": 5,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 11,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "ba-chi-em.jpg",
+      "toi-ac-va-hinh-phat.jpg",
+      "tram-nam-co-don.jpg",
+      "siddhartha.jpg",
+      "chien-tranh-va-hoa-binh.jpg",
+      "ong-gia-va-bien-ca.jpg",
+      "nhung-nguoi-khon-kho.jpg",
+      "kieu-hanh-va-dinh-kien.jpg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 1,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Sách cũ, đúng bản bạn tìm.",
+     "words": 6,
+     "chars": 26,
+     "lines": 2,
+     "size": 49.9,
+     "vw": 6.5,
+     "font": "Newsreader",
+     "weight": 400,
+     "tracking": -0.03,
+     "leading": 1,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "left",
+     "widthRatio": 0.61,
+     "top": 222,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Sách cũ, đúng bản bạn tìm.",
+     "words": 6,
+     "lines": 2,
+     "size": 49.9,
+     "font": "Newsreader"
+    },
+    "headings": [
+     {
+      "text": "Sách cũ, đúng bản bạn tìm.",
+      "words": 6,
+      "chars": 26,
+      "lines": 2,
+      "size": 49.9,
+      "vw": 6.5,
+      "font": "Newsreader",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.61,
+      "top": 222,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "ReBook là chợ của những cuốn sách đã có một đời đọc. Mỗi tin đăng là một bản cụ thể: năm in, độ chắc của gáy, cả dòng ghi chú của chủ cũ.",
+      "words": 33,
+      "chars": 137,
+      "lines": 3,
+      "size": 26.8,
+      "vw": 3.5,
+      "font": "Newsreader",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.22,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.93,
+      "top": 4485,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "Người bán là những nhà sách cũ và người đọc muốn sách tiếp tục được đọc. Bản hiếm thì lên phiên đấu giá, có giờ kết thúc rõ ràng. Đọc thêm về ReBook.",
+      "words": 33,
+      "chars": 149,
+      "lines": 3,
+      "size": 26.8,
+      "vw": 3.5,
+      "font": "Newsreader",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.22,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.93,
+      "top": 4615,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "ReBook",
+      "words": 1,
+      "chars": 6,
+      "lines": 1,
+      "size": 84.5,
+      "vw": 11,
+      "font": "Newsreader",
+      "weight": 500,
+      "tracking": -0.04,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.65,
+      "top": 5037,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 4,
+     "maxLines": 3,
+     "over2Lines": 0,
+     "statements": 2,
+     "centered": 0,
+     "medianWords": 33,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.72,
+       "mono": false
+      },
+      {
+       "family": "Newsreader",
+       "share": 0.28,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      17,
+      22,
+      27,
+      50,
+      85
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 16.9,
+      "leading": 1.55,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 12.3
+     },
+     "measureChars": 91,
+     "max": {
+      "size": 84.5,
+      "vw": 11,
+      "font": "Newsreader",
+      "text": "ReBook"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [
+     {
+      "text": "Tên sách, tác giả hoặc ISBN",
+      "above": "Sách cũ, đúng bản bạn tìm.",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 14,
+      "top": 132
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#eeecea",
+     "bodyBgHsl": {
+      "h": 30,
+      "s": 0.11,
+      "l": 0.93
+     },
+     "dark": false,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#2a2928",
+       "share": 0.48
+      },
+      {
+       "color": "#66625e",
+       "share": 0.36
+      },
+      {
+       "color": "#eeecea",
+       "share": 0.04
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.04
+      },
+      {
+       "color": "#3a2e22",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#4f5e48",
+      "hsl": {
+       "h": 101,
+       "s": 0.13,
+       "l": 0.33
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 2,
+     "inHero": 1,
+     "radius": 0,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Khám phá sách"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 7,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.1
+     },
+     {
+      "type": "img",
+      "ratio": 0.09
+     }
+    ],
+    "nav": {
+     "links": 5,
+     "fixed": false,
+     "height": 83,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "newsreader"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 5470,
+    "margins": {
+     "left": 26,
+     "right": 28
+    },
+    "sections": [
+     {
+      "sel": "section.hero",
+      "tag": "section",
+      "top": 194,
+      "height": 798,
+      "words": 209,
+      "media": 11,
+      "middle": 1738,
+      "heading": {
+       "text": "Sách cũ, đúng bản bạn tìm.",
+       "size": 50,
+       "tag": "h1"
+      },
+      "left": 26,
+      "right": 0,
+      "textLeft": 26,
+      "textRight": -1792,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section",
+      "tag": "section",
+      "top": 992,
+      "height": 636,
+      "words": 73,
+      "media": 5,
+      "middle": 253,
+      "heading": {
+       "text": "Tuyển chọn tuần này",
+       "size": 22,
+       "tag": "h2"
+      },
+      "left": 26,
+      "right": 0,
+      "textLeft": 26,
+      "textRight": -350,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#dau-gia",
+      "tag": "section",
+      "top": 1628,
+      "height": 1657,
+      "words": 139,
+      "media": 1,
+      "middle": 53,
+      "heading": {
+       "text": "Đấu giá sắp kết thúc",
+       "size": 22,
+       "tag": "h2"
+      },
+      "left": 88,
+      "right": 26,
+      "textLeft": 88,
+      "textRight": 33,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#ke-sach",
+      "tag": "section",
+      "top": 3286,
+      "height": 1035,
+      "words": 174,
+      "media": 14,
+      "middle": 6,
+      "heading": {
+       "text": "Đi theo kệ sách",
+       "size": 22,
+       "tag": "h2"
+      },
+      "left": 26,
+      "right": 26,
+      "textLeft": 26,
+      "textRight": 28,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.about",
+      "tag": "section",
+      "top": 4321,
+      "height": 488,
+      "words": 62,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "ReBook là chợ của những cuốn sách đã có một đời đọ",
+       "size": 27,
+       "tag": "p"
+      },
+      "left": 26,
+      "right": 33,
+      "textLeft": 26,
+      "textRight": 33,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer",
+      "tag": "footer",
+      "top": 4809,
+      "height": 661,
+      "words": 66,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "ReBook",
+       "size": 84,
+       "tag": "span"
+      },
+      "left": 26,
+      "right": 38,
+      "textLeft": 26,
+      "textRight": 38,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Sách cũ, đúng bản bạn tìm.",
+      "size": 50,
+      "top": 222,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 26,
+      "n": 6
+     },
+     {
+      "x": 458,
+      "n": 2
+     },
+     {
+      "x": 88,
+      "n": 1
+     },
+     {
+      "x": 136,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 10,
+    "bodySize": 17,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 8,
+   "filled": [
+    0.68,
+    0.58,
+    0.47,
+    0.64,
+    0.78,
+    0.66,
+    0.73,
+    0.79
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 6443,
+     "screens": 7.6,
+     "words": 732,
+     "img": 31,
+     "video": 0,
+     "canvas": 0,
+     "svg": 21,
+     "sections": 5,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 9,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "ba-chi-em.jpg",
+      "toi-ac-va-hinh-phat.jpg",
+      "tram-nam-co-don.jpg",
+      "siddhartha.jpg",
+      "chien-tranh-va-hoa-binh.jpg",
+      "ong-gia-va-bien-ca.jpg",
+      "nhung-nguoi-khon-kho.jpg",
+      "kieu-hanh-va-dinh-kien.jpg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 2,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Sách cũ, đúng bản bạn tìm.",
+     "words": 6,
+     "chars": 26,
+     "lines": 2,
+     "size": 36,
+     "vw": 9.2,
+     "font": "Newsreader",
+     "weight": 400,
+     "tracking": -0.03,
+     "leading": 1,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.9,
+     "top": 232,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Sách cũ, đúng bản bạn tìm.",
+     "words": 6,
+     "lines": 2,
+     "size": 36,
+     "font": "Newsreader"
+    },
+    "headings": [
+     {
+      "text": "ReBook",
+      "words": 1,
+      "chars": 6,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Newsreader",
+      "weight": 600,
+      "tracking": -0.02,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.18,
+      "top": 157,
+      "tag": "a",
+      "kind": "heading"
+     },
+     {
+      "text": "Sách cũ, đúng bản bạn tìm.",
+      "words": 6,
+      "chars": 26,
+      "lines": 2,
+      "size": 36,
+      "vw": 9.2,
+      "font": "Newsreader",
+      "weight": 400,
+      "tracking": -0.03,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 232,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "ReBook",
+      "words": 1,
+      "chars": 6,
+      "lines": 1,
+      "size": 64,
+      "vw": 16.4,
+      "font": "Newsreader",
+      "weight": 500,
+      "tracking": -0.04,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.97,
+      "top": 5878,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 3,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.7,
+       "mono": false
+      },
+      {
+       "family": "Newsreader",
+       "share": 0.3,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      13,
+      14,
+      16,
+      19,
+      20,
+      22,
+      36,
+      64
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 16.1,
+      "leading": 1.55,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 12.3
+     },
+     "measureChars": 48,
+     "max": {
+      "size": 64,
+      "vw": 16.4,
+      "font": "Newsreader",
+      "text": "ReBook"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.01,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#eeecea",
+     "bodyBgHsl": {
+      "h": 30,
+      "s": 0.11,
+      "l": 0.93
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#e4e1dd",
+       "top": 1116,
+       "hsl": {
+        "h": 34,
+        "s": 0.11,
+        "l": 0.88
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#2a2928",
+       "share": 0.49
+      },
+      {
+       "color": "#66625e",
+       "share": 0.33
+      },
+      {
+       "color": "#eeecea",
+       "share": 0.04
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.04
+      },
+      {
+       "color": "#3a2e22",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#4f5e48",
+      "hsl": {
+       "h": 101,
+       "s": 0.13,
+       "l": 0.33
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 2,
+     "inHero": 1,
+     "radius": 0,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Khám phá sách"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 4,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": false,
+       "top": 5517
+      }
+     ]
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.17
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": false,
+     "height": 72,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "newsreader"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 6443,
+    "margins": {
+     "left": 20,
+     "right": 20
+    },
+    "sections": [
+     {
+      "sel": "div.mock-note",
+      "tag": "div",
+      "top": 0,
+      "height": 132,
+      "words": 29,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 20,
+      "right": 22,
+      "textLeft": 20,
+      "textRight": 22,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section.hero",
+      "tag": "section",
+      "top": 204,
+      "height": 652,
+      "words": 168,
+      "media": 11,
+      "middle": 1823,
+      "heading": {
+       "text": "Sách cũ, đúng bản bạn tìm.",
+       "size": 36,
+       "tag": "h1"
+      },
+      "left": 20,
+      "right": 0,
+      "textLeft": 20,
+      "textRight": -1877,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section",
+      "tag": "section",
+      "top": 856,
+      "height": 699,
+      "words": 73,
+      "media": 5,
+      "middle": 320,
+      "heading": {
+       "text": "Tuyển chọn tuần này",
+       "size": 20,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 0,
+      "textLeft": 20,
+      "textRight": -413,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#dau-gia",
+      "tag": "section",
+      "top": 1555,
+      "height": 1520,
+      "words": 139,
+      "media": 1,
+      "middle": 0,
+      "heading": {
+       "text": "Đấu giá sắp kết thúc",
+       "size": 20,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 20,
+      "textRight": 29,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section#ke-sach",
+      "tag": "section",
+      "top": 3075,
+      "height": 1781,
+      "words": 174,
+      "media": 14,
+      "middle": 0,
+      "heading": {
+       "text": "Đi theo kệ sách",
+       "size": 20,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 20,
+      "textRight": 23,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "section.about",
+      "tag": "section",
+      "top": 4855,
+      "height": 496,
+      "words": 62,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Về ReBook",
+       "size": 20,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 20,
+      "textLeft": 20,
+      "textRight": 20,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "footer",
+      "tag": "footer",
+      "top": 5351,
+      "height": 1028,
+      "words": 66,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 20,
+      "right": 22,
+      "textLeft": 20,
+      "textRight": 22,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Sách cũ, đúng bản bạn tìm.",
+      "size": 36,
+      "top": 232,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 20,
+      "n": 10
+     }
+    ],
+    "leftBlocks": 10,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "size-count",
+   "width": 1440,
+   "message": "10 different font sizes (13, 14, 16, 18, 22, 23, 26, 35, 72, 158).",
+   "fix": "A page needs about five: display, heading, lead, body, small."
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  },
+  {
+   "level": "WARN",
+   "id": "side-scroll",
+   "width": 1440,
+   "message": "1 row(s) scroll sideways with content past their edge.",
+   "fix": "Jurors and most visitors read a row cut at the edge as clipped, not as scrollable. Wrap it onto more lines, or end it inside the grid.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "measure",
+   "width": 1440,
+   "message": "Longest paragraph runs about 112 characters per line.",
+   "fix": "Cap paragraphs at 45–75 characters (max-width: 60ch).",
+   "alsoAt": [
+    768
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "font-not-dealt",
+   "width": 1440,
+   "message": "The sheet dealt Clash Grotesk and Clash Grotesk, but the page renders Be Vietnam Pro, Newsreader.",
+   "fix": "Load the dealt face (the link on the sheet) and put it first in font-family. A build that falls back to a default face lands on the default look."
+  },
+  {
+   "level": "FAIL",
+   "id": "still-page",
+   "width": 1440,
+   "message": "Only 0 element(s) moved while the page loaded and scrolled.",
+   "fix": "Build the motion layer (SKILL.md step 9, references/motion.md): the signature move, an entrance for the parts of every section, feedback on every control, and one moving picture. Transform and opacity only, with a reduced-motion fallback."
+  },
+  {
+   "level": "FAIL",
+   "id": "eyebrow",
+   "width": 768,
+   "message": "1 eyebrow/kicker label(s) above headings: \"Tên sách, tác giả hoặc ISBN\" above \"Sách cũ, đúng bản bạn tìm.\"",
+   "fix": "Delete them. If the label carried real information, fold it into the headline or the supporting sentence."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\inspect\\desktop-fold.jpg",
+   "pages": [
+    "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\inspect\\desktop-page-01.jpg",
+    "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\inspect\\desktop-page-02.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\inspect\\tablet-fold.jpg",
+   "pages": [
+    "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\inspect\\tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\inspect\\mobile-fold.jpg",
+   "pages": [
+    "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\inspect\\mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}
