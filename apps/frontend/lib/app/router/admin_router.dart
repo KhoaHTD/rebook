@@ -8,6 +8,7 @@ import 'package:book_marketplace/app/router/placeholder_page.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/auth_user.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
 
 part 'admin_router.g.dart';
 
@@ -47,7 +48,10 @@ GoRouter adminRouter(Ref ref) {
     routes: [
       GoRoute(
         path: AdminRoutes.login,
-        builder: (c, _) => PlaceholderPage(title: c.l10n.login),
+        builder: (_, s) => LoginScreen(
+          allowSignUp: false,
+          denied: s.uri.queryParameters['denied'] == '1',
+        ),
       ),
       ShellRoute(
         builder: (_, state, child) =>

@@ -670,5 +670,9 @@
   "badgeAuction": "AUCTION",
   "moreActions": "More",
   "comingSoon": "This screen is being built.",
-  "copiesFrom": "{count} copies · from {price}"
+  "copiesFrom": "{count} copies · from {price}",
+  "otherOffers": "Other copies of this book",
+  "otherOffersHint": "Same work from other sellers — compare condition and price.",
+  "sellerPhotos": "Seller's photos",
+  "aboutBook": "About this book"
 }

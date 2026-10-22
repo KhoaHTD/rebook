@@ -7,6 +7,7 @@ import 'package:book_marketplace/features/catalog/data/catalog_repository_provid
 import 'package:book_marketplace/features/catalog/domain/catalog_repository.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 
 part 'catalog_providers.g.dart';
@@ -97,4 +98,24 @@ class AddToCartController extends _$AddToCartController {
     }
     return !state.hasError;
   }
+}
+
+/// Các bản khác của cùng một cuốn (cùng tên sách) đang bán ở shop khác — trang chi tiết
+/// cho người mua so sánh tình trạng và giá giữa nhiều người bán.
+@riverpod
+Future<List<Listing>> otherOffers(Ref ref, String listingId) async {
+  ref.watchArea(DataArea.listings);
+  final repo = ref.watch(catalogRepositoryProvider);
+  final current = await ref.watch(listingProvider(listingId).future);
+  final found = await repo.search(
+    ListingQuery(q: current.book.title, sort: ListingSort.priceAsc),
+  );
+  final title = current.book.title.toLowerCase();
+  return [
+    for (final l in found.items)
+      if (l.id != listingId &&
+          l.book.title.toLowerCase() == title &&
+          l.purchasable)
+        l,
+  ];
 }

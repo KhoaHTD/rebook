@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/shared/widgets/app_image.dart';
 
 /// Poster sách kiểu Apple Books: tỉ lệ 2:3, gáy sáng bên trái, bóng đổ mềm.
 /// Có ảnh bìa ([coverUrl]) thì hiện ảnh; chưa có thì tự vẽ bìa từ tên sách.
@@ -34,12 +34,7 @@ class BookPoster extends StatelessWidget {
     );
     final cover = coverUrl == null
         ? fallback
-        : CachedNetworkImage(
-            imageUrl: coverUrl!,
-            fit: BoxFit.cover,
-            placeholder: (_, _) => fallback,
-            errorWidget: (_, _, _) => fallback,
-          );
+        : AppImage(coverUrl!, fallback: fallback);
 
     return SizedBox(
       width: width,
@@ -110,7 +105,7 @@ class DrawnCover extends StatelessWidget {
     final h = _hash(seed);
     final (bg, ink) = CoverPalette.pairs[h % CoverPalette.pairs.length];
     final motifColor = CoverPalette.motif[(h ~/ 7) % CoverPalette.motif.length];
-    final motif = _Motif.values[(h ~/ 31) % _Motif.values.length];
+    final motif = _Motif.values[_hash('$seed·motif') % _Motif.values.length];
 
     return LayoutBuilder(
       builder: (context, box) {

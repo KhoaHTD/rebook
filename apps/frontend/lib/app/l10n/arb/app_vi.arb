@@ -207,7 +207,7 @@
     }
   },
   "quantity": "Số lượng",
-  "bookDetails": "Thông tin sách",
+  "bookDetails": "Thông tin",
   "publisher": "Nhà xuất bản",
   "publishYear": "Năm xuất bản",
   "isbn": "ISBN",
@@ -1080,5 +1080,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "otherOffers": "Các bản khác của cuốn này",
+  "otherOffersHint": "Cùng tác phẩm, khác người bán — so tình trạng và giá trước khi mua.",
+  "sellerPhotos": "Ảnh thật của người bán",
+  "aboutBook": "Về cuốn sách"
 }

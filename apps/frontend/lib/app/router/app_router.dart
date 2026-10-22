@@ -7,6 +7,14 @@ import 'package:book_marketplace/app/router/app_shell.dart';
 import 'package:book_marketplace/app/router/placeholder_page.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/register_screen.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/verify_otp_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/home_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/listing_detail_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/search_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/shop_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -52,18 +60,16 @@ GoRouter appRouter(Ref ref) {
         PlaceholderPage(title: context.l10n.notFound, notFound: true),
     routes: [
       GoRoute(path: Routes.landing, redirect: (_, _) => Routes.home),
-      GoRoute(path: Routes.login, builder: (c, _) => _soon(c, (l) => l.login)),
-      GoRoute(
-        path: Routes.register,
-        builder: (c, _) => _soon(c, (l) => l.register),
-      ),
+      GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(path: Routes.register, builder: (_, _) => const RegisterScreen()),
       GoRoute(
         path: Routes.verifyOtp,
-        builder: (c, _) => _soon(c, (l) => l.otpTitle),
+        builder: (_, s) =>
+            VerifyOtpScreen(email: s.uri.queryParameters['email'] ?? ''),
       ),
       GoRoute(
         path: Routes.forgotPassword,
-        builder: (c, _) => _soon(c, (l) => l.forgotPassword),
+        builder: (_, _) => const ForgotPasswordScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AppShell(navigationShell: shell),
@@ -73,15 +79,19 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.home,
-                builder: (c, _) => _soon(c, (l) => l.navHome),
+                builder: (_, _) => const HomeScreen(),
                 routes: [
                   GoRoute(
                     path: 'search',
-                    builder: (c, _) => _soon(c, (l) => l.search),
+                    builder: (_, s) => SearchScreen(
+                      initialCategory: s.uri.queryParameters['category'],
+                      initialText: s.uri.queryParameters['q'],
+                    ),
                   ),
                   GoRoute(
                     path: 'listings/:id',
-                    builder: (c, _) => _soon(c, (l) => l.navHome),
+                    builder: (_, s) =>
+                        ListingDetailScreen(listingId: s.pathParameters['id']!),
                   ),
                   GoRoute(
                     path: 'cart',
@@ -99,7 +109,8 @@ GoRouter appRouter(Ref ref) {
                   ),
                   GoRoute(
                     path: 'shops/:id',
-                    builder: (c, _) => _soon(c, (l) => l.navHome),
+                    builder: (_, s) =>
+                        ShopScreen(shopId: s.pathParameters['id']!),
                   ),
                 ],
               ),

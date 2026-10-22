@@ -8,7 +8,10 @@ enum ThemePref { light, dark, system }
 
 /// Tuỳ chọn giao diện của người dùng (theme, ngôn ngữ).
 class AppSettings {
-  const AppSettings({this.theme = ThemePref.light, this.locale = const Locale('vi')});
+  const AppSettings({
+    this.theme = ThemePref.light,
+    this.locale = const Locale('vi'),
+  });
 
   final ThemePref theme;
 
