@@ -1,8 +1,5 @@
-> **TRẠNG THÁI HIỆN TẠI (2026-10-22): STYLE ĐÃ DUYỆT — ĐANG CHỜ SRS.**
-> Chuẩn giao diện: `design-preview/png/apple-desktop.png` + `design-preview/png/apple-mobile.png` (nguồn vẽ `design-preview/apple-style/`).
-> Không làm gì thêm cho tới khi người dùng gửi SRS và yêu cầu triển khai. Khi có SRS: đọc SRS, phân tích nghiệp vụ,
-> lập kế hoạch triển khai trên code nền tảng `3326d28` (nhánh `design/apple-books`), trình kế hoạch trước khi code.
-> Duyệt mockup KHÔNG phải là cho phép code. Không reset Git, không đụng tag `backup/*`.
+> **TRẠNG THÁI HIỆN TẠI (2026-10-22): ĐANG TRIỂN KHAI frontend theo SRS** (người dùng đã duyệt kế hoạch 8 giai đoạn, giao phó làm hết).
+> Tiến độ chi tiết + bước tiếp theo: `apps/frontend/docs/PROGRESS.md` (làm mục `[ ]` đầu tiên). Nhánh `design/apple-books`, không push.
 
 # HANDOFF
 

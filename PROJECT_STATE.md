@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-Cập nhật: 2026-10-22 — style Apple Books ĐÃ DUYỆT, đang chờ SRS
+Cập nhật: 2026-10-22 — ĐANG TRIỂN KHAI theo SRS, xem apps/frontend/docs/PROGRESS.md
 
 ## Giai đoạn hiện tại: THIẾT KẾ (chưa code website)
 
@@ -67,3 +67,8 @@ Chỉ chuyển sang code khi người dùng gửi SRS **và** yêu cầu triển
 
 - [x] Người dùng duyệt style Apple Books (`design-preview/png/apple-desktop.png`, `apple-mobile.png`).
 - [ ] **Chờ SRS.** Chưa code website.
+
+## Triển khai (2026-10-22)
+
+- Người dùng gửi SRS, duyệt kế hoạch 8 giai đoạn. Theo dõi chi tiết ở `apps/frontend/docs/PROGRESS.md`.
+- [x] Giai đoạn 0 — chuẩn bị.

@@ -1,7 +1,13 @@
 # Book Marketplace — Chợ sách cũ & đấu giá
 
 Flutter app chạy trên **web + Android + iOS**. Backend là REST API riêng (OpenAPI) + WebSocket cho đấu giá.
-Firebase chỉ dùng để **hosting bản web** — app KHÔNG dùng Firebase SDK.
+Firebase chỉ dùng cho **hosting bản web** và **FCM (thông báo đẩy)**: chỉ `firebase_core` + `firebase_messaging`, gọi qua `core/notifications/`. Không dùng Firestore, Auth, Storage hay SDK Firebase nào khác.
+
+Nghiệp vụ: [docs/SRS.txt](docs/SRS.txt) (đặc tả gốc, @Khoa 21/10/2026) + 3 sơ đồ `docs/srs-*.png`. Tiến độ: [docs/PROGRESS.md](docs/PROGRESS.md).
+
+**Giao diện: style Apple Books đã duyệt** — chuẩn là `../../design-preview/png/apple-desktop.png` và `apple-mobile.png`
+(nền trắng, sidebar xám nhạt trên desktop, tiêu đề serif Newsreader đậm, chữ Be Vietnam Pro, poster sách lớn có gáy + bóng,
+lưới 4 poster/hàng trên desktop, kệ cuộn ngang + tab bar nổi trên mobile). Mọi màn mới theo đúng style này.
 
 Chi tiết kiến trúc, lý do và ví dụ: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Đọc file đó trước khi thêm feature mới.
 
@@ -79,7 +85,7 @@ lib/
 ## KHÔNG được làm
 
 - Sửa file `*.g.dart`, `*.freezed.dart`, `lib/api/generated/**`, `lib/app/l10n/generated/**` (hook sẽ chặn) — sửa nguồn rồi chạy lại generator.
-- Thêm package, đổi state management, đổi router, thêm Firebase SDK.
+- Thêm package, đổi state management, đổi router, thêm Firebase SDK ngoài `firebase_core`/`firebase_messaging`.
 - Tạo thư mục cấp cao mới trong `lib/` ngoài `app/ core/ shared/ api/ features/`.
 - Gọi API bằng đường dẫn tự gõ khi spec chưa có endpoint: báo người dùng cập nhật `openapi/openapi.yaml` rồi chạy `/sync-api`.
 
