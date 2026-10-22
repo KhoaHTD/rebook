@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReBook — template desktop (kiểu Apple Books)</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { background: #fff; color: #1d1d1f; font: 400 15px/1.4 "Be Vietnam Pro", system-ui, sans-serif; display: flex; min-height: 100vh; }
+  .side { width: 240px; flex: none; background: #f5f5f7; padding: 22px 14px; display: flex; flex-direction: column; gap: 2px; position: sticky; top: 0; height: 100vh; }
+  .side .brand { font: 700 22px/1 Newsreader, serif; padding: 4px 10px 18px; }
+  .side h4 { font-size: 13px; font-weight: 600; margin: 18px 10px 6px; color: #1d1d1f; }
+  .side a { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 8px; color: #1d1d1f; font-size: 14px; }
+  .side a:hover { background: #e8e8ed; text-decoration: none; }
+  .side a.on { background: #1d1d1f; color: #fff; }
+  .side svg { width: 18px; height: 18px; flex: none; }
+  .side .user { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px; font-weight: 600; font-size: 14px; }
+  .side .user span { width: 30px; height: 30px; border-radius: 50%; background: #c9b48f; }
+  main { flex: 1; padding: 40px 48px 64px; min-width: 0; }
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; }
+  h1 { font: 700 34px/1.1 Newsreader, serif; letter-spacing: -0.01em; }
+  .search { background: #f5f5f7; border-radius: 10px; height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 8px; color: #86868b; font-size: 14px; width: 280px; }
+  h2 { font: 700 21px/1.2 "Be Vietnam Pro", sans-serif; letter-spacing: -0.01em; margin: 44px 0 20px; display: flex; align-items: center; gap: 6px; }
+  h2 a { color: #86868b; font-size: 22px; font-weight: 400; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 36px 28px; }
+  .bk { display: block; color: inherit; }
+  .bk:hover { text-decoration: none; }
+  .bk .cv { aspect-ratio: 2/3; border-radius: 3px; overflow: hidden; box-shadow: 0 10px 22px -8px rgba(0,0,0,.35), 0 2px 5px rgba(0,0,0,.12); background: #eee; transition: transform .15s; }
+  .bk:hover .cv { transform: translateY(-3px); }
+  .bk .cv img { width: 100%; height: 100%; object-fit: cover; }
+  .bk .cv .concept { height: 100%; }
+  .meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 12px; color: #86868b; }
+  .t { font-size: 13px; font-weight: 600; color: #1d1d1f; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .badge { font-size: 10px; font-weight: 700; color: #fff; background: #0a3d91; border-radius: 5px; padding: 3px 6px; letter-spacing: .02em; }
+  .badge.auc { background: #b3261e; }
+  .dots { letter-spacing: 1px; color: #6e6e73; font-weight: 700; }
+  .note { position: fixed; right: 12px; bottom: 12px; background: #1d1d1f; color: #fff; font-size: 12px; padding: 6px 10px; border-radius: 8px; }
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="brand">ReBook</div>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Tìm kiếm</a>
+  <a href="#" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/></svg>Trang chủ</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 7h14l-1 13H6z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>Chợ sách</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 4 6 6-3 3-6-6zM11 7l-7 7 3 3 7-7M3 21h10"/></svg>Đấu giá</a>
+  <h4>Của tôi</h4>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>Muốn mua</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Đã mua</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h4v16H4zM10 4h4v16h-4zM16 5l3.5-1 3 15.5-3.5 1z"/></svg>Sách đang bán</a>
+  <h4>Kệ sách</h4>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Văn học Việt Nam</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Kinh điển dịch</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Sách xưa, sách hiếm</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Thơ</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Sách ngoại văn</a>
+  <div class="user"><span></span>Minh Anh</div>
+</aside>
+
+<main>
+  <div class="top">
+    <h1>Trang chủ</h1>
+    <div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Tên sách, tác giả, ISBN</div>
+  </div>
+
+  <h2>Tuyển chọn tuần này <a href="#">›</a></h2>
+  <div class="grid">
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/tram-nam-co-don.jpg" alt=""></div><p class="t">Trăm năm cô đơn</p><div class="meta"><span>6 bản · từ 95.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><div data-concept="sodo"></div></div><p class="t">Số đỏ</p><div class="meta"><span><span class="badge">MỚI</span>&nbsp; từ 65.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/toi-ac-va-hinh-phat.jpg" alt=""></div><p class="t">Tội ác và hình phạt</p><div class="meta"><span>5 bản · từ 140.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><div data-concept="vang"></div></div><p class="t">Vang bóng một thời</p><div class="meta"><span><span class="badge">MỚI</span>&nbsp; từ 120.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/ong-gia-va-bien-ca.jpg" alt=""></div><p class="t">Ông già và biển cả</p><div class="meta"><span>8 bản · từ 60.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><div data-concept="chipheo"></div></div><p class="t">Chí Phèo</p><div class="meta"><span>7 bản · từ 45.000 ₫</span><span class="dots">···</span></div></a>
+  </div>
+
+  <h2>Đấu giá sắp kết thúc <a href="#">›</a></h2>
+  <div class="grid">
+    <a class="bk" href="#"><div class="cv"><img src="assets/cover-of-trung-tiet-anh-hung-lich.jpg" alt=""></div><p class="t">Trung tiết anh hùng (1930)</p><div class="meta"><span><span class="badge auc">42:10</span>&nbsp; 1.850.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/ba-chi-em.jpg" alt=""></div><p class="t">Jane Eyre, bản 1848</p><div class="meta"><span><span class="badge auc">7:40:00</span>&nbsp; 6.800.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/nam-phong-tap-chi-bui-quang-tuan.jpg" alt=""></div><p class="t">Nam Phong tạp chí, 6 số</p><div class="meta"><span><span class="badge auc">1:15:00</span>&nbsp; 2.400.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/nhung-nguoi-khon-kho.jpg" alt=""></div><p class="t">Les Misérables, bìa giấy hoa</p><div class="meta"><span>Mở 09:00 · từ 2.000.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/kieu-hanh-va-dinh-kien.jpg" alt=""></div><p class="t">Pride and Prejudice</p><div class="meta"><span>Mở 14:00 · từ 900.000 ₫</span><span class="dots">···</span></div></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/tran-danh-cua-ai-da-nang.jpg" alt=""></div><p class="t">Ngô Tất Tố, sách in 1935</p><div class="meta"><span><span class="badge auc">5:05:00</span>&nbsp; 1.200.000 ₫</span><span class="dots">···</span></div></a>
+  </div>
+</main>
+<div class="note">Template · dữ liệu mẫu · bìa “concept” không phải bìa thật</div>
+<script src="covers.js"></script>
+</body>
+</html>

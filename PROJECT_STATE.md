@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-Cập nhật: 2026-10-22 (TẠM DỪNG theo yêu cầu người dùng, giữa lúc hoàn thiện Home)
+Cập nhật: 2026-10-22 (đã đổi hướng sang Apple Books — xem cuối file)
 
 ## Giai đoạn hiện tại: THIẾT KẾ (chưa code website)
 
@@ -55,3 +55,9 @@ Chỉ chuyển sang code khi người dùng gửi SRS **và** yêu cầu triển
       * Vừa sửa nhưng CHƯA xem lại ảnh: khối 3 ý dưới tiêu đề hero, hàng đấu giá trên điện thoại, nhãn concept chuyển xuống đáy bìa.
 - [ ] Chưa làm: explore.html, book.html (chi tiết sách + nhiều người bán), about.html, home-dark (data-theme="dark"),
       index.html (mục lục mockup), credits.html, xuất PNG vào design-preview/png/.
+
+## Cập nhật 2026-10-22 (đổi hướng)
+
+- Người dùng không thích hướng "contact sheet"; yêu cầu làm giống Apple Books, template sơ bộ.
+- [x] `design-preview/ab-desktop.html`, `design-preview/ab-mobile.html` + ảnh `design-preview/png/`.
+- [ ] Chờ người dùng duyệt. Sau đó chờ SRS.

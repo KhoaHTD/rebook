@@ -1,0 +1,1114 @@
+{
+ "url": "design-preview/ab-mobile.html",
+ "at": "2026-10-22T06:41:23.703Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 2,
+   "filled": [
+    0.29,
+    0.26
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 1412,
+     "screens": 1.6,
+     "words": 104,
+     "img": 6,
+     "video": 0,
+     "canvas": 0,
+     "svg": 9,
+     "sections": 3,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 6,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "tram-nam-co-don.jpg",
+      "toi-ac-va-hinh-phat.jpg",
+      "ong-gia-va-bien-ca.jpg",
+      "cover-of-trung-tiet-anh-hung-lich.jpg",
+      "ba-chi-em.jpg",
+      "nam-phong-tap-chi-bui-quang-tuan.jpg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 3,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Văn học",
+     "words": 2,
+     "chars": 7,
+     "lines": 1,
+     "size": 19,
+     "vw": 1.3,
+     "font": "Be Vietnam Pro",
+     "weight": 700,
+     "tracking": -0.015,
+     "leading": 1.2,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "center",
+     "position": "center",
+     "widthRatio": 0.2,
+     "top": 26,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Văn học",
+     "words": 2,
+     "lines": 1,
+     "size": 19,
+     "font": "Be Vietnam Pro"
+    },
+    "headings": [],
+    "headingSummary": {
+     "count": 0,
+     "maxLines": 0,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.9,
+       "mono": false
+      },
+      {
+       "family": "Newsreader",
+       "share": 0.1,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      11,
+      13,
+      19,
+      23,
+      24
+     ],
+     "sizeCount": 5,
+     "notLoaded": [],
+     "body": null,
+     "measureChars": null,
+     "max": {
+      "size": 24,
+      "vw": 1.7,
+      "font": "Be Vietnam Pro",
+      "text": "Văn học Việt Nam"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.02,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#ffffff",
+     "bodyBgHsl": {
+      "h": 0,
+      "s": 0,
+      "l": 1
+     },
+     "dark": false,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#1d1d1f",
+       "share": 0.38
+      },
+      {
+       "color": "#6e6e73",
+       "share": 0.31
+      },
+      {
+       "color": "#efe9dc",
+       "share": 0.07
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.07
+      },
+      {
+       "color": "#f6eee4",
+       "share": 0.05
+      }
+     ],
+     "button": {
+      "bg": "#e9e9ee",
+      "hsl": {
+       "h": 240,
+       "s": 0.13,
+       "l": 0.92
+      },
+      "fg": "#1d1d1f"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 1,
+     "inHero": 1,
+     "radius": "pill",
+     "height": 54,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Trang chủ"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 10,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px"
+     ],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 1,
+     "hairlineSamples": [
+      "header 430px"
+     ],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 1,
+     "fixed": true,
+     "height": 75,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "newsreader"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 1412,
+    "margins": {
+     "left": 525,
+     "right": 201
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Văn học",
+      "size": 19,
+      "top": 26,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 525,
+      "n": 3
+     }
+    ],
+    "leftBlocks": 3,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.29,
+    "voidBox": {
+     "x": 0,
+     "y": 120,
+     "w": 480,
+     "h": 780
+    }
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 2,
+   "filled": [
+    0.48,
+    0.47
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 1412,
+     "screens": 1.4,
+     "words": 104,
+     "img": 6,
+     "video": 0,
+     "canvas": 0,
+     "svg": 9,
+     "sections": 3,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 6,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "tram-nam-co-don.jpg",
+      "toi-ac-va-hinh-phat.jpg",
+      "ong-gia-va-bien-ca.jpg",
+      "cover-of-trung-tiet-anh-hung-lich.jpg",
+      "ba-chi-em.jpg",
+      "nam-phong-tap-chi-bui-quang-tuan.jpg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 3,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Văn học",
+     "words": 2,
+     "chars": 7,
+     "lines": 1,
+     "size": 19,
+     "vw": 2.5,
+     "font": "Be Vietnam Pro",
+     "weight": 700,
+     "tracking": -0.015,
+     "leading": 1.2,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "center",
+     "position": "center",
+     "widthRatio": 0.38,
+     "top": 26,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Văn học",
+     "words": 2,
+     "lines": 1,
+     "size": 19,
+     "font": "Be Vietnam Pro"
+    },
+    "headings": [],
+    "headingSummary": {
+     "count": 0,
+     "maxLines": 0,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.9,
+       "mono": false
+      },
+      {
+       "family": "Newsreader",
+       "share": 0.1,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      11,
+      13,
+      16,
+      19,
+      24
+     ],
+     "sizeCount": 5,
+     "notLoaded": [],
+     "body": null,
+     "measureChars": null,
+     "max": {
+      "size": 24,
+      "vw": 3.1,
+      "font": "Be Vietnam Pro",
+      "text": "Văn học Việt Nam"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.02,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#ffffff",
+     "bodyBgHsl": {
+      "h": 0,
+      "s": 0,
+      "l": 1
+     },
+     "dark": false,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#1d1d1f",
+       "share": 0.38
+      },
+      {
+       "color": "#6e6e73",
+       "share": 0.31
+      },
+      {
+       "color": "#efe9dc",
+       "share": 0.07
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.07
+      },
+      {
+       "color": "#f6eee4",
+       "share": 0.05
+      }
+     ],
+     "button": {
+      "bg": "#e9e9ee",
+      "hsl": {
+       "h": 240,
+       "s": 0.13,
+       "l": 0.92
+      },
+      "fg": "#1d1d1f"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 1,
+     "inHero": 1,
+     "radius": "pill",
+     "height": 54,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Trang chủ"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 10,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px"
+     ],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 1,
+     "hairlineSamples": [
+      "header 430px"
+     ],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 1,
+     "fixed": true,
+     "height": 75,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "newsreader"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 1412,
+    "margins": {
+     "left": 189,
+     "right": 43
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Văn học",
+      "size": 19,
+      "top": 26,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 189,
+      "n": 3
+     }
+    ],
+    "leftBlocks": 3,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 2,
+   "filled": [
+    0.82,
+    0.83
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 1412,
+     "screens": 1.7,
+     "words": 104,
+     "img": 6,
+     "video": 0,
+     "canvas": 0,
+     "svg": 9,
+     "sections": 3,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 6,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "tram-nam-co-don.jpg",
+      "toi-ac-va-hinh-phat.jpg",
+      "ong-gia-va-bien-ca.jpg",
+      "cover-of-trung-tiet-anh-hung-lich.jpg",
+      "ba-chi-em.jpg",
+      "nam-phong-tap-chi-bui-quang-tuan.jpg"
+     ],
+     "blendText": 0,
+     "sideScrollers": 3,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Văn học Việt Nam ›",
+     "words": 5,
+     "chars": 18,
+     "lines": 1,
+     "size": 24,
+     "vw": 6.2,
+     "font": "Be Vietnam Pro",
+     "weight": 700,
+     "tracking": -0.015,
+     "leading": 1.2,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 1,
+     "top": 99,
+     "tag": "h2",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "Văn học",
+     "words": 2,
+     "lines": 1,
+     "size": 19,
+     "font": "Be Vietnam Pro"
+    },
+    "headings": [
+     {
+      "text": "Văn học Việt Nam ›",
+      "words": 5,
+      "chars": 18,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": -0.015,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 99,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Kinh điển dịch ›",
+      "words": 4,
+      "chars": 16,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": -0.015,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 502,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Đang đấu giá ›",
+      "words": 4,
+      "chars": 14,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "weight": 700,
+      "tracking": -0.015,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 905,
+      "tag": "h2",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 3,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 4,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.9,
+       "mono": false
+      },
+      {
+       "family": "Newsreader",
+       "share": 0.1,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      11,
+      13,
+      16,
+      19,
+      24
+     ],
+     "sizeCount": 5,
+     "notLoaded": [],
+     "body": null,
+     "measureChars": null,
+     "max": {
+      "size": 24,
+      "vw": 6.2,
+      "font": "Be Vietnam Pro",
+      "text": "Văn học Việt Nam"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.02,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#ffffff",
+     "bodyBgHsl": {
+      "h": 0,
+      "s": 0,
+      "l": 1
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#f5f5f7",
+       "top": 478,
+       "hsl": {
+        "h": 240,
+        "s": 0.11,
+        "l": 0.96
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#1d1d1f",
+       "share": 0.38
+      },
+      {
+       "color": "#6e6e73",
+       "share": 0.31
+      },
+      {
+       "color": "#efe9dc",
+       "share": 0.07
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.07
+      },
+      {
+       "color": "#f6eee4",
+       "share": 0.05
+      }
+     ],
+     "button": {
+      "bg": "#e9e9ee",
+      "hsl": {
+       "h": 240,
+       "s": 0.13,
+       "l": 0.92
+      },
+      "fg": "#1d1d1f"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 1,
+     "inHero": 1,
+     "radius": "pill",
+     "height": 54,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Trang chủ"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 10,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px"
+     ],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 1,
+     "hairlineSamples": [
+      "header 390px"
+     ],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.13
+     },
+     {
+      "type": "img",
+      "ratio": 0.13
+     }
+    ],
+    "nav": {
+     "links": 1,
+     "fixed": true,
+     "height": 75,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "be vietnam pro",
+     "newsreader"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 1412,
+    "margins": {
+     "left": 20,
+     "right": 18
+    },
+    "sections": [
+     {
+      "sel": "section",
+      "tag": "section",
+      "top": 75,
+      "height": 403,
+      "words": 52,
+      "media": 4,
+      "middle": 290,
+      "heading": {
+       "text": "Văn học Việt Nam",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 0,
+      "textLeft": 20,
+      "textRight": -344,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section.alt",
+      "tag": "section",
+      "top": 478,
+      "height": 403,
+      "words": 21,
+      "media": 3,
+      "middle": 34,
+      "heading": {
+       "text": "Kinh điển dịch",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 0,
+      "textLeft": 20,
+      "textRight": -118,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section",
+      "tag": "section",
+      "top": 881,
+      "height": 421,
+      "words": 17,
+      "media": 3,
+      "middle": 80,
+      "heading": {
+       "text": "Đang đấu giá",
+       "size": 24,
+       "tag": "h2"
+      },
+      "left": 20,
+      "right": 0,
+      "textLeft": 20,
+      "textRight": -160,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Văn học",
+      "size": 19,
+      "top": 26,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 20,
+      "n": 3
+     }
+    ],
+    "leftBlocks": 3,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": null,
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "FAIL",
+   "id": "shadow",
+   "width": 1440,
+   "message": "10 box-shadow(s) on elements at rest: div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px | div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px | div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+   "fix": "Remove. Separate surfaces with a tone step or space. Shadows are for things that really float (menus, dialogs, sticky bars).",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "hairline",
+   "width": 1440,
+   "message": "1 thin rule(s)/divider line(s): header 430px",
+   "fix": "Delete. Separate with space, a tone change, or scale. Lines are only for real tables and form fields.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "palette-cream",
+   "width": 1440,
+   "message": "Yellow-cream background (text #efe9dc, text #f6eee4).",
+   "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  },
+  {
+   "level": "WARN",
+   "id": "side-scroll",
+   "width": 1440,
+   "message": "3 row(s) scroll sideways with content past their edge.",
+   "fix": "Jurors and most visitors read a row cut at the edge as clipped, not as scrollable. Wrap it onto more lines, or end it inside the grid.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "focal-point",
+   "width": 1440,
+   "message": "The first screen has no dominant element: the largest type is 19px (1.3vw) and no single picture holds a third of the viewport.",
+   "fix": "Make one thing lead: the headline at display size, or one large picture. A grid of many small pictures is not one thing; in blind tests jurors marked a first screen without a headline down every time. On the strongest studied sites the largest type has a median of 8.4vw.",
+   "alsoAt": [
+    768
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "font-not-dealt",
+   "width": 1440,
+   "message": "The sheet dealt Clash Grotesk and Clash Grotesk, but the page renders Be Vietnam Pro, Newsreader.",
+   "fix": "Load the dealt face (the link on the sheet) and put it first in font-family. A build that falls back to a default face lands on the default look."
+  },
+  {
+   "level": "FAIL",
+   "id": "off-centre",
+   "width": 1440,
+   "message": "The page sits off-centre: its content comes to 525px from the left edge but only to 201px from the right, at 1440px.",
+   "fix": "Give the page one pair of equal margins. Check the wrapper for a max-width without margin-inline: auto, a grid with an empty last column, or padding on one side only. If one side is meant to hold air, it must still be closed by something that reaches the margin (a picture, the navigation's last item, a figure).",
+   "alsoAt": [
+    768
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "small-title",
+   "width": 1440,
+   "message": "The h1 is 19px (\"Văn học\").",
+   "fix": "Set the title at display size, or make the large text of the first screen the h1.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "name-only-title",
+   "width": 1440,
+   "message": "The h1 is a bare name (\"Văn học\") and nothing else on the first screen says what this is.",
+   "fix": "Keep the name if it leads, and give the line under it (18px or more) the plain words: what it is, for whom, where or when. In the study of 97 Sites of the Day, first screens that named nothing lost usability and content points.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "hero-void",
+   "width": 1440,
+   "message": "29% of the first screen is one empty block (480×780px at 0,120).",
+   "fix": "Place the void on purpose or fill it: move the picture, the film or one fact into it, grow the headline to meet it, or shrink the screen to its content. A void reads as placed only when something closes it on the far side and it is the screen's one rest."
+  },
+  {
+   "level": "FAIL",
+   "id": "still-page",
+   "width": 1440,
+   "message": "Only 0 element(s) moved while the page loaded and scrolled.",
+   "fix": "Build the motion layer (SKILL.md step 9, references/motion.md): the signature move, an entrance for the parts of every section, feedback on every control, and one moving picture. Transform and opacity only, with a reduced-motion fallback."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\ab-mobile\\desktop-fold.jpg",
+   "pages": [
+    "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\ab-mobile\\desktop-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\ab-mobile\\tablet-fold.jpg",
+   "pages": [
+    "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\ab-mobile\\tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\ab-mobile\\mobile-fold.jpg",
+   "pages": [
+    "D:\\Study\\FPTUniversity\\Semester8\\PRM393\\rebook\\.taste-skill\\ab-mobile\\mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

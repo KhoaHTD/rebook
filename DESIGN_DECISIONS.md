@@ -11,3 +11,5 @@ Quyết định đã được người dùng xác nhận (2026-10-22).
 | 5 | Tham khảo | 2 ảnh Apple Books (desktop "My Books", mobile "Fiction & Literature"). Không sao chép nguyên xi |
 | 6 | Trọng tâm | Sách là trung tâm; người bán là nguồn cung, không nổi bật trên Home |
 | 7 | Video Pinterest (About) | Chưa nhận được link/file — About làm theo định hướng chung, ghi rõ chưa tham khảo video |
+| 8 | Phong cách (2026-10-22, thay quyết định cũ) | **Bám sát Apple Books** theo 2 ảnh mẫu: nền trắng, sidebar xám nhạt trên desktop (mục chọn nền đen), tiêu đề serif đậm, lưới bìa có bóng mềm + dòng meta nhỏ (badge, giá, "···"); mobile: nút back tròn, tiêu đề giữa, kệ cuộn ngang với tiêu đề đậm "›", nền xám xen kẽ, tab bar bo tròn nổi. Hướng "contact sheet" (home.html) bị BỎ. |
+| 9 | Mức độ chi tiết | Chỉ cần template sơ bộ để thấy style, không tốn công bàn thiết kế |

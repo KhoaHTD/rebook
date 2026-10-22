@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReBook — template mobile (kiểu Apple Books)</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { background: #fff; color: #1d1d1f; font: 400 15px/1.4 "Be Vietnam Pro", system-ui, sans-serif; max-width: 430px; margin: 0 auto; padding-bottom: 110px; }
+  header { position: sticky; top: 0; z-index: 3; background: rgba(255,255,255,.92); display: grid; grid-template-columns: 52px 1fr 52px; align-items: center; padding: 14px 16px; border-bottom: 1px solid #ececec; }
+  .back { width: 46px; height: 46px; border-radius: 50%; border: 1px solid #e3e3e3; display: grid; place-items: center; background: #fff; }
+  header h1 { font: 700 19px/1.2 "Be Vietnam Pro", sans-serif; text-align: center; }
+  section { padding: 24px 0 30px; }
+  section.alt { background: #f5f5f7; }
+  h2 { font: 700 24px/1.2 "Be Vietnam Pro", sans-serif; padding: 0 20px; margin-bottom: 22px; display: flex; gap: 6px; align-items: center; }
+  h2 span { color: #a1a1a6; font-weight: 400; }
+  .shelf { display: flex; gap: 16px; overflow-x: auto; padding: 0 20px 18px; scroll-snap-type: x mandatory; scroll-padding-inline: 20px; scrollbar-width: none; }
+  .shelf::-webkit-scrollbar { display: none; }
+  .bk { flex: 0 0 168px; scroll-snap-align: start; color: inherit; }
+  .bk:hover { text-decoration: none; }
+  .cv { aspect-ratio: 2/3; border-radius: 3px; overflow: hidden; box-shadow: 0 14px 24px -10px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.12); }
+  .cv img { width: 100%; height: 100%; object-fit: cover; }
+  .cv .concept { height: 100%; }
+  .p { font-size: 13px; color: #6e6e73; margin-top: 10px; }
+  .p b { color: #1d1d1f; font-weight: 600; }
+  .live { color: #b3261e; font-weight: 600; }
+  .tabbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 18px; width: min(400px, calc(100% - 32px)); height: 66px; border-radius: 33px;
+    background: rgba(250,250,252,.96); border: 1px solid #e5e5ea; box-shadow: 0 8px 24px rgba(0,0,0,.08); display: grid; grid-template-columns: repeat(4, 1fr); padding: 5px; z-index: 5; }
+  .tabbar a { display: grid; place-items: center; align-content: center; gap: 2px; font-size: 11px; font-weight: 500; border-radius: 28px; color: #1d1d1f; }
+  .tabbar a.on { background: #e9e9ee; }
+  .tabbar svg { width: 24px; height: 24px; }
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="#" aria-label="Quay lại"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg></a>
+  <h1>Văn học</h1><span></span>
+</header>
+
+<section>
+  <h2>Văn học Việt Nam <span>›</span></h2>
+  <div class="shelf">
+    <a class="bk" href="#"><div class="cv"><div data-concept="sodo"></div></div><p class="p"><b>9 bản</b> · từ 65.000 ₫</p></a>
+    <a class="bk" href="#"><div class="cv"><div data-concept="chipheo"></div></div><p class="p"><b>7 bản</b> · từ 45.000 ₫</p></a>
+    <a class="bk" href="#"><div class="cv"><div data-concept="tatden"></div></div><p class="p"><b>6 bản</b> · từ 50.000 ₫</p></a>
+    <a class="bk" href="#"><div class="cv"><div data-concept="vang"></div></div><p class="p"><b>4 bản</b> · từ 120.000 ₫</p></a>
+  </div>
+</section>
+
+<section class="alt">
+  <h2>Kinh điển dịch <span>›</span></h2>
+  <div class="shelf">
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/tram-nam-co-don.jpg" alt=""></div><p class="p"><b>6 bản</b> · từ 95.000 ₫</p></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/toi-ac-va-hinh-phat.jpg" alt=""></div><p class="p"><b>5 bản</b> · từ 140.000 ₫</p></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/ong-gia-va-bien-ca.jpg" alt=""></div><p class="p"><b>8 bản</b> · từ 60.000 ₫</p></a>
+  </div>
+</section>
+
+<section>
+  <h2>Đang đấu giá <span>›</span></h2>
+  <div class="shelf">
+    <a class="bk" href="#"><div class="cv"><img src="assets/cover-of-trung-tiet-anh-hung-lich.jpg" alt=""></div><p class="p"><b>1.850.000 ₫</b> · <span class="live">còn 42:10</span></p></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/covers/ba-chi-em.jpg" alt=""></div><p class="p"><b>6.800.000 ₫</b> · còn 7:40:00</p></a>
+    <a class="bk" href="#"><div class="cv"><img src="assets/nam-phong-tap-chi-bui-quang-tuan.jpg" alt=""></div><p class="p"><b>2.400.000 ₫</b> · còn 1:15:00</p></a>
+  </div>
+</section>
+
+<nav class="tabbar">
+  <a href="#" class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/></svg>Trang chủ</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4v16H4zM10 4h4v16h-4zM16 5l3.5-1 3 15.5-3.5 1z"/></svg>Của tôi</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m14 4 6 6-3 3-6-6zM11 7l-7 7 3 3 7-7M3 19h10v2H3z"/></svg>Đấu giá</a>
+  <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Tìm kiếm</a>
+</nav>
+<script src="covers.js"></script>
+</body>
+</html>
