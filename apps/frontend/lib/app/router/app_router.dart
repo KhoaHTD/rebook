@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -34,6 +35,7 @@ import 'package:book_marketplace/features/catalog/presentation/screens/listing_d
 import 'package:book_marketplace/features/catalog/presentation/screens/search_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/shop_screen.dart';
 import 'package:book_marketplace/features/consignment/presentation/screens/consignment_detail_screen.dart';
+import 'package:book_marketplace/features/landing/presentation/screens/welcome_screen.dart';
 import 'package:book_marketplace/features/consignment/presentation/screens/consignments_screen.dart';
 import 'package:book_marketplace/features/consignment/presentation/screens/new_consignment_screen.dart';
 import 'package:book_marketplace/features/seller/presentation/screens/listing_form_screen.dart';
@@ -56,13 +58,15 @@ GoRouter appRouter(Ref ref) {
 
   return GoRouter(
     navigatorKey: _rootKey,
-    initialLocation: Routes.home,
+    // Web mở trang giới thiệu (`/`); app điện thoại vào thẳng Mua sách.
+    initialLocation: kIsWeb ? Routes.landing : Routes.home,
     refreshListenable: refresh,
     redirect: (context, state) {
       final location = state.matchedLocation;
-      if (location == Routes.landing) return Routes.home;
-
       final session = ref.read(sessionControllerProvider);
+      if (location == Routes.landing && (!kIsWeb || session.isSignedIn)) {
+        return Routes.home;
+      }
       if (session.status == AuthStatus.unknown) return null;
 
       if (!session.isSignedIn && Routes.requiresAuth(location)) {
@@ -79,7 +83,12 @@ GoRouter appRouter(Ref ref) {
     errorBuilder: (context, state) =>
         PlaceholderPage(title: context.l10n.notFound, notFound: true),
     routes: [
-      GoRoute(path: Routes.landing, redirect: (_, _) => Routes.home),
+      GoRoute(
+        path: Routes.landing,
+        builder: (_, s) => WelcomeScreen(
+          initialOffset: double.tryParse(s.uri.queryParameters['y'] ?? '') ?? 0,
+        ),
+      ),
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
       GoRoute(path: Routes.register, builder: (_, _) => const RegisterScreen()),
       GoRoute(

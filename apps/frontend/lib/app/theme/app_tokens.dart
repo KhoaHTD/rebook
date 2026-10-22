@@ -329,3 +329,29 @@ extension AppThemeX on BuildContext {
   TextTheme get textStyles => Theme.of(this).textTheme;
   AppColors get appColors => Theme.of(this).extension<AppColors>()!;
 }
+
+/// Bảng màu riêng của trang giới thiệu (`/`): nền trắng ngà, chữ đen, điểm nhấn cam, băng vàng chanh,
+/// chip xanh dương / xanh lá — theo video tham chiếu (người dùng gửi 2026-10-23).
+abstract final class LandingPalette {
+  static const background = Color(0xFFF6F6F7);
+  static const ink = Color(0xFF0E0E10);
+  static const muted = Color(0xFFB9B9BF);
+  static const text = Color(0xFF55555C);
+  static const orange = Color(0xFFFF5B22);
+  static const red = Color(0xFFC8321F);
+  static const yellow = Color(0xFFE5F65A);
+  static const pink = Color(0xFFD3125A);
+  static const blue = Color(0xFF1F5BFF);
+  static const green = Color(0xFF39B58A);
+  static const card = Color(0xFFFFFFFF);
+  static const white = Color(0xFFFFFFFF);
+  static const white70 = Color(0xB3FFFFFF);
+  static const white54 = Color(0x8AFFFFFF);
+  static const white24 = Color(0x3DFFFFFF);
+  static const black = Color(0xFF000000);
+  static const shadow = Color(0x24000000);
+  static const panel = Color(0xFFEDEDEF);
+  static const blueSoft = Color(0xFF2E6BFF);
+  static const darkPanel = Color(0xFF1B1B1F);
+  static const orangeSoft = Color(0xFFFF7A3D);
+}

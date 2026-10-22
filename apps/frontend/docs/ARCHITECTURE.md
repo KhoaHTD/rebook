@@ -39,6 +39,7 @@ Feature hiện có:
 | `auction` | lịch phiên, danh mục lô, chi tiết lô, đăng ký + cọc, phòng LIVE, kết quả |
 | `seller` | mở shop, kênh người bán, tin đăng, đơn của shop |
 | `consignment` | ký gửi đấu giá phía người gửi |
+| `landing` | (web, `/`) trang giới thiệu dựng lại từ video tham chiếu: 9 cảnh cuộn dài, animation theo thời gian (đoạn mở đầu của hero) và theo tiến độ cuộn (cảnh ghim). Không có dữ liệu / repository |
 | `staff` | (web quản trị) sơ duyệt, nhận sách, kiểm định, kho, giao lô |
 | `admin` | (web quản trị) tổng quan, phiên, duyệt tin, người dùng, danh mục, cấu hình, rút tiền, khiếu nại |
 
@@ -149,3 +150,18 @@ Style **Liquid Glass** (chuẩn: `../../design-preview/png/lg-desktop.png`, `lg-
 CI (`.github/workflows/frontend-ci.yml` ở gốc repo, chỉ chạy khi `apps/frontend/**` đổi): pub get → format check → codegen → dart analyze (kèm riverpod_lint) → arch check → test → build web.
 Deploy (`.github/workflows/frontend-deploy.yml`): push lên `main` → build web với `env/prod.json` → Firebase Hosting.
 Cần secret `FIREBASE_SERVICE_ACCOUNT` và sửa project id trong `apps/frontend/.firebaserc`. Chưa có secret thì workflow chỉ build, bỏ qua bước deploy.
+
+## 8. Trang giới thiệu (`features/landing`)
+
+Dựng lại video tham chiếu người dùng gửi (2026-10-23) bằng bìa sách thật của app. Chỉ chạy trên **web** ở `/`
+(app điện thoại và người đã đăng nhập được chuyển thẳng sang `/home`).
+
+- Cuộn bằng `SingleChildScrollView` + `ScrollController`; mỗi cảnh là một `WelcomeScene` (`widgets/welcome_kit.dart`) có chiều cao cố định,
+  nhận `ScrollInfo` (vị trí cuộn, tiến độ `pin` 0..1) để vẽ lại. Cảnh `pinned` giữ nội dung đứng yên trong một màn hình trong lúc cuộn qua;
+  cảnh nằm ngoài màn hình không được vẽ.
+- Hai đồng hồ: `intro` (4,2 s, chạy một lần — thẻ lộn nhào, chữ hiện từng từ, quạt bìa toé ra) và `clock` (chạy mãi — băng chuyền, doodle nổi).
+- 9 cảnh: `scenes_a.dart` (hero, showcase, gateway), `scenes_b.dart` (đoạn văn + chồng thẻ rơi → hàng chéo → lưới, ô sách trôi ngược chiều, thẻ tính năng),
+  `scenes_c.dart` (chợ + dock + khối cam thu thành lưới, thẻ phí + băng vàng chạy chữ, hai thẻ lớn + chân trang).
+- Màu riêng nằm trong `LandingPalette` (`app_tokens.dart`); chuỗi trong ARB với tiền tố `wl`.
+- `?y=<px>` mở trang ở một vị trí cuộn (dùng để chụp ảnh kiểm tra từng cảnh).
+- Test `test/features/landing/` dựng mọi cảnh ở 11 vị trí cuộn, desktop + điện thoại (bỏ qua lỗi "overflowed" vì test dùng font Ahem).

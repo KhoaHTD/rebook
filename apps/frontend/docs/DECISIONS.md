@@ -101,3 +101,9 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Danh mục không còn sách bị bỏ: Truyện tranh, Kinh tế, Ngoại ngữ. Còn: Văn học VN, Văn học nước ngoài, Giáo trình (CNTT), Kỹ năng sống, Thiếu nhi, Sách hiếm & cổ.
 - Phiên đấu giá, lô, ký gửi mẫu cũng dùng 16 cuốn này (tên phiên đổi theo: "Văn học Việt Nam bản xưa", "Sách hay, bìa hiện đại", "Ấn bản đặc biệt", "Giáo trình và tư liệu", "Sách hiếm Việt Nam").
 - Font: tiêu đề + dòng sự kiện đổi sang serif mềm Newsreader (theo ảnh tham chiếu Apple Books); nội dung vẫn SF / Inter. Sidebar tràn hết chiều cao thay cho khối bo góc.
+
+### Trang giới thiệu web (2026-10-23)
+- Người dùng gửi một video Pinterest (trang giới thiệu của một sàn tác phẩm nghệ thuật, 43 s) và yêu cầu dựng trang giới thiệu "giống video, animation y chang".
+  Video chỉ cho thấy bố cục và chuyển động, không có chữ của ReBook → nội dung được viết lại cho ReBook; ảnh là bìa sách mẫu; "membership" của video thành ba mức phí theo SRS 8.2 (5% bán thường, 15% hoa hồng ký gửi, 10% phí người mua đấu giá).
+- Bảng màu theo video (nền trắng ngà, cam, băng vàng chanh, hồng, xanh dương) — khác với phần còn lại của app (Liquid Glass + xanh); trang này là trang giới thiệu riêng.
+- Web mở `/` là trang giới thiệu; người đã đăng nhập vào thẳng `/home`; app điện thoại không có trang này. Đổi lại bằng `initialLocation` trong `app_router.dart`.
