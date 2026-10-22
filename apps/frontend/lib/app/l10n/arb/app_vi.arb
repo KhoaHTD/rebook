@@ -1084,5 +1084,21 @@
   "otherOffers": "Các bản khác của cuốn này",
   "otherOffersHint": "Cùng tác phẩm, khác người bán — so tình trạng và giá trước khi mua.",
   "sellerPhotos": "Ảnh thật của người bán",
-  "aboutBook": "Về cuốn sách"
+  "aboutBook": "Về cuốn sách",
+  "currentPrice": "Giá hiện tại",
+  "youLeading": "Bạn đang dẫn đầu",
+  "nextLots": "Lô tiếp theo",
+  "depositOption": "Cọc {amount} · hạn mức {limit}",
+  "@depositOption": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "viewSession": "Xem phiên",
+  "lotStory": "Câu chuyện & nguồn gốc"
 }

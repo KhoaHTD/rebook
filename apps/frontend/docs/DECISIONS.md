@@ -82,3 +82,6 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
   Ví, Kênh người bán, Ký gửi) · Kệ sách (danh mục gốc). Người dùng / nút Đăng nhập ở đáy sidebar.
 - Web mở thẳng trang Mua sách (bỏ trang giới thiệu của UI cũ).
 - Sách chưa có ảnh (dữ liệu mẫu) dùng bìa tự vẽ `DrawnCover`: màu + hình chọn ổn định theo id sách.
+- Phòng đấu giá trực tiếp (`/auctions/sessions/:id/live`) **không cần đăng nhập** để xem — SRS mục 2: khách xem trực tiếp
+  phiên, không được trả giá. Chưa đăng ký thì phòng hiện lời nhắc + nút "Đăng ký tham gia" (đăng ký vẫn cần đăng nhập).
+- Màn hình con mở từ sidebar desktop (Đơn mua, Ví…) giữ sidebar; phòng đấu giá phủ toàn màn hình.

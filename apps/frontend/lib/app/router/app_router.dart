@@ -13,6 +13,13 @@ import 'package:book_marketplace/features/account/presentation/screens/profile_s
 import 'package:book_marketplace/features/account/presentation/screens/settings_screen.dart';
 import 'package:book_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:book_marketplace/features/wallet/presentation/screens/wallet_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/auctions_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/live_room_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/lot_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/my_auctions_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/register_session_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/results_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/session_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/register_screen.dart';
@@ -133,33 +140,39 @@ GoRouter appRouter(Ref ref) {
             routes: [
               GoRoute(
                 path: Routes.auctions,
-                builder: (c, _) => _soon(c, (l) => l.auctionsTitle),
+                builder: (_, _) => const AuctionsScreen(),
                 routes: [
                   GoRoute(
                     path: 'mine',
-                    builder: (c, _) => _soon(c, (l) => l.myAuctions),
+                    builder: (_, _) => const MyAuctionsScreen(),
                   ),
                   GoRoute(
                     path: 'lots/:id',
-                    builder: (c, _) => _soon(c, (l) => l.auctionsTitle),
+                    builder: (_, s) =>
+                        LotScreen(lotId: s.pathParameters['id']!),
                   ),
                   GoRoute(
                     path: 'sessions/:id',
-                    builder: (c, _) => _soon(c, (l) => l.auctionsTitle),
+                    builder: (_, s) =>
+                        SessionScreen(sessionId: s.pathParameters['id']!),
                     routes: [
                       GoRoute(
                         path: 'register',
-                        builder: (c, _) => _soon(c, (l) => l.auctionsTitle),
+                        builder: (_, s) => RegisterSessionScreen(
+                          sessionId: s.pathParameters['id']!,
+                        ),
                       ),
                       GoRoute(
                         path: 'results',
-                        builder: (c, _) => _soon(c, (l) => l.auctionsTitle),
+                        builder: (_, s) =>
+                            ResultsScreen(sessionId: s.pathParameters['id']!),
                       ),
                       // Phòng đấu giá phủ toàn màn hình, không có sidebar / tab bar.
                       GoRoute(
                         path: 'live',
                         parentNavigatorKey: _rootKey,
-                        builder: (c, _) => _soon(c, (l) => l.enterLiveRoom),
+                        builder: (_, s) =>
+                            LiveRoomScreen(sessionId: s.pathParameters['id']!),
                       ),
                     ],
                   ),

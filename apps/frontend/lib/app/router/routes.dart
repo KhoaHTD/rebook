@@ -62,8 +62,8 @@ abstract final class Routes {
       location.startsWith(cart) ||
       location.startsWith('/home/payments') ||
       location == myAuctions ||
-      location.endsWith('/register') ||
-      location.endsWith('/live');
+      location.endsWith('/register');
+  // Phòng `/live` mở cho khách xem (SRS 2: khách xem trực tiếp phiên, không được trả giá).
 }
 
 /// Đường dẫn của web quản trị (main_admin.dart).

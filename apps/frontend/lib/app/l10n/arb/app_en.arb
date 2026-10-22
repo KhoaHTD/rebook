@@ -674,5 +674,11 @@
   "otherOffers": "Other copies of this book",
   "otherOffersHint": "Same work from other sellers — compare condition and price.",
   "sellerPhotos": "Seller's photos",
-  "aboutBook": "About this book"
+  "aboutBook": "About this book",
+  "currentPrice": "Current price",
+  "youLeading": "You're leading",
+  "nextLots": "Up next",
+  "depositOption": "Deposit {amount} · limit {limit}",
+  "viewSession": "View session",
+  "lotStory": "Story & provenance"
 }

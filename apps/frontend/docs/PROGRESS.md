@@ -43,10 +43,10 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
   `order_widgets` (OrderCard, StatusTimeline, OrderMoney, OrderItemsList), `SelectTile` trong `ui.dart`
 
 ## Giai đoạn 4 — Đấu giá
-- [ ] Lịch phiên, catalogue, chi tiết lô (báo cáo tình trạng), theo dõi lô
-- [ ] Đăng ký + đặt cọc (hạn mức = cọc × 10), số bài
-- [ ] Phòng trực tiếp: đồng hồ server, soft close, "Lần thứ nhất / thứ hai / Bán!", nút "Trả Xđ", proxy bid
-- [ ] Kết quả phiên, hóa đơn lô thắng (đơn AUCTION)
+- [x] Lịch phiên, catalogue, chi tiết lô (báo cáo tình trạng), theo dõi lô
+- [x] Đăng ký + đặt cọc (hạn mức = cọc × 10), số bài
+- [x] Phòng trực tiếp: đồng hồ server, soft close, "Lần thứ nhất / thứ hai / Bán!", nút "Trả Xđ", proxy bid
+- [x] Kết quả phiên, hóa đơn lô thắng (đơn AUCTION)
 
 ## Giai đoạn 5 — Người bán
 - [ ] Bật shop, đăng / sửa / ẩn sách, quản lý tin, tồn kho
