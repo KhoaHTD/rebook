@@ -95,7 +95,7 @@
   "mockAccountsHint": "Demo: minhanh@rebook.vn · staff@rebook.vn · admin@rebook.vn — password and OTP are 123456",
   "browseAsGuest": "Browse first",
   "staffOnly": "This account can't access the admin console.",
-  "navHome": "Discover",
+  "navHome": "Shop",
   "navAuctions": "Auctions",
   "navNotifications": "Inbox",
   "navAccount": "Account",
@@ -663,5 +663,12 @@
   "landingSeeSchedule": "See the schedule",
   "landingDelivery": "Delivered",
   "landingFooterRules": "Rules",
-  "landingFooterContact": "Contact"
+  "landingFooterContact": "Contact",
+  "sidebarMine": "Mine",
+  "sidebarShelves": "Shelves",
+  "badgeNew": "NEW",
+  "badgeAuction": "AUCTION",
+  "moreActions": "More",
+  "comingSoon": "This screen is being built.",
+  "copiesFrom": "{count} copies · from {price}"
 }

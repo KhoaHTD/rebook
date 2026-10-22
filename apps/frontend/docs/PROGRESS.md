@@ -25,10 +25,12 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
   Bảng đường dẫn đầy đủ: `lib/app/router/routes.dart` (từ backup).
 
 ## Giai đoạn 2 — Bộ giao diện Apple Books + khung app
-- [ ] Theme sáng (trắng, sidebar xám, Newsreader + Be Vietnam Pro), token
-- [ ] Widget: BookPoster (gáy + bóng, bìa concept), PosterGrid 4/hàng, Shelf cuộn ngang, badge MỚI/ĐẤU GIÁ, nút ···, nhãn trạng thái
-- [ ] AppShell: desktop sidebar (Tìm kiếm/Trang chủ/Chợ sách/Đấu giá, Của tôi, Kệ sách) · mobile tab bar nổi
-- [ ] Hai entrypoint: `main.dart` (người dùng), `main_admin.dart` (Staff/Admin)
+- [x] Theme sáng/tối (`app/theme`), token `AppColors`, `CoverPalette`; mặc định nền sáng + tiếng Việt
+- [x] Widget: `book_poster.dart` (BookPoster gáy + bóng, DrawnCover), `poster_grid.dart` (PosterTile, PosterGrid 4/3/2 cột, Shelf),
+      `ui.dart` (AppPage, CircleBackButton, DotsButton, SectionHeader, PillBadge, PriceText, EmptyState, InfoPanel), `status_labels.dart`
+- [x] AppShell: sidebar nổi (`sidebar.dart` dùng chung) · tab bar viên thuốc nổi; router đủ cây SRS, màn chưa làm = `PlaceholderPage`
+- [x] Hai entrypoint: `main.dart` (người dùng), `main_admin.dart` (Staff/Admin, `admin_router` + `admin_shell`)
+- Xem trước: `flutter build web --release --dart-define-from-file=env/dev.json` rồi phục vụ `build/web` (SPA).
 
 ## Giai đoạn 3 — Người mua
 - [ ] Đăng nhập / đăng ký / OTP / quên mật khẩu

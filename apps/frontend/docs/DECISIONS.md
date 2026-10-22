@@ -73,3 +73,12 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Màn giám sát phiên hỏi lại GET /sessions/{id}/state mỗi 2 giây thay vì mở STOMP (đủ cho người vận hành, đỡ phụ thuộc feature auction).
 - Chạy: `flutter run -d chrome -t lib/main_admin.dart --dart-define-from-file=env/dev.json` (tài khoản staff@rebook.vn / admin@rebook.vn, mật khẩu 123456).
 
+### Giao diện Apple Books (2026-10-22)
+- Theme mặc định **sáng** (bỏ "tự động tối trên điện thoại" của UI cũ); người dùng vẫn chọn Tối / Theo hệ thống trong Cài đặt.
+- Ngôn ngữ mặc định **tiếng Việt** (không theo ngôn ngữ trình duyệt); đổi được sang tiếng Anh trong Cài đặt.
+- Điều hướng giữ 4 nhánh theo SRS 11.2 (Mua sách · Đấu giá · Thông báo · Tài khoản). Nhãn tab trong mockup mobile
+  (Thư viện, Chợ sách, Tìm kiếm) là minh họa; tìm kiếm nằm ở sidebar desktop và thanh đầu trang Mua sách trên mobile.
+- Desktop: sidebar nổi 3 nhóm — Khám phá (Tìm kiếm, Mua sách, Đấu giá, Thông báo, Giỏ hàng) · Của tôi (Đơn mua, Đấu giá của tôi,
+  Ví, Kênh người bán, Ký gửi) · Kệ sách (danh mục gốc). Người dùng / nút Đăng nhập ở đáy sidebar.
+- Web mở thẳng trang Mua sách (bỏ trang giới thiệu của UI cũ).
+- Sách chưa có ảnh (dữ liệu mẫu) dùng bìa tự vẽ `DrawnCover`: màu + hình chọn ổn định theo id sách.

@@ -116,7 +116,7 @@
   "mockAccountsHint": "Demo: minhanh@rebook.vn · staff@rebook.vn · admin@rebook.vn — mật khẩu và OTP đều là 123456",
   "browseAsGuest": "Xem sách trước đã",
   "staffOnly": "Tài khoản này không có quyền vào trang quản trị.",
-  "navHome": "Khám phá",
+  "navHome": "Mua sách",
   "navAuctions": "Đấu giá",
   "navNotifications": "Thông báo",
   "navAccount": "Tài khoản",
@@ -1063,5 +1063,22 @@
   "landingSeeSchedule": "Xem lịch đấu giá",
   "landingDelivery": "Giao tận nơi",
   "landingFooterRules": "Quy định",
-  "landingFooterContact": "Liên hệ"
+  "landingFooterContact": "Liên hệ",
+  "sidebarMine": "Của tôi",
+  "sidebarShelves": "Kệ sách",
+  "badgeNew": "MỚI",
+  "badgeAuction": "ĐẤU GIÁ",
+  "moreActions": "Thêm",
+  "comingSoon": "Màn hình này đang được làm.",
+  "copiesFrom": "{count} bản · từ {price}",
+  "@copiesFrom": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }
