@@ -37,3 +37,12 @@ Chỉ chuyển sang code khi người dùng gửi SRS **và** yêu cầu triển
 
 - Video Pinterest cho trang About: chưa nhận được link/file trong phiên này.
 - `docs/ReBook_SRS_Ver_2.docx` có trong repo; người dùng nói chưa cung cấp SRS → chưa đọc, chờ xác nhận.
+
+## Cập nhật 2026-10-22 (sau khi người dùng trả lời)
+
+- [x] Ghi quyết định vào `DESIGN_DECISIONS.md`.
+- [x] taste-skill: hướng **The contact sheet** (seed 1431430296), palette "Three stones". Đổi font (Archivo → Newsreader +
+      Be Vietnam Pro, lý do: văn học + dấu tiếng Việt). Bỏ lớp animation (người dùng cấm animation trang trí).
+- [x] Ảnh: 12 bìa thật Open Library (`design-preview/assets/covers/`, nguồn trong `credits.json`), 6 ảnh tư liệu
+      Wikimedia Commons PD/CC (`design-preview/assets/`, nguồn trong `assets/credits.json`).
+- [ ] Đang làm: `design-preview/` Home desktop → Home mobile → Khám phá → Chi tiết sách → About → Home tối.
