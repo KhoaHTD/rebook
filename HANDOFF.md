@@ -1,3 +1,7 @@
+> **Mới nhất (2026-10-22, 13:57):** người dùng chọn style **giống y Apple Books**, chỉ cần ảnh sơ bộ. Đã xuất
+> `design-preview/png/apple-desktop.png` (4 poster lớn/hàng) + `design-preview/png/apple-mobile.png`.
+> Bước tiếp theo: **chờ người dùng duyệt style**. Nếu được duyệt: chờ SRS. Không code website. Hướng "contact sheet" (home.html) đã bị bỏ.
+
 # HANDOFF
 
 Giai đoạn THIẾT KẾ, chưa code website. Nhánh `design/apple-books` (chưa push). Không reset Git.
