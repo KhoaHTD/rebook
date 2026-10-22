@@ -1,6 +1,6 @@
 {
  "url": "design-preview/ab-mobile.html",
- "at": "2026-10-22T06:41:23.703Z",
+ "at": "2026-10-22T06:46:32.377Z",
  "allow": [],
  "viewports": [
   {
@@ -10,7 +10,7 @@
    "screens": 2,
    "filled": [
     0.29,
-    0.26
+    0.28
    ],
    "motion": {
     "elements": 0,
@@ -26,13 +26,13 @@
      "h": 900
     },
     "page": {
-     "height": 1412,
-     "screens": 1.6,
+     "height": 1490,
+     "screens": 1.7,
      "words": 104,
      "img": 6,
      "video": 0,
      "canvas": 0,
-     "svg": 9,
+     "svg": 12,
      "sections": 3,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
@@ -56,32 +56,32 @@
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Văn học",
-     "words": 2,
-     "chars": 7,
+     "text": "Văn học & Văn chương",
+     "words": 5,
+     "chars": 20,
      "lines": 1,
-     "size": 19,
+     "size": 18,
      "vw": 1.3,
-     "font": "Be Vietnam Pro",
+     "font": "-apple-system",
      "weight": 700,
-     "tracking": -0.015,
+     "tracking": -0.01,
      "leading": 1.2,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "center",
      "position": "center",
-     "widthRatio": 0.2,
-     "top": 26,
+     "widthRatio": 0.21,
+     "top": 35,
      "tag": "h1",
      "kind": "heading"
     },
     "h1": {
-     "text": "Văn học",
-     "words": 2,
+     "text": "Văn học & Văn chương",
+     "words": 5,
      "lines": 1,
-     "size": 19,
-     "font": "Be Vietnam Pro"
+     "size": 18,
+     "font": "-apple-system"
     },
     "headings": [],
     "headingSummary": {
@@ -96,32 +96,39 @@
     "type": {
      "families": [
       {
+       "family": "-apple-system",
+       "share": 0.73,
+       "mono": false
+      },
+      {
        "family": "Be Vietnam Pro",
-       "share": 0.9,
+       "share": 0.17,
        "mono": false
       },
       {
        "family": "Newsreader",
-       "share": 0.1,
+       "share": 0.09,
        "mono": false
       }
      ],
-     "familyCount": 2,
+     "familyCount": 3,
      "sizes": [
       11,
       13,
-      19,
-      23,
-      24
+      18,
+      21,
+      25
      ],
      "sizeCount": 5,
-     "notLoaded": [],
+     "notLoaded": [
+      "Be Vietnam Pro"
+     ],
      "body": null,
      "measureChars": null,
      "max": {
-      "size": 24,
+      "size": 25,
       "vw": 1.7,
-      "font": "Be Vietnam Pro",
+      "font": "-apple-system",
       "text": "Văn học Việt Nam"
      },
      "monoShare": 0,
@@ -132,7 +139,7 @@
      "microLabelShare": 0,
      "microSamples": [],
      "upperShare": 0,
-     "centerShare": 0.02,
+     "centerShare": 0.05,
      "smallText": 0
     },
     "eyebrows": [],
@@ -148,12 +155,12 @@
      "sectionBgs": [],
      "textColors": [
       {
-       "color": "#1d1d1f",
-       "share": 0.38
+       "color": "#000000",
+       "share": 0.41
       },
       {
-       "color": "#6e6e73",
-       "share": 0.31
+       "color": "#8a8a8e",
+       "share": 0.32
       },
       {
        "color": "#efe9dc",
@@ -168,38 +175,75 @@
        "share": 0.05
       }
      ],
-     "button": {
-      "bg": "#e9e9ee",
-      "hsl": {
-       "h": 240,
-       "s": 0.13,
-       "l": 0.92
+     "button": null,
+     "lowContrast": [
+      {
+       "text": "· từ 65.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
       },
-      "fg": "#1d1d1f"
-     },
-     "lowContrast": []
+      {
+       "text": "· từ 50.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· từ 45.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· từ 120.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· còn 42:10",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· còn 7:40:00",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      }
+     ]
     },
     "buttons": {
-     "count": 1,
-     "inHero": 1,
-     "radius": "pill",
-     "height": 54,
+     "count": 0,
+     "inHero": 0,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
-     "heroLabels": [
-      "Trang chủ"
-     ]
+     "heroLabels": []
     },
     "surfaces": {
      "shadowStatic": 10,
-     "shadowOverlay": 1,
+     "shadowOverlay": 2,
      "shadowSamples": [
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px"
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px"
      ],
      "gradients": 0,
      "scrims": 0,
@@ -207,29 +251,36 @@
      "gradientText": 0,
      "hairlines": 1,
      "hairlineSamples": [
-      "header 430px"
+      "header 440px"
      ],
      "outlinedBoxes": 0,
      "dashed": 0,
-     "blurred": 0,
+     "blurred": 2,
      "roundedBoxes": 0,
      "boxRadius": 0,
      "squareMedia": 0,
      "roundedMedia": 0,
      "mediaRadius": 0,
      "textShadow": 0,
-     "cardRows": []
+     "cardRows": [
+      {
+       "count": 4,
+       "iconTopped": true,
+       "rounded": false,
+       "top": 0
+      }
+     ]
     },
     "heroMedia": [],
     "nav": {
      "links": 1,
      "fixed": true,
-     "height": 75,
+     "height": 92,
      "floatingPill": false,
-     "blur": false
+     "blur": true
     },
     "fontsLoaded": [
-     "be vietnam pro",
+     "inter",
      "newsreader"
     ]
    },
@@ -238,25 +289,25 @@
      "w": 1440,
      "h": 900
     },
-    "pageH": 1412,
+    "pageH": 1490,
     "margins": {
-     "left": 525,
-     "right": 201
+     "left": 520,
+     "right": 232
     },
     "sections": [],
     "gaps": [],
     "h1s": [
      {
-      "text": "Văn học",
-      "size": 19,
-      "top": 26,
+      "text": "Văn học & Văn chương",
+      "size": 18,
+      "top": 35,
       "firstScreen": true
      }
     ],
     "edgeText": [],
     "edges": [
      {
-      "x": 525,
+      "x": 520,
       "n": 3
      }
     ],
@@ -282,8 +333,8 @@
    "load": "load",
    "screens": 2,
    "filled": [
-    0.48,
-    0.47
+    0.46,
+    0.42
    ],
    "motion": {
     "elements": 0,
@@ -299,13 +350,13 @@
      "h": 1024
     },
     "page": {
-     "height": 1412,
-     "screens": 1.4,
+     "height": 1490,
+     "screens": 1.5,
      "words": 104,
      "img": 6,
      "video": 0,
      "canvas": 0,
-     "svg": 9,
+     "svg": 12,
      "sections": 3,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
@@ -329,32 +380,32 @@
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Văn học",
-     "words": 2,
-     "chars": 7,
+     "text": "Văn học & Văn chương",
+     "words": 5,
+     "chars": 20,
      "lines": 1,
-     "size": 19,
-     "vw": 2.5,
-     "font": "Be Vietnam Pro",
+     "size": 18,
+     "vw": 2.3,
+     "font": "-apple-system",
      "weight": 700,
-     "tracking": -0.015,
+     "tracking": -0.01,
      "leading": 1.2,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "center",
      "position": "center",
-     "widthRatio": 0.38,
-     "top": 26,
+     "widthRatio": 0.39,
+     "top": 35,
      "tag": "h1",
      "kind": "heading"
     },
     "h1": {
-     "text": "Văn học",
-     "words": 2,
+     "text": "Văn học & Văn chương",
+     "words": 5,
      "lines": 1,
-     "size": 19,
-     "font": "Be Vietnam Pro"
+     "size": 18,
+     "font": "-apple-system"
     },
     "headings": [],
     "headingSummary": {
@@ -369,32 +420,39 @@
     "type": {
      "families": [
       {
+       "family": "-apple-system",
+       "share": 0.73,
+       "mono": false
+      },
+      {
        "family": "Be Vietnam Pro",
-       "share": 0.9,
+       "share": 0.17,
        "mono": false
       },
       {
        "family": "Newsreader",
-       "share": 0.1,
+       "share": 0.09,
        "mono": false
       }
      ],
-     "familyCount": 2,
+     "familyCount": 3,
      "sizes": [
       11,
       13,
-      16,
-      19,
-      24
+      18,
+      21,
+      25
      ],
      "sizeCount": 5,
-     "notLoaded": [],
+     "notLoaded": [
+      "Be Vietnam Pro"
+     ],
      "body": null,
      "measureChars": null,
      "max": {
-      "size": 24,
-      "vw": 3.1,
-      "font": "Be Vietnam Pro",
+      "size": 25,
+      "vw": 3.3,
+      "font": "-apple-system",
       "text": "Văn học Việt Nam"
      },
      "monoShare": 0,
@@ -405,7 +463,7 @@
      "microLabelShare": 0,
      "microSamples": [],
      "upperShare": 0,
-     "centerShare": 0.02,
+     "centerShare": 0.05,
      "smallText": 0
     },
     "eyebrows": [],
@@ -421,12 +479,12 @@
      "sectionBgs": [],
      "textColors": [
       {
-       "color": "#1d1d1f",
-       "share": 0.38
+       "color": "#000000",
+       "share": 0.41
       },
       {
-       "color": "#6e6e73",
-       "share": 0.31
+       "color": "#8a8a8e",
+       "share": 0.32
       },
       {
        "color": "#efe9dc",
@@ -441,38 +499,75 @@
        "share": 0.05
       }
      ],
-     "button": {
-      "bg": "#e9e9ee",
-      "hsl": {
-       "h": 240,
-       "s": 0.13,
-       "l": 0.92
+     "button": null,
+     "lowContrast": [
+      {
+       "text": "· từ 65.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
       },
-      "fg": "#1d1d1f"
-     },
-     "lowContrast": []
+      {
+       "text": "· từ 50.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· từ 45.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· từ 120.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· còn 42:10",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· còn 7:40:00",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      }
+     ]
     },
     "buttons": {
-     "count": 1,
-     "inHero": 1,
-     "radius": "pill",
-     "height": 54,
+     "count": 0,
+     "inHero": 0,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
-     "heroLabels": [
-      "Trang chủ"
-     ]
+     "heroLabels": []
     },
     "surfaces": {
      "shadowStatic": 10,
-     "shadowOverlay": 1,
+     "shadowOverlay": 2,
      "shadowSamples": [
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px"
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px"
      ],
      "gradients": 0,
      "scrims": 0,
@@ -480,29 +575,36 @@
      "gradientText": 0,
      "hairlines": 1,
      "hairlineSamples": [
-      "header 430px"
+      "header 440px"
      ],
      "outlinedBoxes": 0,
      "dashed": 0,
-     "blurred": 0,
+     "blurred": 2,
      "roundedBoxes": 0,
      "boxRadius": 0,
      "squareMedia": 0,
      "roundedMedia": 0,
      "mediaRadius": 0,
      "textShadow": 0,
-     "cardRows": []
+     "cardRows": [
+      {
+       "count": 4,
+       "iconTopped": true,
+       "rounded": false,
+       "top": 0
+      }
+     ]
     },
     "heroMedia": [],
     "nav": {
      "links": 1,
      "fixed": true,
-     "height": 75,
+     "height": 92,
      "floatingPill": false,
-     "blur": false
+     "blur": true
     },
     "fontsLoaded": [
-     "be vietnam pro",
+     "inter",
      "newsreader"
     ]
    },
@@ -511,25 +613,31 @@
      "w": 768,
      "h": 1024
     },
-    "pageH": 1412,
+    "pageH": 1490,
     "margins": {
-     "left": 189,
-     "right": 43
+     "left": 184,
+     "right": 68
     },
     "sections": [],
     "gaps": [],
     "h1s": [
      {
-      "text": "Văn học",
-      "size": 19,
-      "top": 26,
+      "text": "Văn học & Văn chương",
+      "size": 18,
+      "top": 35,
       "firstScreen": true
      }
     ],
-    "edgeText": [],
+    "edgeText": [
+     {
+      "text": "4 bản",
+      "side": "right",
+      "px": 15
+     }
+    ],
     "edges": [
      {
-      "x": 189,
+      "x": 184,
       "n": 3
      }
     ],
@@ -550,8 +658,8 @@
    "load": "load",
    "screens": 2,
    "filled": [
-    0.82,
-    0.83
+    0.87,
+    0.84
    ],
    "motion": {
     "elements": 0,
@@ -567,13 +675,13 @@
      "h": 844
     },
     "page": {
-     "height": 1412,
-     "screens": 1.7,
+     "height": 1490,
+     "screens": 1.8,
      "words": 104,
      "img": 6,
      "video": 0,
      "canvas": 0,
-     "svg": 9,
+     "svg": 12,
      "sections": 3,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
@@ -597,94 +705,94 @@
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Văn học Việt Nam ›",
-     "words": 5,
-     "chars": 18,
+     "text": "Văn học Việt Nam",
+     "words": 4,
+     "chars": 16,
      "lines": 1,
-     "size": 24,
-     "vw": 6.2,
-     "font": "Be Vietnam Pro",
+     "size": 25,
+     "vw": 6.4,
+     "font": "-apple-system",
      "weight": 700,
-     "tracking": -0.015,
-     "leading": 1.2,
+     "tracking": -0.02,
+     "leading": 1.15,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "left",
      "position": "center",
      "widthRatio": 1,
-     "top": 99,
+     "top": 118,
      "tag": "h2",
      "kind": "heading"
     },
     "h1": {
-     "text": "Văn học",
-     "words": 2,
+     "text": "Văn học & Văn chương",
+     "words": 5,
      "lines": 1,
-     "size": 19,
-     "font": "Be Vietnam Pro"
+     "size": 18,
+     "font": "-apple-system"
     },
     "headings": [
      {
-      "text": "Văn học Việt Nam ›",
-      "words": 5,
-      "chars": 18,
-      "lines": 1,
-      "size": 24,
-      "vw": 6.2,
-      "font": "Be Vietnam Pro",
-      "weight": 700,
-      "tracking": -0.015,
-      "leading": 1.2,
-      "upper": false,
-      "italic": false,
-      "mono": false,
-      "align": "left",
-      "position": "center",
-      "widthRatio": 1,
-      "top": 99,
-      "tag": "h2",
-      "kind": "heading"
-     },
-     {
-      "text": "Kinh điển dịch ›",
+      "text": "Văn học Việt Nam",
       "words": 4,
       "chars": 16,
       "lines": 1,
-      "size": 24,
-      "vw": 6.2,
-      "font": "Be Vietnam Pro",
+      "size": 25,
+      "vw": 6.4,
+      "font": "-apple-system",
       "weight": 700,
-      "tracking": -0.015,
-      "leading": 1.2,
+      "tracking": -0.02,
+      "leading": 1.15,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
       "position": "center",
       "widthRatio": 1,
-      "top": 502,
+      "top": 118,
       "tag": "h2",
       "kind": "heading"
      },
      {
-      "text": "Đang đấu giá ›",
-      "words": 4,
+      "text": "Kinh điển dịch",
+      "words": 3,
       "chars": 14,
       "lines": 1,
-      "size": 24,
-      "vw": 6.2,
-      "font": "Be Vietnam Pro",
+      "size": 25,
+      "vw": 6.4,
+      "font": "-apple-system",
       "weight": 700,
-      "tracking": -0.015,
-      "leading": 1.2,
+      "tracking": -0.02,
+      "leading": 1.15,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
       "position": "center",
       "widthRatio": 1,
-      "top": 905,
+      "top": 538,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Đang đấu giá",
+      "words": 3,
+      "chars": 12,
+      "lines": 1,
+      "size": 25,
+      "vw": 6.4,
+      "font": "-apple-system",
+      "weight": 700,
+      "tracking": -0.02,
+      "leading": 1.15,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 959,
       "tag": "h2",
       "kind": "heading"
      }
@@ -695,38 +803,45 @@
      "over2Lines": 0,
      "statements": 0,
      "centered": 0,
-     "medianWords": 4,
+     "medianWords": 3,
      "mixedFontHeadings": 0
     },
     "type": {
      "families": [
       {
+       "family": "-apple-system",
+       "share": 0.73,
+       "mono": false
+      },
+      {
        "family": "Be Vietnam Pro",
-       "share": 0.9,
+       "share": 0.17,
        "mono": false
       },
       {
        "family": "Newsreader",
-       "share": 0.1,
+       "share": 0.09,
        "mono": false
       }
      ],
-     "familyCount": 2,
+     "familyCount": 3,
      "sizes": [
       11,
       13,
-      16,
-      19,
-      24
+      18,
+      21,
+      25
      ],
      "sizeCount": 5,
-     "notLoaded": [],
+     "notLoaded": [
+      "Be Vietnam Pro"
+     ],
      "body": null,
      "measureChars": null,
      "max": {
-      "size": 24,
-      "vw": 6.2,
-      "font": "Be Vietnam Pro",
+      "size": 25,
+      "vw": 6.4,
+      "font": "-apple-system",
       "text": "Văn học Việt Nam"
      },
      "monoShare": 0,
@@ -737,7 +852,7 @@
      "microLabelShare": 0,
      "microSamples": [],
      "upperShare": 0,
-     "centerShare": 0.02,
+     "centerShare": 0.05,
      "smallText": 0
     },
     "eyebrows": [],
@@ -752,23 +867,32 @@
      "dark": false,
      "sectionBgs": [
       {
-       "color": "#f5f5f7",
-       "top": 478,
+       "color": "#f2f2f2",
+       "top": 92,
        "hsl": {
-        "h": 240,
-        "s": 0.11,
-        "l": 0.96
+        "h": 0,
+        "s": 0,
+        "l": 0.95
+       }
+      },
+      {
+       "color": "#ffffff",
+       "top": 512,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
        }
       }
      ],
      "textColors": [
       {
-       "color": "#1d1d1f",
-       "share": 0.38
+       "color": "#000000",
+       "share": 0.41
       },
       {
-       "color": "#6e6e73",
-       "share": 0.31
+       "color": "#8a8a8e",
+       "share": 0.32
       },
       {
        "color": "#efe9dc",
@@ -783,38 +907,75 @@
        "share": 0.05
       }
      ],
-     "button": {
-      "bg": "#e9e9ee",
-      "hsl": {
-       "h": 240,
-       "s": 0.13,
-       "l": 0.92
+     "button": null,
+     "lowContrast": [
+      {
+       "text": "· từ 65.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
       },
-      "fg": "#1d1d1f"
-     },
-     "lowContrast": []
+      {
+       "text": "· từ 50.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· từ 45.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· từ 120.000 ₫",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· còn 42:10",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      },
+      {
+       "text": "· còn 7:40:00",
+       "ratio": 3.1,
+       "need": 4.5,
+       "size": 13,
+       "fg": "#8a8a8e",
+       "bg": "#f2f2f2"
+      }
+     ]
     },
     "buttons": {
-     "count": 1,
-     "inHero": 1,
-     "radius": "pill",
-     "height": 54,
+     "count": 0,
+     "inHero": 0,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
-     "heroLabels": [
-      "Trang chủ"
-     ]
+     "heroLabels": []
     },
     "surfaces": {
      "shadowStatic": 10,
-     "shadowOverlay": 1,
+     "shadowOverlay": 2,
      "shadowSamples": [
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
-      "div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px"
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
+      "div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px"
      ],
      "gradients": 0,
      "scrims": 0,
@@ -826,7 +987,7 @@
      ],
      "outlinedBoxes": 0,
      "dashed": 0,
-     "blurred": 0,
+     "blurred": 2,
      "roundedBoxes": 0,
      "boxRadius": 0,
      "squareMedia": 0,
@@ -838,22 +999,22 @@
     "heroMedia": [
      {
       "type": "img",
-      "ratio": 0.13
+      "ratio": 0.12
      },
      {
       "type": "img",
-      "ratio": 0.13
+      "ratio": 0.12
      }
     ],
     "nav": {
      "links": 1,
      "fixed": true,
-     "height": 75,
+     "height": 92,
      "floatingPill": false,
-     "blur": false
+     "blur": true
     },
     "fontsLoaded": [
-     "be vietnam pro",
+     "inter",
      "newsreader"
     ]
    },
@@ -862,29 +1023,29 @@
      "w": 390,
      "h": 844
     },
-    "pageH": 1412,
+    "pageH": 1490,
     "margins": {
      "left": 20,
-     "right": 18
+     "right": 32
     },
     "sections": [
      {
       "sel": "section",
       "tag": "section",
-      "top": 75,
-      "height": 403,
+      "top": 92,
+      "height": 420,
       "words": 52,
       "media": 4,
-      "middle": 290,
+      "middle": 271,
       "heading": {
        "text": "Văn học Việt Nam",
-       "size": 24,
+       "size": 25,
        "tag": "h2"
       },
       "left": 20,
       "right": 0,
       "textLeft": 20,
-      "textRight": -344,
+      "textRight": -318,
       "fullBleed": false,
       "footer": false,
       "hero": true,
@@ -892,22 +1053,22 @@
       "pinned": false
      },
      {
-      "sel": "section.alt",
+      "sel": "section",
       "tag": "section",
-      "top": 478,
-      "height": 403,
+      "top": 512,
+      "height": 420,
       "words": 21,
       "media": 3,
-      "middle": 34,
+      "middle": 21,
       "heading": {
        "text": "Kinh điển dịch",
-       "size": 24,
+       "size": 25,
        "tag": "h2"
       },
       "left": 20,
       "right": 0,
       "textLeft": 20,
-      "textRight": -118,
+      "textRight": -104,
       "fullBleed": false,
       "footer": false,
       "hero": false,
@@ -917,20 +1078,20 @@
      {
       "sel": "section",
       "tag": "section",
-      "top": 881,
-      "height": 421,
-      "words": 17,
+      "top": 933,
+      "height": 438,
+      "words": 18,
       "media": 3,
-      "middle": 80,
+      "middle": 65,
       "heading": {
        "text": "Đang đấu giá",
-       "size": 24,
+       "size": 25,
        "tag": "h2"
       },
       "left": 20,
       "right": 0,
       "textLeft": 20,
-      "textRight": -160,
+      "textRight": -144,
       "fullBleed": false,
       "footer": true,
       "hero": false,
@@ -941,9 +1102,9 @@
     "gaps": [],
     "h1s": [
      {
-      "text": "Văn học",
-      "size": 19,
-      "top": 26,
+      "text": "Văn học & Văn chương",
+      "size": 18,
+      "top": 35,
       "firstScreen": true
      }
     ],
@@ -971,7 +1132,7 @@
    "level": "FAIL",
    "id": "shadow",
    "width": 1440,
-   "message": "10 box-shadow(s) on elements at rest: div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px | div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px | div.cv → rgba(0, 0, 0, 0.4) 0px 14px 24px -10px, rgba(0, 0, 0, 0.12) 0px 2px 6px 0px",
+   "message": "10 box-shadow(s) on elements at rest: div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px | div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px | div.cv → rgba(0, 0, 0, 0.5) 0px 20px 22px -14px, rgba(0, 0, 0, 0.12) 0px 3px 6px 0px",
    "fix": "Remove. Separate surfaces with a tone step or space. Shadows are for things that really float (menus, dialogs, sticky bars).",
    "alsoAt": [
     768,
@@ -982,7 +1143,7 @@
    "level": "WARN",
    "id": "hairline",
    "width": 1440,
-   "message": "1 thin rule(s)/divider line(s): header 430px",
+   "message": "1 thin rule(s)/divider line(s): header 440px",
    "fix": "Delete. Separate with space, a tone change, or scale. Lines are only for real tables and form fields.",
    "alsoAt": [
     768,
@@ -991,10 +1152,75 @@
   },
   {
    "level": "WARN",
+   "id": "glass",
+   "width": 1440,
+   "message": "2 backdrop-blur surfaces.",
+   "fix": "One blurred sticky bar at most; glass cards are a tell.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "icon-cards",
+   "width": 1440,
+   "message": "1 row(s) of identical cards each topped with a small icon (4 cards).",
+   "fix": "Replace with one composed section from the direction: a narrative split, a list set in large type, or real imagery per item.",
+   "alsoAt": [
+    768
+   ]
+  },
+  {
+   "level": "WARN",
    "id": "palette-cream",
    "width": 1440,
    "message": "Yellow-cream background (text #efe9dc, text #f6eee4).",
    "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "contrast",
+   "width": 1440,
+   "message": "Low-contrast text: \"· từ 65.000 ₫\" 3.1:1 needs 4.5:1; \"· từ 50.000 ₫\" 3.1:1 needs 4.5:1; \"· từ 45.000 ₫\" 3.1:1 needs 4.5:1; \"· từ 120.000 ₫\" 3.1:1 needs 4.5:1",
+   "fix": "Darken or lighten the text colour.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "font-count",
+   "width": 1440,
+   "message": "3 typefaces in use (-apple-system, Be Vietnam Pro, Newsreader).",
+   "fix": "Two at most.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "font-fallback",
+   "width": 1440,
+   "message": "Typeface(s) declared but not loaded, so a fallback is rendering: Be Vietnam Pro",
+   "fix": "Fix the font URL / family name, or the screenshots you are judging are not the design.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "first-action",
+   "width": 1440,
+   "message": "No visible button in the first screen.",
+   "fix": "Give the one primary action a real button in the first screen (a filled or solid-bordered control, 44px or taller), not only a link in the navigation.",
    "alsoAt": [
     768,
     390
@@ -1022,7 +1248,7 @@
    "level": "FAIL",
    "id": "focal-point",
    "width": 1440,
-   "message": "The first screen has no dominant element: the largest type is 19px (1.3vw) and no single picture holds a third of the viewport.",
+   "message": "The first screen has no dominant element: the largest type is 18px (1.3vw) and no single picture holds a third of the viewport.",
    "fix": "Make one thing lead: the headline at display size, or one large picture. A grid of many small pictures is not one thing; in blind tests jurors marked a first screen without a headline down every time. On the strongest studied sites the largest type has a median of 8.4vw.",
    "alsoAt": [
     768
@@ -1032,14 +1258,14 @@
    "level": "WARN",
    "id": "font-not-dealt",
    "width": 1440,
-   "message": "The sheet dealt Clash Grotesk and Clash Grotesk, but the page renders Be Vietnam Pro, Newsreader.",
+   "message": "The sheet dealt Clash Grotesk and Clash Grotesk, but the page renders -apple-system, Be Vietnam Pro.",
    "fix": "Load the dealt face (the link on the sheet) and put it first in font-family. A build that falls back to a default face lands on the default look."
   },
   {
    "level": "FAIL",
    "id": "off-centre",
    "width": 1440,
-   "message": "The page sits off-centre: its content comes to 525px from the left edge but only to 201px from the right, at 1440px.",
+   "message": "The page sits off-centre: its content comes to 520px from the left edge but only to 232px from the right, at 1440px.",
    "fix": "Give the page one pair of equal margins. Check the wrapper for a max-width without margin-inline: auto, a grid with an empty last column, or padding on one side only. If one side is meant to hold air, it must still be closed by something that reaches the margin (a picture, the navigation's last item, a figure).",
    "alsoAt": [
     768
@@ -1049,19 +1275,8 @@
    "level": "WARN",
    "id": "small-title",
    "width": 1440,
-   "message": "The h1 is 19px (\"Văn học\").",
+   "message": "The h1 is 18px (\"Văn học & Văn chương\").",
    "fix": "Set the title at display size, or make the large text of the first screen the h1.",
-   "alsoAt": [
-    768,
-    390
-   ]
-  },
-  {
-   "level": "WARN",
-   "id": "name-only-title",
-   "width": 1440,
-   "message": "The h1 is a bare name (\"Văn học\") and nothing else on the first screen says what this is.",
-   "fix": "Keep the name if it leads, and give the line under it (18px or more) the plain words: what it is, for whom, where or when. In the study of 97 Sites of the Day, first screens that named nothing lost usability and content points.",
    "alsoAt": [
     768,
     390
@@ -1080,6 +1295,27 @@
    "width": 1440,
    "message": "Only 0 element(s) moved while the page loaded and scrolled.",
    "fix": "Build the motion layer (SKILL.md step 9, references/motion.md): the signature move, an entrance for the parts of every section, feedback on every control, and one moving picture. Transform and opacity only, with a reduced-motion fallback."
+  },
+  {
+   "level": "FAIL",
+   "id": "edge-text",
+   "width": 768,
+   "message": "1 text block(s) sit within 16px of the screen edge: \"4 bản\" (15px from the right)",
+   "fix": "Keep text inside the page margin (16–32px or more). Only display type deliberately bled past the edge may touch it."
+  },
+  {
+   "level": "FAIL",
+   "id": "covered-text",
+   "width": 768,
+   "message": "Large text lies under another element at some scroll position: \"Đang đấu giá\" (screen 1, 100% hidden)",
+   "fix": "Nothing may sit on top of a headline or statement. Move the picture, shorten the pinned run, or raise the text above it (z-index) and give it a ground."
+  },
+  {
+   "level": "WARN",
+   "id": "off-centre",
+   "width": 390,
+   "message": "The margins differ: 20px on the left, 32px on the right, at 390px.",
+   "fix": "Put the navigation and the content on one pair of margins; check for padding on one side only, a scrollbar gutter, or a header on another inset than the page."
   }
  ],
  "images": [

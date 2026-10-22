@@ -1,6 +1,6 @@
 {
  "url": "design-preview/ab-desktop.html",
- "at": "2026-10-22T06:41:05.525Z",
+ "at": "2026-10-22T06:47:03.549Z",
  "allow": [],
  "viewports": [
   {
@@ -9,8 +9,8 @@
    "load": "load",
    "screens": 2,
    "filled": [
-    0.65,
-    0.65
+    0.54,
+    0.58
    ],
    "motion": {
     "elements": 0,
@@ -26,30 +26,30 @@
      "h": 900
     },
     "page": {
-     "height": 927,
-     "screens": 1,
-     "words": 204,
-     "img": 9,
+     "height": 993,
+     "screens": 1.1,
+     "words": 153,
+     "img": 13,
      "video": 0,
      "canvas": 0,
-     "svg": 16,
+     "svg": 21,
      "sections": 0,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
      "uiFragments": 0,
      "uiAbuse": false,
-     "realPictures": 9,
+     "realPictures": 13,
      "videoCount": 0,
      "uiPictures": 0,
      "pictureSamples": [
       "tram-nam-co-don.jpg",
       "toi-ac-va-hinh-phat.jpg",
-      "ong-gia-va-bien-ca.jpg",
       "cover-of-trung-tiet-anh-hung-lich.jpg",
+      "ong-gia-va-bien-ca.jpg",
       "ba-chi-em.jpg",
-      "nam-phong-tap-chi-bui-quang-tuan.jpg",
-      "nhung-nguoi-khon-kho.jpg",
-      "kieu-hanh-va-dinh-kien.jpg"
+      "siddhartha.jpg",
+      "kieu-hanh-va-dinh-kien.jpg",
+      "chien-tranh-va-hoa-binh.jpg"
      ],
      "blendText": 0,
      "sideScrollers": 0,
@@ -58,52 +58,52 @@
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Trang chủ",
-     "words": 2,
-     "chars": 9,
+     "text": "Sách nổi bật",
+     "words": 3,
+     "chars": 12,
      "lines": 1,
-     "size": 34,
-     "vw": 2.4,
+     "size": 30,
+     "vw": 2.1,
      "font": "Newsreader",
-     "weight": 700,
+     "weight": 800,
      "tracking": -0.01,
      "leading": 1.1,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "left",
-     "position": "left",
-     "widthRatio": 0.11,
-     "top": 40,
+     "position": "right",
+     "widthRatio": 0.77,
+     "top": 36,
      "tag": "h1",
      "kind": "heading"
     },
     "h1": {
-     "text": "Trang chủ",
-     "words": 2,
+     "text": "Sách nổi bật",
+     "words": 3,
      "lines": 1,
-     "size": 34,
+     "size": 30,
      "font": "Newsreader"
     },
     "headings": [
      {
-      "text": "Trang chủ",
-      "words": 2,
-      "chars": 9,
+      "text": "Sách nổi bật",
+      "words": 3,
+      "chars": 12,
       "lines": 1,
-      "size": 34,
-      "vw": 2.4,
+      "size": 30,
+      "vw": 2.1,
       "font": "Newsreader",
-      "weight": 700,
+      "weight": 800,
       "tracking": -0.01,
       "leading": 1.1,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
-      "position": "left",
-      "widthRatio": 0.11,
-      "top": 40,
+      "position": "right",
+      "widthRatio": 0.77,
+      "top": 36,
       "tag": "h1",
       "kind": "heading"
      }
@@ -120,36 +120,44 @@
     "type": {
      "families": [
       {
+       "family": "-apple-system",
+       "share": 0.76,
+       "mono": false
+      },
+      {
        "family": "Be Vietnam Pro",
-       "share": 0.95,
+       "share": 0.14,
        "mono": false
       },
       {
        "family": "Newsreader",
-       "share": 0.05,
+       "share": 0.1,
        "mono": false
       }
      ],
-     "familyCount": 2,
+     "familyCount": 3,
      "sizes": [
+      9,
       10,
-      12,
+      11,
       13,
-      14,
-      21,
-      22,
-      23,
-      34
+      15,
+      16,
+      17,
+      20,
+      30
      ],
-     "sizeCount": 8,
-     "notLoaded": [],
+     "sizeCount": 9,
+     "notLoaded": [
+      "Be Vietnam Pro"
+     ],
      "body": null,
      "measureChars": null,
      "max": {
-      "size": 34,
-      "vw": 2.4,
+      "size": 30,
+      "vw": 2.1,
       "font": "Newsreader",
-      "text": "Trang chủ"
+      "text": "Sách nổi bật"
      },
      "monoShare": 0,
      "monoProseShare": 0,
@@ -158,9 +166,9 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0,
+     "upperShare": 0.01,
      "centerShare": 0,
-     "smallText": 8
+     "smallText": 3
     },
     "eyebrows": [],
     "numbered": [],
@@ -176,80 +184,80 @@
      "textColors": [
       {
        "color": "#1d1d1f",
-       "share": 0.49
+       "share": 0.33
       },
       {
        "color": "#86868b",
-       "share": 0.26
+       "share": 0.21
       },
       {
        "color": "#ffffff",
-       "share": 0.14
+       "share": 0.11
+      },
+      {
+       "color": "#a1a1a6",
+       "share": 0.1
       },
       {
        "color": "#6e6e73",
-       "share": 0.04
-      },
-      {
-       "color": "#efe9dc",
-       "share": 0.03
+       "share": 0.09
       }
      ],
      "button": {
-      "bg": "#1d1d1f",
+      "bg": "#2c2c2e",
       "hsl": {
        "h": 240,
-       "s": 0.03,
-       "l": 0.12
+       "s": 0.02,
+       "l": 0.18
       },
       "fg": "#ffffff"
      },
      "lowContrast": [
       {
-       "text": "Tên sách, tác giả, ISBN",
-       "ratio": 3.3,
+       "text": "Template · dữ liệu mẫu · bìa “concept” k",
+       "ratio": 2.3,
        "need": 4.5,
-       "size": 14,
-       "fg": "#86868b",
-       "bg": "#f5f5f7"
-      },
-      {
-       "text": "6 bản · từ 95.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
-      },
-      {
-       "text": "từ 65.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
-      },
-      {
-       "text": "5 bản · từ 140.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
+       "size": 11,
+       "fg": "#a1a1a6",
+       "bg": "#f3f3f4"
       },
       {
        "text": "từ 120.000 ₫",
        "ratio": 3.6,
        "need": 4.5,
-       "size": 12,
+       "size": 11,
        "fg": "#86868b",
        "bg": "#ffffff"
       },
       {
-       "text": "8 bản · từ 60.000 ₫",
+       "text": "từ 60.000 ₫",
        "ratio": 3.6,
        "need": 4.5,
-       "size": 12,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "từ 45.000 ₫",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "Còn 7:40:00",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "từ 80.000 ₫",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
        "fg": "#86868b",
        "bg": "#ffffff"
       }
@@ -259,23 +267,23 @@
      "count": 1,
      "inHero": 1,
      "radius": 8,
-     "height": 32,
+     "height": 30,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
      "heroLabels": [
-      "Trang chủ"
+      "Sách nổi bật"
      ]
     },
     "surfaces": {
-     "shadowStatic": 12,
-     "shadowOverlay": 0,
+     "shadowStatic": 18,
+     "shadowOverlay": 1,
      "shadowSamples": [
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px"
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px"
      ],
      "gradients": 0,
      "scrims": 0,
@@ -286,8 +294,8 @@
      "outlinedBoxes": 0,
      "dashed": 0,
      "blurred": 0,
-     "roundedBoxes": 0,
-     "boxRadius": 0,
+     "roundedBoxes": 1,
+     "boxRadius": 14,
      "squareMedia": 0,
      "roundedMedia": 0,
      "mediaRadius": 0,
@@ -297,7 +305,7 @@
     "heroMedia": [],
     "nav": null,
     "fontsLoaded": [
-     "be vietnam pro",
+     "inter",
      "newsreader"
     ]
    },
@@ -306,29 +314,25 @@
      "w": 1440,
      "h": 900
     },
-    "pageH": 927,
+    "pageH": 993,
     "margins": {
-     "left": 24,
-     "right": 48
+     "left": 28,
+     "right": 46
     },
     "sections": [
      {
       "sel": "div.grid",
       "tag": "div",
-      "top": 168,
-      "height": 294,
-      "words": 78,
-      "media": 6,
-      "middle": 28,
-      "heading": {
-       "text": "Số đỏ",
-       "size": 23,
-       "tag": "span"
-      },
-      "left": 288,
-      "right": 48,
-      "textLeft": 288,
-      "textRight": 48,
+      "top": 115,
+      "height": 486,
+      "words": 63,
+      "media": 12,
+      "middle": 64,
+      "heading": null,
+      "left": 280,
+      "right": 46,
+      "textLeft": 280,
+      "textRight": 46,
       "fullBleed": false,
       "footer": false,
       "hero": true,
@@ -338,16 +342,16 @@
      {
       "sel": "div.grid",
       "tag": "div",
-      "top": 552,
-      "height": 311,
-      "words": 59,
+      "top": 707,
+      "height": 226,
+      "words": 22,
       "media": 6,
-      "middle": 28,
+      "middle": 64,
       "heading": null,
-      "left": 288,
-      "right": 48,
-      "textLeft": 288,
-      "textRight": 48,
+      "left": 280,
+      "right": 46,
+      "textLeft": 285,
+      "textRight": 46,
       "fullBleed": false,
       "footer": true,
       "hero": false,
@@ -358,30 +362,30 @@
     "gaps": [],
     "h1s": [
      {
-      "text": "Trang chủ",
-      "size": 34,
-      "top": 40,
+      "text": "Sách nổi bật",
+      "size": 30,
+      "top": 36,
       "firstScreen": true
      }
     ],
     "edgeText": [],
     "edges": [
      {
-      "x": 288,
-      "n": 3
+      "x": 280,
+      "n": 2
      }
     ],
-    "leftBlocks": 3,
-    "bodySize": 16,
+    "leftBlocks": 2,
+    "bodySize": 11,
     "stage": false,
     "explains": false,
     "slivers": [],
     "voidShare": 0.04,
     "voidBox": {
-     "x": 0,
-     "y": 600,
-     "w": 240,
-     "h": 240
+     "x": 1200,
+     "y": 120,
+     "w": 60,
+     "h": 780
     }
    },
    "app": null,
@@ -391,11 +395,10 @@
    "width": 768,
    "height": 1024,
    "load": "load",
-   "screens": 3,
+   "screens": 2,
    "filled": [
-    0.65,
-    0.71,
-    0.74
+    0.78,
+    0.71
    ],
    "motion": {
     "elements": 0,
@@ -411,30 +414,34 @@
      "h": 1024
     },
     "page": {
-     "height": 2639,
-     "screens": 2.6,
-     "words": 204,
-     "img": 9,
+     "height": 1513,
+     "screens": 1.5,
+     "words": 153,
+     "img": 13,
      "video": 0,
      "canvas": 0,
-     "svg": 16,
+     "svg": 21,
      "sections": 0,
-     "horizontalOverflow": 0,
-     "overflowCulprits": [],
+     "horizontalOverflow": 40,
+     "overflowCulprits": [
+      "img (+40px)",
+      "span.dots (+40px)",
+      "img (+40px)"
+     ],
      "uiFragments": 0,
      "uiAbuse": false,
-     "realPictures": 9,
+     "realPictures": 13,
      "videoCount": 0,
      "uiPictures": 0,
      "pictureSamples": [
       "tram-nam-co-don.jpg",
       "toi-ac-va-hinh-phat.jpg",
-      "ong-gia-va-bien-ca.jpg",
       "cover-of-trung-tiet-anh-hung-lich.jpg",
+      "ong-gia-va-bien-ca.jpg",
       "ba-chi-em.jpg",
-      "nam-phong-tap-chi-bui-quang-tuan.jpg",
-      "nhung-nguoi-khon-kho.jpg",
-      "kieu-hanh-va-dinh-kien.jpg"
+      "siddhartha.jpg",
+      "kieu-hanh-va-dinh-kien.jpg",
+      "chien-tranh-va-hoa-binh.jpg"
      ],
      "blendText": 0,
      "sideScrollers": 0,
@@ -443,59 +450,59 @@
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Trang chủ",
-     "words": 2,
-     "chars": 9,
-     "lines": 2,
-     "size": 34,
-     "vw": 4.4,
+     "text": "Sách nổi bật",
+     "words": 3,
+     "chars": 12,
+     "lines": 1,
+     "size": 30,
+     "vw": 3.9,
      "font": "Newsreader",
-     "weight": 700,
+     "weight": 800,
      "tracking": -0.01,
      "leading": 1.1,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "left",
-     "position": "center",
-     "widthRatio": 0.18,
-     "top": 40,
+     "position": "right",
+     "widthRatio": 0.58,
+     "top": 36,
      "tag": "h1",
      "kind": "heading"
     },
     "h1": {
-     "text": "Trang chủ",
-     "words": 2,
-     "lines": 2,
-     "size": 34,
+     "text": "Sách nổi bật",
+     "words": 3,
+     "lines": 1,
+     "size": 30,
      "font": "Newsreader"
     },
     "headings": [
      {
-      "text": "Trang chủ",
-      "words": 2,
-      "chars": 9,
-      "lines": 2,
-      "size": 34,
-      "vw": 4.4,
+      "text": "Sách nổi bật",
+      "words": 3,
+      "chars": 12,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
       "font": "Newsreader",
-      "weight": 700,
+      "weight": 800,
       "tracking": -0.01,
       "leading": 1.1,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
-      "position": "center",
-      "widthRatio": 0.18,
-      "top": 40,
+      "position": "right",
+      "widthRatio": 0.58,
+      "top": 36,
       "tag": "h1",
       "kind": "heading"
      }
     ],
     "headingSummary": {
      "count": 1,
-     "maxLines": 2,
+     "maxLines": 1,
      "over2Lines": 0,
      "statements": 0,
      "centered": 0,
@@ -505,36 +512,44 @@
     "type": {
      "families": [
       {
+       "family": "-apple-system",
+       "share": 0.76,
+       "mono": false
+      },
+      {
        "family": "Be Vietnam Pro",
-       "share": 0.95,
+       "share": 0.14,
        "mono": false
       },
       {
        "family": "Newsreader",
-       "share": 0.05,
+       "share": 0.1,
        "mono": false
       }
      ],
-     "familyCount": 2,
+     "familyCount": 3,
      "sizes": [
+      9,
       10,
-      12,
+      11,
       13,
-      14,
+      15,
       16,
-      21,
-      22,
-      34
+      17,
+      20,
+      30
      ],
-     "sizeCount": 8,
-     "notLoaded": [],
+     "sizeCount": 9,
+     "notLoaded": [
+      "Be Vietnam Pro"
+     ],
      "body": null,
      "measureChars": null,
      "max": {
-      "size": 34,
-      "vw": 4.4,
+      "size": 30,
+      "vw": 3.9,
       "font": "Newsreader",
-      "text": "Trang chủ"
+      "text": "Sách nổi bật"
      },
      "monoShare": 0,
      "monoProseShare": 0,
@@ -543,9 +558,9 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0,
+     "upperShare": 0.01,
      "centerShare": 0,
-     "smallText": 8
+     "smallText": 3
     },
     "eyebrows": [],
     "numbered": [],
@@ -557,94 +572,84 @@
       "l": 1
      },
      "dark": false,
-     "sectionBgs": [
-      {
-       "color": "#f5f5f7",
-       "top": 0,
-       "hsl": {
-        "h": 240,
-        "s": 0.11,
-        "l": 0.96
-       }
-      }
-     ],
+     "sectionBgs": [],
      "textColors": [
       {
        "color": "#1d1d1f",
-       "share": 0.49
+       "share": 0.33
       },
       {
        "color": "#86868b",
-       "share": 0.26
+       "share": 0.21
       },
       {
        "color": "#ffffff",
-       "share": 0.14
+       "share": 0.11
+      },
+      {
+       "color": "#a1a1a6",
+       "share": 0.1
       },
       {
        "color": "#6e6e73",
-       "share": 0.04
-      },
-      {
-       "color": "#efe9dc",
-       "share": 0.03
+       "share": 0.09
       }
      ],
      "button": {
-      "bg": "#1d1d1f",
+      "bg": "#2c2c2e",
       "hsl": {
        "h": 240,
-       "s": 0.03,
-       "l": 0.12
+       "s": 0.02,
+       "l": 0.18
       },
       "fg": "#ffffff"
      },
      "lowContrast": [
       {
-       "text": "Tên sách, tác giả, ISBN",
-       "ratio": 3.3,
+       "text": "Template · dữ liệu mẫu · bìa “concept” k",
+       "ratio": 2.3,
        "need": 4.5,
-       "size": 14,
-       "fg": "#86868b",
-       "bg": "#f5f5f7"
-      },
-      {
-       "text": "6 bản · từ 95.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
-      },
-      {
-       "text": "từ 65.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
-      },
-      {
-       "text": "5 bản · từ 140.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
+       "size": 11,
+       "fg": "#a1a1a6",
+       "bg": "#f3f3f4"
       },
       {
        "text": "từ 120.000 ₫",
        "ratio": 3.6,
        "need": 4.5,
-       "size": 12,
+       "size": 11,
        "fg": "#86868b",
        "bg": "#ffffff"
       },
       {
-       "text": "8 bản · từ 60.000 ₫",
+       "text": "từ 60.000 ₫",
        "ratio": 3.6,
        "need": 4.5,
-       "size": 12,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "từ 45.000 ₫",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "Còn 7:40:00",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "từ 80.000 ₫",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
        "fg": "#86868b",
        "bg": "#ffffff"
       }
@@ -654,23 +659,23 @@
      "count": 1,
      "inHero": 1,
      "radius": 8,
-     "height": 32,
+     "height": 30,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
      "heroLabels": [
-      "Trang chủ"
+      "Sách nổi bật"
      ]
     },
     "surfaces": {
-     "shadowStatic": 12,
-     "shadowOverlay": 0,
+     "shadowStatic": 18,
+     "shadowOverlay": 1,
      "shadowSamples": [
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px"
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px"
      ],
      "gradients": 0,
      "scrims": 0,
@@ -681,18 +686,18 @@
      "outlinedBoxes": 0,
      "dashed": 0,
      "blurred": 0,
-     "roundedBoxes": 0,
-     "boxRadius": 0,
+     "roundedBoxes": 1,
+     "boxRadius": 14,
      "squareMedia": 0,
-     "roundedMedia": 9,
-     "mediaRadius": 3,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
      "textShadow": 0,
      "cardRows": []
     },
     "heroMedia": [],
     "nav": null,
     "fontsLoaded": [
-     "be vietnam pro",
+     "inter",
      "newsreader"
     ]
    },
@@ -701,30 +706,30 @@
      "w": 768,
      "h": 1024
     },
-    "pageH": 2639,
+    "pageH": 1513,
     "margins": {
-     "left": 24,
-     "right": 48
+     "left": 28,
+     "right": 28
     },
     "sections": [],
     "gaps": [],
     "h1s": [
      {
-      "text": "Trang chủ",
-      "size": 34,
-      "top": 40,
+      "text": "Sách nổi bật",
+      "size": 30,
+      "top": 36,
       "firstScreen": true
      }
     ],
     "edgeText": [],
     "edges": [
      {
-      "x": 288,
-      "n": 3
+      "x": 280,
+      "n": 2
      }
     ],
-    "leftBlocks": 3,
-    "bodySize": 16,
+    "leftBlocks": 2,
+    "bodySize": 11,
     "stage": false,
     "explains": false,
     "slivers": [],
@@ -738,14 +743,11 @@
    "width": 390,
    "height": 844,
    "load": "load",
-   "screens": 6,
+   "screens": 3,
    "filled": [
-    0.79,
-    0.77,
-    0.76,
-    0.8,
-    0.81,
-    0.81
+    0.44,
+    0.44,
+    0.44
    ],
    "motion": {
     "elements": 0,
@@ -757,34 +759,34 @@
    },
    "metrics": {
     "viewport": {
-     "w": 438,
-     "h": 948
+     "w": 809,
+     "h": 1749
     },
     "page": {
-     "height": 4263,
-     "screens": 4.5,
-     "words": 204,
-     "img": 9,
+     "height": 1749,
+     "screens": 1,
+     "words": 153,
+     "img": 13,
      "video": 0,
      "canvas": 0,
-     "svg": 16,
+     "svg": 21,
      "sections": 0,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
      "uiFragments": 0,
      "uiAbuse": false,
-     "realPictures": 9,
+     "realPictures": 13,
      "videoCount": 0,
      "uiPictures": 0,
      "pictureSamples": [
       "tram-nam-co-don.jpg",
       "toi-ac-va-hinh-phat.jpg",
-      "ong-gia-va-bien-ca.jpg",
       "cover-of-trung-tiet-anh-hung-lich.jpg",
+      "ong-gia-va-bien-ca.jpg",
       "ba-chi-em.jpg",
-      "nam-phong-tap-chi-bui-quang-tuan.jpg",
-      "nhung-nguoi-khon-kho.jpg",
-      "kieu-hanh-va-dinh-kien.jpg"
+      "siddhartha.jpg",
+      "kieu-hanh-va-dinh-kien.jpg",
+      "chien-tranh-va-hoa-binh.jpg"
      ],
      "blendText": 0,
      "sideScrollers": 0,
@@ -793,161 +795,106 @@
      "videosNoPoster": 0
     },
     "hero": {
-     "text": "Trang chủ",
-     "words": 2,
-     "chars": 9,
-     "lines": 2,
-     "size": 34,
-     "vw": 7.8,
+     "text": "Sách nổi bật",
+     "words": 3,
+     "chars": 12,
+     "lines": 3,
+     "size": 30,
+     "vw": 3.7,
      "font": "Newsreader",
-     "weight": 700,
+     "weight": 800,
      "tracking": -0.01,
      "leading": 1.1,
      "upper": false,
      "italic": false,
      "mono": false,
      "align": "left",
-     "position": "right",
-     "widthRatio": 0.21,
-     "top": 40,
+     "position": "left",
+     "widthRatio": 0.08,
+     "top": 36,
      "tag": "h1",
      "kind": "heading"
     },
     "h1": {
-     "text": "Trang chủ",
-     "words": 2,
-     "lines": 2,
-     "size": 34,
+     "text": "Sách nổi bật",
+     "words": 3,
+     "lines": 3,
+     "size": 30,
      "font": "Newsreader"
     },
     "headings": [
      {
-      "text": "ReBook",
-      "words": 1,
-      "chars": 6,
-      "lines": 1,
-      "size": 22,
-      "vw": 5,
+      "text": "Sách nổi bật",
+      "words": 3,
+      "chars": 12,
+      "lines": 3,
+      "size": 30,
+      "vw": 3.7,
       "font": "Newsreader",
-      "weight": 700,
-      "tracking": 0,
-      "leading": 1,
-      "upper": false,
-      "italic": false,
-      "mono": false,
-      "align": "left",
-      "position": "left",
-      "widthRatio": 0.48,
-      "top": 22,
-      "tag": "div",
-      "kind": "heading"
-     },
-     {
-      "text": "Trang chủ",
-      "words": 2,
-      "chars": 9,
-      "lines": 2,
-      "size": 34,
-      "vw": 7.8,
-      "font": "Newsreader",
-      "weight": 700,
+      "weight": 800,
       "tracking": -0.01,
       "leading": 1.1,
       "upper": false,
       "italic": false,
       "mono": false,
       "align": "left",
-      "position": "right",
-      "widthRatio": 0.21,
-      "top": 40,
+      "position": "left",
+      "widthRatio": 0.08,
+      "top": 36,
       "tag": "h1",
-      "kind": "heading"
-     },
-     {
-      "text": "Tuyển chọn tuần này ›",
-      "words": 5,
-      "chars": 21,
-      "lines": 5,
-      "size": 22,
-      "vw": 5,
-      "font": "Be Vietnam Pro",
-      "weight": 400,
-      "tracking": -0.01,
-      "leading": 1.2,
-      "upper": false,
-      "italic": false,
-      "mono": false,
-      "align": "left",
-      "position": "right",
-      "widthRatio": 0.12,
-      "top": 159,
-      "tag": "h2",
-      "kind": "heading"
-     },
-     {
-      "text": "Đấu giá sắp kết thúc ›",
-      "words": 6,
-      "chars": 22,
-      "lines": 5,
-      "size": 22,
-      "vw": 5,
-      "font": "Be Vietnam Pro",
-      "weight": 400,
-      "tracking": -0.01,
-      "leading": 1.2,
-      "upper": false,
-      "italic": false,
-      "mono": false,
-      "align": "left",
-      "position": "right",
-      "widthRatio": 0.12,
-      "top": 2171,
-      "tag": "h2",
       "kind": "heading"
      }
     ],
     "headingSummary": {
-     "count": 4,
-     "maxLines": 5,
-     "over2Lines": 2,
+     "count": 1,
+     "maxLines": 3,
+     "over2Lines": 1,
      "statements": 0,
      "centered": 0,
-     "medianWords": 5,
+     "medianWords": null,
      "mixedFontHeadings": 0
     },
     "type": {
      "families": [
       {
+       "family": "-apple-system",
+       "share": 0.76,
+       "mono": false
+      },
+      {
        "family": "Be Vietnam Pro",
-       "share": 0.95,
+       "share": 0.14,
        "mono": false
       },
       {
        "family": "Newsreader",
-       "share": 0.05,
+       "share": 0.1,
        "mono": false
       }
      ],
-     "familyCount": 2,
+     "familyCount": 3,
      "sizes": [
+      9,
       10,
-      12,
+      11,
       13,
-      14,
+      15,
       16,
-      21,
-      22,
-      34
+      17,
+      20,
+      30
      ],
-     "sizeCount": 8,
-     "notLoaded": [],
+     "sizeCount": 9,
+     "notLoaded": [
+      "Be Vietnam Pro"
+     ],
      "body": null,
      "measureChars": null,
      "max": {
-      "size": 34,
-      "vw": 7.8,
+      "size": 30,
+      "vw": 3.7,
       "font": "Newsreader",
-      "text": "Trang chủ"
+      "text": "Sách nổi bật"
      },
      "monoShare": 0,
      "monoProseShare": 0,
@@ -956,9 +903,9 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0,
+     "upperShare": 0.01,
      "centerShare": 0,
-     "smallText": 8
+     "smallText": 3
     },
     "eyebrows": [],
     "numbered": [],
@@ -970,94 +917,84 @@
       "l": 1
      },
      "dark": false,
-     "sectionBgs": [
-      {
-       "color": "#f5f5f7",
-       "top": 0,
-       "hsl": {
-        "h": 240,
-        "s": 0.11,
-        "l": 0.96
-       }
-      }
-     ],
+     "sectionBgs": [],
      "textColors": [
       {
        "color": "#1d1d1f",
-       "share": 0.49
+       "share": 0.33
       },
       {
        "color": "#86868b",
-       "share": 0.26
+       "share": 0.21
       },
       {
        "color": "#ffffff",
-       "share": 0.14
+       "share": 0.11
+      },
+      {
+       "color": "#a1a1a6",
+       "share": 0.1
       },
       {
        "color": "#6e6e73",
-       "share": 0.04
-      },
-      {
-       "color": "#efe9dc",
-       "share": 0.03
+       "share": 0.09
       }
      ],
      "button": {
-      "bg": "#1d1d1f",
+      "bg": "#2c2c2e",
       "hsl": {
        "h": 240,
-       "s": 0.03,
-       "l": 0.12
+       "s": 0.02,
+       "l": 0.18
       },
       "fg": "#ffffff"
      },
      "lowContrast": [
       {
-       "text": "Tên sách, tác giả, ISBN",
-       "ratio": 3.3,
+       "text": "Template · dữ liệu mẫu · bìa “concept” k",
+       "ratio": 2.3,
        "need": 4.5,
-       "size": 14,
-       "fg": "#86868b",
-       "bg": "#f5f5f7"
-      },
-      {
-       "text": "6 bản · từ 95.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
-      },
-      {
-       "text": "từ 65.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
-      },
-      {
-       "text": "5 bản · từ 140.000 ₫",
-       "ratio": 3.6,
-       "need": 4.5,
-       "size": 12,
-       "fg": "#86868b",
-       "bg": "#ffffff"
+       "size": 11,
+       "fg": "#a1a1a6",
+       "bg": "#f3f3f4"
       },
       {
        "text": "từ 120.000 ₫",
        "ratio": 3.6,
        "need": 4.5,
-       "size": 12,
+       "size": 11,
        "fg": "#86868b",
        "bg": "#ffffff"
       },
       {
-       "text": "8 bản · từ 60.000 ₫",
+       "text": "từ 60.000 ₫",
        "ratio": 3.6,
        "need": 4.5,
-       "size": 12,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "từ 45.000 ₫",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "Còn 7:40:00",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
+       "fg": "#86868b",
+       "bg": "#ffffff"
+      },
+      {
+       "text": "từ 80.000 ₫",
+       "ratio": 3.6,
+       "need": 4.5,
+       "size": 11,
        "fg": "#86868b",
        "bg": "#ffffff"
       }
@@ -1067,23 +1004,23 @@
      "count": 1,
      "inHero": 1,
      "radius": 8,
-     "height": 32,
+     "height": 30,
      "withShadow": 0,
      "withGradient": 0,
      "mono": 0,
      "upper": 0,
      "heroLabels": [
-      "Trang chủ"
+      "Sách nổi bật"
      ]
     },
     "surfaces": {
-     "shadowStatic": 12,
-     "shadowOverlay": 0,
+     "shadowStatic": 18,
+     "shadowOverlay": 1,
      "shadowSamples": [
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
-      "div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px"
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
+      "div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px"
      ],
      "gradients": 0,
      "scrims": 0,
@@ -1094,43 +1031,38 @@
      "outlinedBoxes": 0,
      "dashed": 0,
      "blurred": 0,
-     "roundedBoxes": 0,
-     "boxRadius": 0,
+     "roundedBoxes": 1,
+     "boxRadius": 14,
      "squareMedia": 0,
      "roundedMedia": 0,
      "mediaRadius": 0,
      "textShadow": 0,
      "cardRows": []
     },
-    "heroMedia": [
-     {
-      "type": "img",
-      "ratio": 0.08
-     }
-    ],
+    "heroMedia": [],
     "nav": null,
     "fontsLoaded": [
-     "be vietnam pro",
+     "inter",
      "newsreader"
     ]
    },
    "layout": {
     "viewport": {
-     "w": 438,
-     "h": 948
+     "w": 809,
+     "h": 1749
     },
-    "pageH": 4263,
+    "pageH": 1749,
     "margins": {
-     "left": 24,
-     "right": 0
+     "left": 28,
+     "right": 1
     },
     "sections": [],
     "gaps": [],
     "h1s": [
      {
-      "text": "Trang chủ",
-      "size": 34,
-      "top": 40,
+      "text": "Sách nổi bật",
+      "size": 30,
+      "top": 36,
       "firstScreen": true
      }
     ],
@@ -1138,52 +1070,32 @@
      {
       "text": "···",
       "side": "right",
-      "px": 0
-     },
-     {
-      "text": "concept",
-      "side": "right",
-      "px": 6
+      "px": 1
      },
      {
       "text": "···",
       "side": "right",
-      "px": 0
+      "px": 1
      },
      {
       "text": "···",
       "side": "right",
-      "px": 0
-     },
-     {
-      "text": "concept",
-      "side": "right",
-      "px": 6
+      "px": 1
      },
      {
       "text": "···",
       "side": "right",
-      "px": 0
-     },
-     {
-      "text": "···",
-      "side": "right",
-      "px": 0
-     },
-     {
-      "text": "concept",
-      "side": "right",
-      "px": 6
+      "px": 1
      }
     ],
     "edges": [
      {
-      "x": 288,
-      "n": 3
+      "x": 280,
+      "n": 2
      }
     ],
-    "leftBlocks": 3,
-    "bodySize": 16,
+    "leftBlocks": 2,
+    "bodySize": 11,
     "stage": false,
     "explains": false,
     "slivers": [],
@@ -1199,7 +1111,7 @@
    "level": "FAIL",
    "id": "shadow",
    "width": 1440,
-   "message": "12 box-shadow(s) on elements at rest: div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px | div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px | div.cv → rgba(0, 0, 0, 0.35) 0px 10px 22px -8px, rgba(0, 0, 0, 0.12) 0px 2px 5px 0px",
+   "message": "18 box-shadow(s) on elements at rest: div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px | div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px | div.cv → rgba(0, 0, 0, 0.45) 0px 12px 18px -8px, rgba(0, 0, 0, 0.15) 0px 2px 4px 0px",
    "fix": "Remove. Separate surfaces with a tone step or space. Shadows are for things that really float (menus, dialogs, sticky bars).",
    "alsoAt": [
     768,
@@ -1207,11 +1119,11 @@
    ]
   },
   {
-   "level": "WARN",
-   "id": "palette-cream",
+   "level": "FAIL",
+   "id": "contrast",
    "width": 1440,
-   "message": "Yellow-cream background (text #efe9dc).",
-   "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
+   "message": "Unreadable text: \"Template · dữ liệu mẫu · bìa “concept” k\" 2.3:1 (#a1a1a6 on #f3f3f4)",
+   "fix": "Raise contrast to at least 4.5:1 for text, 3:1 for large display.",
    "alsoAt": [
     768,
     390
@@ -1219,10 +1131,21 @@
   },
   {
    "level": "WARN",
-   "id": "contrast",
+   "id": "font-count",
    "width": 1440,
-   "message": "Low-contrast text: \"Tên sách, tác giả, ISBN\" 3.3:1 needs 4.5:1; \"6 bản · từ 95.000 ₫\" 3.6:1 needs 4.5:1; \"từ 65.000 ₫\" 3.6:1 needs 4.5:1; \"5 bản · từ 140.000 ₫\" 3.6:1 needs 4.5:1",
-   "fix": "Darken or lighten the text colour.",
+   "message": "3 typefaces in use (-apple-system, Be Vietnam Pro, Newsreader).",
+   "fix": "Two at most.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "font-fallback",
+   "width": 1440,
+   "message": "Typeface(s) declared but not loaded, so a fallback is rendering: Be Vietnam Pro",
+   "fix": "Fix the font URL / family name, or the screenshots you are judging are not the design.",
    "alsoAt": [
     768,
     390
@@ -1236,10 +1159,10 @@
    "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
   },
   {
-   "level": "FAIL",
+   "level": "WARN",
    "id": "small-text",
    "width": 1440,
-   "message": "8 text blocks under 13px.",
+   "message": "3 text block(s) under 13px.",
    "fix": "Nothing meant to be read goes below 13px.",
    "alsoAt": [
     768,
@@ -1250,7 +1173,7 @@
    "level": "FAIL",
    "id": "focal-point",
    "width": 1440,
-   "message": "The first screen has no dominant element: the largest type is 34px (2.4vw) and no single picture holds a third of the viewport.",
+   "message": "The first screen has no dominant element: the largest type is 30px (2.1vw) and no single picture holds a third of the viewport.",
    "fix": "Make one thing lead: the headline at display size, or one large picture. A grid of many small pictures is not one thing; in blind tests jurors marked a first screen without a headline down every time. On the strongest studied sites the largest type has a median of 8.4vw.",
    "alsoAt": [
     768
@@ -1260,25 +1183,31 @@
    "level": "WARN",
    "id": "font-not-dealt",
    "width": 1440,
-   "message": "The sheet dealt Clash Grotesk and Clash Grotesk, but the page renders Be Vietnam Pro, Newsreader.",
+   "message": "The sheet dealt Clash Grotesk and Clash Grotesk, but the page renders -apple-system, Be Vietnam Pro.",
    "fix": "Load the dealt face (the link on the sheet) and put it first in font-family. A build that falls back to a default face lands on the default look."
   },
   {
    "level": "WARN",
    "id": "off-centre",
    "width": 1440,
-   "message": "The margins differ: 24px on the left, 48px on the right, at 1440px.",
-   "fix": "Put the navigation and the content on one pair of margins; check for padding on one side only, a scrollbar gutter, or a header on another inset than the page.",
+   "message": "The margins differ: 28px on the left, 46px on the right, at 1440px.",
+   "fix": "Put the navigation and the content on one pair of margins; check for padding on one side only, a scrollbar gutter, or a header on another inset than the page."
+  },
+  {
+   "level": "WARN",
+   "id": "small-title",
+   "width": 1440,
+   "message": "The h1 is 30px (\"Sách nổi bật\").",
+   "fix": "Set the title at display size, or make the large text of the first screen the h1.",
    "alsoAt": [
-    768,
-    390
+    768
    ]
   },
   {
    "level": "WARN",
    "id": "name-only-title",
    "width": 1440,
-   "message": "The h1 is a bare name (\"Trang chủ\") and nothing else on the first screen says what this is.",
+   "message": "The h1 is a bare name (\"Sách nổi bật\") and nothing else on the first screen says what this is.",
    "fix": "Keep the name if it leads, and give the line under it (18px or more) the plain words: what it is, for whom, where or when. In the study of 97 Sites of the Day, first screens that named nothing lost usability and content points.",
    "alsoAt": [
     768,
@@ -1294,16 +1223,30 @@
   },
   {
    "level": "FAIL",
+   "id": "overflow",
+   "width": 768,
+   "message": "Page scrolls sideways by 40px at 768px. Widest offenders: img (+40px), span.dots (+40px), img (+40px).",
+   "fix": "Constrain the element that is wider than the viewport (max-width: 100%, or overflow: clip on its section)."
+  },
+  {
+   "level": "FAIL",
    "id": "headline-lines",
    "width": 390,
-   "message": "2 headline(s) wrap past two lines at 390px: \"Tuyển chọn tuần này ›\" → 5 lines (5 words, 22px); \"Đấu giá sắp kết thúc ›\" → 5 lines (6 words, 22px)",
+   "message": "1 headline(s) wrap past two lines at 390px: \"Sách nổi bật\" → 3 lines (3 words, 30px)",
    "fix": "Cut words first (a headline is a title, not a sentence). Then give it a wider measure. Lower the size only as a last resort and never below the scale you chose. A real statement paragraph belongs in a <p> or <blockquote> at 24px or less."
+  },
+  {
+   "level": "FAIL",
+   "id": "off-centre",
+   "width": 390,
+   "message": "The page sits off-centre: its content comes to 28px from the left edge but only to 1px from the right, at 390px.",
+   "fix": "Give the page one pair of equal margins. Check the wrapper for a max-width without margin-inline: auto, a grid with an empty last column, or padding on one side only. If one side is meant to hold air, it must still be closed by something that reaches the margin (a picture, the navigation's last item, a figure)."
   },
   {
    "level": "FAIL",
    "id": "edge-text",
    "width": 390,
-   "message": "8 text block(s) sit within 12px of the screen edge: \"···\" (0px from the right); \"concept\" (6px from the right); \"···\" (0px from the right); \"···\" (0px from the right)",
+   "message": "4 text block(s) sit within 12px of the screen edge: \"···\" (1px from the right); \"···\" (1px from the right); \"···\" (1px from the right); \"···\" (1px from the right)",
    "fix": "Keep text inside the page margin (16–20px). Only display type deliberately bled past the edge may touch it."
   }
  ],

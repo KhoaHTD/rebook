@@ -61,3 +61,4 @@ Chỉ chuyển sang code khi người dùng gửi SRS **và** yêu cầu triển
 - Người dùng không thích hướng "contact sheet"; yêu cầu làm giống Apple Books, template sơ bộ.
 - [x] `design-preview/ab-desktop.html`, `design-preview/ab-mobile.html` + ảnh `design-preview/png/`.
 - [ ] Chờ người dùng duyệt. Sau đó chờ SRS.
+- [x] Làm lại 2 template sát Apple Books hơn (theo yêu cầu "y chang"), ảnh mới trong `design-preview/png/`. Chờ duyệt.
