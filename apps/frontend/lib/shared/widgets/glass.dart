@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -10,6 +11,14 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 ///
 /// [blur] = false → kính "trong" không làm mờ (rẻ hơn): dùng cho khối nằm trong danh sách cuộn.
 /// Làm mờ chỉ dành cho phần nổi: sidebar, tab bar, thanh đầu trang, thanh mua hàng, nút tròn.
+/// Web trên điện thoại (Safari iOS, Chrome Android): làm mờ nền phía sau từng khối kính rất nặng
+/// với CanvasKit nên chỉ giữ ở thanh nổi (tab bar, thanh đầu trang, sidebar); khối kính trong
+/// danh sách chỉ còn lớp phủ trong suốt — nhìn gần như y hệt nhưng cuộn mượt.
+bool get lightEffects =>
+    kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android);
+
 class Glass extends StatelessWidget {
   const Glass({
     super.key,
@@ -109,7 +118,7 @@ class Glass extends StatelessWidget {
         child: InkWell(borderRadius: borderRadius, onTap: onTap, child: body),
       );
     }
-    if (blur) {
+    if (blur && !lightEffects) {
       body = ClipRRect(
         borderRadius: borderRadius,
         child: BackdropFilter(filter: filter, child: body),

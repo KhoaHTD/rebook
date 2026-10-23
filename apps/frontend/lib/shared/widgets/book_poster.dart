@@ -284,23 +284,26 @@ class BlurredCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(
-        sigmaX: sigma,
-        sigmaY: sigma,
-        tileMode: softEdges ? TileMode.decal : TileMode.clamp,
-      ),
-      child: FittedBox(
-        fit: BoxFit.cover,
-        clipBehavior: Clip.hardEdge,
-        child: SizedBox(
-          width: 200,
-          child: BookPoster(
-            title: title,
-            author: author,
-            coverUrl: coverUrl,
-            seed: seed,
-            shadow: false,
+    // RepaintBoundary: kết quả làm mờ được giữ lại thành một lớp riêng, cuộn trang không phải mờ lại.
+    return RepaintBoundary(
+      child: ImageFiltered(
+        imageFilter: ImageFilter.blur(
+          sigmaX: sigma,
+          sigmaY: sigma,
+          tileMode: softEdges ? TileMode.decal : TileMode.clamp,
+        ),
+        child: FittedBox(
+          fit: BoxFit.cover,
+          clipBehavior: Clip.hardEdge,
+          child: SizedBox(
+            width: 200,
+            child: BookPoster(
+              title: title,
+              author: author,
+              coverUrl: coverUrl,
+              seed: seed,
+              shadow: false,
+            ),
           ),
         ),
       ),
