@@ -23,7 +23,11 @@ class SidebarPanel extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [c.glassTop, c.glassBottom],
+                // Nền app trắng nên kính cần thêm lớp xám nhạt để còn nhìn thấy khung.
+                colors: [
+                  Color.alphaBlend(c.fill, c.glassTop),
+                  Color.alphaBlend(c.fill, c.glassBottom),
+                ],
               ),
               border: Border(right: BorderSide(color: c.glassBorder)),
             ),
@@ -95,17 +99,13 @@ class SidebarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    // Mục đang chọn: viên kính ánh xanh, chữ và biểu tượng màu nhấn.
-    final fg = selected ? c.tint : context.colors.onSurface;
+    // Mục đang chọn: viên đặc màu đen (sáng thì đen chữ trắng, tối thì ngược lại).
+    final fg = selected ? context.colors.surface : context.colors.onSurface;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: Material(
-        color: selected ? c.tintSoft : Colors.transparent,
-        shape: StadiumBorder(
-          side: selected
-              ? BorderSide(color: c.tint.withValues(alpha: 0.22), width: 0.5)
-              : BorderSide.none,
-        ),
+        color: selected ? context.colors.onSurface : Colors.transparent,
+        shape: const StadiumBorder(),
         child: InkWell(
           customBorder: const StadiumBorder(),
           onTap: onTap,

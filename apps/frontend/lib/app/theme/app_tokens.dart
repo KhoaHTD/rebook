@@ -159,7 +159,7 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBottom: Color(0x57FFFFFF),
     glassBorder: Color(0xB3FFFFFF),
     glassShadow: Color(0x2219233C),
-    background: Color(0xFFECEEF3),
+    background: Color(0xFFFFFFFF),
   );
 
   static const dark = AppColors(
@@ -269,12 +269,8 @@ class AppColors extends ThemeExtension<AppColors> {
 
 /// Các vệt màu loang phía sau kính (lấy tông từ bìa sách): màu, tâm (theo tỉ lệ màn hình), bán kính (theo cạnh ngắn).
 abstract final class AmbientPalette {
-  static const light = <(Color, Alignment, double)>[
-    (Color(0xCCD9A066), Alignment(-0.55, -0.75), 0.75),
-    (Color(0xCC6F8FC9), Alignment(0.55, -0.9), 0.8),
-    (Color(0x80C5574A), Alignment(0.8, 0.55), 0.65),
-    (Color(0x997FA58A), Alignment(-0.35, 0.85), 0.7),
-  ];
+  /// Nền sáng trắng phẳng, không vệt màu (chỉ nền tối còn vệt loang).
+  static const light = <(Color, Alignment, double)>[];
 
   static const dark = <(Color, Alignment, double)>[
     (Color(0x667A4A22), Alignment(-0.55, -0.75), 0.75),
@@ -284,7 +280,6 @@ abstract final class AmbientPalette {
   ];
 }
 
-/// Cặp màu cho bìa tự vẽ (khi sách chưa có ảnh). Màu đến từ bìa, giao diện giữ trung tính.
 /// Nền slide sự kiện của băng chuyền trang chủ (ký gửi, mở shop…) và lớp phủ đọc chữ trên ảnh bìa.
 abstract final class HeroPalette {
   static const consign = <Color>[Color(0xFFD9822B), Color(0xFF8C2F4B)];
@@ -296,6 +291,7 @@ abstract final class HeroPalette {
   static const scrim = <Color>[Color(0xB3000000), Color(0x14000000)];
 }
 
+/// Cặp màu cho bìa tự vẽ (khi sách chưa có ảnh). Màu đến từ bìa, giao diện giữ trung tính.
 abstract final class CoverPalette {
   static const pairs = <(Color, Color)>[
     (Color(0xFFB8382B), Color(0xFFF6EEE4)),
