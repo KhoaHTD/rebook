@@ -280,6 +280,27 @@ abstract final class AmbientPalette {
   ];
 }
 
+/// Bảng màu giao diện quản trị (Staff / Admin): dashboard sáng, phẳng, nút đen.
+abstract final class AdminPalette {
+  static const bg = Color(0xFFF5F6F8);
+  static const card = Color(0xFFFFFFFF);
+  static const line = Color(0xFFE5E7EB);
+  static const lineSoft = Color(0xFFF0F1F4);
+  static const ink = Color(0xFF111318);
+  static const muted = Color(0xFF6B7280);
+  static const faint = Color(0xFF9AA0AB);
+  static const ok = Color(0xFF17924F);
+  static const okSoft = Color(0xFFE4F5EA);
+  static const warn = Color(0xFFC27A00);
+  static const warnSoft = Color(0xFFFDF1D9);
+  static const bad = Color(0xFFD6453D);
+  static const badSoft = Color(0xFFFDE8E6);
+  static const info = Color(0xFF0A6CFF);
+  static const infoSoft = Color(0xFFE6F0FF);
+  static const selected = Color(0xFFF2F6FF);
+  static const barIdle = Color(0xFFE4E7EC);
+}
+
 /// Nền slide sự kiện của băng chuyền trang chủ (ký gửi, mở shop…) và lớp phủ đọc chữ trên ảnh bìa.
 abstract final class HeroPalette {
   static const consign = <Color>[Color(0xFFD9822B), Color(0xFF8C2F4B)];

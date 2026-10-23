@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/shared/widgets/admin_scope.dart';
 
 /// Kính lỏng (Liquid Glass): làm mờ + tăng bão hòa phần phía sau, phủ dải trắng trong,
 /// viền sáng mảnh, vệt phản chiếu phía trên và bóng mềm.
@@ -73,6 +74,7 @@ class Glass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AdminScope.active(context)) return _flat(context);
     final c = context.appColors;
     final (top, bottom) = switch ((tint, clear)) {
       (final t?, _) => (t.withValues(alpha: 0.78), t.withValues(alpha: 0.62)),
@@ -138,6 +140,27 @@ class Glass extends StatelessWidget {
       ),
       child: body,
     );
+  }
+}
+
+/// Khối phẳng của giao diện quản trị: nền trắng, viền xám nhạt, không bóng.
+extension on Glass {
+  Widget _flat(BuildContext context) {
+    Widget body = DecoratedBox(
+      decoration: BoxDecoration(
+        color: tint ?? AdminPalette.card,
+        borderRadius: borderRadius,
+        border: tint == null ? Border.all(color: AdminPalette.line) : null,
+      ),
+      child: padding == null ? child : Padding(padding: padding!, child: child),
+    );
+    if (onTap != null) {
+      body = Material(
+        type: MaterialType.transparency,
+        child: InkWell(borderRadius: borderRadius, onTap: onTap, child: body),
+      );
+    }
+    return body;
   }
 }
 

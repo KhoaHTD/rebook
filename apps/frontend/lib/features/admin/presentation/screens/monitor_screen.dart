@@ -10,6 +10,7 @@ import 'package:book_marketplace/features/admin/presentation/providers/admin_pro
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/widgets/admin_kit.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
@@ -62,15 +63,29 @@ class MonitorScreen extends ConsumerWidget {
           value: state,
           onRetry: () => ref.invalidate(monitorStateProvider(sessionId)),
           data: (s) {
-            final current = _CurrentLot(state: s, onCancel: run);
-            final feed = _Feed(state: s);
+            final current = AdminCard(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: _CurrentLot(state: s, onCancel: run),
+            );
+            final bids = _BidFeed(state: s);
+            final queue = _LotQueue(state: s);
             if (context.windowSize == WindowSize.expanded) {
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(flex: 3, child: current),
-                  const SizedBox(width: AppSpacing.xl),
-                  Expanded(flex: 2, child: feed),
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        current,
+                        const SizedBox(height: AppSpacing.md),
+                        bids,
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(flex: 2, child: queue),
                 ],
               );
             }
@@ -78,8 +93,10 @@ class MonitorScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 current,
-                const SizedBox(height: AppSpacing.lg),
-                feed,
+                const SizedBox(height: AppSpacing.md),
+                bids,
+                const SizedBox(height: AppSpacing.md),
+                queue,
               ],
             );
           },
@@ -101,10 +118,7 @@ class _CurrentLot extends ConsumerWidget {
     final c = context.appColors;
     final lot = state.currentLot;
     if (lot == null) {
-      return InfoPanel(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Text(l10n.waitingNextLot),
-      );
+      return Text(l10n.waitingNextLot);
     }
     final offset = state.serverTime.difference(DateTime.now());
     final now = (ref.watch(clockProvider).value ?? DateTime.now()).add(offset);
@@ -135,7 +149,11 @@ class _CurrentLot extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               PriceText(
                 lot.currentPrice,
-                style: context.textStyles.displaySmall,
+                style: context.textStyles.headlineLarge?.copyWith(
+                  fontFamily: null,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.6,
+                ),
               ),
               Text(l10n.bidCount(lot.bidCount)),
               if (lot.leadingPaddle != null)
@@ -163,7 +181,8 @@ class _CurrentLot extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: context.colors.error,
+                  foregroundColor: AdminPalette.bad,
+                  side: const BorderSide(color: AdminPalette.bad, width: 1.4),
                 ),
                 icon: const Icon(Icons.block_rounded, size: 18),
                 label: Text(l10n.cancelLot),
@@ -190,50 +209,122 @@ class _CurrentLot extends ConsumerWidget {
   }
 }
 
-class _Feed extends StatelessWidget {
-  const _Feed({required this.state});
+class _BidFeed extends StatelessWidget {
+  const _BidFeed({required this.state});
 
   final SessionState state;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final c = context.appColors;
-    Widget row(String label, Widget value) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textStyles.bodyMedium,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          value,
-        ],
-      ),
-    );
-
-    return InfoPanel(
+    return AdminCard(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l10n.liveFeed, style: context.textStyles.titleMedium),
-          const SizedBox(height: AppSpacing.sm),
-          for (final b in state.recentBids.take(15))
-            row(
-              '${l10n.paddle(b.paddleNumber)} · ${formatDateTime(b.createdAt)}',
-              Text(formatVnd(b.amount), style: context.textStyles.titleSmall),
+          Text(
+            l10n.adminBidFeed,
+            style: context.textStyles.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
             ),
-          Divider(height: AppSpacing.xl, color: c.separator),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          for (final b in state.recentBids.take(12))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 7),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 120,
+                    child: Text(
+                      formatDateTime(b.createdAt),
+                      style: context.textStyles.bodySmall?.copyWith(
+                        color: AdminPalette.muted,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Text(l10n.paddle(b.paddleNumber))),
+                  Text(
+                    formatVnd(b.amount),
+                    style: context.textStyles.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LotQueue extends StatelessWidget {
+  const _LotQueue({required this.state});
+
+  final SessionState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AdminCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l10n.adminLotQueue,
+            style: context.textStyles.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
           for (final l in state.lots)
-            row(
-              '${l.lotNumber}. ${l.book.title}',
-              StatusPill(l.status.label(l10n), tone: l.status.tone),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              decoration: BoxDecoration(
+                color: l.id == state.currentLot?.id
+                    ? AdminPalette.selected
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 26,
+                    child: Text(
+                      '${l.lotNumber}',
+                      style: context.textStyles.labelMedium?.copyWith(
+                        color: AdminPalette.faint,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  BookPoster(
+                    title: l.book.title,
+                    author: l.book.author,
+                    coverUrl: l.book.coverUrl,
+                    seed: l.book.id,
+                    width: 22,
+                    shadow: false,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      l.book.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyles.bodyMedium?.copyWith(
+                        fontWeight: l.id == state.currentLot?.id
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  StatusPill(l.status.label(l10n), tone: l.status.tone),
+                ],
+              ),
             ),
         ],
       ),

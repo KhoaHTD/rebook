@@ -7,6 +7,7 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/widgets/admin_scope.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 
 /// Khung một trang theo style Liquid Glass (trang tự vẽ nền màu loang nên luôn đặc khi chuyển trang).
@@ -47,8 +48,9 @@ class AppPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final compact = context.windowSize.isCompact;
     final canBack = showBack ?? (GoRouter.of(context).canPop());
+    if (AdminScope.active(context)) return _adminPage(context, canBack);
+    final compact = context.windowSize.isCompact;
     final pad =
         contentPadding ??
         (compact
@@ -132,6 +134,80 @@ class AppPage extends StatelessWidget {
                 page,
               ],
             ),
+    );
+  }
+}
+
+extension on AppPage {
+  /// Trang quản trị: thanh tiêu đề phẳng màu trắng + nội dung trên nền xám nhạt.
+  Widget _adminPage(BuildContext context, bool canBack) {
+    final text = context.textStyles;
+    Widget scroll = CustomScrollView(
+      slivers: [
+        ...?slivers,
+        if (children != null)
+          SliverPadding(
+            padding:
+                contentPadding ?? const EdgeInsets.fromLTRB(24, 20, 24, 32),
+            sliver: SliverList.list(children: children!),
+          ),
+      ],
+    );
+    if (onRefresh != null) {
+      scroll = RefreshIndicator(onRefresh: onRefresh!, child: scroll);
+    }
+    return ColoredBox(
+      color: AdminPalette.bg,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            height: 60,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: const BoxDecoration(
+              color: AdminPalette.card,
+              border: Border(bottom: BorderSide(color: AdminPalette.line)),
+            ),
+            child: Row(
+              children: [
+                if (canBack)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                    onPressed: () => context.pop(),
+                  ),
+                Text(
+                  title,
+                  style: text.headlineSmall?.copyWith(
+                    fontFamily: AppFonts.serif,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(width: AppSpacing.md),
+                  Flexible(
+                    child: Text(
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.bodyMedium?.copyWith(
+                        color: AdminPalette.muted,
+                      ),
+                    ),
+                  ),
+                ],
+                const Spacer(),
+                for (final a in actions) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  a,
+                ],
+              ],
+            ),
+          ),
+          Expanded(
+            child: Material(color: Colors.transparent, child: scroll),
+          ),
+        ],
+      ),
     );
   }
 }
