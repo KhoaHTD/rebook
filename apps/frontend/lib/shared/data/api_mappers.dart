@@ -4,6 +4,7 @@ library;
 
 import 'package:book_marketplace/api/generated/export.dart' as api;
 import 'package:book_marketplace/core/auth/auth_tokens.dart';
+import 'package:book_marketplace/shared/data/book_cover_assets.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
@@ -151,18 +152,25 @@ extension CategoryDtoMapper on api.CategoryDto {
   Category toDomain() => Category(id: id, name: name, parentId: parentId);
 }
 
+/// Sách mẫu có bìa đóng gói sẵn thì dùng bìa đó (backend chỉ trả ảnh giả); sách khác giữ ảnh từ API.
+List<BookImage> _coverImages(String title, List<api.BookImageDto> images) {
+  final bundled = bundledCoversFor(title);
+  if (bundled.isNotEmpty) return [for (final p in bundled) BookImage(url: p)];
+  return [
+    for (final i in [
+      ...images,
+    ]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder)))
+      BookImage(url: i.url, fromStaff: i.source == api.ImageSource.staff),
+  ];
+}
+
 extension BookDtoMapper on api.BookDto {
   Book toDomain() => Book(
     id: id,
     title: title,
     author: author,
     condition: conditionGrade.toDomain(),
-    images: [
-      for (final i in [
-        ...images,
-      ]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder)))
-        BookImage(url: i.url, fromStaff: i.source == api.ImageSource.staff),
-    ],
+    images: _coverImages(title, images),
     publisher: publisher,
     publishYear: publishYear,
     isbn: isbn,
