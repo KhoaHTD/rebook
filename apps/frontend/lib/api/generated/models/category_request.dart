@@ -8,13 +8,20 @@ part 'category_request.g.dart';
 
 @JsonSerializable()
 class CategoryRequest {
-  const CategoryRequest({required this.name, this.parentId});
+  const CategoryRequest({
+    required this.name,
+    required this.slug,
+    this.parentId,
+    this.sortOrder,
+  });
 
   factory CategoryRequest.fromJson(Map<String, Object?> json) =>
       _$CategoryRequestFromJson(json);
 
   final String name;
-  final String? parentId;
+  final String slug;
+  final int? parentId;
+  final int? sortOrder;
 
   Map<String, Object?> toJson() => _$CategoryRequestToJson(this);
 }

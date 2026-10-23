@@ -8,12 +8,12 @@ part 'appointment_request.g.dart';
 
 @JsonSerializable()
 class AppointmentRequest {
-  const AppointmentRequest({required this.startAt});
+  const AppointmentRequest({required this.appointmentAt});
 
   factory AppointmentRequest.fromJson(Map<String, Object?> json) =>
       _$AppointmentRequestFromJson(json);
 
-  final DateTime startAt;
+  final DateTime appointmentAt;
 
   Map<String, Object?> toJson() => _$AppointmentRequestToJson(this);
 }

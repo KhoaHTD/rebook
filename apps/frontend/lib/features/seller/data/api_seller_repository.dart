@@ -16,7 +16,7 @@ class ApiSellerRepository implements SellerRepository {
   Future<Shop?> myShop() async {
     try {
       return await guardApi(
-        () async => (await _client.shops.getMyShop()).toDomain(),
+        () async => (await _client.user.getMeShop()).toDomain(),
       );
     } on ServerException catch (e) {
       if (e.statusCode == 404) return null;
@@ -27,42 +27,86 @@ class ApiSellerRepository implements SellerRepository {
   @override
   Future<Shop> openShop(ShopDraft draft) => guardApi(
     () async =>
-        (await _client.shops.openShop(body: draft.toRequest())).toDomain(),
+        (await _client.user.putMeShop(body: draft.toRequest())).toDomain(),
   );
 
   @override
-  Future<Shop> updateShop(ShopDraft draft) => guardApi(
-    () async =>
-        (await _client.shops.updateMyShop(body: draft.toRequest())).toDomain(),
-  );
+  Future<Shop> updateShop(ShopDraft draft) => openShop(draft);
 
+  /// Backend không có API thống kê người bán: tính từ danh sách đơn và tin đăng.
   @override
-  Future<SellerStats> stats() =>
-      guardApi(() async => (await _client.shops.getMyShopStats()).toDomain());
+  Future<SellerStats> stats() => guardApi(() async {
+    final orders =
+        (await _client.orderManagement.getSellerOrders(size: 200)).items ??
+        const <api.OrderSummary>[];
+    final active = await _client.catalog.getSellerListings(
+      status: api.ListingStatus.active,
+      size: 1,
+    );
+    final shop = await _client.user.getMeShop();
+
+    final now = DateTime.now();
+    int total(Iterable<api.OrderSummary> it) =>
+        it.fold(0, (n, o) => n + (o.total?.round() ?? 0));
+    final completed = orders
+        .where((o) => o.status == api.OrderStatus.completed)
+        .toList();
+    final thisMonth = completed.where((o) {
+      final at = o.createdAt?.toLocal();
+      return at != null && at.year == now.year && at.month == now.month;
+    });
+    const inFlight = {
+      api.OrderStatus.preparing,
+      api.OrderStatus.shipping,
+      api.OrderStatus.delivered,
+    };
+    return SellerStats(
+      revenueTotal: total(completed),
+      revenueThisMonth: total(thisMonth),
+      pendingBalance: total(orders.where((o) => inFlight.contains(o.status))),
+      ordersToConfirm: orders
+          .where((o) => o.status == api.OrderStatus.pendingConfirm)
+          .length,
+      ordersShipping: orders
+          .where((o) => o.status == api.OrderStatus.shipping)
+          .length,
+      ordersCompleted: completed.length,
+      activeListings: active.totalItems ?? 0,
+      ratingAvg: shop.ratingAvg?.toDouble() ?? 0,
+    );
+  });
 
   @override
   Future<List<Category>> categories() => guardApi(
-    () async => (await _client.categories.listCategories())
-        .map((e) => e.toDomain())
-        .toList(),
+    () async => flattenCategories(await _client.catalog.getCategories()),
   );
 
   @override
   Future<List<Listing>> myListings({ListingStatus? status}) =>
       guardApi(() async {
-        final page = await _client.sellerListings.listMyListings(
+        final res = await _client.catalog.getSellerListings(
+          status: status == null ? null : listingStatusToApi(status),
           size: 100,
-          status: status == null
-              ? null
-              : toApiEnum(api.ListingStatus.values, status),
         );
-        return page.toDomain().items;
+        return [for (final l in res.items.orEmpty) l.toDomain()];
       });
 
+  /// Chi tiết công khai chỉ có tin đang bán; tin chờ duyệt / ẩn lấy từ danh sách của shop.
   @override
-  Future<Listing> listing(String id) => guardApi(
-    () async => (await _client.listings.getListing(id: id)).toDomain(),
-  );
+  Future<Listing> listing(String id) => guardApi(() async {
+    try {
+      return (await _client.catalog.getListingsId(id: apiId(id))).toDomain();
+    } on Object {
+      final mine = await _client.catalog.getSellerListings(size: 100);
+      final found = (mine.items.orEmpty)
+          .where((l) => '${l.id}' == id)
+          .firstOrNull;
+      if (found == null) {
+        throw const ServerException(404, code: ErrorCodes.notFound);
+      }
+      return found.toDomain();
+    }
+  });
 
   @override
   Future<Listing> saveListing(
@@ -76,67 +120,68 @@ class ApiSellerRepository implements SellerRepository {
       price: price,
       stock: stock,
     );
-    final dto = id == null
-        ? await _client.sellerListings.createListing(body: body)
-        : await _client.sellerListings.updateListing(id: id, body: body);
-    return dto.toDomain();
+    final saved = id == null
+        ? await _client.catalog.postSellerListings(body: body)
+        : await _client.catalog.putSellerListingsId(id: apiId(id), body: body);
+    return saved.toDomain();
   });
 
   @override
-  Future<Listing> setVisible(String id, {required bool visible}) => guardApi(
-    () async => (await _client.sellerListings.setListingVisibility(
-      id: id,
-      body: api.VisibilityRequest(visible: visible),
-    )).toDomain(),
+  Future<Listing> setVisible(String id, {required bool visible}) =>
+      guardApi(() async {
+        final listingId = apiId(id);
+        final res = visible
+            ? await _client.catalog.postSellerListingsIdShow(id: listingId)
+            : await _client.catalog.deleteSellerListingsId(id: listingId);
+        return res.toDomain();
+      });
+
+  /// Backend không xoá hẳn tin đăng: "xoá" = ẩn (giữ lịch sử đơn hàng).
+  @override
+  Future<void> deleteListing(String id) => guardApi(
+    () async => _client.catalog.deleteSellerListingsId(id: apiId(id)),
   );
 
   @override
-  Future<void> deleteListing(String id) =>
-      guardApi(() => _client.sellerListings.deleteListing(id: id));
-
-  @override
   Future<List<Order>> shopOrders({OrderStatus? status}) => guardApi(() async {
-    final page = await _client.sellerOrders.listShopOrders(
+    final res = await _client.orderManagement.getSellerOrders(
+      status: status == null ? null : orderStatusToApi(status),
       size: 100,
-      status: status == null ? null : toApiEnum(api.OrderStatus.values, status),
     );
-    return page.toDomain().items;
+    return [for (final o in res.items.orEmpty) o.toDomain()];
   });
 
-  /// Spec chưa có GET một đơn của shop: lấy từ danh sách.
   @override
-  Future<Order> shopOrder(String id) async {
-    final list = await shopOrders();
-    return list.firstWhere(
-      (o) => o.id == id,
-      orElse: () => throw const ServerException(404, code: ErrorCodes.notFound),
-    );
-  }
+  Future<Order> shopOrder(String id) => guardApi(
+    () async => (await _client.order.getOrdersId(id: apiId(id))).toDomain(),
+  );
 
   @override
   Future<Order> confirm(String id) => guardApi(
     () async =>
-        (await _client.sellerOrders.confirmShopOrder(id: id)).toDomain(),
+        (await _client.orderManagement.postSellerOrdersIdConfirm(id: apiId(id)))
+            .toDomain(),
   );
 
   @override
   Future<Order> ship(String id, {String? trackingCode}) => guardApi(
-    () async => (await _client.sellerOrders.shipShopOrder(
-      id: id,
+    () async => (await _client.orderManagement.postSellerOrdersIdShip(
+      id: apiId(id),
       body: api.ShipRequest(trackingCode: trackingCode),
     )).toDomain(),
   );
 
   @override
   Future<Order> markDelivered(String id) => guardApi(
-    () async =>
-        (await _client.sellerOrders.markShopOrderDelivered(id: id)).toDomain(),
+    () async => (await _client.orderManagement.postSellerOrdersIdDelivered(
+      id: apiId(id),
+    )).toDomain(),
   );
 
   @override
   Future<Order> cancel(String id, String reason) => guardApi(
-    () async => (await _client.sellerOrders.cancelShopOrder(
-      id: id,
+    () async => (await _client.orderManagement.postSellerOrdersIdCancel(
+      id: apiId(id),
       body: api.ReasonRequest(reason: reason),
     )).toDomain(),
   );
@@ -144,9 +189,10 @@ class ApiSellerRepository implements SellerRepository {
   @override
   Future<Order> decideReturn(String id, {required bool accept, String? note}) =>
       guardApi(
-        () async => (await _client.sellerOrders.decideReturn(
-          id: id,
-          body: api.ReturnDecisionRequest(accept: accept, note: note),
-        )).toDomain(),
+        () async =>
+            (await _client.orderManagement.postSellerOrdersIdReturnDecision(
+              id: apiId(id),
+              body: api.DecisionRequest(approve: accept, note: note),
+            )).toDomain(),
       );
 }

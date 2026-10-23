@@ -30,7 +30,7 @@ flutter test
 ### Ghép với backend thật (`apps/backend`)
 
 Merge code không tự tắt mock: `USE_MOCK` chỉ do file `--dart-define-from-file` quyết định. **Không sửa `env/dev.json`** (giữ mock để code giao diện).
-Muốn nối backend thật thì chạy bằng `env/local.json` (`USE_MOCK=false`, API `http://localhost:8080/api`, WS `ws://localhost:8080/ws`):
+Muốn nối backend thật thì chạy bằng `env/local.json` (`USE_MOCK=false`, API `http://localhost:8080` (không có `/api`), WS `ws://localhost:8080/ws` — WebSocket JSON thuần, không phải STOMP):
 
 ```bash
 flutter run -d chrome --dart-define-from-file=env/local.json

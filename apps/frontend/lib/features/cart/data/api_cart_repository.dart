@@ -6,33 +6,47 @@ import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 
+/// Backend khoá giỏ hàng theo tin đăng nên `itemId` ở đây chính là id tin đăng.
 class ApiCartRepository implements CartRepository {
   ApiCartRepository(this._client);
 
   final api.RestClient _client;
 
   @override
-  Future<Cart> cart({String? addressId}) => guardApi(
-    () async => (await _client.cart.getCart(addressId: addressId)).toDomain(),
-  );
+  Future<Cart> cart({String? addressId}) => guardApi(() async {
+    final cart = await _client.order.getCart();
+    final empty = (cart.shops.orEmpty).isEmpty;
+    final address = int.tryParse(addressId ?? '');
+    if (address == null || empty) return cartToDomain(cart);
+    // Phí ship phụ thuộc địa chỉ nhận: hỏi báo giá của backend.
+    final quote = await _client.order.postOrdersCheckoutPreview(
+      body: api.CheckoutPreviewRequest(addressId: address),
+    );
+    return cartToDomain(cart, quote: quote);
+  });
 
   @override
   Future<Cart> updateItem(String itemId, int quantity) => guardApi(
-    () async => (await _client.cart.updateCartItem(
-      id: itemId,
-      body: api.QuantityRequest(quantity: quantity),
-    )).toDomain(),
+    () async => cartToDomain(
+      await _client.order.putCartListingId(
+        listingId: apiId(itemId),
+        body: api.UpdateCartRequest(quantity: quantity),
+      ),
+    ),
   );
 
   @override
   Future<Cart> removeItem(String itemId) => guardApi(
-    () async => (await _client.cart.removeCartItem(id: itemId)).toDomain(),
+    () async => cartToDomain(
+      await _client.order.deleteCartListingId(listingId: apiId(itemId)),
+    ),
   );
 
   @override
   Future<List<Address>> addresses() => guardApi(
-    () async =>
-        (await _client.users.listAddresses()).map((a) => a.toDomain()).toList(),
+    () async => [
+      for (final a in await _client.user.getMeAddresses()) a.toDomain(),
+    ],
   );
 
   @override
@@ -44,23 +58,33 @@ class ApiCartRepository implements CartRepository {
     required String addressId,
     required PaymentMethod method,
     List<String>? itemIds,
-  }) => guardApi(
-    () async => (await _client.orders.checkout(
+  }) => guardApi(() async {
+    final res = await _client.order.postOrdersCheckout(
       body: api.CheckoutRequest(
-        addressId: addressId,
-        paymentMethod: toApiEnum(api.PaymentMethod.values, method),
-        cartItemIds: itemIds,
+        addressId: apiId(addressId),
+        paymentMethod: paymentMethodToApi(method),
+        listingIds: itemIds?.map(apiId).toList(),
       ),
-    )).toDomain(),
-  );
+    );
+    return CheckoutResult(
+      orders: [for (final o in res.orders.orEmpty) o.toDomain()],
+      payment: res.payment?.toDomain(),
+    );
+  });
 
   @override
   Future<Payment> payment(String id) => guardApi(
-    () async => (await _client.payments.getPayment(id: id)).toDomain(),
+    () async => (await _client.wallet.getPaymentsCode(code: id)).toDomain(),
   );
 
-  /// Backend thật nhận kết quả qua IPN của VNPay — app chỉ đọc lại [payment].
+  /// Backend chỉ có "giả lập thanh toán thành công". Giả lập thất bại = không
+  /// làm gì, thanh toán giữ nguyên trạng thái chờ rồi tự hết hạn.
   @override
   Future<Payment> simulateGateway(String paymentId, {required bool success}) =>
-      payment(paymentId);
+      guardApi(() async {
+        final res = success
+            ? await _client.wallet.postPaymentsCodeSimulate(code: paymentId)
+            : await _client.wallet.getPaymentsCode(code: paymentId);
+        return res.toDomain();
+      });
 }

@@ -41,6 +41,7 @@ public final class AuctionDtos {
 
     // ---- Người mua ----
 
+    @io.swagger.v3.oas.annotations.media.Schema(name = "SessionRegisterRequest")
     public record RegisterRequest(boolean agreeRules) {
     }
 

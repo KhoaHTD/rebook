@@ -13,18 +13,16 @@ class CheckoutRequest {
   const CheckoutRequest({
     required this.addressId,
     required this.paymentMethod,
-    this.cartItemIds,
+    this.listingIds,
     this.note,
   });
 
   factory CheckoutRequest.fromJson(Map<String, Object?> json) =>
       _$CheckoutRequestFromJson(json);
 
-  final String addressId;
+  final int addressId;
   final PaymentMethod paymentMethod;
-
-  /// Bỏ trống = cả giỏ
-  final List<String>? cartItemIds;
+  final List<int>? listingIds;
   final String? note;
 
   Map<String, Object?> toJson() => _$CheckoutRequestToJson(this);

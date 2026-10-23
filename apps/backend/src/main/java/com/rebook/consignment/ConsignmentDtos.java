@@ -52,6 +52,7 @@ public final class ConsignmentDtos {
 
     // ---- Staff ----
 
+    @io.swagger.v3.oas.annotations.media.Schema(name = "ConsignmentReviewRequest")
     public record ReviewRequest(boolean approve, @Size(max = 500) String note) {
     }
 

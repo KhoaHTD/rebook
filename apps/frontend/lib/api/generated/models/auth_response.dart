@@ -4,24 +4,30 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'user_dto.dart';
+import 'user_response.dart';
 
 part 'auth_response.g.dart';
 
 @JsonSerializable()
 class AuthResponse {
   const AuthResponse({
-    required this.accessToken,
-    required this.refreshToken,
-    required this.user,
+    this.accessToken,
+    this.refreshToken,
+    this.tokenType,
+    this.expiresIn,
+    this.user,
+    this.devOtp,
   });
 
   factory AuthResponse.fromJson(Map<String, Object?> json) =>
       _$AuthResponseFromJson(json);
 
-  final String accessToken;
-  final String refreshToken;
-  final UserDto user;
+  final String? accessToken;
+  final String? refreshToken;
+  final String? tokenType;
+  final int? expiresIn;
+  final UserResponse? user;
+  final String? devOtp;
 
   Map<String, Object?> toJson() => _$AuthResponseToJson(this);
 }

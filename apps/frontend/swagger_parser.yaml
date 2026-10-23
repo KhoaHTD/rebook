@@ -10,6 +10,6 @@ swagger_parser:
   root_client_name: RestClient
   export_file: true
   put_clients_in_folder: true
-  path_method_name: false
+  path_method_name: true
   unknown_enum_value: true
   mark_files_as_generated: true

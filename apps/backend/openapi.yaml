@@ -745,7 +745,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReviewRequest"
+              $ref: "#/components/schemas/ConsignmentReviewRequest"
         required: true
       responses:
         "200":
@@ -823,7 +823,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RegisterRequest"
+              $ref: "#/components/schemas/SessionRegisterRequest"
         required: true
       responses:
         "201":
@@ -4066,7 +4066,7 @@ components:
           minLength: 0
       required:
       - reason
-    ReviewRequest:
+    ConsignmentReviewRequest:
       type: object
       properties:
         approve:
@@ -4247,7 +4247,7 @@ components:
           items:
             type: string
             minLength: 1
-    RegisterRequest:
+    SessionRegisterRequest:
       type: object
       properties:
         agreeRules:
@@ -4260,6 +4260,20 @@ components:
           minimum: 10000
       required:
       - amount
+    ReviewRequest:
+      type: object
+      properties:
+        rating:
+          type: integer
+          format: int32
+          maximum: 5
+          minimum: 1
+        comment:
+          type: string
+          maxLength: 1000
+          minLength: 0
+      required:
+      - rating
     ReviewResponse:
       type: object
       properties:
@@ -4630,6 +4644,28 @@ components:
       - code
       - email
       - newPassword
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          maxLength: 72
+          minLength: 8
+        fullName:
+          type: string
+          maxLength: 120
+          minLength: 0
+        phone:
+          type: string
+          pattern: "^0\\d{9,10}$"
+      required:
+      - email
+      - fullName
+      - password
     AuthResponse:
       type: object
       properties:
