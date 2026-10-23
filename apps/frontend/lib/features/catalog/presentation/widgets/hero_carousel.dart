@@ -160,7 +160,7 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
       builder: (context, box) {
         // Thẻ rộng ~ 580px trên desktop (thấy 1,x thẻ như mockup), 88% màn hình trên điện thoại.
         final fraction = compact
-            ? 0.88
+            ? 0.92
             : (box.maxWidth <= 0 ? 1.0 : (600 / box.maxWidth).clamp(0.3, 1.0));
         if (_controller == null || (fraction - _fraction).abs() > 0.001) {
           final old = _controller;
@@ -206,7 +206,10 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
                         itemCount: slides.length,
                         onPageChanged: (i) => setState(() => _page = i),
                         itemBuilder: (context, i) => Padding(
-                          padding: const EdgeInsets.only(right: AppSpacing.md),
+                          padding: EdgeInsets.only(
+                            left: compact ? 20 : 0,
+                            right: AppSpacing.md,
+                          ),
                           child: slides[i](context),
                         ),
                       ),
@@ -214,7 +217,7 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
                   ),
                   if (!compact) ...[
                     Positioned(
-                      left: -6,
+                      left: 10,
                       top: height / 2 - 20,
                       child: _Arrow(
                         icon: Icons.chevron_left_rounded,
@@ -222,7 +225,7 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
                       ),
                     ),
                     Positioned(
-                      right: 6,
+                      right: 10,
                       top: height / 2 - 20,
                       child: _Arrow(
                         icon: Icons.chevron_right_rounded,
@@ -313,7 +316,7 @@ class _HeroCard extends StatelessWidget {
     final c = context.appColors;
     final compact = context.windowSize.isCompact;
     final text = context.textStyles;
-    final onDark = c.onSelected;
+    final onDark = context.colors.onSurface;
 
     final content =
         panel ??
@@ -330,83 +333,100 @@ class _HeroCard extends StatelessWidget {
               ),
             if (cta != null) ...[
               const SizedBox(height: AppSpacing.md),
-              FilledButton(onPressed: onTap, child: Text(cta!)),
+              _BlackButton(label: cta!, onPressed: onTap),
             ],
           ],
         );
 
-    final glassPanel = Glass(
-      clear: true,
-      shadow: false,
-      borderRadius: AppRadius.card,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: content,
+    // Chỉ hiện khi rê chuột vào thẻ: thẻ trắng mờ, chữ đen, nút đen.
+    final glassPanel = DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.colors.surface.withValues(alpha: 0.92),
+        borderRadius: AppRadius.card,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: content,
+      ),
     );
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: panel == null ? onTap : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            eyebrow.toUpperCase(),
-            style: text.labelSmall?.copyWith(
-              color: c.secondaryText,
-              letterSpacing: 1.1,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            headline,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: (compact ? text.titleLarge : text.headlineSmall)?.copyWith(
-              fontFamily: AppFonts.serif,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm + 4),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(26)),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _backdrop(c),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: compact
-                            ? Alignment.bottomCenter
-                            : Alignment.centerLeft,
-                        end: compact
-                            ? Alignment.topCenter
-                            : Alignment.centerRight,
-                        colors: HeroPalette.scrim,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(
-                      compact ? AppSpacing.sm + 4 : AppSpacing.md,
-                    ),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: compact ? 1000 : 340,
-                        ),
-                        child: glassPanel,
-                      ),
-                    ),
-                  ),
-                ],
+    return _HoverReveal(
+      builder: (hover) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              eyebrow.toUpperCase(),
+              style: text.labelSmall?.copyWith(
+                color: c.secondaryText,
+                letterSpacing: 1.1,
+                fontWeight: FontWeight.w700,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              headline,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: (compact ? text.titleLarge : text.headlineSmall)?.copyWith(
+                fontFamily: AppFonts.serif,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm + 4),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(26)),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _backdrop(c),
+                    AnimatedOpacity(
+                      opacity: hover ? 1 : 0,
+                      duration: AppDurations.normal,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: compact
+                                ? Alignment.bottomCenter
+                                : Alignment.centerLeft,
+                            end: compact
+                                ? Alignment.topCenter
+                                : Alignment.centerRight,
+                            colors: HeroPalette.scrim,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(
+                        compact ? AppSpacing.sm + 4 : AppSpacing.md,
+                      ),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: compact ? 1000 : 340,
+                          ),
+                          child: AnimatedOpacity(
+                            opacity: hover ? 1 : 0,
+                            duration: AppDurations.normal,
+                            child: IgnorePointer(
+                              ignoring: !hover,
+                              child: glassPanel,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -503,7 +523,7 @@ class _LiveSlide extends ConsumerWidget {
     final l10n = context.l10n;
     final c = context.appColors;
     final text = context.textStyles;
-    final onDark = c.onSelected;
+    final onDark = context.colors.onSurface;
     final state = ref.watch(liveStateProvider(session.id)).value;
     final lot = state?.currentLot;
 
@@ -566,7 +586,7 @@ class _LiveSlide extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          FilledButton(onPressed: onOpen, child: Text(l10n.enterLiveRoom)),
+          _BlackButton(label: l10n.enterLiveRoom, onPressed: onOpen),
         ],
       );
     }
@@ -580,4 +600,43 @@ class _LiveSlide extends ConsumerWidget {
       onTap: onOpen,
     );
   }
+}
+
+/// Theo dõi chuột đang nằm trên thẻ hay không (điện thoại không có chuột → luôn false, chạm để mở).
+class _HoverReveal extends StatefulWidget {
+  const _HoverReveal({required this.builder});
+
+  final Widget Function(bool hover) builder;
+
+  @override
+  State<_HoverReveal> createState() => _HoverRevealState();
+}
+
+class _HoverRevealState extends State<_HoverReveal> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+    onEnter: (_) => setState(() => _hover = true),
+    onExit: (_) => setState(() => _hover = false),
+    child: widget.builder(_hover),
+  );
+}
+
+/// Nút đen (chữ trắng ở sáng, ngược lại ở tối) dùng trong thẻ banner.
+class _BlackButton extends StatelessWidget {
+  const _BlackButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => FilledButton(
+    onPressed: onPressed,
+    style: FilledButton.styleFrom(
+      backgroundColor: context.colors.onSurface,
+      foregroundColor: context.colors.surface,
+    ),
+    child: Text(label),
+  );
 }

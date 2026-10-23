@@ -297,7 +297,7 @@ class _Tab extends StatelessWidget {
       child: InkWell(
         customBorder: const StadiumBorder(),
         onTap: onTap,
-        // Tab đang chọn: "thấu kính" sáng nổi lên trong viên kính, màu nhấn xanh.
+        // Tab đang chọn: "thấu kính" sáng nổi lên trong viên kính, chữ và biểu tượng đen.
         child: Ink(
           decoration: ShapeDecoration(
             color: selected ? c.tabBar : Colors.transparent,
@@ -322,7 +322,7 @@ class _Tab extends StatelessWidget {
                 child: Icon(
                   icon,
                   size: 24,
-                  color: selected ? c.tint : context.colors.onSurface,
+                  color: selected ? context.colors.onSurface : c.secondaryText,
                 ),
               ),
               const SizedBox(height: 3),
@@ -331,7 +331,7 @@ class _Tab extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.textStyles.labelSmall?.copyWith(
-                  color: selected ? c.tint : context.colors.onSurface,
+                  color: selected ? context.colors.onSurface : c.secondaryText,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0,
                 ),

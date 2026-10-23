@@ -158,12 +158,7 @@ class _MobileShelves extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            20,
-            AppSpacing.md,
-            0,
-            AppSpacing.md,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           child: HeroCarousel(feed: feed),
         ),
         for (var i = 0; i < shelves.length; i++)
