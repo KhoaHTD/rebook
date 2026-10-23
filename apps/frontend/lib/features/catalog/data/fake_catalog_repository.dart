@@ -46,4 +46,17 @@ class FakeCatalogRepository implements CatalogRepository {
   @override
   Future<SessionState> liveState(String sessionId) =>
       fakeCall(() => _store.sessionState(sessionId), ms: 60);
+
+  @override
+  Future<List<Listing>> allListings() => fakeCall(
+    () => _store.searchListings(const ListingQuery(), size: 200).items,
+  );
+
+  @override
+  Future<List<AuctionSession>> auctionSessions() =>
+      fakeCall(() => _store.listSessions());
+
+  @override
+  Future<List<Lot>> sessionLots(String sessionId) =>
+      fakeCall(() => _store.catalogue(sessionId).lots);
 }

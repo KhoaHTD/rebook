@@ -166,13 +166,14 @@ TextStyle landingHeadline(double size, {Color color = LandingPalette.ink}) =>
       height: 1.05,
     );
 
-/// Thẻ bìa sách: viền trắng dày, bo góc, bóng mềm — các "thẻ tác phẩm" của video.
+/// Bìa sách: tỉ lệ 2:3, gáy sáng-tối bên trái, bo góc nhỏ, bóng đổ — giống `BookPoster` ở trang chủ,
+/// KHÔNG phải thẻ vuông bo tròn. [ratio], [radius], [border] chỉ còn để tương thích chỗ gọi cũ; chiều cao luôn là 1,5 × rộng.
 class LandingCard extends StatelessWidget {
   const LandingCard({
     super.key,
     required this.asset,
     required this.width,
-    this.ratio = 1.4,
+    this.ratio = 1.5,
     this.radius = 14,
     this.border = 3,
     this.shadow = true,
@@ -187,30 +188,46 @@ class LandingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = width * 1.5;
+    const corner = BorderRadius.only(
+      topLeft: Radius.circular(2),
+      bottomLeft: Radius.circular(2),
+      topRight: Radius.circular(5),
+      bottomRight: Radius.circular(5),
+    );
     return Container(
       width: width,
-      height: width * ratio,
-      padding: EdgeInsets.all(border),
+      height: h,
       decoration: BoxDecoration(
-        color: LandingPalette.card,
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: corner,
         boxShadow: shadow
-            ? const [
+            ? [
                 BoxShadow(
                   color: LandingPalette.shadow,
-                  blurRadius: 18,
-                  offset: Offset(0, 8),
+                  blurRadius: width * 0.22,
+                  spreadRadius: -width * 0.06,
+                  offset: Offset(0, width * 0.12),
                 ),
               ]
             : null,
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular((radius - border).clamp(2.0, 99.0)),
-        child: Image.asset(
-          asset,
-          fit: BoxFit.cover,
-          width: width,
-          height: width * ratio,
+        borderRadius: corner,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(asset, fit: BoxFit.cover),
+            const IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: CoverPalette.spine,
+                    stops: CoverPalette.spineStops,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

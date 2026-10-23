@@ -76,4 +76,27 @@ class ApiCatalogRepository implements CatalogRepository {
     () async =>
         (await _client.auctions.getSessionState(id: sessionId)).toDomain(),
   );
+
+  @override
+  Future<List<Listing>> allListings() async {
+    final all = <Listing>[];
+    for (var page = 0; page < 5; page++) {
+      final p = await search(const ListingQuery(), page: page);
+      all.addAll(p.items);
+      if (!p.hasMore) break;
+    }
+    return all;
+  }
+
+  @override
+  Future<List<AuctionSession>> auctionSessions() => guardApi(() async {
+    final list = await _client.auctions.listSessions();
+    return list.map((e) => e.toDomain()).toList();
+  });
+
+  @override
+  Future<List<Lot>> sessionLots(String sessionId) => guardApi(() async {
+    final dto = await _client.auctions.getSessionCatalogue(id: sessionId);
+    return dto.lots.map((e) => e.toDomain()).toList();
+  });
 }

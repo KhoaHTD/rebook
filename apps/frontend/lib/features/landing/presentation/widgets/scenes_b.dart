@@ -74,7 +74,7 @@ class StoryScene extends StatelessWidget {
           : vh * 0.30 + j * vh * 0.062;
       // lưới
       final col = j % 3, row = j ~/ 3;
-      final gh = gw * 1.28;
+      final gh = gw * 1.5;
       final gx = (compact ? vw * 0.08 : vw * 0.555) + col * (gw + 12 * u);
       final gy = (compact ? vh * 0.46 : vh * 0.36) + row * (gh + 12 * u);
 
@@ -82,12 +82,12 @@ class StoryScene extends StatelessWidget {
       var y = lerpD(sy, dy, s1);
       var rot = lerpD(srot, -0.07, s1);
       var w = lerpD(cw, cw, s1);
-      var ratio = lerpD(1.45, 1.2, s1);
+      var ratio = 1.5;
       x = lerpD(x, gx, s2);
       y = lerpD(y, gy, s2);
       rot = lerpD(rot, 0, s2);
       w = lerpD(w, gw, s2);
-      ratio = lerpD(ratio, 1.28, s2);
+      ratio = 1.5;
       y += (1 - drop) * -vh * 1.1;
       rot += (1 - drop) * dir * 0.9;
 
@@ -179,7 +179,7 @@ class StoryScene extends StatelessWidget {
         opacity: frameIn,
         child: Container(
           width: 3 * gw + 2 * 12 * u + (compact ? vw * 0.05 : vw * 0.04),
-          height: 2 * gw * 1.28 + 12 * u + 78,
+          height: 2 * gw * 1.5 + 12 * u + 78,
           decoration: BoxDecoration(
             color: LandingPalette.card,
             borderRadius: BorderRadius.circular(22),
@@ -296,8 +296,8 @@ class AmongScene extends StatelessWidget {
     final vw = info.vw, vh = info.vh;
     final p = info.pin;
 
-    final tile = (compact ? 54 : 76) * (compact ? 1.0 : u);
-    final step = tile * 1.35;
+    final tile = (compact ? 40 : 56) * (compact ? 1.0 : u);
+    final step = tile * 1.7;
     final pop = seg(p, 0.0, 0.25, Curves.easeOutBack);
     Widget row({
       required double top,
@@ -309,7 +309,7 @@ class AmongScene extends StatelessWidget {
         left: 0,
         right: 0,
         top: top,
-        height: tile * 1.5,
+        height: tile * 1.9,
         child: Stack(
           clipBehavior: Clip.none,
           children: [

@@ -30,7 +30,7 @@ extension FakeAuction on FakeStore {
         story: 'Bìa cổ điển, giấy ngà, gáy còn nguyên.',
       ),
       (
-        book: 'tat-den',
+        book: 'leu-chong',
         ed: 0,
         start: 300000,
         low: 500000,
@@ -40,7 +40,7 @@ extension FakeAuction on FakeStore {
         story: 'Bìa cổ điển, có dấu thư viện nhỏ.',
       ),
       (
-        book: 'tat-den',
+        book: 'vang-bong',
         ed: 0,
         start: 350000,
         low: 600000,
@@ -50,7 +50,7 @@ extension FakeAuction on FakeStore {
         story: 'Bìa cổ điển, tranh bìa gốc.',
       ),
       (
-        book: 'tat-den',
+        book: 'tho-tho',
         ed: 0,
         start: 800000,
         low: 1200000,
@@ -60,7 +60,7 @@ extension FakeAuction on FakeStore {
         story: 'Có chữ ký, chưa xác thực.',
       ),
       (
-        book: 'tat-den',
+        book: 'truyen-kieu',
         ed: 0,
         start: 250000,
         low: 400000,
@@ -70,7 +70,7 @@ extension FakeAuction on FakeStore {
         story: 'Bản chú giải, bìa minh hoạ cổ.',
       ),
       (
-        book: 'tat-den',
+        book: 'bi-vo',
         ed: 0,
         start: 300000,
         low: 500000,
@@ -80,7 +80,7 @@ extension FakeAuction on FakeStore {
         story: 'Bìa minh hoạ gốc.',
       ),
       (
-        book: 'tat-den',
+        book: 'nam-phong',
         ed: 0,
         start: 400000,
         low: 650000,
@@ -90,7 +90,7 @@ extension FakeAuction on FakeStore {
         story: 'Số 1 năm 1917, bản in lại.',
       ),
       (
-        book: 'tat-den',
+        book: 'tu-dien',
         ed: 0,
         start: 200000,
         low: 350000,
@@ -150,8 +150,8 @@ extension FakeAuction on FakeStore {
 
     const comics = <_LotSeed>[
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'rung-na-uy',
+        ed: 1,
         start: 150000,
         low: 300000,
         high: 500000,
@@ -160,8 +160,8 @@ extension FakeAuction on FakeStore {
         story: 'Bìa hiện đại, mới 95%.',
       ),
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'sapiens',
+        ed: 1,
         start: 120000,
         low: 250000,
         high: 400000,
@@ -170,7 +170,7 @@ extension FakeAuction on FakeStore {
         story: 'Bìa hiện đại, không ghi chú.',
       ),
       (
-        book: 'tat-den',
+        book: 'nha-gia-kim',
         ed: 0,
         start: 100000,
         low: 200000,
@@ -180,7 +180,7 @@ extension FakeAuction on FakeStore {
         story: 'Bìa gốc, gáy thẳng.',
       ),
       (
-        book: 'tat-den',
+        book: 'dac-nhan-tam',
         ed: 0,
         start: 100000,
         low: 180000,
@@ -190,8 +190,8 @@ extension FakeAuction on FakeStore {
         story: 'Bản bìa đỏ quen thuộc.',
       ),
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'clean-code',
+        ed: 1,
         start: 90000,
         low: 150000,
         high: 260000,
@@ -214,8 +214,8 @@ extension FakeAuction on FakeStore {
 
     const signed = <_LotSeed>[
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'so-do',
+        ed: 2,
         start: 500000,
         low: 900000,
         high: 1500000,
@@ -224,8 +224,8 @@ extension FakeAuction on FakeStore {
         story: 'Ký tặng tại buổi giao lưu, có ảnh đối chiếu.',
       ),
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'truyen-kieu',
+        ed: 1,
         start: 400000,
         low: 700000,
         high: 1100000,
@@ -234,8 +234,8 @@ extension FakeAuction on FakeStore {
         story: 'Bìa hiện đại, có chữ ký người dịch.',
       ),
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'de-men',
+        ed: 1,
         start: 1200000,
         low: 2000000,
         high: 3500000,
@@ -261,7 +261,7 @@ extension FakeAuction on FakeStore {
 
     const old = <_LotSeed>[
       (
-        book: 'tat-den',
+        book: 'giao-trinh-ctdl',
         ed: 0,
         start: 200000,
         low: 300000,
@@ -271,7 +271,7 @@ extension FakeAuction on FakeStore {
         story: 'Giáo trình gốc, ít ghi chú.',
       ),
       (
-        book: 'tat-den',
+        book: 'clean-code',
         ed: 0,
         start: 150000,
         low: 250000,
@@ -281,8 +281,8 @@ extension FakeAuction on FakeStore {
         story: 'Bìa cổ điển, bản gốc tiếng Anh.',
       ),
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'nam-phong',
+        ed: 1,
         start: 600000,
         low: 900000,
         high: 1400000,
@@ -344,7 +344,7 @@ extension FakeAuction on FakeStore {
     // Lô đã sẵn sàng, chờ xếp phiên (cho Admin).
     for (final s in const <_LotSeed>[
       (
-        book: 'tat-den',
+        book: 'sapiens',
         ed: 0,
         start: 500000,
         low: 800000,
@@ -354,8 +354,8 @@ extension FakeAuction on FakeStore {
         story: 'Bìa cổ điển, mới 90%.',
       ),
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'tho-tho',
+        ed: 2,
         start: 450000,
         low: 700000,
         high: 1000000,
@@ -364,7 +364,7 @@ extension FakeAuction on FakeStore {
         story: 'Bìa hiện đại, bản đẹp.',
       ),
       (
-        book: 'tat-den',
+        book: 'so-do',
         ed: 0,
         start: 700000,
         low: 1000000,
@@ -926,7 +926,7 @@ extension FakeAuction on FakeStore {
     const pool = <_LotSeed>[
       (
         book: 'tat-den',
-        ed: 0,
+        ed: 1,
         start: 300000,
         low: 500000,
         high: 800000,
@@ -935,8 +935,8 @@ extension FakeAuction on FakeStore {
         story: 'Bìa trừu tượng, bản đẹp.',
       ),
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'bi-vo',
+        ed: 1,
         start: 350000,
         low: 600000,
         high: 900000,
@@ -945,8 +945,8 @@ extension FakeAuction on FakeStore {
         story: 'Bìa hiện đại, bản đẹp.',
       ),
       (
-        book: 'tat-den',
-        ed: 0,
+        book: 'vang-bong',
+        ed: 1,
         start: 900000,
         low: 1500000,
         high: 2500000,
@@ -955,7 +955,7 @@ extension FakeAuction on FakeStore {
         story: 'Bìa minh hoạ, bản in lại.',
       ),
       (
-        book: 'tat-den',
+        book: 'de-men',
         ed: 0,
         start: 400000,
         low: 650000,

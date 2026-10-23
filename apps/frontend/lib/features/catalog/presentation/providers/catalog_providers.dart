@@ -18,6 +18,25 @@ Future<HomeFeed> homeFeed(Ref ref) {
   return ref.watch(catalogRepositoryProvider).homeFeed();
 }
 
+/// Mọi tin đang bán — trang chủ tự nhóm thành danh mục, bảng xếp hạng, ấn bản…
+@riverpod
+Future<List<Listing>> allListings(Ref ref) {
+  ref.watchArea(DataArea.listings);
+  return ref.watch(catalogRepositoryProvider).allListings();
+}
+
+@riverpod
+Future<List<AuctionSession>> homeSessions(Ref ref) {
+  ref.watchArea(DataArea.auctions);
+  return ref.watch(catalogRepositoryProvider).auctionSessions();
+}
+
+@riverpod
+Future<List<Lot>> sessionLots(Ref ref, String sessionId) {
+  ref.watchArea(DataArea.auctions);
+  return ref.watch(catalogRepositoryProvider).sessionLots(sessionId);
+}
+
 @riverpod
 Future<List<Category>> categories(Ref ref) =>
     ref.watch(catalogRepositoryProvider).categories();

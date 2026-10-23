@@ -43,7 +43,7 @@ class MarketScene extends StatelessWidget {
     ];
     const tabCovers = [0, 5, 9, 27];
     final active = (seg(p, 0.12, 0.36) * 3.999).floor().clamp(0, 3);
-    final tabW = compact ? vw * 0.4 : vw * 0.19;
+    final tabW = compact ? vw * 0.3 : vw * 0.16;
 
     final heading = Positioned(
       left: vw * 0.08,
@@ -188,8 +188,8 @@ class MarketScene extends StatelessWidget {
     // lưới + khối cam
     final cols = compact ? 3 : 5, rows = compact ? 4 : 3;
     final gap = 14 * u;
-    final tw = compact ? vw * 0.27 : math.min(vw * 0.15, vh * 0.2);
-    final th = tw * 1.18;
+    final tw = compact ? vw * 0.2 : math.min(vw * 0.11, vh * 0.15);
+    final th = tw * 1.5;
     final gridW = cols * tw + (cols - 1) * gap;
     final gridH = rows * th + (rows - 1) * gap;
     final gx0 = (vw - gridW) / 2, gy0 = (vh - gridH) / 2;

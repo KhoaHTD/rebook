@@ -1189,5 +1189,67 @@
   "wlShop2": "Dev Shelf",
   "wlShop3": "Minh Anh Books",
   "wlShop4": "Hà Thành Xưa",
-  "wlShop5": "Sách Cũ Hà Nội"
+  "wlShop5": "Sách Cũ Hà Nội",
+  "hsAuctionsTitle": "Phiên đấu giá nổi bật",
+  "hsAuctionsSub": "Trả giá trực tiếp, mỗi lô 60 giây.",
+  "hsLiveNow": "Đang diễn ra",
+  "hsUpcoming": "Sắp diễn ra",
+  "hsEnded": "Vừa kết thúc",
+  "hsStartsAt": "Bắt đầu {time}",
+  "@hsStartsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "hsNoLive": "Chưa có phiên nào đang diễn ra — xem các phiên sắp tới bên cạnh.",
+  "hsNextLots": "Các lô trong phiên",
+  "hsCategoriesTitle": "Duyệt theo danh mục",
+  "hsCategoriesSub": "Mỗi kệ một câu chuyện.",
+  "hsListingsN": "{count} tin",
+  "@hsListingsN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hsChartTitle": "Bảng xếp hạng tuần",
+  "hsChartSub": "Những cuốn được săn nhiều nhất.",
+  "hsRareTitle": "Sách hiếm & cổ",
+  "hsRareSub": "Ấn bản khó tìm, đã kiểm định.",
+  "hsRareCta": "Xem cuốn này",
+  "hsEditionsTitle": "Cùng một cuốn, nhiều ấn bản",
+  "hsEditionsSub": "Chọn bìa bạn thích.",
+  "hsEditionsN": "{count} ấn bản",
+  "@hsEditionsN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hsFrom": "từ {price}",
+  "@hsFrom": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "hsPriceTitle": "Theo túi tiền",
+  "hsPriceLow": "Dưới 50.000 ₫",
+  "hsPriceMid": "50.000 – 100.000 ₫",
+  "hsPriceHigh": "Trên 100.000 ₫",
+  "hsShopsTitle": "Shop nổi bật",
+  "hsShopBooks": "{count} cuốn",
+  "@hsShopBooks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hsSeeAll": "Xem tất cả"
 }

@@ -128,6 +128,7 @@ Style **Liquid Glass** (chuẩn: `../../design-preview/png/lg-desktop.png`, `lg-
 - **Màu nhấn xanh** `AppColors.tint`: nút chính, mục đang chọn (sidebar: viên kính ánh xanh `tintSoft`; tab bar: "thấu kính" sáng), liên kết.
 - **Sidebar tràn màn hình** (`SidebarPanel`): kính làm mờ cao hết màn hình, sát mép trái, ngăn bằng đường kẻ sáng bên phải (không còn khối bo góc nổi).
 - **Băng chuyền trang chủ** (`HeroCarousel`): thẻ phiên LIVE, gợi ý, ký gửi, mới lên kệ, mở shop; nền thẻ là bìa sách mờ, quạt bìa + khung kính chứa chữ; tự chuyển 7 giây, kéo bằng chuột / cảm ứng.
+- **Khối trang chủ** (`catalog/presentation/widgets/home_blocks*.dart`): phiên đấu giá (LIVE / sắp / đã xong), danh mục dạng mosaic, bảng xếp hạng, sách hiếm, cùng một cuốn nhiều ấn bản, theo túi tiền, shop nổi bật; mỗi khối có nền bìa sách blur (`BlurPanel`). Landing dùng `LandingCard` = bìa sách tỉ lệ 2:3 có gáy thay cho ô vuông bo góc.
 - **Chi tiết sách / lô**: `AppPage(background: BookBackdrop(...))` — bìa phóng to, làm mờ mạnh làm nền cả trang; nội dung nằm trong `Glass`.
 - Chip MỚI / ĐẤU GIÁ / LIVE là chip kính đặt lên góc bìa (`BookPoster.badge`).
 - Màu của chính cuốn sách: `BlurredCover` (bìa phóng to + làm mờ) làm nền thẻ phiên đang diễn ra (`LiveHero`) và đầu trang chi tiết sách.

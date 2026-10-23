@@ -9,11 +9,12 @@ import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/catalog/domain/catalog_repository.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/catalog/presentation/widgets/hero_carousel.dart';
+import 'package:book_marketplace/features/catalog/presentation/widgets/home_blocks.dart';
+import 'package:book_marketplace/features/catalog/presentation/widgets/home_blocks_b.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/listing_tile.dart';
 import 'package:book_marketplace/shared/widgets/poster_grid.dart';
-import 'package:book_marketplace/shared/widgets/session_tile.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Trang "Mua sách": desktop là các khối lưới 4 poster/hàng, điện thoại là các kệ cuộn ngang.
@@ -86,6 +87,9 @@ class _DesktopSections extends StatelessWidget {
           ),
         );
 
+    Widget gap(Widget w) =>
+        Padding(padding: const EdgeInsets.only(bottom: 56), child: w);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -98,19 +102,18 @@ class _DesktopSections extends StatelessWidget {
             for (final l in feed.trending.take(8))
               ListingTile(listing: l, onTap: () => _openListing(context, l.id)),
           ]),
-        if (feed.liveSessions.isNotEmpty)
-          section(l10n.liveAuctions, () => context.go(Routes.auctions), [
-            for (final s in feed.liveSessions.take(4))
-              SessionTile(
-                session: s,
-                onTap: () => context.go(Routes.session(s.id)),
-              ),
-          ]),
+        gap(const HomeAuctions()),
+        gap(const HomeCategories()),
+        gap(HomeChart(feed: feed)),
         if (feed.newArrivals.isNotEmpty)
           section(l10n.newArrivals, () => context.go(Routes.search), [
             for (final l in feed.newArrivals.take(8))
               ListingTile(listing: l, onTap: () => _openListing(context, l.id)),
           ]),
+        gap(const HomeRare()),
+        gap(const HomeEditions()),
+        gap(const HomePriceBands()),
+        gap(HomeShops(feed: feed)),
       ],
     );
   }
@@ -134,18 +137,8 @@ class _MobileShelves extends StatelessWidget {
               ListingTile(listing: l, onTap: () => _openListing(context, l.id)),
           ],
         ),
-      if (feed.liveSessions.isNotEmpty)
-        Shelf(
-          title: l10n.liveAuctions,
-          onSeeAll: () => context.go(Routes.auctions),
-          children: [
-            for (final s in feed.liveSessions)
-              SessionTile(
-                session: s,
-                onTap: () => context.go(Routes.session(s.id)),
-              ),
-          ],
-        ),
+      const _Pad(HomeAuctions()),
+      const _Pad(HomeCategories()),
       if (feed.newArrivals.isNotEmpty)
         Shelf(
           title: l10n.newArrivals,
@@ -155,6 +148,11 @@ class _MobileShelves extends StatelessWidget {
               ListingTile(listing: l, onTap: () => _openListing(context, l.id)),
           ],
         ),
+      _Pad(HomeChart(feed: feed)),
+      const _Pad(HomeRare()),
+      const _Pad(HomeEditions()),
+      const _Pad(HomePriceBands()),
+      _Pad(HomeShops(feed: feed)),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -184,4 +182,15 @@ class _MobileShelves extends StatelessWidget {
     alt: alt,
     children: s.children,
   );
+}
+
+/// Khối trang chủ trên điện thoại: lề 20 hai bên + khoảng cách dọc.
+class _Pad extends StatelessWidget {
+  const _Pad(this.child);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      Padding(padding: const EdgeInsets.fromLTRB(20, 28, 20, 8), child: child);
 }

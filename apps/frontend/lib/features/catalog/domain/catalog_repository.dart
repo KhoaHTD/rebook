@@ -37,4 +37,13 @@ abstract interface class CatalogRepository {
 
   /// Trạng thái phiên đang chạy (thẻ "Phiên bạn đang xem").
   Future<SessionState> liveState(String sessionId);
+
+  /// Mọi tin đang bán (các trang gộp lại) — để trang chủ tự xếp thành nhiều bố cục (danh mục, bảng xếp hạng, ấn bản…).
+  Future<List<Listing>> allListings();
+
+  /// Các phiên đấu giá (mọi trạng thái) — mục "Phiên đấu giá nổi bật" ở trang chủ.
+  Future<List<AuctionSession>> auctionSessions();
+
+  /// Các lô của một phiên — dải bìa trong thẻ phiên ở trang chủ.
+  Future<List<Lot>> sessionLots(String sessionId);
 }
