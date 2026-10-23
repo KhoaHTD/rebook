@@ -239,16 +239,12 @@ class HomeChart extends ConsumerWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset(
-                  'assets/banners/chart.webp',
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => BlurredCover(
-                    title: top.first.book.title,
-                    author: top.first.book.author,
-                    coverUrl: top.first.book.coverUrl,
-                    seed: top.first.book.id,
-                    sigma: 48,
-                  ),
+                child: BlurredCover(
+                  title: top.first.book.title,
+                  author: top.first.book.author,
+                  coverUrl: top.first.book.coverUrl,
+                  seed: top.first.book.id,
+                  sigma: 48,
                 ),
               ),
               Positioned.fill(
@@ -423,7 +419,6 @@ class HomeEditions extends ConsumerWidget {
       return SizedBox(
         width: compact ? 300 : null,
         child: BlurPanel(
-          art: 'editions',
           cover: covers.first,
           dark: false,
           height: 290,
@@ -497,28 +492,18 @@ class HomePriceBands extends ConsumerWidget {
     final onDark = context.appColors.onSelected;
     final listings = ref.watch(allListingsProvider).value ?? const <Listing>[];
     final bands = [
-      (
-        l10n.hsPriceLow,
-        listings.where((l) => l.price < 50000).toList(),
-        'price-low',
-      ),
+      (l10n.hsPriceLow, listings.where((l) => l.price < 50000).toList()),
       (
         l10n.hsPriceMid,
         listings.where((l) => l.price >= 50000 && l.price <= 100000).toList(),
-        'price-mid',
       ),
-      (
-        l10n.hsPriceHigh,
-        listings.where((l) => l.price > 100000).toList(),
-        'price-high',
-      ),
+      (l10n.hsPriceHigh, listings.where((l) => l.price > 100000).toList()),
     ].where((b) => b.$2.isNotEmpty).toList();
     if (bands.isEmpty) return const SizedBox.shrink();
 
-    Widget tile((String, List<Listing>, String) b) {
+    Widget tile((String, List<Listing>) b) {
       final covers = [for (final l in b.$2.take(3)) coverOfBook(l.book)];
       return BlurPanel(
-        art: b.$3,
         cover: covers.first,
         height: 150,
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -599,7 +584,6 @@ class HomeShops extends ConsumerWidget {
       return SizedBox(
         width: 290,
         child: BlurPanel(
-          art: 'shops',
           cover: covers.isEmpty ? null : covers.first,
           dark: false,
           height: 210,

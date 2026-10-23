@@ -216,7 +216,6 @@ class HomeAuctions extends ConsumerWidget {
         ? _LiveCard(session: live.first, compact: compact)
         : BlurPanel(
             cover: null,
-            art: 'auctions-empty',
             dark: false,
             height: 200,
             child: Center(
@@ -483,7 +482,6 @@ class _EndedRow extends ConsumerWidget {
         .where((l) => l.hammerPrice != null)
         .fold<int>(0, (n, l) => n + l.hammerPrice!);
     return BlurPanel(
-      art: 'auction-ended',
       cover: lots.isEmpty ? null : coverOfBook(lots.first.book),
       dark: false,
       radius: 22,

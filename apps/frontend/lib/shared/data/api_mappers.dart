@@ -8,6 +8,7 @@ library;
 import 'package:book_marketplace/api/generated/export.dart' as api;
 import 'package:book_marketplace/core/auth/auth_tokens.dart';
 import 'package:book_marketplace/core/error/app_exception.dart';
+import 'package:book_marketplace/shared/data/book_cover_assets.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
@@ -403,7 +404,7 @@ extension BookResponseMapper on api.BookResponse {
       title: title ?? '',
       author: author ?? '',
       condition: conditionToDomain(conditionGrade),
-      images: urls,
+      images: _bundledOr(title, urls),
       publisher: publisher,
       publishYear: publishYear,
       isbn: isbn,
@@ -457,7 +458,7 @@ extension ListingSummaryMapper on api.ListingSummary {
       title: title ?? '',
       author: author ?? '',
       condition: conditionToDomain(conditionGrade),
-      images: [if (coverUrl != null) BookImage(url: coverUrl!)],
+      images: _cover(title, coverUrl),
     ),
     shop:
         shop?.toDomain() ??
@@ -526,7 +527,7 @@ Cart cartToDomain(api.CartResponse cart, {api.CheckoutPreview? quote}) {
                   title: l.title ?? '',
                   author: l.author ?? '',
                   condition: ConditionGrade.unknown,
-                  images: [if (l.coverUrl != null) BookImage(url: l.coverUrl!)],
+                  images: _cover(l.title, l.coverUrl),
                 ),
                 shop: ShopSummary(
                   id: _id(g.shopId),
@@ -888,7 +889,7 @@ extension LotPublicMapper on api.LotPublic {
           title: title ?? '',
           author: author ?? '',
           condition: conditionToDomain(conditionGrade),
-          images: [if (coverUrl != null) BookImage(url: coverUrl!)],
+          images: _cover(title, coverUrl),
         ),
     estimateLow: _n(estimateLow),
     estimateHigh: _n(estimateHigh),
@@ -937,7 +938,7 @@ Lot lotLiveToDomain(api.LotLive l, {Lot? base, String sessionId = ''}) {
           title: l.title ?? '',
           author: '',
           condition: ConditionGrade.unknown,
-          images: [if (l.coverUrl != null) BookImage(url: l.coverUrl!)],
+          images: _cover(l.title, l.coverUrl),
         ),
     estimateLow: base?.estimateLow ?? 0,
     estimateHigh: base?.estimateHigh ?? 0,
@@ -1109,4 +1110,19 @@ extension AuthResponseMapper on api.AuthResponse {
 /// `x ?? const []` bị suy ra `dynamic` khiến gọi extension `toDomain()` lỗi lúc chạy).
 extension OrEmptyList<T> on List<T>? {
   List<T> get orEmpty => this ?? <T>[];
+}
+
+/// Sách mẫu có bìa đóng gói sẵn thì dùng bìa đó (backend chỉ trả ảnh giả);
+/// sách khác giữ ảnh từ API.
+List<BookImage> _cover(String? title, String? url) {
+  final bundled = bundledCoversFor(title ?? '');
+  if (bundled.isNotEmpty) return [for (final p in bundled) BookImage(url: p)];
+  return [if (url != null) BookImage(url: url)];
+}
+
+List<BookImage> _bundledOr(String? title, List<BookImage> fallback) {
+  final bundled = bundledCoversFor(title ?? '');
+  return bundled.isEmpty
+      ? fallback
+      : [for (final p in bundled) BookImage(url: p)];
 }
