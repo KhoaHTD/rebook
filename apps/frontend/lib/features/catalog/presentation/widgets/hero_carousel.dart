@@ -20,6 +20,9 @@ import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Thông tin tối thiểu để vẽ một poster / nền mờ trong slide.
+/// Đường dẫn tranh banner: `assets/banners/<id>.webp` (xem docs/BANNERS.md).
+String _banner(String id) => 'assets/banners/$id.webp';
+
 /// Nền thiết kế riêng cho slide sự kiện (không dùng ảnh bìa): bảng màu + biểu tượng lớn.
 typedef _Theme = ({List<Color> colors, IconData icon});
 
@@ -98,6 +101,7 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
           eyebrow: l10n.heroPicksEyebrow,
           headline: l10n.heroPicksHeadline,
           covers: picks,
+          image: _banner('picks'),
           body: l10n.heroPicksBody,
           cta: l10n.heroPicksCta,
           onTap: () => c.go(Routes.search),
@@ -106,6 +110,7 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
         eyebrow: l10n.heroConsignEyebrow,
         headline: l10n.heroConsignHeadline,
         covers: spare,
+        image: _banner('consign'),
         theme: (colors: HeroPalette.consign, icon: Icons.inventory_2_outlined),
         body: l10n.heroConsignBody,
         cta: l10n.heroConsignCta,
@@ -116,6 +121,7 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
           eyebrow: l10n.heroNewEyebrow,
           headline: l10n.heroNewHeadline,
           covers: fresh,
+          image: _banner('new'),
           body: l10n.heroNewBody,
           cta: l10n.heroNewCta,
           onTap: () => c.go(Routes.search),
@@ -124,11 +130,22 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
         eyebrow: l10n.heroShopEyebrow,
         headline: l10n.heroShopHeadline,
         covers: picks.take(1).toList(),
+        image: _banner('shop'),
         theme: (colors: HeroPalette.shop, icon: Icons.storefront_outlined),
         body: l10n.heroShopBody,
         cta: l10n.heroShopCta,
         onTap: () => c.go(Routes.openShop),
       ),
+      if (spare.isNotEmpty)
+        (c) => _HeroCard(
+          eyebrow: l10n.heroRareEyebrow,
+          headline: l10n.heroRareHeadline,
+          covers: spare,
+          image: _banner('rare'),
+          body: l10n.heroRareBody,
+          cta: l10n.heroRareCta,
+          onTap: () => c.go(Routes.search),
+        ),
     ];
   }
 
@@ -270,7 +287,11 @@ class _HeroCard extends StatelessWidget {
     this.onTap,
     this.panel,
     this.theme,
+    this.image,
   });
+
+  /// Tranh banner do người dùng vẽ (`assets/banners/<tên>.webp`); thiếu file thì rơi về nền bên dưới.
+  final String? image;
 
   /// Khác null → nền thiết kế (gradient + họa tiết); null → ảnh bìa phóng to làm nền.
   final _Theme? theme;
@@ -392,6 +413,18 @@ class _HeroCard extends StatelessWidget {
 
   /// Ảnh bìa phóng to phủ kín thẻ, hoặc nền gradient + họa tiết của slide sự kiện.
   Widget _backdrop(AppColors c) {
+    final img = image;
+    if (img != null) {
+      return Image.asset(
+        img,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => _fallbackBackdrop(c),
+      );
+    }
+    return _fallbackBackdrop(c);
+  }
+
+  Widget _fallbackBackdrop(AppColors c) {
     final t = theme;
     if (t != null) {
       return Stack(
@@ -542,6 +575,7 @@ class _LiveSlide extends ConsumerWidget {
       eyebrow: l10n.heroLiveEyebrow,
       headline: lot?.book.title ?? session.title,
       covers: [cover],
+      image: _banner('live'),
       panel: panel,
       onTap: onOpen,
     );

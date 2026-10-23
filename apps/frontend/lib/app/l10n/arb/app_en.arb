@@ -796,5 +796,9 @@
   "hsPriceHigh": "Over 100,000 ₫",
   "hsShopsTitle": "Featured shops",
   "hsShopBooks": "{count} books",
-  "hsSeeAll": "See all"
+  "hsSeeAll": "See all",
+  "heroRareEyebrow": "Rare & antique",
+  "heroRareHeadline": "Editions that will never be reprinted.",
+  "heroRareBody": "Old prints, yellowed paper, spines intact — each copy appraised by our staff.",
+  "heroRareCta": "Browse rare books"
 }

@@ -1251,5 +1251,9 @@
       }
     }
   },
-  "hsSeeAll": "Xem tất cả"
+  "hsSeeAll": "Xem tất cả",
+  "heroRareEyebrow": "Sách hiếm & cổ",
+  "heroRareHeadline": "Những ấn bản không còn tái bản.",
+  "heroRareBody": "Bản in cũ, giấy ố vàng, còn đủ gáy — mỗi cuốn được chuyên viên thẩm định.",
+  "heroRareCta": "Xem sách hiếm"
 }

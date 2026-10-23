@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>ReBook — Cuder và banner điện ảnh</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,700;1,6..72,500;1,6..72,700&family=Cinzel:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{background:#fff;font-family:Inter,sans-serif;color:#1d1a24;padding:40px 38px 70px;width:1300px}
+h1{font:600 32px Newsreader,serif}
+.sub{color:#6b6877;font-size:14px;line-height:1.55;max-width:820px;margin:6px 0 24px}
+h2{font:600 20px Newsreader,serif;margin:38px 0 6px}
+.lead{color:#6b6877;font-size:13.5px;margin-bottom:14px;max-width:860px;line-height:1.5}
+.sheet{display:grid;grid-template-columns:330px 1fr;gap:26px}
+.cardc{background:#f3ecdf;border-radius:28px;display:flex;align-items:center;justify-content:center;padding:14px}
+.facts{font-size:14px;line-height:1.65;color:#3a3744}
+.scene{position:relative;width:1224px;height:520px;border-radius:30px;overflow:hidden;margin-bottom:34px;box-shadow:0 20px 50px rgba(30,20,40,.25)}
+.scene svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.cta{position:absolute;display:inline-block;font:700 14px Inter;padding:11px 22px;border-radius:999px;color:#2a1a4a;background:#fff7e6;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+/* B: gallery */
+.gal{background:radial-gradient(ellipse at 52% 38%,#ffe9a0 0,#e9a93f 22%,#a8581a 52%,#4a210a 82%,#25100a 100%)}
+.bk{position:absolute;border-radius:50%;filter:blur(7px)}
+.fr{position:absolute;padding:9px;background:linear-gradient(135deg,#fff3b0,#d9902a 38%,#fff0a0 58%,#a8631a);box-shadow:0 18px 30px rgba(0,0,0,.45),inset 0 0 0 2px rgba(255,255,255,.4);transform-style:preserve-3d}
+.fr i{display:block;width:100%;height:100%;box-shadow:inset 0 0 0 3px #6b3a0f;background-size:cover;background-position:center}
+.fr::after{content:"";position:absolute;inset:9px;background:linear-gradient(115deg,rgba(255,255,255,.28),transparent 35%);pointer-events:none}
+.lb{position:absolute;font:700 italic 26px Newsreader,serif;color:#ffe7a0;text-shadow:0 2px 0 #7a3d0b,0 0 14px rgba(255,200,80,.7);letter-spacing:.5px}
+.gt{position:absolute;left:0;right:0;text-align:center;font:700 60px/0.95 Newsreader,serif;background:linear-gradient(#fffbe0,#ffd36a 45%,#b8721c 70%,#ffe28a);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 4px 0 #6b3a0f) drop-shadow(0 0 22px rgba(255,190,70,.7))}
+/* C: theatre */
+.thr{background:#1b0610}
+.bulb{position:absolute;width:11px;height:11px;border-radius:50%;background:#fff6c8;box-shadow:0 0 10px 3px rgba(255,214,110,.9)}
+.rope{position:absolute}
+</style></head><body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+ <filter id="soft"><feGaussianBlur stdDeviation="14"/></filter>
+ <filter id="soft3"><feGaussianBlur stdDeviation="3"/></filter>
+ <filter id="soft7"><feGaussianBlur stdDeviation="7"/></filter>
+ <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 .1 0 0 0 0 .08 0 0 0 0 .15 0 0 0 .5 0"/></filter>
+ <linearGradient id="goldv" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#b8721c"/><stop offset=".35" stop-color="#ffe28a"/><stop offset=".6" stop-color="#e5a93a"/><stop offset="1" stop-color="#8a4f12"/></linearGradient>
+ <linearGradient id="skyg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#a99be6"/><stop offset=".55" stop-color="#f0bfd0"/><stop offset="1" stop-color="#ffe6bd"/></linearGradient>
+ <linearGradient id="silver" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#d9d3ee"/><stop offset="1" stop-color="#a99fcf"/></linearGradient>
+ <radialGradient id="sunr" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6d0" stop-opacity=".95"/><stop offset="1" stop-color="#fff6d0" stop-opacity="0"/></radialGradient>
+ <radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#1a0d30" stop-opacity=".55"/></radialGradient>
+
+ <!-- CUDER: nhóc đeo kính tròn, mầm lá trên đầu, cầm gậy, đứng trong chậu cây -->
+ <symbol id="cuder" viewBox="0 0 200 330">
+  <ellipse cx="100" cy="318" rx="70" ry="9" fill="#000" opacity=".25"/>
+  <!-- chậu -->
+  <path d="M44 292 L58 318 Q100 330 142 318 L156 292Z" fill="#b5532a"/><path d="M44 292 L58 318 Q75 324 90 326 L80 292Z" fill="#d97a45" opacity=".6"/>
+  <ellipse cx="100" cy="292" rx="58" ry="12" fill="#c4622d"/><ellipse cx="100" cy="292" rx="49" ry="8" fill="#3f2a1c"/>
+  <g stroke="#5fae45" stroke-width="3" stroke-linecap="round" fill="none"><path d="M66 292q-4-12-10-14M72 292q0-14-2-18M128 292q4-12 10-14M134 292q-2-12 2-18"/></g>
+  <!-- chân -->
+  <g fill="#e9b389"><rect x="80" y="244" width="13" height="46" rx="6"/><rect x="107" y="244" width="13" height="46" rx="6"/><ellipse cx="85" cy="292" rx="12" ry="6"/><ellipse cx="115" cy="292" rx="12" ry="6"/></g>
+  <!-- quần -->
+  <path d="M68 208 Q100 220 132 208 L136 256 L106 250 L100 250 L94 250 L64 256Z" fill="#c9a86a"/><path d="M68 208 Q100 220 132 208" stroke="#8a6a35" stroke-width="5" fill="none"/>
+  <path d="M82 232l-6 14M120 232l6 14" stroke="#a88548" stroke-width="2.5"/>
+  <!-- thân -->
+  <ellipse cx="100" cy="186" rx="26" ry="30" fill="#f2c29b"/>
+  <ellipse cx="100" cy="196" rx="22" ry="18" fill="#ecb48a" opacity=".6"/>
+  <!-- gậy -->
+  <rect x="96" y="132" width="9" height="162" rx="4.5" fill="#9a6a3a"/><rect x="96" y="132" width="3.5" height="162" rx="2" fill="#c9985c"/>
+  <!-- tay -->
+  <g stroke="#f2c29b" stroke-width="10" stroke-linecap="round" fill="none"><path d="M78 168 Q84 196 98 202"/><path d="M122 168 Q118 190 104 196"/></g>
+  <circle cx="99" cy="202" r="7" fill="#f2c29b"/><circle cx="103" cy="196" r="7" fill="#f2c29b"/>
+  <!-- đầu -->
+  <ellipse cx="42" cy="104" rx="12" ry="15" fill="#e9b389"/><ellipse cx="158" cy="104" rx="12" ry="15" fill="#e9b389"/>
+  <circle cx="100" cy="100" r="60" fill="#f6cba5"/>
+  <path d="M42 96 Q44 40 100 36 Q156 40 158 96 Q138 64 100 66 Q62 64 42 96Z" fill="#3b2a22"/>
+  <path d="M62 52q18-12 40-10" stroke="#6a4a3a" stroke-width="4" fill="none" stroke-linecap="round" opacity=".6"/>
+  <!-- mầm lá -->
+  <path d="M100 40 Q98 26 108 16" stroke="#3f8a35" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M108 16 Q132 4 148 16 Q136 36 108 16Z" fill="#6bc24f"/><path d="M108 16 Q126 18 142 18" stroke="#3f8a35" stroke-width="2" fill="none"/>
+  <path d="M100 30 Q80 14 62 22 Q70 42 100 30Z" fill="#86d36a"/>
+  <!-- kính -->
+  <path d="M104 104h0" /><path d="M96 104 Q100 98 104 104" stroke="#161536" stroke-width="5" fill="none"/>
+  <g fill="#fff" stroke="#161536" stroke-width="6"><circle cx="72" cy="104" r="29"/><circle cx="128" cy="104" r="29"/></g>
+  <g fill="none" stroke="#8a8aa8" stroke-width="1.5"><circle cx="72" cy="104" r="22"/><circle cx="128" cy="104" r="22"/></g><path d="M52 90q10-12 24-12M108 90q10-12 24-12" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
+  <g><circle cx="74" cy="106" r="12" fill="#6a4426"/><circle cx="126" cy="106" r="12" fill="#6a4426"/><circle cx="74" cy="106" r="6" fill="#000"/><circle cx="126" cy="106" r="6" fill="#000"/><circle cx="71" cy="102" r="2.5" fill="#fff"/><circle cx="123" cy="102" r="2.5" fill="#fff"/></g>
+  <path d="M46 98 Q54 82 70 82M154 98 Q146 82 130 82" stroke="#161536" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- mũi + miệng -->
+  <circle cx="100" cy="128" r="6.5" fill="#e88a6a"/>
+  <path d="M70 140 Q100 172 130 140 Q100 152 70 140Z" fill="#7a2a2a"/><path d="M76 144 Q100 156 124 144 L122 148 Q100 158 78 148Z" fill="#fff"/>
+  <circle cx="56" cy="134" r="8" fill="#ff8f94" opacity=".55"/><circle cx="144" cy="134" r="8" fill="#ff8f94" opacity=".55"/>
+ </symbol>
+</defs></svg>
+
+<h1>Cuder — linh vật của ReBook, và 3 banner điện ảnh</h1>
+<div class="sub">Mình đã nâng mức đầu tư: không còn hình khối phẳng. Mỗi banner là một <b>cảnh dựng nhiều lớp</b> (tiền cảnh, trung cảnh, hậu cảnh, ánh sáng, bụi, vignette) theo đúng hai tinh thần bạn gửi: <b>thế giới kỳ ảo có chữ khổng lồ</b> (Wonderland) và <b>phòng triển lãm vàng, khung tranh bay</b> (Photography). Ảnh bìa sách trong banner 2 là ảnh bìa thật của app.</div>
+
+<div class="sheet">
+ <div class="cardc"><svg viewBox="0 0 200 330" width="290" height="478"><use href="#cuder" width="200" height="330"/></svg></div>
+ <div>
+  <h2 style="margin-top:0">Cuder</h2>
+  <div class="facts">Theo bản vẽ bạn gửi: đầu to, <b>kính tròn nhiều vòng đồng tâm</b>, nụ cười toe, <b>mầm lá trên tóc</b>, thân nhỏ, quần lửng buộc dây, đứng trong <b>chậu cây</b> và cầm gậy. Mầm lá + chậu cây = "đọc sách là gieo mầm", hợp với chợ sách cũ vì sách cũ được trồng lại cho người khác.<br><br>
+  <b>Vai trò:</b> dẫn đường trong mọi banner (chỉ tay, giơ bảng số, ôm thùng sách…), xuất hiện ở trạng thái rỗng, màn tải, thông báo thành công.<br><br>
+  <b>Lưu ý:</b> theo các bài báo FPT, Cuder là linh vật của <b>FPT Software</b> (tên ghép từ Cucumber + Coder, do hoạ sĩ Bùi Anh Tuấn sáng tác 2006) và bản gốc cầm cuốc. Bản này mình vẽ lại theo ảnh tham khảo bạn đưa, không sao chép nguyên bản. Nếu app ra công khai, bạn nên xin phép FPT dùng hình.</div>
+ </div>
+</div>
+
+<h2>Banner 1 — Chào mừng (trang giới thiệu / đầu trang chủ)</h2>
+<div class="lead">Tinh thần Wonderland: bàn cờ dưới chân, quân cờ vàng khổng lồ, biển chỉ đường gỗ, đồng hồ bỏ túi mờ ở tiền cảnh, cây hoa anh đào, chữ nổi như khắc. Chi tiết thay theo ReBook: biển chỉ "Sách cũ / Đấu giá / Ký gửi", quân cờ làm từ chồng sách.</div>
+<div class="scene" id="A">
+<svg class="bg" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice">
+ <rect width="1200" height="520" fill="url(#skyg)"/>
+ <circle cx="640" cy="215" r="260" fill="url(#sunr)"/>
+ <g fill="#fff" filter="url(#soft)" opacity=".9"><ellipse cx="220" cy="90" rx="190" ry="48"/><ellipse cx="520" cy="60" rx="160" ry="36"/><ellipse cx="900" cy="110" rx="200" ry="50"/><ellipse cx="1100" cy="50" rx="130" ry="30"/></g>
+ <g fill="#e9a6c4" filter="url(#soft3)" opacity=".95"><circle cx="1030" cy="160" r="70"/><circle cx="1090" cy="190" r="60"/><circle cx="980" cy="200" r="55"/><circle cx="1060" cy="120" r="50"/><circle cx="1010" cy="110" r="40"/></g>
+ <g fill="#f6c5da" opacity=".9"><circle cx="1040" cy="150" r="30"/><circle cx="1100" cy="175" r="26"/><circle cx="990" cy="190" r="24"/></g>
+ <rect x="1042" y="200" width="22" height="70" fill="#7a5a3a"/>
+ <g id="floor"></g>
+ <!-- quân cờ vàng làm từ sách -->
+ <g id="king" transform="translate(745 140)">
+  <ellipse cx="40" cy="132" rx="46" ry="9" fill="#000" opacity=".25"/>
+  <rect x="14" y="40" width="52" height="92" fill="url(#goldv)"/><rect x="6" y="112" width="68" height="20" rx="4" fill="url(#goldv)"/><rect x="10" y="34" width="60" height="12" rx="4" fill="url(#goldv)"/>
+  <path d="M18 34 L10 8 L28 22 L40 0 L52 22 L70 8 L62 34Z" fill="url(#goldv)"/><circle cx="40" cy="-4" r="7" fill="#ffe28a"/>
+  <g fill="#8c4a10" opacity=".45"><rect x="14" y="60" width="52" height="3"/><rect x="14" y="80" width="52" height="3"/><rect x="14" y="100" width="52" height="3"/></g>
+ </g>
+ <g transform="translate(655 200) scale(.7)"><ellipse cx="40" cy="132" rx="46" ry="9" fill="#000" opacity=".25"/><circle cx="40" cy="22" r="22" fill="url(#goldv)"/><path d="M22 40Q40 54 58 40L66 112H14Z" fill="url(#goldv)"/><rect x="4" y="112" width="72" height="20" rx="4" fill="url(#goldv)"/></g>
+ <!-- cột vàng bên phải sau -->
+ <g transform="translate(880 130)"><rect x="0" y="20" width="36" height="120" fill="url(#goldv)"/><rect x="-6" y="10" width="48" height="14" rx="3" fill="url(#goldv)"/><rect x="-6" y="136" width="48" height="12" rx="3" fill="url(#goldv)"/></g>
+ <!-- biển chỉ đường -->
+ <g transform="translate(40 60)">
+  <rect x="118" y="30" width="16" height="400" fill="#6b4a2a"/>
+  <g font-family="Newsreader" font-style="italic" font-weight="700" font-size="25" fill="#3b2412">
+   <g transform="rotate(-4 120 40)"><path d="M10 14h220l18 24-18 24H10z" fill="#c99a5c"/><text x="28" y="48">Sách cũ, giá rõ ràng</text></g>
+   <g transform="rotate(3 120 110)"><path d="M250 92H30l-18 24 18 24h220z" fill="#b98a4f"/><text x="48" y="124">Đấu giá trực tiếp</text></g>
+   <g transform="rotate(-2 120 180)"><path d="M0 160h220l18 24-18 24H0z" fill="#d0a56a"/><text x="18" y="192">Ký gửi sách quý</text></g>
+   <g transform="rotate(5 120 250)"><path d="M262 232H40l-18 24 18 24h222z" fill="#bd8d52"/><text x="58" y="264">Cửa hiệu người bán</text></g>
+  </g>
+ </g>
+ <!-- tiêu đề -->
+ <g text-anchor="middle" font-family="Newsreader" font-weight="700">
+  <text x="670" y="170" font-size="42" font-style="italic" fill="#fff" stroke="#8d78b8" stroke-width="3" paint-order="stroke">Chào mừng đến</text>
+  <text x="676" y="306" font-size="150" fill="#6a5a98" opacity=".55">ReBook</text>
+  <text x="670" y="298" font-size="150" fill="url(#silver)" stroke="#7a6aa8" stroke-width="4" paint-order="stroke">ReBook</text>
+ </g>
+ <g><rect x="500" y="318" width="340" height="30" rx="4" fill="#b5532a"/><text x="670" y="339" text-anchor="middle" font-family="Newsreader" font-style="italic" font-size="19" fill="#ffe8cf">chợ sách của người yêu sách!</text></g>
+ <!-- đồng hồ tiền cảnh -->
+ <g transform="translate(960 -40)" filter="url(#soft3)"><circle cx="150" cy="150" r="130" fill="#e5b45a"/><circle cx="150" cy="150" r="112" fill="#f6ead0"/><g stroke="#6b4a1a" stroke-width="5"><path d="M150 52v22M150 226v22M52 150h22M226 150h22"/></g><path d="M150 150L150 78" stroke="#3b2412" stroke-width="7" stroke-linecap="round"/><path d="M150 150L210 176" stroke="#3b2412" stroke-width="5" stroke-linecap="round"/></g>
+ <!-- trang sách bay -->
+ <g fill="#fff8ea" stroke="#d9c7a0"><path d="M420 120l40-10 8 30-40 10z" transform="rotate(-12 440 125)"/><path d="M560 60l34-8 6 26-34 8z" transform="rotate(14 580 70)"/><path d="M820 320l38-9 8 28-38 9z" transform="rotate(-20 840 330)"/></g>
+ <rect width="1200" height="520" fill="url(#vig)"/>
+</svg>
+<svg class="bg" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" style="pointer-events:none"><use href="#cuder" x="270" y="250" width="170" height="280"/><rect width="1200" height="520" filter="url(#grain)" opacity=".35"/></svg>
+<span class="cta" style="left:560px;top:380px">Vào ReBook</span>
+</div>
+
+<h2>Banner 2 — Bảng xếp hạng tuần (phòng triển lãm vàng)</h2>
+<div class="lead">Tinh thần ảnh "Photography": chùm sáng ấm, khung tranh mạ vàng bay nghiêng trong không gian, chữ vàng kim loại, nền bokeh. Mỗi khung là bìa sách thật; hạng 1 to nhất, đặt giữa chùm sáng.</div>
+<div class="scene gal" id="B">
+ <i class="bk" style="left:40px;top:300px;width:90px;height:90px;background:rgba(255,200,90,.35)"></i><i class="bk" style="left:150px;top:60px;width:60px;height:60px;background:rgba(255,230,150,.4)"></i><i class="bk" style="left:1010px;top:380px;width:110px;height:110px;background:rgba(255,190,80,.3)"></i><i class="bk" style="left:900px;top:20px;width:70px;height:70px;background:rgba(255,240,170,.35)"></i><i class="bk" style="left:600px;top:440px;width:80px;height:80px;background:rgba(255,210,100,.3)"></i>
+ <div style="position:absolute;left:0;top:0;width:100%;height:100%;background:conic-gradient(from 196deg at 52% -10%,transparent 0,rgba(255,244,190,.28) 6deg,transparent 14deg,transparent 26deg,rgba(255,244,190,.18) 30deg,transparent 38deg)"></div>
+ <!-- kệ mờ bên trái -->
+ <div style="position:absolute;left:-30px;top:200px;width:300px;height:320px;background:repeating-linear-gradient(90deg,rgba(50,22,8,.7) 0 26px,rgba(90,44,14,.6) 26px 44px);filter:blur(5px);opacity:.75"></div>
+ <div class="fr" style="left:40px;top:70px;width:132px;height:188px;transform:perspective(900px) rotateY(32deg) rotateZ(-8deg)"><i style="background-image:url(../apps/frontend/assets/books/de-men-0.jpg)"></i></div>
+ <div class="lb" style="left:190px;top:230px">Hạng 5</div>
+ <div class="fr" style="left:250px;top:300px;width:136px;height:194px;transform:perspective(900px) rotateY(24deg) rotateZ(5deg)"><i style="background-image:url(../apps/frontend/assets/books/tat-den-0.jpg)"></i></div>
+ <div class="lb" style="left:402px;top:440px">Hạng 3</div>
+ <div class="gt" style="top:96px;font-size:44px;left:120px;right:120px">BẢNG XẾP HẠNG</div>
+ <div class="gt" style="top:150px;font-size:84px;left:120px;right:120px">TUẦN NÀY</div>
+ <div class="fr" style="left:490px;top:276px;width:176px;height:252px;transform:perspective(900px) rotateY(-10deg) rotateZ(-2deg)"><i style="background-image:url(../apps/frontend/assets/books/so-do-0.jpg)"></i></div>
+ <div class="lb" style="left:690px;top:430px;font-size:32px">Hạng 1</div>
+ <div class="fr" style="left:905px;top:18px;width:140px;height:200px;transform:perspective(900px) rotateY(-26deg) rotateZ(6deg)"><i style="background-image:url(../apps/frontend/assets/books/sapiens-0.jpg)"></i></div>
+ <div class="lb" style="left:1060px;top:30px">Hạng 2</div>
+ <div class="fr" style="left:1062px;top:150px;width:120px;height:170px;transform:perspective(900px) rotateY(-34deg) rotateZ(-6deg)"><i style="background-image:url(../apps/frontend/assets/books/nha-gia-kim-0.jpg)"></i></div>
+ <div class="lb" style="left:1010px;top:330px">Hạng 4</div>
+ <div class="fr" style="left:1100px;top:340px;width:150px;height:214px;transform:perspective(900px) rotateY(-30deg) rotateZ(8deg);filter:blur(3px)"><i style="background-image:url(../apps/frontend/assets/books/vang-bong-0.jpg)"></i></div>
+ <div class="fr" style="left:-40px;top:340px;width:150px;height:214px;transform:perspective(900px) rotateY(30deg) rotateZ(-8deg);filter:blur(3px)"><i style="background-image:url(../apps/frontend/assets/books/truyen-kieu-0.jpg)"></i></div>
+ <svg style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 1224 520"><use href="#cuder" x="800" y="240" width="180" height="297"/><rect width="1224" height="520" filter="url(#grain)" opacity=".4"/><rect width="1224" height="520" fill="url(#vig)"/></svg>
+ <span class="cta" style="left:30px;top:448px">Xem bảng xếp hạng</span>
+</div>
+
+<h2>Banner 3 — Phiên đang gõ búa (sân khấu)</h2>
+<div class="lead">Sân khấu nhung đỏ, chùm đèn rọi xuống, bảng đèn bóng tròn hiện lô đang đấu. Cuder đứng ở rìa sân khấu giơ bảng số 44.</div>
+<div class="scene thr" id="C">
+ <svg class="bg" viewBox="0 0 1224 520" preserveAspectRatio="xMidYMid slice">
+  <defs>
+   <linearGradient id="vel" x1="0" x2="1"><stop offset="0" stop-color="#4a0713"/><stop offset=".15" stop-color="#9b1630"/><stop offset=".3" stop-color="#5a0a18"/><stop offset=".45" stop-color="#a51a35"/><stop offset=".6" stop-color="#5a0a18"/><stop offset=".78" stop-color="#9b1630"/><stop offset="1" stop-color="#430611"/></linearGradient>
+   <linearGradient id="beam" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff2c4" stop-opacity=".75"/><stop offset="1" stop-color="#fff2c4" stop-opacity=".05"/></linearGradient>
+   <linearGradient id="wood" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#7a4a22"/><stop offset="1" stop-color="#2e1608"/></linearGradient>
+  </defs>
+  <rect width="1224" height="520" fill="#240a14"/>
+  <path d="M612 0 L330 480 L894 480Z" fill="url(#beam)" filter="url(#soft7)"/>
+  <rect x="0" y="0" width="300" height="520" fill="url(#vel)"/><rect x="924" y="0" width="300" height="520" fill="url(#vel)"/>
+  <path d="M0 0H1224V70Q1160 110 1100 70Q1040 110 980 70Q920 110 860 70Q800 110 740 70Q680 110 620 70Q560 110 500 70Q440 110 380 70Q320 110 260 70Q200 110 140 70Q80 110 20 70L0 70Z" fill="#7d0f25"/>
+  <path d="M0 62Q60 102 120 62" stroke="#ffd36a" stroke-width="4" fill="none" opacity=".0"/>
+  <rect x="0" y="440" width="1224" height="80" fill="url(#wood)"/>
+  <g stroke="#1b0c05" stroke-width="2" opacity=".6"><path d="M0 470H1224M0 500H1224"/></g>
+  <!-- bục -->
+  <rect x="520" y="380" width="184" height="80" rx="6" fill="#5a2e12"/><rect x="510" y="372" width="204" height="16" rx="4" fill="#8a5224"/>
+  <!-- búa trên bục -->
+  <g transform="rotate(-22 612 360)"><rect x="574" y="336" width="76" height="34" rx="8" fill="#e5b45a"/><rect x="568" y="332" width="10" height="42" rx="4" fill="#b8721c"/><rect x="646" y="332" width="10" height="42" rx="4" fill="#b8721c"/></g>
+  <rect x="604" y="362" width="9" height="40" rx="4" fill="#9a6a3a" transform="rotate(-22 608 362)"/>
+ </svg>
+ <!-- bảng đèn -->
+ <div style="position:absolute;left:402px;top:96px;width:420px;height:250px;border-radius:18px;background:#14070c;box-shadow:0 0 40px rgba(255,200,90,.45) inset,0 0 0 8px #b8721c,0 0 0 11px #ffe28a"></div>
+ <div class="fr" style="left:420px;top:112px;width:140px;height:200px;transform:rotate(-3deg)"><i style="background-image:url(../apps/frontend/assets/books/leu-chong-0.jpg)"></i></div>
+ <div style="position:absolute;left:580px;top:118px;width:240px;color:#ffe9a8;font-family:Newsreader,serif">
+  <div style="font:600 italic 17px Newsreader;color:#ffb3a0;white-space:nowrap">● TRỰC TIẾP · 93 người xem</div>
+  <div style="font:700 44px/1 Newsreader;margin-top:8px;text-shadow:0 0 16px rgba(255,190,80,.8)">Lều Chõng</div>
+  <div style="font:500 16px Inter;opacity:.85;margin-top:6px">Ngô Tất Tố · bài #044</div>
+  <div style="font:700 44px Newsreader;margin-top:14px;color:#fff3c8;text-shadow:0 0 18px rgba(255,200,90,.9)">450.000 ₫</div>
+  <div style="font:500 15px Inter;opacity:.85">còn 00:31</div>
+ </div>
+ <svg style="position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 1224 520" id="bulbs"><g id="bl"></g>
+  <use href="#cuder" x="930" y="196" width="196" height="323"/>
+  <!-- bảng số cầm trên gậy -->
+  <g transform="rotate(-8 1030 360)"><rect x="988" y="320" width="84" height="64" rx="6" fill="#fff6d8" stroke="#b8721c" stroke-width="4"/><text x="1030" y="370" text-anchor="middle" font-family="Newsreader" font-weight="700" font-size="46" fill="#7d0f25">44</text></g>
+  <g fill="#ffd36a"><circle cx="250" cy="150" r="4"/><circle cx="330" cy="330" r="3"/><circle cx="900" cy="120" r="4"/><circle cx="1100" cy="150" r="3"/><circle cx="860" cy="360" r="3"/></g>
+  <g fill="#ff6f9f"><rect x="300" y="90" width="9" height="5" transform="rotate(30 300 90)"/><rect x="860" y="70" width="9" height="5" transform="rotate(-20 860 70)"/><rect x="760" y="400" width="9" height="5" transform="rotate(50 760 400)"/></g>
+  <rect width="1224" height="520" filter="url(#grain)" opacity=".4"/><rect width="1224" height="520" fill="url(#vig)"/></svg>
+ <span class="cta" style="left:40px;top:448px;background:#ffe28a;color:#4a0713">Vào phòng đấu giá</span>
+</div>
+
+<h2>Tiếp theo nếu bạn chốt</h2>
+<div class="facts" style="max-width:900px">Cùng ngôn ngữ này mình sẽ vẽ thêm: <b>Ký gửi</b> (kho hàng như hang kho báu, Cuder cầm đèn), <b>Mới lên kệ</b> (thư viện ngập nắng, thang trượt), <b>Mở shop</b> (con phố có mái hiên về đêm), <b>Sách hiếm</b> (căn phòng cổ, kính lúp). Bản vẽ hiện là SVG + CSS. Trong app Flutter mình sẽ dựng bằng ảnh nền xuất sẵn (WebP) cộng chữ và nút thật, để chạy nhẹ trên iPhone.</div>
+
+<script>
+// sàn bàn cờ có phối cảnh
+(function(){const g=document.getElementById('floor'),NS='http://www.w3.org/2000/svg';
+const hz=268,bot=520,vx=640,N=10;let y=i=>hz+(bot-hz)*Math.pow(i/N,1.7);
+for(let r=0;r<N;r++){const y1=y(r),y2=y(r+1);for(let c=-14;c<14;c++){const w=62;const x=(yy,k)=>vx+k*w*(yy-hz)/60;
+const p=document.createElementNS(NS,'polygon');p.setAttribute('points',[[x(y1,c),y1],[x(y1,c+1),y1],[x(y2,c+1),y2],[x(y2,c),y2]].map(a=>a.join(',')).join(' '));
+const dark=(r+c)%2===0;p.setAttribute('fill',dark?'#4a3d63':'#f3eadf');p.setAttribute('opacity',(0.5+0.5*r/N).toFixed(2));g.appendChild(p);}}
+const b=document.getElementById('bl'),NS2=NS;
+})();
+// bóng đèn quanh bảng
+(function(){const s=document.getElementById('C');const W=420,H=250,L=402,T=96;const pts=[];for(let x=0;x<=W;x+=28)pts.push([x,0],[x,H]);for(let y=28;y<H;y+=28)pts.push([0,y],[W,y]);
+pts.forEach(p=>{const d=document.createElement('i');d.className='bulb';d.style.left=(L+p[0]-5)+'px';d.style.top=(T+p[1]-5)+'px';s.appendChild(d);});})();
+</script>
+</body></html>
