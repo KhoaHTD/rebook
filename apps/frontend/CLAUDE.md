@@ -27,6 +27,20 @@ flutter test
 
 `env/dev.json` có `USE_MOCK=true` → chạy bằng dữ liệu giả, không cần backend.
 
+### Ghép với backend thật (`apps/backend`)
+
+Merge code không tự tắt mock: `USE_MOCK` chỉ do file `--dart-define-from-file` quyết định. **Không sửa `env/dev.json`** (giữ mock để code giao diện).
+Muốn nối backend thật thì chạy bằng `env/local.json` (`USE_MOCK=false`, API `http://localhost:8080/api`, WS `ws://localhost:8080/ws`):
+
+```bash
+flutter run -d chrome --dart-define-from-file=env/local.json
+```
+
+- Khi người dùng nói "chạy nối backend / chạy thật / ghép backend" → dùng `env/local.json`, không phải `dev.json`.
+- Máy ảo Android gọi máy host bằng `10.0.2.2`: đổi `localhost` thành `10.0.2.2` trong bản sao của file env (đừng commit bản đã đổi).
+- Backend (README ở `apps/backend`): cần Java 21 + PostgreSQL `localhost:5432`, tạo DB bằng `scripts/create-database.sql`, chạy `./mvnw spring-boot:run`. Tài khoản mẫu `buyer1@rebook.vn` / `Rebook@123`. Cổng 8080 bị chiếm → đặt biến môi trường `PORT` và đổi cổng trong file env.
+- Gọi API lỗi / sai field → `openapi/openapi.yaml` của frontend có thể lệch với `apps/backend/openapi.yaml`: báo người dùng, rồi chạy `/sync-api`. Không sửa gì trong `apps/backend`.
+
 ## Stack đã chốt — KHÔNG thêm công nghệ khác
 
 | Việc | Dùng | KHÔNG dùng |
