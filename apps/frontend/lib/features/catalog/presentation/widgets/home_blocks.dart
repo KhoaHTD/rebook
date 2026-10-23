@@ -30,17 +30,32 @@ class BlurPanel extends StatelessWidget {
     this.dark = true,
     this.radius = 28,
     this.onTap,
+    this.art,
     this.height,
     this.padding = const EdgeInsets.all(AppSpacing.lg),
   });
 
   final CoverRef? cover;
+
+  /// Tên tranh trong `assets/banners/<art>.webp` (người dùng vẽ); thiếu file thì dùng nền bìa mờ.
+  final String? art;
   final Widget child;
   final bool dark;
   final double radius;
   final VoidCallback? onTap;
   final double? height;
   final EdgeInsets padding;
+
+  /// Nền khi chưa có tranh: bìa sách phóng to + làm mờ (hoặc màu trơn nếu không có bìa).
+  Widget _fallback(AppColors c) => cover == null
+      ? ColoredBox(color: c.fill)
+      : BlurredCover(
+          title: cover!.title,
+          author: cover!.author,
+          coverUrl: cover!.url,
+          seed: cover!.seed,
+          sigma: 40,
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -49,22 +64,22 @@ class BlurPanel extends StatelessWidget {
       borderRadius: BorderRadius.circular(radius),
       child: Stack(
         children: [
-          if (cover != null)
+          if (art != null)
             Positioned.fill(
-              child: BlurredCover(
-                title: cover!.title,
-                author: cover!.author,
-                coverUrl: cover!.url,
-                seed: cover!.seed,
-                sigma: 40,
+              child: Image.asset(
+                'assets/banners/$art.webp',
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => _fallback(c),
               ),
             )
           else
-            Positioned.fill(child: ColoredBox(color: c.fill)),
+            Positioned.fill(child: _fallback(c)),
           Positioned.fill(
             child: ColoredBox(
               color: dark
-                  ? CoverPalette.scrim.withValues(alpha: 0.46)
+                  ? CoverPalette.scrim.withValues(
+                      alpha: art != null ? 0.22 : 0.46,
+                    )
                   : c.background.withValues(alpha: 0.52),
             ),
           ),
@@ -201,6 +216,7 @@ class HomeAuctions extends ConsumerWidget {
         ? _LiveCard(session: live.first, compact: compact)
         : BlurPanel(
             cover: null,
+            art: 'auctions-empty',
             dark: false,
             height: 200,
             child: Center(
@@ -280,6 +296,7 @@ class _LiveCard extends ConsumerWidget {
     final posterW = compact ? 120.0 : 170.0;
 
     return BlurPanel(
+      art: 'auction-live',
       cover: cover,
       height: compact ? 440 : null,
       onTap: () => context.go(Routes.live(session.id)),
@@ -404,6 +421,7 @@ class _UpcomingCard extends ConsumerWidget {
     final lots = ref.watch(sessionLotsProvider(session.id)).value ?? const [];
     final covers = [for (final l in lots.take(3)) coverOfBook(l.book)];
     return BlurPanel(
+      art: 'auction-upcoming',
       cover: covers.isEmpty ? null : covers.first,
       height: 168,
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -465,6 +483,7 @@ class _EndedRow extends ConsumerWidget {
         .where((l) => l.hammerPrice != null)
         .fold<int>(0, (n, l) => n + l.hammerPrice!);
     return BlurPanel(
+      art: 'auction-ended',
       cover: lots.isEmpty ? null : coverOfBook(lots.first.book),
       dark: false,
       radius: 22,

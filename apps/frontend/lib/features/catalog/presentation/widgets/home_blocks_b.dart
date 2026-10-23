@@ -24,6 +24,16 @@ String _searchPath({String? category}) => category == null
 
 // ───────────────────── Duyệt theo danh mục (mosaic) ─────────────────────
 
+/// Tên tranh theo mã danh mục gốc (`assets/banners/<tên>.webp`); danh mục khác dùng nền bìa mờ.
+const _categoryArt = <String, String>{
+  'c1': 'cat-vn',
+  'c2': 'cat-foreign',
+  'c3': 'cat-textbook',
+  'c5': 'cat-skills',
+  'c6': 'cat-kids',
+  'c7': 'cat-rare',
+};
+
 /// Mỗi danh mục gốc là một ô nền mờ + quạt bìa; ô đầu và ô cuối rộng gấp đôi cho nhịp không đều.
 class HomeCategories extends ConsumerWidget {
   const HomeCategories({super.key});
@@ -57,6 +67,7 @@ class HomeCategories extends ConsumerWidget {
       return SizedBox(
         width: w,
         child: BlurPanel(
+          art: _categoryArt[t.$1.id],
           cover: covers.first,
           height: h,
           onTap: () => context.go(_searchPath(category: t.$1.id)),
@@ -228,12 +239,16 @@ class HomeChart extends ConsumerWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: BlurredCover(
-                  title: top.first.book.title,
-                  author: top.first.book.author,
-                  coverUrl: top.first.book.coverUrl,
-                  seed: top.first.book.id,
-                  sigma: 48,
+                child: Image.asset(
+                  'assets/banners/chart.webp',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => BlurredCover(
+                    title: top.first.book.title,
+                    author: top.first.book.author,
+                    coverUrl: top.first.book.coverUrl,
+                    seed: top.first.book.id,
+                    sigma: 48,
+                  ),
                 ),
               ),
               Positioned.fill(
@@ -325,6 +340,7 @@ class HomeRare extends ConsumerWidget {
       children: [
         BlockHeader(l10n.hsRareTitle, sub: l10n.hsRareSub),
         BlurPanel(
+          art: 'rare-spotlight',
           cover: coverOfBook(hero.book),
           radius: 32,
           padding: EdgeInsets.all(compact ? AppSpacing.md : AppSpacing.xl),
@@ -407,6 +423,7 @@ class HomeEditions extends ConsumerWidget {
       return SizedBox(
         width: compact ? 300 : null,
         child: BlurPanel(
+          art: 'editions',
           cover: covers.first,
           dark: false,
           height: 290,
@@ -480,18 +497,28 @@ class HomePriceBands extends ConsumerWidget {
     final onDark = context.appColors.onSelected;
     final listings = ref.watch(allListingsProvider).value ?? const <Listing>[];
     final bands = [
-      (l10n.hsPriceLow, listings.where((l) => l.price < 50000).toList()),
+      (
+        l10n.hsPriceLow,
+        listings.where((l) => l.price < 50000).toList(),
+        'price-low',
+      ),
       (
         l10n.hsPriceMid,
         listings.where((l) => l.price >= 50000 && l.price <= 100000).toList(),
+        'price-mid',
       ),
-      (l10n.hsPriceHigh, listings.where((l) => l.price > 100000).toList()),
+      (
+        l10n.hsPriceHigh,
+        listings.where((l) => l.price > 100000).toList(),
+        'price-high',
+      ),
     ].where((b) => b.$2.isNotEmpty).toList();
     if (bands.isEmpty) return const SizedBox.shrink();
 
-    Widget tile((String, List<Listing>) b) {
+    Widget tile((String, List<Listing>, String) b) {
       final covers = [for (final l in b.$2.take(3)) coverOfBook(l.book)];
       return BlurPanel(
+        art: b.$3,
         cover: covers.first,
         height: 150,
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -572,6 +599,7 @@ class HomeShops extends ConsumerWidget {
       return SizedBox(
         width: 290,
         child: BlurPanel(
+          art: 'shops',
           cover: covers.isEmpty ? null : covers.first,
           dark: false,
           height: 210,

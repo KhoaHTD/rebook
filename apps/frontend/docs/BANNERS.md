@@ -25,27 +25,68 @@ Chữ, giá, nút bấm là widget thật do app vẽ phía trên tranh — **kh
 
 **Chủ thể chính** (hình to nhất, điểm nhấn) đặt ở **nửa phải** trên desktop và **nửa trên** trên điện thoại.
 
-## Danh sách tranh
+## Danh sách tranh — nhóm A: băng chuyền đầu trang (đã gắn code)
 
-| # | File | Sự kiện | Khi nào hiện | Gợi ý nội dung tranh |
+Kích thước **2400 × 1600**. Chủ thể nửa phải, góc dưới trái yên tĩnh.
+
+| # | File | Sự kiện | Gợi ý nội dung |
+|---|---|---|---|
+| 1 | `live.webp` | Đấu giá trực tiếp (có phiên LIVE) | Phòng đấu giá cổ điển: búa gỗ, màn nhung, ánh đèn rọi. Tông đêm, vàng đồng, đỏ rượu. |
+| 2 | `picks.webp` | Được săn nhiều nhất | Chồng sách cao dưới ánh sáng ấm, bàn đọc buổi chiều. |
+| 3 | `consign.webp` | Ký gửi đấu giá | Kho sách cổ, thùng gỗ, dây cột, nhãn thẩm định. |
+| 4 | `new.webp` | Mới lên kệ | Thư viện ngập nắng, kệ cao, thang trượt. Tông xanh lá / vàng nhạt. |
+| 5 | `shop.webp` | Mở shop | Con phố nhỏ có cửa hiệu sách, mái hiên, đèn chiều tối. |
+| 6 | `rare.webp` | Sách hiếm & cổ | Trang sách cổ, bìa da, dấu sáp, bản đồ cũ, kính lúp. |
+
+## Nhóm B: các khối trên trang chủ (đã gắn code)
+
+Mỗi khối là **một khung bo góc rộng**, chữ và bìa sách nằm đè lên; thiếu file thì khối dùng nền bìa sách mờ như cũ. Vẽ **tranh nền thuần**, không có chữ; để vùng chữ ít chi tiết; tranh **không cần chủ thể rõ**, có thể thiên về không khí và màu sắc.
+
+| # | File | Khối | Kích thước | Gợi ý nội dung |
 |---|---|---|---|---|
-| 1 | `live.webp` | **Đấu giá trực tiếp** | Có phiên đang LIVE (hiện 1–2 thẻ, cùng một tranh) | Không khí phòng đấu giá cổ điển: búa gỗ, tấm màn nhung, ánh đèn rọi, bóng người ngồi xa. Tông đêm, vàng đồng và đỏ rượu. Căng thẳng nhưng sang. |
-| 2 | `picks.webp` | **Được săn nhiều nhất / bảng xếp hạng** | Luôn hiện | Chồng sách cao dưới ánh sáng ấm, hoặc bàn đọc sách buổi chiều. Ấm, đông đúc, náo nhiệt vừa phải. |
-| 3 | `consign.webp` | **Ký gửi đấu giá** | Luôn hiện | Kho sách cổ, thùng gỗ, dây cột, nhãn thẩm định, ánh đèn bàn. Cảm giác tin cậy, cất giữ, kho báu. |
-| 4 | `new.webp` | **Mới lên kệ** | Có sách mới | Thư viện ngập nắng, kệ cao, thang trượt, bụi sáng. Tươi, sáng, hy vọng (tông xanh lá hoặc vàng nhạt). |
-| 5 | `shop.webp` | **Mở shop** | Luôn hiện | Con phố nhỏ với cửa hiệu sách, mái hiên, bảng treo, ánh đèn buổi chiều tối. Ấm cúng, nhỏ nhắn, của người bán. |
-| 6 | `rare.webp` | **Sách hiếm & cổ** | Luôn hiện | Trang sách cổ, bìa da, dấu sáp, bản đồ cũ, kính lúp. Tông nâu, đỏ rượu, vàng cổ; giấy ố vàng, chi tiết kỹ. |
+| 7 | `auction-live.webp` | Thẻ phiên đang LIVE (to, bên trái) | 2000 × 1500 | Sân khấu đấu giá về đêm, ánh đèn nóng, đỏ rượu và vàng. |
+| 8 | `auction-upcoming.webp` | Thẻ phiên sắp diễn ra | 1600 × 900 | Cùng không khí với #7 nhưng trước giờ mở màn: màn khép, đèn mờ, xanh đêm. |
+| 9 | `auction-ended.webp` | Dòng phiên đã kết thúc | 1600 × 500 (dài, thấp) | Phòng đấu giá vắng sau buổi, ánh chiều, tông dịu. |
+| 10 | `auctions-empty.webp` | Khối "chưa có phiên nào đang diễn ra" | 1600 × 900 | Phòng đấu giá yên tĩnh, ghế trống, ánh sáng một cửa sổ. |
+| 11 | `cat-vn.webp` | Danh mục **Văn học Việt Nam** | 1600 × 1200 | Mái ngói, lũy tre, ngõ nhỏ, đèn dầu — không khí làng quê / phố cổ. |
+| 12 | `cat-foreign.webp` | **Văn học nước ngoài** | 1600 × 1200 | Bản đồ cổ, tàu biển, thư tín đóng dấu, phương xa. |
+| 13 | `cat-textbook.webp` | **Giáo trình đại học** | 1600 × 1200 | Giảng đường, bàn học gỗ, bảng phấn, ánh sáng buổi sáng. |
+| 14 | `cat-skills.webp` | **Kỹ năng sống** | 1600 × 1200 | Bình minh, con đường, bàn làm việc gọn gàng. |
+| 15 | `cat-kids.webp` | **Thiếu nhi** | 1600 × 1200 | Khu vườn đồ chơi, màu tươi, nét mềm. |
+| 16 | `cat-rare.webp` | **Sách hiếm & cổ** | 1600 × 1200 | Phòng cổ, kệ da, đèn bàn xanh, giấy ố vàng. |
+| 17 | `chart.webp` | Khối "Bảng xếp hạng tuần" | 2400 × 1000 | Sảnh triển lãm, ánh vàng ấm, khung tranh mờ phía xa. Phần trên sáng hơn (chữ đen đè lên). |
+| 18 | `rare-spotlight.webp` | Khối "Sách hiếm" (nền tối, chữ trắng) | 2000 × 1400 | Căn phòng tối, ánh đèn rọi một chỗ, bụi sáng. |
+| 19 | `editions.webp` | Khối "Cùng một cuốn, nhiều ấn bản" (nền sáng, chữ đen) | 2400 × 1000 | Dãy bìa/trang sách trải ngang trên bàn, ánh sáng tự nhiên. |
+| 20 | `price-low.webp` | Thẻ "Dưới 50.000 ₫" | 1600 × 800 | Tông nhẹ, màu tươi: sách mỏng, ấm áp. |
+| 21 | `price-mid.webp` | Thẻ "50.000 – 100.000 ₫" | 1600 × 800 | Tông trung, cân bằng. |
+| 22 | `price-high.webp` | Thẻ "Trên 100.000 ₫" | 1600 × 800 | Tông sang, vàng đồng, da và gỗ. |
+| 23 | `shops.webp` | Khối "Shop nổi bật" (chữ đen) | 2400 × 900 | Dãy cửa hiệu sách, mái hiên, đèn đường — nền sáng. |
 
-## Sẽ cần thêm (chưa có trong app)
+Khối dùng chữ **trắng** (nền tối): #7, #8, #9, #10, #11–#16, #18, #20–#22. Khối dùng chữ **đen** (nền sáng): #17, #19, #23.
 
-Báo trước để vẽ cùng phong cách; chưa gắn code, khi nào cần mình sẽ thêm khe tương ứng:
+## Nhóm C: chưa gắn code, vẽ sẵn nếu muốn (mình sẽ gắn khi bạn gửi)
 
-| File | Sự kiện | Ghi chú |
+| File | Dùng ở đâu | Kích thước |
 |---|---|---|
-| `upcoming.webp` | Phiên sắp diễn ra (đếm ngược) | Cùng không khí với `live`, nhưng trước giờ mở màn: màn khép, đèn mờ. |
-| `season-tet.webp` | Tết / mùa lễ | Tông đỏ vàng, hoa mai/đào, sách và lì xì. Thay thế tạm thời cho banner thường trong dịp lễ. |
-| `season-school.webp` | Khai giảng / mùa giáo trình | Giảng đường, sách giáo trình, lá bàng. Mùa mua bán giáo trình. |
-| `empty.webp` | Trạng thái rỗng (giỏ hàng, không có kết quả) | Nhỏ gọn hơn: 1200 × 800, một chủ thể đơn giản, nhiều khoảng trống. |
+| `auth.webp` | Nền màn đăng nhập / đăng ký / quên mật khẩu / OTP (một tranh dùng chung) | 2400 × 1600 |
+| `upcoming.webp` | Slide băng chuyền "phiên sắp diễn ra" (đếm ngược) | 2400 × 1600 |
+| `season-tet.webp`, `season-school.webp` | Banner theo dịp (Tết, khai giảng) thay tạm cho slide thường | 2400 × 1600 |
+| `header-auctions.webp` | Đầu trang Đấu giá | 2400 × 700 |
+| `header-wallet.webp` | Đầu trang Ví | 2400 × 600 |
+| `header-seller.webp` | Đầu trang Kênh người bán | 2400 × 700 |
+| `consign-new.webp` | Màn tạo ký gửi | 2400 × 900 |
+| `empty-cart.webp`, `empty-orders.webp`, `empty-search.webp`, `empty-notifications.webp` | Trạng thái rỗng (giỏ hàng, đơn mua, không có kết quả, không có thông báo) | 1200 × 800 mỗi tranh, chủ thể đơn giản, nhiều khoảng trống |
+| `error-404.webp`, `error-network.webp` | Trang lỗi | 1200 × 800 |
+| `landing-1.webp` … `landing-9.webp` | Chín cảnh trang giới thiệu web (hero, showcase, gateway, story, among, features, market, pricing, outro) làm nền thay thẻ bìa sách | 2400 × 1500 |
+
+**Tổng cộng:** 6 tranh băng chuyền + 17 tranh khối trang chủ = **23 tranh đã có chỗ gắn**; thêm khoảng **27 tranh** ở nhóm C nếu muốn phủ hết app.
+
+## Thứ tự nên vẽ
+
+1. Băng chuyền (#1–#6): người dùng nhìn thấy đầu tiên.
+2. Danh mục (#11–#16) và khối đấu giá (#7–#10).
+3. Các khối còn lại của trang chủ (#17–#23).
+4. Nhóm C, bắt đầu từ `auth` và các trạng thái rỗng.
 
 ## Gợi ý để tranh hợp với app
 
