@@ -54,3 +54,6 @@ jobs:
 
       - name: Build web
         run: flutter build web --release --no-pub --dart-define-from-file=env/dev.json
+
+      - name: Build web quản trị
+        run: flutter build web --release --no-pub -t lib/main_admin.dart -o build/web_admin --dart-define-from-file=env/dev.json

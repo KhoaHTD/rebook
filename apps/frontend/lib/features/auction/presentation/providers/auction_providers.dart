@@ -1,89 +1,200 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/features/auction/data/auction_repository_provider.dart';
-import 'package:book_marketplace/features/auction/domain/auction.dart';
+import 'package:book_marketplace/features/auction/domain/live_reducer.dart';
+import 'package:book_marketplace/shared/domain/auction.dart';
+import 'package:book_marketplace/shared/domain/commerce.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 
 part 'auction_providers.g.dart';
 
 @riverpod
-Future<List<Auction>> auctionList(Ref ref) =>
-    ref.watch(auctionRepositoryProvider).listAuctions();
-
-/// Lô đang diễn ra đầu tiên (cho thanh "đang đấu giá" phía trên thanh tab), null nếu không có.
-@riverpod
-Future<Auction?> liveAuction(Ref ref) async {
-  final all = await ref.watch(auctionListProvider.future);
-  final now = DateTime.now();
-  for (final a in all) {
-    if (a.isLiveAt(now)) return a;
-  }
-  return null;
+Future<List<AuctionSession>> auctionSessions(Ref ref) {
+  ref.watchArea(DataArea.auctions);
+  return ref.watch(auctionRepositoryProvider).sessions();
 }
 
-/// Trạng thái live của một phiên. Tự huỷ kết nối khi rời màn hình (autoDispose).
 @riverpod
-Stream<Auction> auctionRoom(Ref ref, String auctionId) =>
-    ref.watch(auctionRepositoryProvider).watchAuction(auctionId);
-
-@riverpod
-Future<LotDetail> lotDetail(Ref ref, String lotId) =>
-    ref.watch(auctionRepositoryProvider).getLot(lotId);
-
-/// Hành động trả giá. `state` là AsyncValue của lần trả giá gần nhất
-/// (loading -> nút bị disable, error -> hiện snackbar).
-@riverpod
-class BidController extends _$BidController {
-  @override
-  FutureOr<void> build(String auctionId) {}
-
-  /// Trả về `true` nếu thành công.
-  Future<bool> placeBid(int amount) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(auctionRepositoryProvider).placeBid(auctionId, amount),
-    );
-    return !state.hasError;
-  }
-
-  /// Bật / tắt giá tối đa tự trả. Trả về `true` nếu thành công.
-  Future<bool> setProxy(int? maxAmount) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(auctionRepositoryProvider).setProxy(auctionId, maxAmount),
-    );
-    return !state.hasError;
-  }
+Future<(AuctionSession, List<Lot>)> sessionCatalogue(Ref ref, String id) {
+  ref.watchArea(DataArea.auctions);
+  return ref.watch(auctionRepositoryProvider).catalogue(id);
 }
 
-/// Đăng ký tham gia phiên + đặt cọc.
 @riverpod
-class LotRegistration extends _$LotRegistration {
-  @override
-  FutureOr<void> build(String lotId) {}
+Future<Lot> lotDetail(Ref ref, String id) {
+  ref.watchArea(DataArea.auctions);
+  return ref.watch(auctionRepositoryProvider).lot(id);
+}
 
-  Future<bool> register() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      await ref.read(auctionRepositoryProvider).register(lotId);
-      ref.invalidate(lotDetailProvider(lotId));
+@riverpod
+Future<List<Bid>> lotBids(Ref ref, String id) {
+  ref.watchArea(DataArea.auctions);
+  return ref.watch(auctionRepositoryProvider).lotBids(id);
+}
+
+@riverpod
+Future<Registration?> sessionRegistration(Ref ref, String sessionId) {
+  ref.watchArea(DataArea.auctions);
+  if (ref.watch(currentUserProvider) == null) return Future.value();
+  return ref.watch(auctionRepositoryProvider).myRegistration(sessionId);
+}
+
+@riverpod
+Future<List<Registration>> myRegistrations(Ref ref) {
+  ref.watchArea(DataArea.auctions);
+  return ref.watch(auctionRepositoryProvider).myRegistrations();
+}
+
+@riverpod
+Future<SessionResult> sessionResults(Ref ref, String sessionId) {
+  ref.watchArea(DataArea.auctions);
+  return ref.watch(auctionRepositoryProvider).results(sessionId);
+}
+
+@riverpod
+Future<Wallet> auctionWallet(Ref ref) {
+  ref.watchArea(DataArea.wallet);
+  return ref.watch(auctionRepositoryProvider).wallet();
+}
+
+/// Trạng thái phòng đấu giá kèm chênh lệch đồng hồ server − máy.
+class RoomState {
+  const RoomState(this.snapshot, this.serverOffset);
+
+  final SessionState snapshot;
+
+  /// Cộng vào giờ máy để ra giờ server — đếm ngược khớp server (SRS 10.3).
+  final Duration serverOffset;
+}
+
+/// Phòng đấu giá: ảnh chụp trạng thái + sự kiện realtime.
+/// Kết nối lại → tải lại ảnh chụp (server giữ đồng hồ và giá).
+@riverpod
+class LiveRoom extends _$LiveRoom {
+  StreamSubscription<AuctionEvent>? _events;
+  StreamSubscription<void>? _reconnects;
+
+  @override
+  Future<RoomState> build(String sessionId) async {
+    final repo = ref.watch(auctionRepositoryProvider);
+    ref.onDispose(() {
+      _events?.cancel();
+      _reconnects?.cancel();
     });
+    final snapshot = await repo.sessionState(sessionId);
+    _events = repo.events(sessionId).listen(_onEvent);
+    _reconnects = repo.reconnects.listen((_) => _reload());
+    return _wrap(snapshot);
+  }
+
+  RoomState _wrap(SessionState s) =>
+      RoomState(s, s.serverTime.difference(DateTime.now()));
+
+  Future<void> _reload() async {
+    final snapshot = await ref
+        .read(auctionRepositoryProvider)
+        .sessionState(sessionId);
+    state = AsyncData(_wrap(snapshot));
+  }
+
+  void _onEvent(AuctionEvent e) {
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(_wrap(applyAuctionEvent(current.snapshot, e)));
+    // Hạn mức đã cam kết đổi khi lô đóng / bị vượt giá: hỏi lại server.
+    if (e is LotClosed || e is BidPlaced) unawaited(_refreshRegistration());
+    if (e is SessionEnded || e is LotClosed) {
+      ref.read(dataChangesProvider.notifier).bump(DataArea.auctions);
+    }
+  }
+
+  Future<void> _refreshRegistration() async {
+    if (state.value?.snapshot.myRegistration == null) return;
+    final reg = await ref
+        .read(auctionRepositoryProvider)
+        .myRegistration(sessionId);
+    final current = state.value;
+    if (current != null && reg != null) {
+      state = AsyncData(
+        RoomState(
+          current.snapshot.copyWith(myRegistration: reg),
+          current.serverOffset,
+        ),
+      );
+    }
+  }
+}
+
+/// Bấm "Trả giá". Lỗi 409 (giá đã đổi, đang dẫn, vượt hạn mức) hiển thị qua state.
+@riverpod
+class BidAction extends _$BidAction {
+  @override
+  FutureOr<void> build(String sessionId) {}
+
+  Future<bool> bid(String lotId, int amount) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(auctionRepositoryProvider).placeBid(lotId, amount),
+    );
+    return !state.hasError;
+  }
+
+  Future<bool> setProxy(String lotId, int max) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(auctionRepositoryProvider).setProxyBid(lotId, max),
+    );
     return !state.hasError;
   }
 }
 
-/// Theo dõi lô. `state` = đang theo dõi hay không.
+/// Đăng ký phiên + khóa cọc; theo dõi lô.
 @riverpod
-class LotFollow extends _$LotFollow {
+class AuctionActions extends _$AuctionActions {
   @override
-  Future<bool> build(String lotId) async =>
-      (await ref.watch(lotDetailProvider(lotId).future)).following;
+  FutureOr<void> build() {}
 
-  Future<void> toggle() async {
-    final current = state.value ?? false;
-    state = await AsyncValue.guard(
-      () => ref
+  Future<Registration?> register(String sessionId, int deposit) async {
+    state = const AsyncLoading();
+    Registration? reg;
+    state = await AsyncValue.guard(() async {
+      reg = await ref
           .read(auctionRepositoryProvider)
-          .setFollowing(lotId, following: !current),
-    );
+          .register(sessionId, deposit);
+    });
+    if (reg != null) {
+      final changes = ref.read(dataChangesProvider.notifier);
+      for (final area in [DataArea.auctions, DataArea.wallet]) {
+        changes.bump(area);
+      }
+    }
+    return reg;
   }
+
+  Future<void> watch(String lotId, {required bool on}) async {
+    state = await AsyncValue.guard(
+      () => ref.read(auctionRepositoryProvider).watch(lotId, on: on),
+    );
+    ref.read(dataChangesProvider.notifier).bump(DataArea.auctions);
+  }
+}
+
+/// Nhóm hiển thị trên trang Đấu giá.
+enum SessionTab {
+  live,
+  upcoming,
+  ended;
+
+  bool matches(SessionStatus s) => switch (this) {
+    live => s == SessionStatus.live || s == SessionStatus.paused,
+    upcoming =>
+      s == SessionStatus.published ||
+          s == SessionStatus.confirmed ||
+          s == SessionStatus.postponed,
+    ended => s == SessionStatus.ended || s == SessionStatus.cancelled,
+  };
 }

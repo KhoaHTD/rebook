@@ -8,12 +8,12 @@ import 'package:json_annotation/json_annotation.dart';
 enum SellerDecision {
   @JsonValue('PENDING')
   pending('PENDING'),
-  @JsonValue('ACCEPTED')
-  accepted('ACCEPTED'),
+  @JsonValue('ACCEPT')
+  accept('ACCEPT'),
   @JsonValue('COUNTER')
   counter('COUNTER'),
-  @JsonValue('WITHDRAWN')
-  withdrawn('WITHDRAWN'),
+  @JsonValue('WITHDRAW')
+  withdraw('WITHDRAW'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

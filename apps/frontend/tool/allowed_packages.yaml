@@ -21,6 +21,11 @@ dependencies:
   flutter_secure_storage: lưu JWT
   cached_network_image: ảnh bìa sách có cache
   intl: format tiền, ngày, plural
+  stomp_dart_client: WebSocket STOMP cho phòng đấu giá (SRS 10.3), duyệt 2026-10-22
+  image_picker: chọn/chụp ảnh sách khi đăng bán, ký gửi, kiểm định, duyệt 2026-10-22
+  url_launcher: mở trang thanh toán VNPay sandbox, duyệt 2026-10-22
+  firebase_core: nền cho FCM, duyệt 2026-10-22
+  firebase_messaging: thông báo đẩy FCM (SRS mục 3), duyệt 2026-10-22
 
 dev_dependencies:
   flutter_test: SDK

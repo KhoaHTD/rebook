@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReBook — Liquid Glass desktop</title>
+<!-- SF Pro không có trên máy này: Inter chỉ là chữ thay thế để vẽ ảnh. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  :root {
+    --sf: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, sans-serif;
+    --ink: #1d1d1f; --sub: #6e6e73; --faint: #8e8e93;
+    --tint: #0a6cff; --live: #e5352b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; color: var(--ink); font: 400 13px/1.35 var(--sf); letter-spacing: -0.005em;
+    background: #eceef3; overflow: hidden; }
+  a { color: inherit; text-decoration: none; }
+
+  /* Nền: màu loang từ chính các bìa sách — thứ để kính "khúc xạ". */
+  .ambient { position: fixed; inset: -120px; z-index: 0; pointer-events: none; }
+  .ambient i { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .8; }
+  .ambient i:nth-child(1) { width: 620px; height: 520px; left: 160px; top: 40px; background: #d9a066; }
+  .ambient i:nth-child(2) { width: 560px; height: 560px; left: 760px; top: -60px; background: #6f8fc9; }
+  .ambient i:nth-child(3) { width: 520px; height: 420px; left: 980px; top: 520px; background: #c5574a; opacity: .35; }
+  .ambient i:nth-child(4) { width: 600px; height: 460px; left: 300px; top: 620px; background: #7fa58a; opacity: .4; }
+  .ambient::after { content: ""; position: absolute; inset: 0; background: rgba(250,250,252,.28); }
+
+  /* Kính lỏng: mờ + bão hòa nền, viền sáng, vệt phản chiếu phía trên. */
+  .glass { position: relative; background: linear-gradient(160deg, rgba(255,255,255,.66), rgba(255,255,255,.34));
+    -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
+    border: 1px solid rgba(255,255,255,.7);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(255,255,255,.3),
+      0 10px 34px rgba(25,35,60,.13), 0 1px 3px rgba(0,0,0,.06); }
+  .glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(120% 60% at 20% 0%, rgba(255,255,255,.55), transparent 55%); mix-blend-mode: soft-light; }
+
+  .app { position: relative; z-index: 1; display: flex; height: 100vh; }
+
+  .side { width: 248px; flex: none; margin: 12px; padding: 18px 10px 12px; border-radius: 26px; display: flex; flex-direction: column; }
+  .brand { font: 700 19px/1 var(--sf); letter-spacing: -0.02em; padding: 4px 12px 16px; }
+  .side a { position: relative; display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 12px; border-radius: 17px; font-size: 13.5px; }
+  .side a svg { width: 18px; height: 18px; flex: none; color: #48484a; }
+  .side a.on { background: linear-gradient(180deg, rgba(10,108,255,.20), rgba(10,108,255,.12)); color: var(--tint); font-weight: 600;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 0 0 .5px rgba(10,108,255,.25); }
+  .side a.on svg { color: var(--tint); }
+  .side .count { margin-left: auto; font-size: 12px; color: var(--sub); }
+  .side h4 { font: 600 11.5px/1 var(--sf); color: var(--faint); margin: 20px 12px 8px; text-transform: none; letter-spacing: 0; }
+  .user { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 18px; font-weight: 600; }
+  .user span { width: 32px; height: 32px; border-radius: 50%; background: url(assets/covers/ba-chi-em.jpg) center/cover;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.8); }
+
+  main { flex: 1; min-width: 0; position: relative; padding: 0 40px 0 26px; overflow: hidden; }
+
+  /* Thanh công cụ nổi */
+  .toolbar { position: absolute; top: 16px; right: 40px; display: flex; gap: 10px; z-index: 3; }
+  .search { width: 300px; height: 40px; border-radius: 20px; display: flex; align-items: center; gap: 8px; padding: 0 14px; color: var(--sub); }
+  .search svg { width: 16px; height: 16px; }
+  .circle { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; }
+  .circle svg { width: 18px; height: 18px; color: #3a3a3c; }
+  .circle .dot { position: absolute; top: 2px; right: 1px; min-width: 17px; height: 17px; border-radius: 9px; background: var(--live);
+    color: #fff; font: 700 10px/17px var(--sf); text-align: center; box-shadow: 0 0 0 2px rgba(255,255,255,.9); }
+
+  h1 { font: 700 34px/1.1 var(--sf); letter-spacing: -0.025em; margin: 26px 0 4px; }
+  .lede { color: var(--sub); font-size: 14px; margin: 0 0 22px; }
+
+  /* Phiên đang diễn ra: kính phủ lên bìa phóng to */
+  .hero { position: relative; height: 236px; border-radius: 30px; overflow: hidden; display: flex; align-items: center; gap: 28px; padding: 0 30px;
+    box-shadow: 0 18px 40px rgba(25,35,60,.18); }
+  .hero .bg { position: absolute; inset: -40px; background: url(assets/nam-phong-tap-chi-bui-quang-tuan.jpg) center/cover; filter: blur(30px) saturate(1.3); transform: scale(1.1); }
+  .hero .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.15), rgba(0,0,0,.35)); }
+  .hero .poster { position: relative; width: 124px; height: 186px; flex: none; border-radius: 3px 5px 5px 3px; overflow: hidden;
+    box-shadow: 0 16px 26px -8px rgba(0,0,0,.55); }
+  .hero .poster img { width: 100%; height: 100%; object-fit: cover; }
+  .hero .info { position: relative; flex: 1; color: #fff; }
+  .live { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 12px; font: 700 11px/1 var(--sf);
+    background: rgba(229,53,43,.85); box-shadow: inset 0 1px 0 rgba(255,255,255,.35); letter-spacing: .02em; }
+  .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+  .hero h3 { font: 700 26px/1.15 var(--sf); letter-spacing: -0.02em; margin: 12px 0 4px; }
+  .hero p { margin: 0; opacity: .85; font-size: 14px; }
+  .bidcard { position: relative; width: 300px; flex: none; border-radius: 24px; padding: 18px 20px; color: #fff;
+    background: linear-gradient(160deg, rgba(255,255,255,.28), rgba(255,255,255,.10)); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255,255,255,.35); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 10px 30px rgba(0,0,0,.18); }
+  .bidcard small { opacity: .8; font-size: 12px; }
+  .bidcard .price { font: 700 30px/1.1 var(--sf); letter-spacing: -0.02em; margin: 2px 0 2px; }
+  .bidcard .timer { font: 600 13px/1 var(--sf); opacity: .9; margin-bottom: 14px; font-variant-numeric: tabular-nums; }
+  .btn { display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 20px; font: 600 14px/1 var(--sf); }
+  .btn.white { background: rgba(255,255,255,.92); color: var(--ink); box-shadow: inset 0 1px 0 #fff, 0 4px 14px rgba(0,0,0,.15); }
+
+  h2 { font: 700 21px/1.2 var(--sf); letter-spacing: -0.02em; margin: 30px 0 16px; display: flex; align-items: center; gap: 6px; }
+  h2 span { color: var(--faint); font-weight: 500; }
+
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 26px; }
+  .bk { display: block; }
+  .cv { position: relative; aspect-ratio: 2/3; border-radius: 3px 6px 6px 3px; overflow: hidden;
+    box-shadow: 0 14px 22px -10px rgba(0,0,0,.45), 0 2px 5px rgba(0,0,0,.12); background: #ddd; }
+  .cv img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cv .concept { height: 100%; padding: 14px 12px; }
+  .cv .concept .ct { font: 700 17px/1.15 var(--sf); letter-spacing: -0.02em; }
+  .cv .concept .tag { font-size: 9px; font-family: var(--sf); }
+  .cv .concept * { font-family: var(--sf) !important; }
+  .cv::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, rgba(0,0,0,.22) 0, rgba(255,255,255,.2) 3px, rgba(0,0,0,.08) 6px, transparent 12px); }
+  /* chip kính đặt lên góc bìa */
+  .chip { position: absolute; left: 8px; bottom: 8px; z-index: 2; height: 22px; padding: 0 9px; border-radius: 11px; display: inline-flex; align-items: center;
+    font: 700 10.5px/1 var(--sf); color: #fff; letter-spacing: .02em;
+    background: rgba(30,30,32,.38); -webkit-backdrop-filter: blur(14px) saturate(180%); backdrop-filter: blur(14px) saturate(180%);
+    border: .5px solid rgba(255,255,255,.4); box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+  .chip.auc { background: rgba(229,53,43,.62); }
+  .t { margin-top: 10px; font: 600 13px/1.25 var(--sf); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m { color: var(--sub); font-size: 12px; margin-top: 2px; display: flex; justify-content: space-between; }
+  .m b { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="ambient"><i></i><i></i><i></i><i></i></div>
+<div class="app">
+  <aside class="side glass">
+    <div class="brand">ReBook</div>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>Tìm kiếm</a>
+    <a href="#" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg>Mua sách</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m14 4 6 6-3 3-6-6zM11 7l-7 7 3 3 7-7M3 21h10"/></svg>Đấu giá</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>Thông báo<span class="count">4</span></a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>Giỏ hàng<span class="count">2</span></a>
+    <h4>Của tôi</h4>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Đơn mua</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>Đấu giá của tôi</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h2"/></svg>Ví ReBook</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16l-1-4H5zM5 9v10h14V9M9 19v-5h6v5"/></svg>Kênh người bán</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16v13H4zM3 4h18v3H3zM10 11h4"/></svg>Ký gửi đấu giá</a>
+    <h4>Kệ sách</h4>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Văn học Việt Nam</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Văn học nước ngoài</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14M5 12h14M5 17h14"/></svg>Sách hiếm &amp; cổ</a>
+    <div class="user glass"><span></span>Nguyễn Minh Anh</div>
+  </aside>
+
+  <main>
+    <div class="toolbar">
+      <div class="search glass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>Tìm sách, tác giả, shop</div>
+      <div class="circle glass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span class="dot">2</span></div>
+      <div class="circle glass" style="font-size:16px;color:#3a3a3c">···</div>
+    </div>
+
+    <h1>Chào Anh</h1>
+    <p class="lede">Sách cũ chọn lọc từ những kệ sách thật.</p>
+
+    <section class="hero">
+      <div class="bg"></div>
+      <div class="poster"><img src="assets/nam-phong-tap-chi-bui-quang-tuan.jpg" alt=""></div>
+      <div class="info">
+        <span class="live">ĐANG DIỄN RA · 93 người xem</span>
+        <h3>Nam Phong tạp chí (1917)</h3>
+        <p>Lô 2 · Phiên “Sách cổ Nam Bộ trước 1975”</p>
+      </div>
+      <div class="bidcard">
+        <small>Giá hiện tại · bài #052 đang dẫn</small>
+        <div class="price">500.000 ₫</div>
+        <div class="timer">Còn 00:30</div>
+        <a class="btn white" href="#">Vào phòng đấu giá</a>
+      </div>
+    </section>
+
+    <h2>Đang được săn <span>›</span></h2>
+    <div class="grid">
+      <a class="bk" href="#"><div class="cv"><img src="assets/covers/tram-nam-co-don.jpg" alt=""><span class="chip">MỚI</span></div><div class="t">Trăm năm cô đơn</div><div class="m"><span>Tốt</span><b>65.000 ₫</b></div></a>
+      <a class="bk" href="#"><div class="cv"><div data-concept="sodo"></div><span class="chip">MỚI</span></div><div class="t">Số đỏ</div><div class="m"><span>Như mới</span><b>50.000 ₫</b></div></a>
+      <a class="bk" href="#"><div class="cv"><img src="assets/covers/toi-ac-va-hinh-phat.jpg" alt=""></div><div class="t">Tội ác và hình phạt</div><div class="m"><span>Khá</span><b>85.000 ₫</b></div></a>
+      <a class="bk" href="#"><div class="cv"><img src="assets/cover-of-trung-tiet-anh-hung-lich.jpg" alt=""><span class="chip auc">ĐẤU GIÁ</span></div><div class="t">Trung tiết anh hùng lịch</div><div class="m"><span>Mở 20:00</span><b>từ 1,2tr</b></div></a>
+      <a class="bk" href="#"><div class="cv"><div data-concept="vang"></div></div><div class="t">Vang bóng một thời</div><div class="m"><span>Tốt</span><b>120.000 ₫</b></div></a>
+      <a class="bk" href="#"><div class="cv"><img src="assets/covers/ong-gia-va-bien-ca.jpg" alt=""></div><div class="t">Ông già và biển cả</div><div class="m"><span>Khá</span><b>60.000 ₫</b></div></a>
+    </div>
+
+    <h2>Phiên sắp mở <span>›</span></h2>
+    <div class="grid">
+      <a class="bk" href="#"><div class="cv"><img src="assets/kim-van-kieu-tan-truyen.jpg" alt=""><span class="chip auc">20:00</span></div></a>
+      <a class="bk" href="#"><div class="cv"><img src="assets/covers/nhung-nguoi-khon-kho.jpg" alt=""></div></a>
+      <a class="bk" href="#"><div class="cv"><div data-concept="kieu"></div></div></a>
+      <a class="bk" href="#"><div class="cv"><img src="assets/tran-danh-cua-ai-da-nang.jpg" alt=""></div></a>
+      <a class="bk" href="#"><div class="cv"><img src="assets/covers/hoa-tren-mo-algernon.jpg" alt=""></div></a>
+      <a class="bk" href="#"><div class="cv"><img src="assets/covers/siddhartha.jpg" alt=""></div></a>
+    </div>
+  </main>
+</div>
+<script src="covers.js"></script>
+</body>
+</html>

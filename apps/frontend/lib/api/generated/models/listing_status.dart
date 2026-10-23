@@ -10,10 +10,10 @@ enum ListingStatus {
   pendingReview('PENDING_REVIEW'),
   @JsonValue('ACTIVE')
   active('ACTIVE'),
-  @JsonValue('OUT_OF_STOCK')
-  outOfStock('OUT_OF_STOCK'),
   @JsonValue('HIDDEN')
   hidden('HIDDEN'),
+  @JsonValue('OUT_OF_STOCK')
+  outOfStock('OUT_OF_STOCK'),
   @JsonValue('REJECTED')
   rejected('REJECTED'),
 

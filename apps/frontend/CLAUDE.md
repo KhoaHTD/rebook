@@ -1,7 +1,15 @@
 # Book Marketplace — Chợ sách cũ & đấu giá
 
 Flutter app chạy trên **web + Android + iOS**. Backend là REST API riêng (OpenAPI) + WebSocket cho đấu giá.
-Firebase chỉ dùng để **hosting bản web** — app KHÔNG dùng Firebase SDK.
+Firebase chỉ dùng cho **hosting bản web** và **FCM (thông báo đẩy)**: chỉ `firebase_core` + `firebase_messaging`, gọi qua `core/notifications/`. Không dùng Firestore, Auth, Storage hay SDK Firebase nào khác.
+
+Nghiệp vụ: [docs/SRS.txt](docs/SRS.txt) (đặc tả gốc, @Khoa 21/10/2026) + 3 sơ đồ `docs/srs-*.png`. Tiến độ: [docs/PROGRESS.md](docs/PROGRESS.md).
+
+**Giao diện: style Liquid Glass đã duyệt (2026-10-22)** — chuẩn là `../../design-preview/png/lg-desktop.png` và `lg-mobile.png`
+(nền màu loang lấy tông từ bìa sách, sidebar / tab bar / thanh đầu trang / thanh mua hàng bằng kính mờ nổi, màu nhấn xanh,
+chữ nội dung San Francisco — SF hệ thống trên iPhone/Mac, Inter trên web/Android, không đóng gói SF —, tiêu đề trang / tiêu đề kệ / dòng sự kiện là serif mềm Newsreader (giống New York của Apple), sidebar kính tràn hết chiều cao sát mép trái, băng chuyền `HeroCarousel` ở trang chủ, chi tiết sách lấy bìa phóng to + làm mờ làm nền cả trang (`AppPage.background` + `BookBackdrop`) với chữ trong khung kính, poster sách lớn có gáy + bóng,
+lưới 4 poster/hàng trên desktop, kệ cuộn ngang + tab bar kính nổi trên mobile). Mọi màn mới theo đúng style này:
+dùng `Glass`, `InfoPanel`, `AppPage`, `HeaderAction` trong `shared/widgets/` thay vì tự vẽ nền / viền.
 
 Chi tiết kiến trúc, lý do và ví dụ: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Đọc file đó trước khi thêm feature mới.
 
@@ -18,6 +26,20 @@ flutter test
 ```
 
 `env/dev.json` có `USE_MOCK=true` → chạy bằng dữ liệu giả, không cần backend.
+
+### Ghép với backend thật (`apps/backend`)
+
+Merge code không tự tắt mock: `USE_MOCK` chỉ do file `--dart-define-from-file` quyết định. **Không sửa `env/dev.json`** (giữ mock để code giao diện).
+Muốn nối backend thật thì chạy bằng `env/local.json` (`USE_MOCK=false`, API `http://localhost:8080/api`, WS `ws://localhost:8080/ws`):
+
+```bash
+flutter run -d chrome --dart-define-from-file=env/local.json
+```
+
+- Khi người dùng nói "chạy nối backend / chạy thật / ghép backend" → dùng `env/local.json`, không phải `dev.json`.
+- Máy ảo Android gọi máy host bằng `10.0.2.2`: đổi `localhost` thành `10.0.2.2` trong bản sao của file env (đừng commit bản đã đổi).
+- Backend (README ở `apps/backend`): cần Java 21 + PostgreSQL `localhost:5432`, tạo DB bằng `scripts/create-database.sql`, chạy `./mvnw spring-boot:run`. Tài khoản mẫu `buyer1@rebook.vn` / `Rebook@123`. Cổng 8080 bị chiếm → đặt biến môi trường `PORT` và đổi cổng trong file env.
+- Gọi API lỗi / sai field → `openapi/openapi.yaml` của frontend có thể lệch với `apps/backend/openapi.yaml`: báo người dùng, rồi chạy `/sync-api`. Không sửa gì trong `apps/backend`.
 
 ## Stack đã chốt — KHÔNG thêm công nghệ khác
 
@@ -79,7 +101,7 @@ lib/
 ## KHÔNG được làm
 
 - Sửa file `*.g.dart`, `*.freezed.dart`, `lib/api/generated/**`, `lib/app/l10n/generated/**` (hook sẽ chặn) — sửa nguồn rồi chạy lại generator.
-- Thêm package, đổi state management, đổi router, thêm Firebase SDK.
+- Thêm package, đổi state management, đổi router, thêm Firebase SDK ngoài `firebase_core`/`firebase_messaging`.
 - Tạo thư mục cấp cao mới trong `lib/` ngoài `app/ core/ shared/ api/ features/`.
 - Gọi API bằng đường dẫn tự gõ khi spec chưa có endpoint: báo người dùng cập nhật `openapi/openapi.yaml` rồi chạy `/sync-api`.
 

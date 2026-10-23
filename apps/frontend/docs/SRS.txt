@@ -1,0 +1,554 @@
+ReBook – Đặc tả ứng dụng mua bán & đấu giá sách cũ
+Oct 21, 2026 · @Khoa
+1. Tổng quan
+Ứng dụng ReBook là một sàn giao dịch sách cũ có hai kênh bán: bán giá cố định (như Shopee, Tiki) và đấu giá trực tiếp cho sách hiếm, sách cổ, sách có chữ ký. App đóng vai trò trung gian: giữ tiền của người mua cho đến khi giao dịch xong, thu phí trên mỗi giao dịch, và riêng với đấu giá thì giữ cả sách thật trong kho.
+Vì sao tách hai kênh? Sách cũ phổ thông (giáo trình, tiểu thuyết) có giá dễ đoán, bán giá cố định là đủ. Sách hiếm thì khó định giá, nên để thị trường tự trả giá qua đấu giá; và vì giá trị cao nên cần app kiểm định để người mua tin tưởng.
+ | Kênh
+ | Ai giữ sách
+ | Ai định giá
+ | App kiểm định?
+ | Giao hàng từ
+ | Bán giá cố định
+ | Người bán
+ | Người bán
+ | Không (chỉ duyệt tin đăng)
+ | Người bán
+ | Đấu giá
+ | Kho của app
+ | Người trả giá cao nhất
+ | Có, bắt buộc
+ | Kho của app
+Phạm vi đồ án: app mobile Flutter cho người mua/người bán, web quản trị cho Staff/Admin cũng viết bằng Flutter (Flutter Web), backend Spring Boot. Thanh toán chạy thật qua VNPay sandbox; vận chuyển giả lập trạng thái giao, phí ship tính theo bảng cố định.
+2. Vai trò người dùng
+Một tài khoản có thể vừa mua vừa bán (giống Shopee), nên nên coi Buyer/Seller là chế độ của cùng một User; chỉ Staff và Admin là role riêng.
+ | Vai trò
+ | Là ai
+ | Quyền chính
+ | Khách (Guest)
+ | Chưa đăng nhập
+ | Xem sách, xem lịch phiên đấu giá, xem trực tiếp phiên (không được trả giá)
+ | Người mua (Buyer)
+ | User đã xác thực email/SĐT
+ | Mua hàng, giỏ hàng, thanh toán, đánh giá, đăng ký và trả giá trong phiên đấu giá
+ | Người bán (Seller)
+ | User đã bật "Shop" (khai báo tên shop, địa chỉ lấy hàng, tài khoản nhận tiền)
+ | Đăng bán giá cố định, xử lý đơn, gửi yêu cầu ký gửi đấu giá, xem doanh thu
+ | Nhân viên kho/kiểm định (Staff)
+ | Nhân viên của sàn
+ | Nhận sách ký gửi, kiểm định, chụp ảnh, ghi tình trạng, nhập/xuất kho, đóng gói giao hàng đấu giá
+ | Đấu giá viên (Auctioneer)
+ | Staff được phân công điều khiển phiên
+ | Không cần trong bản này: phiên tự mở, tự chuyển lô, tự chốt
+ | Quản trị (Admin)
+ | Chủ sàn
+ | Duyệt tin, khóa tài khoản, cấu hình phí, tạo phiên đấu giá, giải quyết khiếu nại, báo cáo
+Vì phiên chạy tự động hoàn toàn, không cần role Đấu giá viên riêng. Staff chỉ can thiệp khi có sự cố (tạm dừng phiên, hủy một lô).
+3. Danh sách chức năng
+Nhóm làm toàn bộ danh sách. Nhãn (MVP) là thứ tự ưu tiên: làm và kiểm thử xong trước; (mở rộng) làm khi phần lõi đã chạy ổn.
+Chung
+Đăng ký, đăng nhập (JWT), quên mật khẩu, xác thực OTP email (MVP)
+Hồ sơ cá nhân, sổ địa chỉ (MVP)
+Thông báo đẩy (FCM): đơn hàng, sắp tới phiên, bị trả giá cao hơn, thắng đấu giá (MVP)
+Chat người mua – người bán (mở rộng)
+Người mua
+Tìm kiếm, lọc theo thể loại / tác giả / tình trạng / giá, sắp xếp (MVP)
+Xem chi tiết sách, ảnh, đánh giá shop (MVP)
+Giỏ hàng nhiều shop, đặt hàng, thanh toán COD / ví / VNPay sandbox (MVP)
+Theo dõi đơn, xác nhận đã nhận, đánh giá, yêu cầu trả hàng (MVP trừ trả hàng)
+Danh sách yêu thích (mở rộng)
+Xem lịch phiên đấu giá, xem catalogue từng lô, đăng ký tham gia + đặt cọc (MVP)
+Vào phòng đấu giá trực tiếp, trả giá theo bước giá, xem giá hiện tại realtime (MVP)
+Đặt giá tối đa tự động (proxy bid) (mở rộng)
+Thanh toán lô đã thắng, theo dõi giao hàng từ kho (MVP)
+Người bán
+Bật shop, khai báo thông tin nhận tiền (MVP)
+Đăng / sửa / ẩn sách bán giá cố định, quản lý tồn kho (MVP)
+Xử lý đơn: xác nhận, chuẩn bị hàng, giao cho đơn vị vận chuyển, hủy (MVP)
+Gửi yêu cầu ký gửi đấu giá, hẹn lịch mang sách đến kho (MVP)
+Xem kết quả kiểm định, chấp nhận / từ chối giá khởi điểm đề xuất (MVP)
+Xem kết quả phiên, nhận tiền hoặc nhận lại sách không bán được (MVP)
+Thống kê doanh thu, ví, rút tiền (MVP: xem số dư; rút tiền giả lập)
+Staff / Auctioneer
+Danh sách lịch hẹn ký gửi, tiếp nhận sách, tạo phiếu nhập kho (MVP)
+Phiếu kiểm định: tình trạng, ảnh thật, đề xuất giá khởi điểm (MVP)
+Quản lý vị trí kệ, xuất kho (giao cho người thắng / trả người bán) (MVP)
+Giám sát phiên tự động: xem phiên đang chạy, tạm dừng / tiếp tục, hủy một lô khi có sự cố (MVP)
+Admin
+Duyệt tin đăng, khóa tài khoản vi phạm (MVP)
+Quản lý danh mục thể loại (MVP)
+Tạo phiên đấu giá, xếp lô vào phiên, cấu hình số người tối thiểu, tiền cọc, bước giá (MVP)
+Cấu hình phí sàn, phí hoa hồng đấu giá (MVP)
+Giải quyết khiếu nại, hoàn tiền (mở rộng)
+Dashboard: doanh thu, số đơn, tỷ lệ lô bán được (mở rộng)
+4. Nghiệp vụ mua bán giá cố định
+Nguyên tắc cốt lõi của mọi sàn là giữ tiền trung gian (escrow): người mua trả tiền cho sàn, sàn chỉ chuyển cho người bán sau khi người mua xác nhận đã nhận hàng (hoặc hết hạn khiếu nại). Nhờ vậy hai bên không cần tin nhau, chỉ cần tin sàn.
+4.1 Đăng bán sách
+Người bán nhập thông tin: tên sách, tác giả, NXB, năm xuất bản, ISBN (nếu có), thể loại, ngôn ngữ, số trang, mô tả, giá, số lượng, khối lượng (để tính ship), tối thiểu 3 ảnh thật.
+Chọn tình trạng sách theo thang chuẩn (bắt buộc, để người mua so sánh được):
+Mới (New): chưa đọc, còn nguyên
+Như mới (Like new): đã đọc, không dấu vết
+Tốt (Very good): có dấu hiệu dùng nhẹ, không ghi chú
+Khá (Good): có ghi chú / gấp góc / ố vàng nhẹ, đủ trang
+Trung bình (Acceptable): hư hại rõ, vẫn đọc được
+Tin đăng vào trạng thái Chờ duyệt → Admin duyệt (hoặc tự động duyệt nếu shop uy tín) → Đang bán.
+Sách cũ thường chỉ có 1 cuốn; khi số lượng về 0 thì tin chuyển sang Hết hàng.
+4.2 Đặt hàng và thanh toán
+Người mua thêm sách vào giỏ (giỏ có thể chứa sách của nhiều shop).
+Checkout: hệ thống tách thành nhiều đơn, mỗi shop một đơn, vì mỗi shop giao riêng và có phí ship riêng. Một lần thanh toán có thể trả cho nhiều đơn (bảng Payment liên kết nhiều Order).
+Giữ hàng (reserve): khi tạo đơn, trừ tồn kho ngay để tránh hai người cùng mua một cuốn duy nhất. Dùng khóa lạc quan (@Version) hoặc UPDATE ... WHERE stock >= qty để chống tranh chấp.
+Thanh toán online: nếu sau 15 phút chưa trả → hủy đơn, hoàn tồn kho (job định kỳ @Scheduled). COD: đơn vào thẳng Chờ xác nhận.
+Tổng tiền = tiền sách + phí ship − voucher (nếu làm).
+4.3 Xử lý và giao hàng
+Người bán xác nhận đơn trong 24h, nếu không hệ thống tự hủy và hoàn tiền.
+Người bán đóng gói, bàn giao cho đơn vị vận chuyển, nhập mã vận đơn → Đang giao. (Đồ án có thể giả lập: nút "Đã giao cho shipper" và "Đã giao thành công".)
+Giao thành công → người mua có 3 ngày để bấm "Đã nhận hàng" hoặc yêu cầu trả hàng. Hết 3 ngày không phản hồi → tự động hoàn tất.
+Hoàn tất → sàn trừ phí, cộng tiền vào ví người bán (mục 8).
+4.4 Hủy đơn, trả hàng, đánh giá
+Người mua được hủy tự do khi đơn còn Chờ xác nhận; sau khi shop đã xác nhận thì phải gửi yêu cầu hủy để shop đồng ý.
+Trả hàng chỉ chấp nhận khi sách khác mô tả (sai tình trạng, thiếu trang, sai ấn bản); không nhận trả vì "đổi ý". Người mua gửi lý do + ảnh; shop đồng ý hoặc từ chối; từ chối thì Admin phân xử.
+Sau khi hoàn tất, người mua đánh giá 1–5 sao + nhận xét; điểm trung bình hiển thị trên trang shop. Chỉ người đã mua mới được đánh giá, mỗi đơn một lần.
+5. Kiến thức nền về đấu giá
+App nên dùng đấu giá kiểu Anh (giá lên dần, trả giá công khai), chạy trực tiếp từng lô một với đồng hồ đếm ngược thay cho tiếng búa. Đây đúng là kiểu "đấu giá ngoài đời" bạn mô tả (như nhà đấu giá Christie&apos;s, Sotheby&apos;s).
+5.1 Thuật ngữ cần biết
+ | Thuật ngữ
+ | Tiếng Anh
+ | Ý nghĩa trong app
+ | Ký gửi
+ | Consignment
+ | Người bán giao sách cho sàn giữ và bán hộ, sách vẫn thuộc sở hữu người bán cho đến khi bán xong
+ | Người ký gửi
+ | Consignor
+ | Người bán trong kênh đấu giá
+ | Lô
+ | Lot
+ | Một đơn vị được đấu giá: thường 1 cuốn, có thể là 1 bộ sách. Mỗi lô có số thứ tự trong phiên
+ | Phiên đấu giá
+ | Auction session / Sale
+ | Một buổi đấu giá có giờ bắt đầu, gồm nhiều lô chạy lần lượt
+ | Danh mục
+ | Catalogue
+ | Danh sách các lô của phiên kèm ảnh, mô tả, báo cáo tình trạng, giá ước tính; công bố trước phiên
+ | Giá ước tính
+ | Estimate
+ | Khoảng giá dự kiến (vd 500k–800k) do sàn đưa ra để người mua tham khảo
+ | Giá khởi điểm
+ | Starting price
+ | Giá bắt đầu của lô, công khai
+ | Giá sàn (giá bảo lưu)
+ | Reserve price
+ | Giá tối thiểu người bán chấp nhận, bí mật. Giá cuối thấp hơn giá sàn thì lô không bán
+ | Bước giá
+ | Bid increment
+ | Mức tăng tối thiểu mỗi lần trả giá, thường tăng theo bậc giá (bảng dưới)
+ | Lượt trả giá
+ | Bid
+ | Một lần người tham gia bấm trả giá
+ | Giá gõ búa
+ | Hammer price
+ | Giá cao nhất khi lô được chốt
+ | Phí người mua
+ | Buyer&apos;s premium
+ | % cộng thêm vào giá gõ búa mà người thắng phải trả cho sàn
+ | Hoa hồng người bán
+ | Seller&apos;s commission
+ | % trừ vào giá gõ búa trước khi trả người bán
+ | Tiền cọc
+ | Deposit
+ | Tiền khóa tạm để được tham gia; chống người thắng rồi bỏ
+ | Số bài
+ | Paddle number
+ | Mã ẩn danh của người tham gia trong phiên (vd #027), hiển thị thay cho tên thật
+ | Gia hạn chống giật phút chót
+ | Soft close / anti-sniping
+ | Có người trả giá lúc đồng hồ còn ít thì đồng hồ được nạp lại
+ | Trả giá ủy quyền
+ | Proxy / absentee bid
+ | Người dùng đặt trước mức tối đa, hệ thống tự trả giá hộ từng bước
+ | Không bán được
+ | Unsold / passed / bought in
+ | Lô không ai trả hoặc không đạt giá sàn
+5.2 Các kiểu đấu giá và lý do chọn
+ | Kiểu
+ | Cách chạy
+ | Phù hợp app?
+ | Kiểu Anh (English, giá lên)
+ | Giá tăng dần, ai trả cao nhất khi hết giờ thì thắng
+ | Chọn – dễ hiểu, sôi động, đúng mô tả của bạn
+ | Kiểu Hà Lan (Dutch, giá xuống)
+ | Giá giảm dần, người đầu tiên bấm thì mua được
+ | Không – hợp với hàng số lượng lớn (hoa, cá)
+ | Giá kín (sealed bid)
+ | Mỗi người nộp một giá bí mật, cao nhất thắng
+ | Có thể làm thêm, nhưng mất tính trực tiếp
+ | Online kéo dài nhiều ngày (kiểu eBay)
+ | Mỗi lô mở 3–7 ngày, trả giá bất cứ lúc nào
+ | Dễ code hơn, nhưng không phải "từng cuốn một như ngoài đời"
+5.3 Bước giá gợi ý (VNĐ)
+ | Giá hiện tại
+ | Bước giá tối thiểu
+ | Dưới 200.000
+ | 10.000
+ | 200.000 – dưới 1.000.000
+ | 50.000
+ | 1.000.000 – dưới 5.000.000
+ | 100.000
+ | Từ 5.000.000
+ | 500.000
+Bước giá theo bậc giúp phiên không bị kéo dài bởi các lượt tăng lắt nhắt. App hiển thị sẵn nút "Trả Xđ" = giá hiện tại + bước, người dùng chỉ cần bấm, không phải gõ số.
+Lưu ý pháp lý: ở Việt Nam, đấu giá tài sản chuyên nghiệp chịu điều chỉnh của Luật Đấu giá tài sản. Với đồ án môn học thì không cần xử lý, nhưng nếu báo cáo có phần "rủi ro / hạn chế" thì nên nhắc một câu.
+6. Quy trình đấu giá chi tiết
+Một cuốn sách đi qua 6 giai đoạn: ký gửi → kiểm định → xếp phiên → đăng ký tham gia → phiên trực tiếp → thanh toán và giao hàng. Có 3 điểm rẽ nhánh quan trọng: sách có đạt kiểm định không, phiên có đủ người không, và giá cuối có đạt giá sàn không.
+
+luồng đấu giá · 6 giai đoạn, 3 điểm rẽ nhánh
+Nét đứt là vòng lặp: khi phiên thiếu người, các lô không mất đi mà quay lại chờ xếp vào phiên sau.
+6.1 Giai đoạn A – Ký gửi
+Người bán tạo yêu cầu ký gửi trên app: thông tin sách, ảnh, câu chuyện/nguồn gốc (vd "bản in lần đầu 1965, có chữ ký tác giả"), giá mong muốn.
+Staff sơ duyệt online trong 48h. Từ chối nếu sách phổ thông, giá trị thấp (vd giá mong muốn dưới 300.000đ) và gợi ý chuyển sang bán giá cố định. Lý do: chi phí kho và kiểm định không đáng với sách rẻ.
+Được duyệt → người bán đặt lịch hẹn mang sách tới kho (chọn ngày + khung giờ trống). Quá 7 ngày không mang tới → yêu cầu hết hạn.
+Tại kho: Staff quét mã QR của lịch hẹn, đối chiếu sách với mô tả, lập biên nhận ký gửi (có ảnh lúc nhận) và gán mã kho. Từ lúc này sàn chịu trách nhiệm bảo quản.
+6.2 Giai đoạn B – Kiểm định
+Staff kiểm tra theo checklist: đủ trang, đúng ấn bản / lần in, tình trạng bìa – gáy – ruột, ẩm mốc, ghi chú, chữ ký (nếu có, ghi "chưa xác thực" nếu không chứng minh được).
+Staff chụp bộ ảnh chuẩn (bìa trước, bìa sau, gáy, trang bản quyền, các chỗ hư hại) và viết báo cáo tình trạng (condition report).
+Staff đề xuất: giá ước tính, giá khởi điểm (thường 50–70% mức thấp của ước tính), giá sàn (không vượt mức thấp của ước tính).
+Kết quả:
+Không đạt (sách giả, thiếu trang nặng, khác hoàn toàn mô tả) → báo người bán, người bán có 14 ngày đến nhận lại.
+Đạt → gửi đề xuất giá cho người bán.
+Người bán chấp nhận / đề nghị giá sàn khác / rút sách. Chấp nhận = đồng ý hợp đồng ký gửi điện tử (tích điều khoản): mức hoa hồng, không được rút sau khi catalogue đã công bố, sàn được giữ sách tối đa 2 phiên.
+Sách vào kho chính thức với vị trí kệ, trở thành một lô (lot) ở trạng thái Chờ xếp phiên.
+6.3 Giai đoạn C – Xếp phiên và công bố
+Admin tạo phiên: tên/chủ đề (vd "Sách cổ Nam Bộ trước 1975"), giờ bắt đầu, hạn đăng ký, số người tối thiểu N, tiền cọc, thời lượng mỗi lô. Chọn các lô đang chờ và sắp xếp thứ tự (lô hấp dẫn nên đặt ở giữa để giữ người xem).
+Công bố catalogue trước phiên (vd 7 ngày). Người dùng xem từng lô, ảnh, báo cáo tình trạng, giá ước tính, bấm "Theo dõi" để nhận nhắc. Từ đây lô bị khóa, người bán không rút được.
+6.4 Giai đoạn D – Đăng ký tham gia và đủ người
+Người mua bấm Đăng ký tham gia: đã xác thực SĐT, đồng ý quy chế phiên, đặt cọc (khóa tiền trong ví). Hệ thống cấp số bài ẩn danh.
+Hạn mức trả giá = tiền cọc × 10 (vd cọc 500.000đ → được giữ/thắng tổng tối đa 5.000.000đ trong phiên). Muốn hạn mức cao hơn thì cọc thêm. Cách này chống người trả giá ảo rồi bỏ.
+Đến hạn đăng ký (vd 24h trước giờ mở), job tự động đếm số người đã cọc thành công:
+≥ N → phiên chuyển sang Đã xác nhận, gửi thông báo "Phiên sẽ diễn ra lúc ..." cho người đăng ký và người bán.
+< N → phiên bị hoãn (dời lịch một lần, mở lại đăng ký) hoặc hủy: hoàn cọc toàn bộ, các lô quay về Chờ xếp phiên, người bán được chọn rút sách.
+6.5 Giai đoạn E – Phiên trực tiếp
+Phòng chờ mở trước 15 phút. Đúng giờ, hệ thống tự Mở phiên bằng job định kỳ, không cần người bấm. Staff chỉ có nút tạm dừng / hủy lô khi có sự cố.
+Vòng đời một lô:
+Lô hiện lên: ảnh, mô tả, giá khởi điểm, đồng hồ 60 giây.
+Mỗi lượt trả giá hợp lệ: giá hiện tại tăng, server phát sóng (broadcast) cho mọi người trong phòng.
+Soft close: nếu có lượt trả giá khi đồng hồ còn dưới 15 giây → đặt lại về 15 giây. Nhờ vậy không ai "cướp" được ở giây cuối, giống đấu giá viên ngoài đời chờ thêm khi còn người giơ bảng.
+Còn 10 giây hiện "Lần thứ nhất", còn 5 giây "Lần thứ hai", hết giờ "Bán!" (gõ búa).
+Kiểm tra một lượt trả giá (phía server): người dùng đã đăng ký phiên và cọc hợp lệ; lô đang mở; giá ≥ giá hiện tại + bước giá; người dùng không phải người đang giữ giá cao nhất (không tự đẩy giá mình); tổng giá đang giữ + lượt này ≤ hạn mức. Hai người cùng bấm một mức giá thì ai đến server trước thắng, người sau nhận lỗi "Giá đã thay đổi". Đồng hồ và giá luôn do server quyết định, app chỉ hiển thị.
+Kết thúc lô:
+Có người trả và giá ≥ giá sàn → Đã bán cho người giữ giá cao nhất.
+Có người trả nhưng giá < giá sàn → Không đạt giá (không tiết lộ giá sàn).
+Không ai trả → Không bán được.
+Nghỉ 5–10 giây rồi sang lô kế tiếp. Một người có thể thắng nhiều lô.
+Hết lô cuối → đóng phiên, công bố bảng kết quả (số bài + giá, không hiện tên thật). Người mất kết nối giữa chừng vẫn giữ các lượt đã trả; vào lại phòng sẽ nhận trạng thái hiện tại.
+6.6 Giai đoạn F – Sau phiên
+Người không thắng lô nào → mở khóa cọc ngay khi phiên đóng.
+Người thắng nhận hóa đơn: giá gõ búa + phí người mua + phí giao (hoặc chọn nhận tại kho), trừ tiền cọc. Hạn thanh toán 48h.
+Quá hạn không trả → mất cọc, bị cấm tham gia đấu giá (vd 90 ngày). Lô được mời người trả giá cao thứ hai mua với giá họ đã trả (second chance offer, hạn 24h), nếu từ chối thì lô quay lại xếp phiên sau.
+Đã thanh toán → Staff xuất kho, đóng gói, giao. Người mua xác nhận đã nhận (3 ngày khiếu nại). Vì sàn đã kiểm định, nếu sách khác báo cáo tình trạng thì sàn chịu trách nhiệm, không đẩy cho người bán.
+Hoàn tất → trả người bán: giá gõ búa − hoa hồng.
+Lô không bán được → người bán chọn: vào phiên sau (có thể hạ giá sàn), chuyển sang bán giá cố định do sàn giao hộ, hoặc đến kho nhận lại trong 14 ngày.
+7. Luồng trạng thái
+Mỗi thực thể chính có một cột status kiểu enum, và backend chỉ cho phép chuyển theo các mũi tên dưới đây (ném lỗi 409 nếu chuyển sai). Đây là phần giảng viên hay hỏi nhất khi bảo vệ.
+7.1 Lô đấu giá (Lot / Consignment)
+
+trạng thái của lô · 9 trạng thái
+Các nhánh phụ không vẽ: phiên bị hủy thì SCHEDULED quay về READY; người thắng bỏ thanh toán thì SOLD quay về READY (hoặc sang người trả giá cao thứ hai); UNSOLD có thể quay về READY hoặc tạo Listing bán giá cố định.
+7.2 Phiên đấu giá (AuctionSession)
+ | Trạng thái
+ | Ý nghĩa
+ | Chuyển sang
+ | DRAFT
+ | Admin đang tạo, xếp lô
+ | PUBLISHED
+ | PUBLISHED
+ | Catalogue công khai, đang nhận đăng ký
+ | CONFIRMED (đủ N) / POSTPONED / CANCELLED (thiếu N)
+ | POSTPONED
+ | Dời lịch, mở lại đăng ký
+ | PUBLISHED / CANCELLED
+ | CONFIRMED
+ | Đủ người, chờ đến giờ
+ | LIVE
+ | LIVE
+ | Đang chạy từng lô
+ | PAUSED / ENDED
+ | PAUSED
+ | Tạm dừng (sự cố kỹ thuật)
+ | LIVE
+ | ENDED
+ | Đã chạy hết lô, có kết quả
+ | –
+ | CANCELLED
+ | Hủy, đã hoàn cọc
+ | –
+7.3 Đơn hàng (Order) – dùng chung cho mua thường và lô đã thắng
+ | Trạng thái
+ | Ý nghĩa
+ | Chuyển sang
+ | PENDING_PAYMENT
+ | Chờ thanh toán online (15 phút; với lô đấu giá là 48h)
+ | PENDING_CONFIRM / CANCELLED
+ | PENDING_CONFIRM
+ | Chờ người bán (hoặc kho) xác nhận
+ | PREPARING / CANCELLED
+ | PREPARING
+ | Đang đóng gói
+ | SHIPPING
+ | SHIPPING
+ | Đang giao
+ | DELIVERED / FAILED_DELIVERY
+ | DELIVERED
+ | Đã giao, trong 3 ngày khiếu nại
+ | COMPLETED / RETURN_REQUESTED
+ | RETURN_REQUESTED
+ | Người mua yêu cầu trả
+ | RETURNED / COMPLETED (bị từ chối)
+ | COMPLETED
+ | Xong, đã trả tiền người bán
+ | –
+ | CANCELLED / RETURNED / FAILED_DELIVERY
+ | Kết thúc không thành, hoàn tiền nếu đã trả
+ | –
+Thêm cột order_type = NORMAL | AUCTION để biết ai giao hàng (shop hay kho) và ai nhận tiền.
+7.4 Lượt đăng ký tham gia (AuctionRegistration)
+PENDING_DEPOSIT → APPROVED (đã khóa cọc) → REFUNDED (không thắng / phiên hủy) hoặc APPLIED (cọc được trừ vào hóa đơn) hoặc FORFEITED (mất cọc vì bỏ thanh toán).
+8. Dòng tiền: ví, phí, đặt cọc
+Mọi khoản tiền đi qua ví nội bộ của app, và mọi thay đổi số dư đều được ghi thành một dòng giao dịch không sửa được (sổ cái). Đây là cách các sàn thật làm để đối soát được khi có tranh chấp.
+8.1 Ví
+Mỗi user có 1 ví với 2 số: available_balance (dùng được) và held_balance (đang bị khóa: tiền cọc, tiền bán hàng chờ hoàn tất đơn).
+Nạp tiền qua VNPay/MoMo sandbox: cổng gọi callback (IPN) về backend → kiểm chữ ký → cộng ví. Callback có thể đến 2 lần, nên lưu mã giao dịch cổng là UNIQUE để không cộng trùng.
+Rút tiền: người bán tạo yêu cầu, Admin duyệt và đánh dấu đã chuyển (đồ án giả lập).
+Loại giao dịch ví: TOP_UP, PAYMENT, REFUND, DEPOSIT_HOLD, DEPOSIT_RELEASE, DEPOSIT_FORFEIT, SALE_PENDING, SALE_RELEASE, FEE, WITHDRAW.
+8.2 Phí sàn (giá trị gợi ý, Admin cấu hình được)
+ | Kênh
+ | Ai trả
+ | Mức
+ | Bán giá cố định
+ | Người bán
+ | 5% giá sách, trừ khi đơn hoàn tất
+ | Đấu giá – phí người mua
+ | Người thắng
+ | 10% giá gõ búa, cộng vào hóa đơn
+ | Đấu giá – hoa hồng
+ | Người bán
+ | 15% giá gõ búa, trừ khi trả tiền
+ | Đấu giá – lưu kho quá hạn
+ | Người bán
+ | vd 5.000đ/cuốn/ngày sau 14 ngày không đến nhận lại
+Ví dụ một lô bán được với giá gõ búa 1.000.000đ: người thắng trả 1.000.000 + 100.000 phí người mua + 30.000 ship = 1.130.000đ (trừ cọc đã khóa). Người bán nhận 1.000.000 − 150.000 = 850.000đ. Sàn thu 250.000đ.
+8.3 Tiền cọc
+Đăng ký phiên → chuyển tiền cọc từ available sang held (DEPOSIT_HOLD). Không đủ số dư → yêu cầu nạp trước.
+Phiên hủy hoặc không thắng lô nào → trả về available (DEPOSIT_RELEASE).
+Thắng và thanh toán → cọc được trừ vào hóa đơn.
+Thắng nhưng bỏ → cọc bị thu (DEPOSIT_FORFEIT): gợi ý chia 50% cho người bán (bù thiệt hại phải chờ phiên sau), 50% cho sàn.
+8.4 Nguyên tắc kỹ thuật khi xử lý tiền
+Dùng BigDecimal (Java) / DECIMAL(15,0) (DB) cho tiền VNĐ, không dùng double.
+Mỗi nghiệp vụ tiền nằm trong một @Transactional, khóa dòng ví khi cập nhật (SELECT ... FOR UPDATE hoặc @Lock(PESSIMISTIC_WRITE)).
+Không bao giờ xóa hay sửa dòng giao dịch ví; sai thì tạo giao dịch điều chỉnh ngược lại.
+9. Mô hình dữ liệu gợi ý
+Khoảng 20 bảng, chia 4 nhóm. Điểm mấu chốt: tách Book (thông tin sách) khỏi Listing (tin bán giá cố định) và Lot (lô đấu giá), để một cuốn không bán được ở đấu giá có thể chuyển sang bán thường mà không nhập lại.
+ | Bảng
+ | Cột chính
+ | Ghi chú
+ | Người dùng
+ | 
+ | 
+ | users
+ | id, email, phone, password_hash, full_name, avatar, role (USER/STAFF/ADMIN), status, phone_verified, auction_banned_until
+ | 
+ | shops
+ | id, user_id, name, pickup_address, rating_avg, created_at
+ | 1 user – 0..1 shop
+ | addresses
+ | id, user_id, receiver, phone, province, district, ward, detail, is_default
+ | 
+ | Sách & mua bán
+ | 
+ | 
+ | categories
+ | id, name, parent_id
+ | Danh mục cây
+ | books
+ | id, owner_id, title, author, publisher, publish_year, isbn, language, pages, category_id, condition_grade, description, weight_gram
+ | 
+ | book_images
+ | id, book_id, url, sort_order, source (SELLER/STAFF)
+ | Ảnh do staff chụp khi kiểm định đánh dấu riêng
+ | listings
+ | id, book_id, shop_id, price, stock, status, version
+ | version cho khóa lạc quan
+ | cart_items
+ | id, user_id, listing_id, quantity
+ | 
+ | orders
+ | id, code, buyer_id, shop_id (null nếu đấu giá), order_type, status, subtotal, shipping_fee, buyer_premium, total, address_snapshot (JSON), created_at
+ | Lưu ảnh chụp địa chỉ lúc đặt
+ | order_items
+ | id, order_id, listing_id / lot_id, title_snapshot, unit_price, quantity
+ | Giá lưu cứng, không tham chiếu giá hiện tại
+ | order_status_history
+ | id, order_id, from_status, to_status, actor_id, note, created_at
+ | Phục vụ màn theo dõi đơn
+ | reviews
+ | id, order_id, reviewer_id, shop_id, rating, comment
+ | UNIQUE(order_id)
+ | return_requests
+ | id, order_id, reason, images, status, resolution
+ | 
+ | Đấu giá & kho
+ | 
+ | 
+ | consignments
+ | id, seller_id, book_id, expected_price, status, appointment_at, received_at, received_by
+ | Yêu cầu ký gửi + lịch hẹn
+ | inspections
+ | id, consignment_id, inspector_id, result (PASS/FAIL), condition_report, estimate_low, estimate_high, proposed_start, proposed_reserve, seller_decision
+ | 
+ | warehouse_items
+ | id, consignment_id, shelf_code, status (IN_STOCK/RESERVED/SHIPPED/RETURNED), checked_in_at, checked_out_at
+ | 
+ | auction_sessions
+ | id, title, description, start_at, registration_deadline, min_participants, deposit_amount, lot_duration_sec, soft_close_sec, status, current_lot_id, auctioneer_id
+ | 
+ | lots
+ | id, session_id, consignment_id, lot_number, start_price, reserve_price, current_price, current_winner_id, ends_at, status, hammer_price, bid_count, version
+ | reserve_price không bao giờ trả ra API công khai
+ | auction_registrations
+ | id, session_id, user_id, paddle_number, deposit_amount, bid_limit, status
+ | UNIQUE(session_id, user_id)
+ | bids
+ | id, lot_id, user_id, amount, created_at, is_auto (proxy)
+ | Chỉ thêm, không sửa/xóa
+ | lot_watchers
+ | user_id, lot_id
+ | Theo dõi lô để nhận nhắc
+ | Tiền & thông báo
+ | 
+ | 
+ | wallets
+ | id, user_id, available_balance, held_balance, version
+ | 
+ | wallet_transactions
+ | id, wallet_id, type, amount, balance_after, ref_type, ref_id, created_at
+ | Sổ cái
+ | payments
+ | id, user_id, gateway, gateway_txn_id (UNIQUE), amount, status, raw_callback
+ | 
+ | notifications
+ | id, user_id, type, title, body, data (JSON), is_read, created_at
+ | 
+ | system_configs
+ | key, value
+ | Phí %, bước giá, thời hạn
+10. Kiến trúc kỹ thuật
+REST API cho mọi nghiệp vụ thường, WebSocket (STOMP) riêng cho phòng đấu giá, và FCM cho thông báo khi app đang tắt. Backend là một ứng dụng Spring Boot chia package theo module (modular monolith), đủ cho đồ án và dễ trình bày.
+
+kiến trúc · app, 8 module backend, 4 dịch vụ ngoài
+Module auction là nơi duy nhất cần WebSocket; mọi thứ khác chạy bằng REST như một app thương mại điện tử bình thường.
+10.1 Công nghệ
+ | Tầng
+ | Gợi ý
+ | Flutter
+ | Riverpod hoặc Bloc (quản lý state), go_router, dio (HTTP + interceptor gắn JWT), stomp_dart_client (WebSocket), firebase_messaging, cached_network_image, image_picker
+ | Spring Boot 3
+ | Spring Web, Spring Security + JWT, Spring Data JPA, Validation, spring-boot-starter-websocket (STOMP), @Scheduled, Flyway (migration), MapStruct, springdoc-openapi (Swagger)
+ | Dữ liệu
+ | MySQL hoặc PostgreSQL; Redis là tuỳ chọn (cache giá hiện tại của lô)
+ | Lưu ảnh
+ | Cloudinary hoặc Firebase Storage (app upload, backend chỉ lưu URL)
+ | Thanh toán
+ | VNPay sandbox
+10.2 Module backend
+auth – đăng ký, đăng nhập, OTP, refresh token
+user – hồ sơ, địa chỉ, shop
+catalog – book, listing, category, tìm kiếm
+order – giỏ, đơn, review, trả hàng
+wallet / payment – ví, sổ cái, cổng thanh toán
+consignment / warehouse – ký gửi, kiểm định, kho
+auction – phiên, lô, đăng ký, bid, bộ máy chạy phiên
+notification – FCM + lưu lịch sử thông báo
+10.3 Bộ máy chạy phiên (phần khó nhất)
+Server giữ đồng hồ. Mỗi lô lưu ends_at (thời điểm tuyệt đối). App nhận ends_at + server_time rồi tự đếm ngược, không tự quyết định hết giờ.
+Job quét mỗi 1 giây (@Scheduled(fixedRate = 1000)): lô nào đang mở mà now >= ends_at thì chốt (đối chiếu giá sàn), phát sự kiện, hẹn mở lô tiếp theo.
+Xử lý bid chống tranh chấp: trong một transaction, UPDATE lots SET current_price = :amount, current_winner_id = :uid, ends_at = GREATEST(ends_at, now + soft_close), version = version + 1 WHERE id = :lotId AND status = &apos;OPEN&apos; AND version = :v AND :amount >= current_price + increment. 0 dòng bị ảnh hưởng = có người trả trước → báo lỗi cho client. Sau đó insert vào bids và broadcast.
+Kênh WebSocket:
+Client gửi bid tới /app/lots/{lotId}/bid với {amount} (hoặc gọi REST POST /lots/{id}/bids, đơn giản hơn khi debug).
+Server phát tới /topic/sessions/{sessionId} các sự kiện: LOT_OPENED, BID_PLACED (paddle, amount, ends_at), LOT_CLOSED (kết quả), SESSION_PAUSED, SESSION_ENDED.
+Lỗi riêng cho từng người qua /user/queue/errors.
+Kết nối lại: khi app reconnect, gọi GET /sessions/{id}/state để lấy ảnh chụp trạng thái hiện tại rồi mới nghe tiếp sự kiện.
+10.4 API chính (rút gọn)
+ | Nhóm
+ | Endpoint
+ | Auth
+ | POST /auth/register, /auth/login, /auth/refresh, /auth/verify-otp
+ | Catalog
+ | GET /listings?q=&category=&condition=&minPrice=&maxPrice=&sort=, GET /listings/{id}, POST/PUT/DELETE /seller/listings
+ | Order
+ | GET/POST/DELETE /cart, POST /orders/checkout, GET /orders, POST /orders/{id}/cancel, /confirm-received, /return, POST /orders/{id}/review
+ | Seller
+ | GET /seller/orders, POST /seller/orders/{id}/confirm, /ship
+ | Wallet
+ | GET /wallet, GET /wallet/transactions, POST /wallet/top-up, POST /payments/vnpay/ipn
+ | Ký gửi
+ | POST /consignments, POST /consignments/{id}/appointment, POST /consignments/{id}/decision
+ | Staff
+ | POST /staff/consignments/{id}/check-in, POST /staff/consignments/{id}/inspection, PUT /staff/warehouse/{id}
+ | Đấu giá
+ | GET /sessions, GET /sessions/{id} (catalogue), POST /sessions/{id}/register, GET /sessions/{id}/state, POST /lots/{id}/bids, POST /lots/{id}/watch
+ | Admin
+ | POST /admin/sessions, PUT /admin/sessions/{id}/lots, POST /admin/sessions/{id}/publish, /start, /pause, PUT /admin/configs
+11. Phạm vi, phân công và lộ trình
+Nhóm 5 người làm đầy đủ mọi nghiệp vụ trong tài liệu, gồm ba sản phẩm: app mobile Flutter, web quản trị Flutter Web và backend Spring Boot. Nên chốt API contract (Swagger) ngay tuần đầu để frontend và backend làm song song.
+Phân công gợi ý
+ | Thành viên
+ | Phần việc
+ | Module
+ | 1
+ | Backend nền tảng + mua bán
+ | auth, user, catalog, order, review, trả hàng
+ | 2
+ | Backend tiền + kho
+ | wallet, payment (VNPay sandbox), consignment, warehouse, notification, các job @Scheduled
+ | 3
+ | Backend đấu giá + realtime
+ | auction, WebSocket STOMP, bộ máy chạy phiên, proxy bid, kiểm thử tranh chấp bid
+ | 4
+ | App mobile – mua bán
+ | Trang chủ, tìm kiếm, chi tiết, giỏ, checkout VNPay, đơn hàng, ví, kênh người bán, ký gửi
+ | 5
+ | App mobile – đấu giá + Web quản trị
+ | Lịch phiên, catalogue, đăng ký + cọc, phòng đấu giá trực tiếp; toàn bộ Flutter Web cho Staff/Admin
+Thành viên 5 có khối lượng lớn nhất; nếu chậm, thành viên 1 có thể nhận thêm các màn web quản trị đơn giản (duyệt tin, danh mục, cấu hình). App mobile và web nên dùng chung một package Dart cho model, API client và xử lý JWT.
+11.1 Phạm vi kỹ thuật đã chốt
+Thanh toán: VNPay sandbox cho cả nạp ví và thanh toán trực tiếp từng đơn / hóa đơn lô đấu giá. Xử lý đủ callback IPN, chống cộng trùng, hết hạn 15 phút. Hoàn tiền trả về ví nội bộ.
+Đấu giá: tự động hoàn toàn bằng job: đóng đăng ký và kiểm tra đủ N người, mở phiên đúng giờ, chạy từng lô, soft close, chốt lô, tạo hóa đơn, hoàn cọc, phạt cọc khi quá hạn 48h, mời người trả giá cao thứ hai. Có làm proxy bid.
+Các hạn tự động khác cũng chạy bằng job: hủy đơn chưa thanh toán, hủy đơn shop không xác nhận 24h, tự hoàn tất đơn sau 3 ngày, hết hạn lịch hẹn ký gửi, tính phí lưu kho quá hạn.
+Người chỉ can thiệp ở những bước không thể tự động: Staff nhận sách và kiểm định, Admin duyệt tin, tạo phiên, phân xử khiếu nại.
+Vận chuyển: giả lập trạng thái giao (shop/Staff bấm), phí ship theo bảng cố định theo tỉnh và khối lượng.
+Demo: dùng 3–4 điện thoại / emulator trả giá cùng lúc, một máy mở web quản trị để hội đồng thấy phiên tự chạy.
+11.2 Màn hình Flutter chính
+Chung: Splash, Đăng nhập / Đăng ký / OTP, Trang chủ (tab Mua sách – Đấu giá – Thông báo – Tài khoản)
+Mua: Tìm kiếm + lọc, Chi tiết sách, Trang shop, Giỏ hàng, Checkout, Đơn của tôi, Chi tiết đơn, Đánh giá
+Đấu giá: Lịch phiên, Catalogue phiên, Chi tiết lô (báo cáo tình trạng), Đăng ký + đặt cọc, Phòng đấu giá trực tiếp, Kết quả phiên, Hóa đơn lô thắng
+Bán: Kênh người bán, Đăng bán, Quản lý tin, Đơn của shop, Yêu cầu ký gửi + đặt lịch, Kết quả kiểm định
+Ví: Số dư, Nạp tiền, Lịch sử giao dịch
+Web quản trị Flutter Web (Staff/Admin): Đăng nhập, Lịch hẹn, Nhận sách, Phiếu kiểm định, Kho, Tạo phiên, Giám sát phiên, Duyệt tin, Khiếu nại, Cấu hình phí, Dashboard
+11.3 Lộ trình gợi ý (khung 10 tuần)
+Tuần 1–2: chốt đặc tả, vẽ ERD, use case, wireframe; dựng khung Spring Boot (auth, JWT) và Flutter (routing, theme, dio).
+Tuần 3–4: catalog, đăng bán, tìm kiếm, giỏ hàng, checkout, ví + nạp tiền sandbox.
+Tuần 5: xử lý đơn phía shop, luồng trạng thái đơn, đánh giá, thông báo FCM.
+Tuần 6: ký gửi, lịch hẹn, kiểm định, kho (màn Staff).
+Tuần 7: tạo phiên, catalogue, đăng ký + cọc, job kiểm tra đủ người.
+Tuần 8–9: bộ máy chạy phiên, WebSocket, phòng đấu giá trực tiếp, chốt lô, hóa đơn sau phiên, hoàn/thu cọc.
+Tuần 10: kiểm thử nhiều máy cùng trả giá, sửa lỗi, dữ liệu mẫu, kịch bản demo, báo cáo.
+11.4 Quyết định đã chốt
+ | Câu hỏi
+ | Quyết định
+ | Giao diện Staff/Admin
+ | Web riêng, viết bằng Flutter Web
+ | Thanh toán
+ | VNPay sandbox
+ | Điều khiển phiên
+ | Tự động hoàn toàn mọi tác vụ có thể tự động
+ | Phạm vi
+ | Nhóm 5 người, làm đầy đủ tính năng và nghiệp vụ
+ | Hạn nộp
+ | Chưa chốt; lộ trình 11.3 đang giả định 10 tuần

@@ -2,197 +2,211 @@ import 'package:flutter/material.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 
-/// Theme theo ngôn ngữ thiết kế iOS 26 "Liquid Glass":
-/// nền trắng / đen, chữ hệ thống, tiêu đề lớn đậm, nút viên thuốc, màu nhấn cam đất.
+/// Theme style Liquid Glass (chữ SF trên iPhone/Mac, Inter trên web/Android). Cỡ chữ:
+/// - displaySmall: tiêu đề trang desktop (34, đậm)
+/// - headlineSmall: tiêu đề trang mobile / tiêu đề kệ (sans 22, rất đậm)
+/// - titleMedium: tiêu đề khối (sans 17, đậm)
+/// - titleSmall: tên sách dưới poster (sans 13, đậm vừa)
+/// - bodyMedium: chữ thường 15 · bodySmall: dòng meta 12 (màu phụ)
 abstract final class AppTheme {
-  static ThemeData light() => _build(Brightness.light);
-  static ThemeData dark() => _build(Brightness.dark);
+  static ThemeData light() => _build(Brightness.light, AppColors.light);
+  static ThemeData dark() => _build(Brightness.dark, AppColors.dark);
 
-  static ThemeData _build(Brightness brightness) {
+  static ThemeData _build(Brightness brightness, AppColors c) {
     final isLight = brightness == Brightness.light;
-    final app = isLight ? AppColors.light : AppColors.dark;
-    final base = ColorScheme.fromSeed(
-      seedColor: AppPalette.ember,
-      brightness: brightness,
+    final ink = isLight ? const Color(0xFF1D1D1F) : const Color(0xFFF5F5F7);
+    final surface = isLight ? Colors.white : const Color(0xFF1C1C1E);
+
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: c.tint,
+          brightness: brightness,
+        ).copyWith(
+          surface: surface,
+          onSurface: ink,
+          onSurfaceVariant: c.secondaryText,
+          primary: ink,
+          onPrimary: surface,
+          secondary: c.secondaryText,
+          surfaceContainerLowest: surface,
+          surfaceContainerLow: c.sidebar,
+          surfaceContainer: c.sidebar,
+          surfaceContainerHigh: c.fill,
+          surfaceContainerHighest: c.fill,
+          outline: c.tertiaryText,
+          outlineVariant: c.separator,
+          error: c.live,
+        );
+
+    final family = AppFonts.family;
+    TextStyle t(
+      double size,
+      FontWeight weight,
+      double height,
+      double track, [
+      Color? color,
+      bool serif = false,
+    ]) => TextStyle(
+      fontFamily: serif ? AppFonts.serif : family,
+      fontSize: size,
+      fontWeight: weight,
+      height: height,
+      letterSpacing: track,
+      color: color ?? ink,
     );
-    final scheme = base.copyWith(
-      primary: AppPalette.ember,
-      onPrimary: AppPalette.white,
-      surface: isLight ? AppPalette.white : AppPalette.black,
-      onSurface: isLight ? AppPalette.black : AppPalette.white,
-      onSurfaceVariant: app.labelTertiary,
-      surfaceContainerLowest: app.groupedCell,
-      surfaceContainerLow: app.groupedBackground,
-      surfaceContainer: app.groupedBackground,
-      surfaceContainerHigh: app.groupedBackground,
-      surfaceContainerHighest: app.groupedBackground,
-      outline: app.labelTertiary,
-      outlineVariant: app.separator,
+    final text = TextTheme(
+      displaySmall: t(36, FontWeight.w600, 1.08, -0.5, null, true),
+      headlineMedium: t(30, FontWeight.w600, 1.12, -0.3, null, true),
+      headlineSmall: t(24, FontWeight.w600, 1.16, -0.2, null, true),
+      titleLarge: t(19, FontWeight.w700, 1.2, -0.35),
+      titleMedium: t(16, FontWeight.w600, 1.3, -0.2),
+      titleSmall: t(13, FontWeight.w600, 1.3, -0.08),
+      bodyLarge: t(16, FontWeight.w400, 1.47, -0.2),
+      bodyMedium: t(14.5, FontWeight.w400, 1.42, -0.12),
+      bodySmall: t(12, FontWeight.w400, 1.35, 0, c.secondaryText),
+      labelLarge: t(14.5, FontWeight.w600, 1.2, -0.12),
+      labelMedium: t(12, FontWeight.w500, 1.2, 0),
+      labelSmall: t(10.5, FontWeight.w700, 1.2, 0.2),
     );
 
-    final text = _textTheme(
-      isLight
-          ? Typography.material2021().black
-          : Typography.material2021().white,
-      scheme.onSurface,
-    );
-
+    const pill = StadiumBorder();
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
+      fontFamily: family,
       textTheme: text,
-      scaffoldBackgroundColor: scheme.surface,
-      extensions: [app],
+      // Trang và khung app trong suốt: nền màu loang (AmbientBackground) nằm phía sau.
+      scaffoldBackgroundColor: Colors.transparent,
+      canvasColor: surface,
+      dividerColor: c.separator,
       splashFactory: InkSparkle.splashFactory,
+      extensions: [c],
       appBarTheme: AppBarTheme(
-        backgroundColor: scheme.surface,
-        foregroundColor: scheme.onSurface,
-        surfaceTintColor: scheme.surface,
-        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        foregroundColor: ink,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         scrolledUnderElevation: 0,
-        titleTextStyle: text.titleMedium,
+        centerTitle: true,
+        titleTextStyle: text.titleLarge,
       ),
       dividerTheme: DividerThemeData(
-        color: app.separator,
-        thickness: 0.5,
-        space: 0.5,
+        color: c.separator,
+        thickness: 1,
+        space: 1,
       ),
       cardTheme: CardThemeData(
+        color: c.sidebar,
         elevation: 0,
         margin: EdgeInsets.zero,
-        color: app.groupedBackground,
-        clipBehavior: Clip.antiAlias,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.group),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: app.groupedBackground,
-        hintStyle: TextStyle(color: app.labelTertiary),
-        border: const OutlineInputBorder(
-          borderRadius: AppRadius.group,
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm + AppSpacing.xs,
-        ),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.card),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size(64, 50),
-          shape: const StadiumBorder(),
-          textStyle: text.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+          backgroundColor: c.tint,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(64, 44),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          shape: pill,
+          textStyle: text.labelLarge,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(64, 50),
-          shape: const StadiumBorder(),
-          side: BorderSide(color: app.separator),
+          foregroundColor: ink,
+          backgroundColor: c.fill,
+          side: BorderSide.none,
+          minimumSize: const Size(64, 44),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          shape: pill,
+          textStyle: text.labelLarge,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppPalette.ember,
-          textStyle: text.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          foregroundColor: c.tint,
+          textStyle: text.labelLarge,
         ),
       ),
-      segmentedButtonTheme: SegmentedButtonThemeData(
-        style: SegmentedButton.styleFrom(
-          shape: const StadiumBorder(),
-          side: BorderSide(color: app.separator),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(foregroundColor: ink),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: c.fill,
+        isDense: true,
+        hintStyle: text.bodyMedium?.copyWith(color: c.secondaryText),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadius.card,
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.card,
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.card,
+          borderSide: BorderSide(color: c.tint, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: AppRadius.card,
+          borderSide: BorderSide(color: c.live),
         ),
       ),
-      switchTheme: SwitchThemeData(
-        trackColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? app.success : app.fill,
+      chipTheme: ChipThemeData(
+        backgroundColor: c.fill,
+        selectedColor: c.selected,
+        // FilterChip không dùng secondaryLabelStyle → đổi màu chữ theo trạng thái chọn.
+        labelStyle: text.labelMedium?.copyWith(
+          color: WidgetStateColor.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? c.onSelected
+                : text.labelMedium?.color ?? ink,
+          ),
         ),
-        thumbColor: const WidgetStatePropertyAll(AppPalette.white),
-        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+        secondaryLabelStyle: text.labelMedium?.copyWith(color: c.onSelected),
+        side: BorderSide.none,
+        shape: pill,
+        showCheckmark: false,
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: ink,
+        titleTextStyle: text.bodyLarge,
+        subtitleTextStyle: text.bodySmall,
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: app.strongSurface,
-        contentTextStyle: text.bodyMedium?.copyWith(color: app.onStrongSurface),
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.tile),
+        backgroundColor: ink,
+        contentTextStyle: text.bodyMedium?.copyWith(color: surface),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.card),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: app.groupedBackground,
+        backgroundColor: surface,
         showDragHandle: true,
-        dragHandleColor: app.separator,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.sheet),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: AppPalette.ember,
+      dialogTheme: DialogThemeData(
+        backgroundColor: surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(18)),
+        ),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: ink,
+        linearTrackColor: c.fill,
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: surface,
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.card),
+        textStyle: text.bodyMedium,
       ),
     );
-  }
-
-  /// Thang chữ kiểu iOS: Large Title 34/800, Title 22/700, Headline 17/600, Body 16.
-  static TextTheme _textTheme(TextTheme base, Color onSurface) {
-    const tight = -0.2;
-    return base
-        .copyWith(
-          displaySmall: base.displaySmall?.copyWith(
-            fontSize: 38,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -1,
-            height: 1.1,
-          ),
-          headlineLarge: base.headlineLarge?.copyWith(
-            fontSize: 34,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.7,
-          ),
-          headlineMedium: base.headlineMedium?.copyWith(
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.6,
-          ),
-          headlineSmall: base.headlineSmall?.copyWith(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
-          ),
-          titleLarge: base.titleLarge?.copyWith(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.4,
-          ),
-          titleMedium: base.titleMedium?.copyWith(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            letterSpacing: tight,
-          ),
-          titleSmall: base.titleSmall?.copyWith(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            letterSpacing: tight,
-          ),
-          bodyLarge: base.bodyLarge?.copyWith(
-            fontSize: 16,
-            letterSpacing: tight,
-          ),
-          bodyMedium: base.bodyMedium?.copyWith(
-            fontSize: 15,
-            letterSpacing: tight,
-          ),
-          bodySmall: base.bodySmall?.copyWith(fontSize: 13, letterSpacing: 0),
-          labelLarge: base.labelLarge?.copyWith(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-          labelMedium: base.labelMedium?.copyWith(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-          labelSmall: base.labelSmall?.copyWith(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.6,
-          ),
-        )
-        .apply(bodyColor: onSurface, displayColor: onSurface);
   }
 }

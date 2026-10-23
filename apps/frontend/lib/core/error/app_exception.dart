@@ -1,13 +1,33 @@
 import 'package:dio/dio.dart';
 
+/// Mã lỗi nghiệp vụ backend trả về trong `ErrorResponse.code` (openapi.yaml).
+/// UI dịch từng mã sang câu dễ hiểu; mã lạ hiện thông báo chung.
+abstract final class ErrorCodes {
+  static const ownListing = 'OWN_LISTING';
+  static const priceChanged = 'PRICE_CHANGED';
+  static const bidTooLow = 'BID_TOO_LOW';
+  static const alreadyLeading = 'ALREADY_LEADING';
+  static const limitExceeded = 'LIMIT_EXCEEDED';
+  static const notRegistered = 'NOT_REGISTERED';
+  static const lotClosed = 'LOT_CLOSED';
+  static const registrationClosed = 'REGISTRATION_CLOSED';
+  static const auctionBanned = 'AUCTION_BANNED';
+  static const outOfStock = 'OUT_OF_STOCK';
+  static const insufficientBalance = 'INSUFFICIENT_BALANCE';
+  static const invalidTransition = 'INVALID_TRANSITION';
+  static const invalidCredentials = 'INVALID_CREDENTIALS';
+  static const invalidOtp = 'INVALID_OTP';
+  static const emailTaken = 'EMAIL_TAKEN';
+  static const notFound = 'NOT_FOUND';
+}
+
+/// Lỗi chuẩn hoá của app. Tầng data bắt mọi exception và ném lại dạng này
+/// (qua [guardApi]); UI chỉ cần biết các case dưới đây.
 sealed class AppException implements Exception {
-  const AppException([this.message, this.code]);
+  const AppException([this.message]);
 
-  /// Thông báo backend trả về (`{"code", "message"}`), đã viết cho người dùng đọc.
+  /// Thông điệp kỹ thuật — không hiển thị trực tiếp cho người dùng.
   final String? message;
-
-  /// Mã lỗi nghiệp vụ của backend, vd `PRICE_CHANGED`, `BID_LIMIT_EXCEEDED`.
-  final String? code;
 
   factory AppException.from(Object error) {
     if (error is AppException) return error;
@@ -21,14 +41,11 @@ sealed class AppException implements Exception {
           return const NetworkException();
         case DioExceptionType.badResponse:
           final status = error.response?.statusCode ?? 0;
-          final (code, message) = _body(error.response?.data);
-          if (status == 401) return UnauthorizedException(message, code);
-          if (status == 403) return ForbiddenException(message, code);
-          return ServerException(
-            status,
-            message ?? error.response?.statusMessage,
-            code,
-          );
+          if (status == 401) return const UnauthorizedException();
+          final data = error.response?.data;
+          final code = data is Map ? data['code'] as String? : null;
+          final msg = data is Map ? data['message'] as String? : null;
+          return ServerException(status, code: code, message: msg);
         case DioExceptionType.cancel:
         case DioExceptionType.badCertificate:
         case DioExceptionType.unknown:
@@ -38,17 +55,8 @@ sealed class AppException implements Exception {
     return UnknownException(error.toString());
   }
 
-  static (String?, String?) _body(Object? data) {
-    if (data is Map) {
-      final code = data['code'];
-      final message = data['message'];
-      return (code is String ? code : null, message is String ? message : null);
-    }
-    return (null, null);
-  }
-
   @override
-  String toString() => '$runtimeType(${code ?? ''} ${message ?? ''})';
+  String toString() => '$runtimeType(${message ?? ''})';
 }
 
 final class NetworkException extends AppException {
@@ -56,26 +64,24 @@ final class NetworkException extends AppException {
 }
 
 final class UnauthorizedException extends AppException {
-  const UnauthorizedException([super.message, super.code]);
-}
-
-/// Đã đăng nhập nhưng không được phép (chưa bật shop, chưa đăng ký phiên, bị cấm...).
-final class ForbiddenException extends AppException {
-  const ForbiddenException([super.message, super.code]);
+  const UnauthorizedException();
 }
 
 final class ServerException extends AppException {
-  const ServerException(this.statusCode, [super.message, super.code]);
+  const ServerException(this.statusCode, {this.code, String? message})
+    : super(message);
   final int statusCode;
 
-  /// Lỗi do yêu cầu (4xx) — thông báo của backend hiển thị được cho người dùng.
-  bool get isClientError => statusCode >= 400 && statusCode < 500;
+  /// Mã nghiệp vụ, xem [ErrorCodes].
+  final String? code;
 }
 
 final class UnknownException extends AppException {
   const UnknownException([super.message]);
 }
 
+/// Bọc mọi lời gọi API trong repository:
+/// `Future<Book> getBook(String id) => guardApi(() async => ...);`
 Future<T> guardApi<T>(Future<T> Function() call) async {
   try {
     return await call();

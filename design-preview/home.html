@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReBook — Trang chủ (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* ---------- Hero: tên + ba khối chữ nhỏ, rồi dải bìa ---------- */
+  .hero { padding: 28px 0 0; display: flex; flex-direction: column; }
+  .hero-top, .hero-bottom { padding-inline: var(--m); }
+  .hero-top { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: start; }
+  .hero h1 { grid-column: 1 / span 8; font-size: clamp(2.25rem, 1.2rem + 4vw, 4.5rem); font-weight: 400; letter-spacing: -0.03em; line-height: 1; }
+  .hero-facts { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(3, minmax(0, 30ch)); gap: 40px; font-size: var(--step-body); color: var(--muted); margin-top: 4px; }
+  .hero-facts strong { color: var(--ink); }
+  .hero-facts strong { display: block; font-weight: 600; }
+  .strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    margin-top: 40px; padding-inline: var(--m); scroll-padding-inline: var(--m); }
+  .strip::-webkit-scrollbar { display: none; }
+  .strip .book { flex: none; scroll-snap-align: start; display: flex; flex-direction: column; }
+  .strip .cover { height: 340px; width: auto; }
+  .strip .cover img { width: auto; height: 100%; }
+  .strip .concept { aspect-ratio: 2/3; }
+  .strip .cap { width: 0; min-width: 100%; font-size: var(--step-body); line-height: 1.35; margin-top: 10px; color: var(--muted); }
+  .strip .cap b { font: 500 var(--step-body)/1.3 var(--serif); display: block; color: var(--ink); }
+  .hero-bottom { display: flex; justify-content: space-between; align-items: end; gap: 32px; margin-top: 28px; }
+  .hero-bottom p { max-width: 46ch; font-size: var(--step-body); }
+  .hero-actions { display: flex; align-items: center; gap: 24px; flex: none; }
+
+  section { padding-top: var(--section); }
+  .sec-head { font-size: var(--step-lead); font-weight: 500; }
+
+  /* ---------- Showcase: frame run, one lifted ---------- */
+  .showcase { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding-inline: var(--m); }
+  .show-side { grid-column: 1 / span 3; display: flex; flex-direction: column; }
+  .show-side .link-more { margin-top: 10px; }
+  .show-note { margin-top: auto; max-width: 28ch; font-size: var(--step-body); }
+  .run { grid-column: 4 / span 9; display: flex; align-items: flex-end; gap: 8px; overflow: hidden; }
+  .run .book { flex: none; }
+  .run .book { display: flex; flex-direction: column; }
+  .run .cover { height: 230px; width: auto; }
+  .run .cover img { width: auto; height: 100%; }
+  .run .concept { aspect-ratio: 2/3; }
+  .run .lifted .cover { height: 506px; }
+  .run .book-row-meta, .run .book-meta { width: 0; min-width: 100%; }
+  .run .book-row-meta { margin-top: 8px; }
+  .run .book-row-meta span:first-child { font: 500 var(--step-body)/1.3 var(--serif); }
+
+  /* ---------- Auctions: two-ended rows + lô nổi bật ---------- */
+  .auctions { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding-inline: var(--m); align-items: start; }
+  .auc-list { grid-column: 2 / span 5; }
+  .auc-list h2 { margin-bottom: 32px; }
+  .group { color: var(--muted); font-size: var(--step-small); margin: 32px 0 6px; }
+  .row { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+  .row img { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; flex: none; }
+  .row .nm { flex: 1; font-size: 16px; }
+  .row .vl { font-size: var(--step-body); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .row .vl b { color: var(--ink); font-weight: 600; }
+  .row .vl .live { color: var(--live); }
+  .auc-feature { grid-column: 8 / span 5; }
+  .auc-feature img { width: 100%; max-height: 640px; object-fit: contain; object-position: left top; }
+  .auc-feature h3 { font-size: var(--step-lead); margin-top: 16px; }
+  .auc-facts { display: flex; gap: 32px; margin: 12px 0 20px; font-size: var(--step-small); }
+  .auc-facts b { display: block; font: 500 var(--step-lead)/1.2 var(--sans); font-variant-numeric: tabular-nums; }
+
+  /* ---------- Shelves: dense masonry ---------- */
+  .shelves-intro { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding-inline: var(--m); margin-bottom: 48px; }
+  .shelves-intro h2 { grid-column: 1 / span 5; font-size: var(--step-lead); }
+  .shelves-intro p { grid-column: 8 / span 5; font: 400 var(--step-lead)/1.3 var(--serif); }
+  .masonry { columns: 6; column-gap: 6px; padding-inline: var(--m); }
+  .masonry figure { break-inside: avoid; margin: 0 0 18px; }
+  .masonry img, .masonry .cover { width: 100%; }
+  .masonry figcaption { font-size: var(--step-body); line-height: 1.35; margin-top: 8px; }
+  .masonry figcaption span { color: var(--muted); }
+
+  /* ---------- About: drop-cap picture ---------- */
+  .about { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding: var(--section) var(--m); }
+  .about h2 { grid-column: 1 / span 2; font-size: var(--step-lead); }
+  .about-text { grid-column: 3 / span 9; max-width: 34em; font: 400 clamp(1.5rem, 1.1rem + 1.2vw, 2.25rem)/1.22 var(--serif); }
+  .about-text img { float: left; width: 3.66em; height: 3.66em; object-fit: cover; margin: .12em .45em 0 0; filter: grayscale(1); }
+  .about-text p + p { margin-top: 1.2em; color: var(--muted); }
+  .about-text a { text-decoration: underline; text-underline-offset: 4px; }
+
+  /* ---------- Thanh tab điện thoại ---------- */
+  .tabbar { display: none; }
+  @media (max-width: 1100px) { .about-text { grid-column: 1 / -1; } .about h2 { grid-column: 1 / -1; margin-bottom: 20px; } }
+
+  @media (max-width: 760px) {
+    .nav .nav-links, .nav .search { display: none; }
+    .nav { padding: 16px var(--m); }
+    .nav-icons { margin-left: auto; }
+    .hero { padding-top: 12px; }
+    .hero h1 { grid-column: 1 / -1; }
+    .hero-facts { display: none; }
+    .hero-bottom { order: 2; flex-direction: column; align-items: stretch; gap: 16px; margin-top: 14px; }
+    .strip { order: 3; margin-top: 28px; }
+    .strip .cover { height: 300px; }
+    .hero-actions { justify-content: space-between; }
+    .showcase, .auctions, .shelves-intro, .about { display: block; }
+    .show-side .show-note { margin-top: 12px; }
+    .run { margin-top: 24px; overflow-x: auto; scroll-snap-type: x mandatory; margin-right: calc(var(--m) * -1); }
+    .run .book { scroll-snap-align: start; }
+    .run .cover { height: 52vw; }
+    .run .lifted .cover { height: 104vw; max-height: 520px; }
+    .auc-feature { margin-top: 40px; }
+    .row { flex-wrap: wrap; align-items: flex-start; padding: 6px 0; gap: 4px 10px; }
+    .row img { margin-top: 4px; }
+    .row .nm { flex: 1 1 calc(100% - 30px); }
+    .row .vl { flex-basis: 100%; text-align: left; padding-left: 28px; }
+    .shelves-intro p { margin-top: 16px; font-size: 1.1875rem; }
+    .masonry { columns: 3; column-gap: 4px; }
+    .about-text { margin-top: 20px; font-size: 1.1875rem; line-height: 1.4; }
+    .about-text img { width: 4.6em; height: 4.6em; }
+    body { padding-bottom: 64px; }
+    .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; inset: auto 0 0 0; height: 64px;
+      background: var(--surface); font-size: 13px; text-align: center; z-index: 5; }
+    .tabbar a { display: grid; place-items: center; align-content: center; gap: 4px; }
+    .tabbar a[aria-current] { font-weight: 600; color: var(--accent); }
+  }
+</style>
+</head>
+<body>
+
+<div class="mock-note"><span>Mockup · Trang chủ · Mọi tên sách, giá, phiên đấu giá là <b>dữ liệu mẫu</b>. Bìa có nhãn “concept” không phải bìa chính thức.</span><a href="index.html">Tất cả mockup</a></div>
+
+<header class="nav">
+  <a class="wordmark" href="home.html">ReBook</a>
+  <nav class="nav-links" aria-label="Chính">
+    <a href="explore.html">Khám phá</a>
+    <a href="#dau-gia">Đấu giá</a>
+    <a href="#ke-sach">Kệ sách</a>
+    <a href="about.html">Về ReBook</a>
+  </nav>
+  <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Tên sách, tác giả hoặc ISBN</label>
+  <div class="nav-icons">
+    <a class="icon-btn" href="#" aria-label="Giỏ sách"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14l-1 13H6z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></a>
+    <a class="icon-btn" href="#" aria-label="Tài khoản"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></a>
+  </div>
+</header>
+
+<main>
+  <section class="hero" style="padding-top:28px">
+    <div class="hero-top">
+      <h1>Sách cũ, đúng bản bạn tìm.</h1>
+      <div class="hero-facts">
+        <p><strong>Mua theo từng bản</strong> Mỗi bản ghi rõ ấn bản, năm in và tình trạng.</p>
+        <p><strong>Nhiều người bán</strong> So giá cùng một cuốn từ nhiều nhà sách cũ.</p>
+        <p><strong>Đấu giá sách hiếm</strong> Sách xưa, bản in đầu, tạp chí trước 1945.</p>
+      </div>
+    </div>
+
+    <div class="strip" aria-label="Sách được chọn">
+      <a class="book" href="book.html"><div class="cover"><img src="assets/covers/ba-chi-em.jpg" alt="Bìa Jane Eyre, ấn bản 1848"></div><p class="cap"><b>Jane Eyre</b>2 bản · từ 6.800.000 ₫</p></a>
+      <a class="book" href="book.html"><div data-concept="sodo"></div><p class="cap"><b>Số đỏ</b>9 bản · từ 65.000 ₫</p></a>
+      <a class="book" href="book.html"><div class="cover"><img src="assets/covers/toi-ac-va-hinh-phat.jpg" alt="Bìa Crime and Punishment"></div><p class="cap"><b>Tội ác và hình phạt</b>5 bản · từ 140.000 ₫</p></a>
+      <a class="book lit" href="book.html"><div class="cover"><img src="assets/covers/tram-nam-co-don.jpg" alt="Bìa One Hundred Years of Solitude, bản tiếng Anh"></div><p class="cap"><b>Trăm năm cô đơn</b>6 bản, 3 ấn bản · từ 95.000 ₫</p></a>
+      <a class="book" href="book.html"><div data-concept="vang"></div><p class="cap"><b>Vang bóng một thời</b>4 bản · từ 120.000 ₫</p></a>
+      <a class="book" href="book.html"><div class="cover"><img src="assets/covers/siddhartha.jpg" alt="Bìa Siddhartha"></div><p class="cap"><b>Siddhartha</b>3 bản · từ 80.000 ₫</p></a>
+      <a class="book" href="book.html"><div data-concept="chipheo"></div><p class="cap"><b>Chí Phèo</b>7 bản · từ 45.000 ₫</p></a>
+      <a class="book" href="book.html"><div class="cover"><img src="assets/covers/chien-tranh-va-hoa-binh.jpg" alt="Bìa War and Peace"></div><p class="cap"><b>Chiến tranh và hòa bình</b>4 bản · từ 210.000 ₫</p></a>
+      <a class="book" href="book.html"><div data-concept="tatden"></div><p class="cap"><b>Tắt đèn</b>6 bản · từ 50.000 ₫</p></a>
+      <a class="book" href="book.html"><div class="cover"><img src="assets/covers/ong-gia-va-bien-ca.jpg" alt="Bìa The Old Man and the Sea"></div><p class="cap"><b>Ông già và biển cả</b>8 bản · từ 60.000 ₫</p></a>
+      <a class="book" href="book.html"><div data-concept="kieu"></div><p class="cap"><b>Truyện Kiều</b>12 bản · từ 70.000 ₫</p></a>
+    </div>
+
+    <div class="hero-bottom">
+      <p>ReBook gom những bản sách cũ từ nhiều nhà sách và người đọc, để bạn chọn đúng ấn bản, đúng tình trạng, đúng giá.</p>
+      <div class="hero-actions">
+        <a class="link-more" href="#dau-gia">Phiên đấu giá hôm nay</a>
+        <a class="btn" href="explore.html">Khám phá sách</a>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="tuyen-chon">
+    <div class="showcase">
+      <div class="show-side">
+        <h2 id="tuyen-chon" class="sec-head">Tuyển chọn tuần này</h2>
+        <a class="link-more" href="explore.html">Xem cả kệ</a>
+        <p class="show-note muted">Kinh điển dịch và bản in cũ còn đẹp. Bìa lớn: <i>Les Misérables</i>, bìa giấy hoa văn, gáy da.</p>
+      </div>
+      <div class="run">
+        <a class="book lifted" href="book.html"><div class="cover"><img src="assets/covers/nhung-nguoi-khon-kho.jpg" alt="Bìa Les Misérables, giấy hoa văn"></div><div class="book-row-meta"><span>Những người khốn khổ</span><span class="muted num">3.100.000 ₫</span></div></a>
+        <a class="book" href="book.html"><div class="cover"><img src="assets/covers/kieu-hanh-va-dinh-kien.jpg" alt="Bìa Pride and Prejudice, bìa vải đỏ"></div><div class="book-row-meta"><span>Kiêu hãnh và định kiến</span></div><p class="book-meta num">từ 180.000 ₫</p></a>
+        <a class="book" href="book.html"><div class="cover"><img src="assets/covers/tram-nam-co-don.jpg" alt="Bìa One Hundred Years of Solitude"></div><div class="book-row-meta"><span>Trăm năm cô đơn</span></div><p class="book-meta num">từ 95.000 ₫</p></a>
+        <a class="book" href="book.html"><div data-concept="hanoi"></div><div class="book-row-meta"><span>Hà Nội băm sáu phố phường</span></div><p class="book-meta num">từ 75.000 ₫</p></a>
+        <a class="book" href="book.html"><div class="cover"><img src="assets/covers/hoa-tren-mo-algernon.jpg" alt="Bìa Flowers for Algernon"></div><div class="book-row-meta"><span>Hoa trên mộ Algernon</span></div><p class="book-meta num">từ 90.000 ₫</p></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="dau-gia" aria-labelledby="dau-gia-h">
+    <div class="auctions">
+      <div class="auc-list">
+        <h2 id="dau-gia-h" class="sec-head">Đấu giá sắp kết thúc</h2>
+        <p class="group">Hôm nay</p>
+        <a class="row" href="#"><img src="assets/cover-of-trung-tiet-anh-hung-lich.jpg" alt=""><span class="nm">Trung tiết anh hùng — Lịch sử ông Võ Tánh, in 1930</span><span class="vl"><b>1.850.000 ₫</b> · <span class="live">còn 42:10</span></span></a>
+        <a class="row" href="#"><img src="assets/nam-phong-tap-chi-bui-quang-tuan.jpg" alt=""><span class="nm">Nam Phong tạp chí, sáu số lẻ trước 1945</span><span class="vl"><b>2.400.000 ₫</b> · còn 1:15:00</span></a>
+        <a class="row" href="#"><img src="assets/kim-van-kieu-tan-truyen.jpg" alt=""><span class="nm">Kim Vân Kiều tân truyện, bản khắc gỗ</span><span class="vl"><b>9.500.000 ₫</b> · còn 3:20:00</span></a>
+        <a class="row" href="#"><img src="assets/tran-danh-cua-ai-da-nang.jpg" alt=""><span class="nm">Ngô Tất Tố, sách lịch sử cuốn 2, in 1935</span><span class="vl"><b>1.200.000 ₫</b> · còn 5:05:00</span></a>
+        <a class="row" href="#"><img src="assets/covers/ba-chi-em.jpg" alt=""><span class="nm">Jane Eyre, ấn bản New York 1848</span><span class="vl"><b>6.800.000 ₫</b> · còn 7:40:00</span></a>
+        <p class="group">Ngày mai</p>
+        <a class="row" href="#"><img src="assets/covers/nhung-nguoi-khon-kho.jpg" alt=""><span class="nm">Les Misérables, bìa giấy hoa văn</span><span class="vl">từ <b>2.000.000 ₫</b> · 09:00</span></a>
+        <a class="row" href="#"><img src="assets/covers/kieu-hanh-va-dinh-kien.jpg" alt=""><span class="nm">Pride and Prejudice, bìa vải đỏ</span><span class="vl">từ <b>900.000 ₫</b> · 14:00</span></a>
+        <a class="row" href="#"><img src="assets/covers/chien-tranh-va-hoa-binh.jpg" alt=""><span class="nm">War and Peace, trọn bộ bìa cứng</span><span class="vl">từ <b>1.100.000 ₫</b> · 20:00</span></a>
+        <p style="margin-top:28px"><a class="link-more" href="#">Tất cả phiên đấu giá</a></p>
+      </div>
+      <figure class="auc-feature" style="margin:0">
+        <img src="assets/cover-of-trung-tiet-anh-hung-lich.jpg" alt="Bìa sách Trung tiết anh hùng — Lịch sử ông Võ Tánh, xuất bản năm 1930">
+        <h3>Trung tiết anh hùng, 1930</h3>
+        <div class="auc-facts">
+          <span>Giá hiện tại<b>1.850.000 ₫</b></span>
+          <span>Lượt trả<b>14</b></span>
+          <span>Kết thúc sau<b style="color:var(--live)">42:10</b></span>
+        </div>
+        <a class="btn" href="#">Vào phiên đấu giá</a>
+      </figure>
+    </div>
+  </section>
+
+  <section id="ke-sach" aria-labelledby="ke-sach-h">
+    <div class="shelves-intro">
+      <h2 id="ke-sach-h">Đi theo kệ sách</h2>
+      <p>Văn học Việt, kinh điển dịch, sách xưa trước 1975, tạp chí cũ, sách ngoại văn. Mỗi kệ chỉ giữ những bản đang còn bán.</p>
+    </div>
+    <div class="masonry">
+      <figure><div data-concept="sodo"></div><figcaption>Số đỏ, <span>văn học Việt Nam</span></figcaption></figure>
+      <figure><img src="assets/covers/ong-gia-va-bien-ca.jpg" alt="Bìa The Old Man and the Sea"><figcaption>Ông già và biển cả, <span>kinh điển dịch</span></figcaption></figure>
+      <figure><img src="assets/nam-phong-tap-chi-bui-quang-tuan.jpg" alt="Một trang Nam Phong tạp chí"><figcaption>Nam Phong tạp chí, <span>báo và tạp chí cũ</span></figcaption></figure>
+      <figure><div data-concept="noibuon"></div><figcaption>Nỗi buồn chiến tranh, <span>văn học Việt Nam</span></figcaption></figure>
+      <figure><img src="assets/covers/bo-gia.jpg" alt="Bìa The Godfather"><figcaption>The Godfather, <span>sách ngoại văn</span></figcaption></figure>
+      <figure><img src="assets/kim-van-kieu-tan-truyen.jpg" alt="Trang đầu Kim Vân Kiều tân truyện"><figcaption>Kim Vân Kiều tân truyện, <span>sách xưa</span></figcaption></figure>
+      <figure><img src="assets/covers/siddhartha.jpg" alt="Bìa Siddhartha"><figcaption>Siddhartha, <span>kinh điển dịch</span></figcaption></figure>
+      <figure><div data-concept="thuongnho"></div><figcaption>Thương nhớ mười hai, <span>tùy bút</span></figcaption></figure>
+      <figure><img src="assets/covers/gatsby.jpg" alt="Bìa The Great Gatsby"><figcaption>The Great Gatsby, <span>sách ngoại văn</span></figcaption></figure>
+      <figure><img src="assets/tran-danh-cua-ai-da-nang.jpg" alt="Tranh minh họa trong sách của Ngô Tất Tố, 1935"><figcaption>Minh họa 1935, <span>sách xưa</span></figcaption></figure>
+      <figure><div data-concept="gio"></div><figcaption>Gió đầu mùa, <span>truyện ngắn</span></figcaption></figure>
+      <figure><img src="assets/covers/rung-na-uy.jpg" alt="Bìa Naokos Lächeln, bản tiếng Đức của Rừng Na Uy"><figcaption>Rừng Na Uy, <span>bản tiếng Đức</span></figcaption></figure>
+      <figure><img src="assets/covers/toi-ac-va-hinh-phat.jpg" alt="Bìa Crime and Punishment"><figcaption>Tội ác và hình phạt, <span>kinh điển dịch</span></figcaption></figure>
+      <figure><div data-concept="kieu"></div><figcaption>Truyện Kiều, <span>thơ</span></figcaption></figure>
+      <figure><img src="assets/covers/ba-chi-em.jpg" alt="Bìa Jane Eyre, 1848"><figcaption>Jane Eyre, <span>sách hiếm</span></figcaption></figure>
+      <figure><div data-concept="tatden"></div><figcaption>Tắt đèn, <span>văn học Việt Nam</span></figcaption></figure>
+      <figure><img src="assets/covers/hoa-tren-mo-algernon.jpg" alt="Bìa Flowers for Algernon"><figcaption>Hoa trên mộ Algernon, <span>kinh điển dịch</span></figcaption></figure>
+      <figure><div data-concept="chipheo"></div><figcaption>Chí Phèo, <span>truyện ngắn</span></figcaption></figure>
+    </div>
+  </section>
+
+  <section class="about" aria-labelledby="ve-rebook">
+    <h2 id="ve-rebook">Về ReBook</h2>
+    <div class="about-text">
+      <p><img src="assets/buu-ien-tren-uong-inh-tien-hoang.jpg" alt="Góc phố Đinh Lễ, Hà Nội, khoảng năm 1940">ReBook là chợ của những cuốn sách đã có một đời đọc. Mỗi tin đăng là một bản cụ thể: năm in, độ chắc của gáy, cả dòng ghi chú của chủ cũ.</p>
+      <p>Người bán là những nhà sách cũ và người đọc muốn sách tiếp tục được đọc. Bản hiếm thì lên <a href="#dau-gia">phiên đấu giá</a>, có giờ kết thúc rõ ràng. <a href="about.html">Đọc thêm về ReBook</a>.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot">
+    <div class="tile t-statement"><p>Sách cũ, đời đọc thứ hai.</p><p class="small muted">© 2026 ReBook · Mockup, dữ liệu mẫu</p></div>
+    <nav class="tile t-nav" aria-label="Chân trang"><ul><li><a href="explore.html">Khám phá sách</a></li><li><a href="#dau-gia">Đấu giá</a></li><li><a href="#">Bán sách</a></li><li><a href="about.html">Về ReBook</a></li><li><a href="#">Hỏi đáp</a></li></ul></nav>
+    <div class="tile t-time"><p class="small muted">Hà Nội</p><p class="num">21:40</p></div>
+    <div class="tile t-mail"><p class="small muted">Liên hệ</p><a href="mailto:hello@rebook.vn" style="font-size:var(--step-body);overflow-wrap:anywhere">hello@rebook.vn</a></div>
+    <div class="tile t-word"><span>ReBook</span></div>
+    <a class="tile t-cta" href="#"><strong>Bán sách của bạn</strong><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="4" style="align-self:flex-end"><path d="M8 36 36 8M14 8h22v22"/></svg></a>
+  </div>
+  <p class="credits">Ảnh bìa: Open Library (covers.openlibrary.org). Ảnh tư liệu: Wikimedia Commons, phạm vi công cộng và CC BY-SA 4.0 — xem <a href="credits.html" style="text-decoration:underline">nguồn ảnh</a>. Bìa có nhãn “concept” do ReBook vẽ minh họa.</p>
+</footer>
+
+<nav class="tabbar" aria-label="Tab">
+  <a href="home.html" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/></svg>Trang chủ</a>
+  <a href="explore.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Khám phá</a>
+  <a href="#dau-gia"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 4 6 6-3 3-6-6zM11 7l-7 7 3 3 7-7M3 21h10"/></svg>Đấu giá</a>
+  <a href="#"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h4v16H4zM10 4h4v16h-4zM16 5l3.5-1 3 15.5-3.5 1z"/></svg>Tủ sách</a>
+</nav>
+
+<script src="covers.js"></script>
+</body>
+</html>

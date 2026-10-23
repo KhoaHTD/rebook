@@ -1,22 +1,53 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/app_shell.dart';
+import 'package:book_marketplace/app/router/placeholder_page.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
-import 'package:book_marketplace/features/auction/presentation/screens/auction_list_screen.dart';
-import 'package:book_marketplace/features/auction/presentation/screens/auction_room_screen.dart';
-import 'package:book_marketplace/features/auction/presentation/screens/lot_detail_screen.dart';
+import 'package:book_marketplace/features/account/presentation/screens/account_screen.dart';
+import 'package:book_marketplace/features/account/presentation/screens/addresses_screen.dart';
+import 'package:book_marketplace/features/account/presentation/screens/profile_screen.dart';
+import 'package:book_marketplace/features/account/presentation/screens/settings_screen.dart';
+import 'package:book_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:book_marketplace/features/wallet/presentation/screens/wallet_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/auctions_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/live_room_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/lot_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/my_auctions_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/register_session_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/results_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/session_screen.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
-import 'package:book_marketplace/features/catalog/presentation/screens/book_detail_screen.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/register_screen.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/verify_otp_screen.dart';
+import 'package:book_marketplace/features/cart/presentation/screens/cart_screen.dart';
+import 'package:book_marketplace/features/cart/presentation/screens/checkout_screen.dart';
+import 'package:book_marketplace/features/cart/presentation/screens/payment_result_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/home_screen.dart';
+import 'package:book_marketplace/features/orders/presentation/screens/order_detail_screen.dart';
+import 'package:book_marketplace/features/orders/presentation/screens/orders_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/listing_detail_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/search_screen.dart';
-import 'package:book_marketplace/features/home/presentation/screens/home_screen.dart';
-import 'package:book_marketplace/features/profile/presentation/screens/profile_screen.dart';
-import 'package:book_marketplace/features/sell/presentation/screens/sell_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/shop_screen.dart';
+import 'package:book_marketplace/features/consignment/presentation/screens/consignment_detail_screen.dart';
+import 'package:book_marketplace/features/landing/presentation/screens/welcome_screen.dart';
+import 'package:book_marketplace/features/consignment/presentation/screens/consignments_screen.dart';
+import 'package:book_marketplace/features/consignment/presentation/screens/new_consignment_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/listing_form_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/open_shop_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/seller_hub_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/seller_listings_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/seller_order_detail_screen.dart';
+import 'package:book_marketplace/features/seller/presentation/screens/seller_orders_screen.dart';
 
 part 'app_router.g.dart';
+
+final _rootKey = GlobalKey<NavigatorState>();
 
 /// Thêm màn hình mới: (1) thêm path vào [Routes], (2) thêm GoRoute ở đây.
 @Riverpod(keepAlive: true)
@@ -26,64 +57,53 @@ GoRouter appRouter(Ref ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
-    initialLocation: Routes.home,
+    navigatorKey: _rootKey,
+    // Web mở trang giới thiệu (`/`); app điện thoại vào thẳng Mua sách.
+    initialLocation: kIsWeb ? Routes.landing : Routes.home,
     refreshListenable: refresh,
     redirect: (context, state) {
-      final session = ref.read(sessionControllerProvider);
-      if (session == SessionStatus.unknown) return null;
-
       final location = state.matchedLocation;
-      final signedIn = session == SessionStatus.signedIn;
+      final session = ref.read(sessionControllerProvider);
+      if (location == Routes.landing && (!kIsWeb || session.isSignedIn)) {
+        return Routes.home;
+      }
+      if (session.status == AuthStatus.unknown) return null;
 
-      if (!signedIn && Routes.requiresAuth(location)) {
+      if (!session.isSignedIn && Routes.requiresAuth(location)) {
         return Uri(
           path: Routes.login,
           queryParameters: {'from': state.uri.toString()},
         ).toString();
       }
-      if (signedIn && location == Routes.login) {
+      if (session.isSignedIn && Routes.isAuthPage(location)) {
         return state.uri.queryParameters['from'] ?? Routes.home;
       }
       return null;
     },
-    errorBuilder: (context, state) => Scaffold(
-      appBar: AppBar(),
-      body: Center(child: Text(context.l10n.notFound)),
-    ),
+    errorBuilder: (context, state) =>
+        PlaceholderPage(title: context.l10n.notFound, notFound: true),
     routes: [
-      GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
-      // Màn toàn màn hình, nằm trên thanh tab
       GoRoute(
-        path: Routes.search,
-        pageBuilder: (_, state) =>
-            MaterialPage(key: state.pageKey, child: const SearchScreen()),
-      ),
-      GoRoute(
-        path: Routes.sell,
-        pageBuilder: (_, state) => MaterialPage(
-          key: state.pageKey,
-          fullscreenDialog: true,
-          child: const SellScreen(),
+        path: Routes.landing,
+        builder: (_, s) => WelcomeScreen(
+          initialOffset: double.tryParse(s.uri.queryParameters['y'] ?? '') ?? 0,
         ),
       ),
+      GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(path: Routes.register, builder: (_, _) => const RegisterScreen()),
       GoRoute(
-        path: '/lots/:id',
-        builder: (_, state) =>
-            LotDetailScreen(lotId: state.pathParameters['id']!),
-        routes: [
-          GoRoute(
-            path: 'live',
-            pageBuilder: (_, state) => MaterialPage(
-              key: state.pageKey,
-              fullscreenDialog: true,
-              child: AuctionRoomScreen(auctionId: state.pathParameters['id']!),
-            ),
-          ),
-        ],
+        path: Routes.verifyOtp,
+        builder: (_, s) =>
+            VerifyOtpScreen(email: s.uri.queryParameters['email'] ?? ''),
+      ),
+      GoRoute(
+        path: Routes.forgotPassword,
+        builder: (_, _) => const ForgotPasswordScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AppShell(navigationShell: shell),
         branches: [
+          // Nhánh 1 — Mua sách
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -91,27 +111,184 @@ GoRouter appRouter(Ref ref) {
                 builder: (_, _) => const HomeScreen(),
                 routes: [
                   GoRoute(
-                    path: 'books/:id',
-                    builder: (_, state) =>
-                        BookDetailScreen(bookId: state.pathParameters['id']!),
+                    path: 'search',
+                    builder: (_, s) => SearchScreen(
+                      initialCategory: s.uri.queryParameters['category'],
+                      initialText: s.uri.queryParameters['q'],
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'listings/:id',
+                    builder: (_, s) =>
+                        ListingDetailScreen(listingId: s.pathParameters['id']!),
+                  ),
+                  GoRoute(
+                    path: 'cart',
+                    builder: (_, _) => const CartScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'checkout',
+                        builder: (_, _) => const CheckoutScreen(),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'payments/:id',
+                    builder: (_, s) =>
+                        PaymentResultScreen(paymentId: s.pathParameters['id']!),
+                  ),
+                  GoRoute(
+                    path: 'shops/:id',
+                    builder: (_, s) =>
+                        ShopScreen(shopId: s.pathParameters['id']!),
                   ),
                 ],
               ),
             ],
           ),
+          // Nhánh 2 — Đấu giá
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: Routes.auctions,
-                builder: (_, _) => const AuctionListScreen(),
+                builder: (_, _) => const AuctionsScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'mine',
+                    builder: (_, _) => const MyAuctionsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'lots/:id',
+                    builder: (_, s) =>
+                        LotScreen(lotId: s.pathParameters['id']!),
+                  ),
+                  GoRoute(
+                    path: 'sessions/:id',
+                    builder: (_, s) =>
+                        SessionScreen(sessionId: s.pathParameters['id']!),
+                    routes: [
+                      GoRoute(
+                        path: 'register',
+                        builder: (_, s) => RegisterSessionScreen(
+                          sessionId: s.pathParameters['id']!,
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'results',
+                        builder: (_, s) =>
+                            ResultsScreen(sessionId: s.pathParameters['id']!),
+                      ),
+                      // Phòng đấu giá phủ toàn màn hình, không có sidebar / tab bar.
+                      GoRoute(
+                        path: 'live',
+                        parentNavigatorKey: _rootKey,
+                        builder: (_, s) =>
+                            LiveRoomScreen(sessionId: s.pathParameters['id']!),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
+          // Nhánh 3 — Thông báo
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: Routes.profile,
-                builder: (_, _) => const ProfileScreen(),
+                path: Routes.notifications,
+                builder: (_, _) => const NotificationsScreen(),
+              ),
+            ],
+          ),
+          // Nhánh 4 — Tài khoản (gồm kênh người bán, ký gửi)
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.account,
+                builder: (_, _) => const AccountScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'profile',
+                    builder: (_, _) => const ProfileScreen(),
+                  ),
+                  GoRoute(
+                    path: 'addresses',
+                    builder: (_, _) => const AddressesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'settings',
+                    builder: (_, _) => const SettingsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'orders',
+                    builder: (_, _) => const OrdersScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, s) =>
+                            OrderDetailScreen(orderId: s.pathParameters['id']!),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'wallet',
+                    builder: (_, _) => const WalletScreen(),
+                  ),
+                  GoRoute(
+                    path: 'seller',
+                    builder: (_, _) => const SellerHubScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'open',
+                        builder: (_, _) => const OpenShopScreen(),
+                      ),
+                      GoRoute(
+                        path: 'listings',
+                        builder: (_, _) => const SellerListingsScreen(),
+                        routes: [
+                          GoRoute(
+                            path: 'new',
+                            builder: (_, _) => const ListingFormScreen(),
+                          ),
+                          GoRoute(
+                            path: ':id',
+                            builder: (_, s) => ListingFormScreen(
+                              listingId: s.pathParameters['id'],
+                            ),
+                          ),
+                        ],
+                      ),
+                      GoRoute(
+                        path: 'orders',
+                        builder: (_, _) => const SellerOrdersScreen(),
+                        routes: [
+                          GoRoute(
+                            path: ':id',
+                            builder: (_, s) => SellerOrderDetailScreen(
+                              orderId: s.pathParameters['id']!,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'consignments',
+                    builder: (_, _) => const ConsignmentsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (_, _) => const NewConsignmentScreen(),
+                      ),
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, s) => ConsignmentDetailScreen(
+                          consignmentId: s.pathParameters['id']!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

@@ -1,0 +1,114 @@
+[
+ {
+  "slug": "hoang-tu-be",
+  "title": "A day with the little prince",
+  "author": "Antoine de Saint-Exupéry",
+  "cover_id": 10746692,
+  "source": "https://openlibrary.org/works/OL24259583W",
+  "image": "https://covers.openlibrary.org/b/id/10746692-L.jpg"
+ },
+ {
+  "slug": "tram-nam-co-don",
+  "title": "One Hundred Years of Solitude",
+  "author": "Gabriel Garcia Marquez",
+  "cover_id": 15185412,
+  "source": "https://openlibrary.org/works/OL43108828W",
+  "image": "https://covers.openlibrary.org/b/id/15185412-L.jpg"
+ },
+ {
+  "slug": "nguoi-xa-la",
+  "title": "The Stranger, The Plague (Coles Notes)",
+  "author": "Albert Camus",
+  "cover_id": 15070895,
+  "source": "https://openlibrary.org/works/OL37995496W",
+  "image": "https://covers.openlibrary.org/b/id/15070895-L.jpg"
+ },
+ {
+  "slug": "toi-ac-va-hinh-phat",
+  "title": "Crime and Punishment",
+  "author": "Michael R. Katz",
+  "cover_id": 13116014,
+  "source": "https://openlibrary.org/works/OL32525579W",
+  "image": "https://covers.openlibrary.org/b/id/13116014-L.jpg"
+ },
+ {
+  "slug": "ong-gia-va-bien-ca",
+  "title": "The Old Man and the Sea",
+  "author": "Ernest Hemingway",
+  "cover_id": 463307,
+  "source": "https://openlibrary.org/works/OL63073W",
+  "image": "https://covers.openlibrary.org/b/id/463307-L.jpg"
+ },
+ {
+  "slug": "nhung-nguoi-khon-kho",
+  "title": "Les Misérables",
+  "author": "Victor Hugo",
+  "cover_id": 12721865,
+  "source": "https://openlibrary.org/works/OL1063588W",
+  "image": "https://covers.openlibrary.org/b/id/12721865-L.jpg"
+ },
+ {
+  "slug": "kieu-hanh-va-dinh-kien",
+  "title": "Pride and Prejudice",
+  "author": "Jane Austen",
+  "cover_id": 14348537,
+  "source": "https://openlibrary.org/works/OL66554W",
+  "image": "https://covers.openlibrary.org/b/id/14348537-L.jpg"
+ },
+ {
+  "slug": "siddhartha",
+  "title": "Siddhartha",
+  "author": "Hermann Hesse",
+  "cover_id": 6562535,
+  "source": "https://openlibrary.org/works/OL872932W",
+  "image": "https://covers.openlibrary.org/b/id/6562535-L.jpg"
+ },
+ {
+  "slug": "gatsby",
+  "title": "The Great Gatsby",
+  "author": "F. Scott Fitzgerald",
+  "cover_id": 10590366,
+  "source": "https://openlibrary.org/works/OL468431W",
+  "image": "https://covers.openlibrary.org/b/id/10590366-L.jpg"
+ },
+ {
+  "slug": "rung-na-uy",
+  "title": "Norwegian Wood",
+  "author": "村上春樹",
+  "cover_id": 2237620,
+  "source": "https://openlibrary.org/works/OL2625457W",
+  "image": "https://covers.openlibrary.org/b/id/2237620-L.jpg"
+ },
+ {
+  "slug": "chien-tranh-va-hoa-binh",
+  "title": "War and Peace",
+  "author": "Лев Толстой",
+  "cover_id": 12621906,
+  "source": "https://openlibrary.org/works/OL267171W",
+  "image": "https://covers.openlibrary.org/b/id/12621906-L.jpg"
+ },
+ {
+  "slug": "ba-chi-em",
+  "title": "Jane Eyre",
+  "author": "Charlotte Brontë",
+  "cover_id": 8235363,
+  "source": "https://openlibrary.org/works/OL1095427W",
+  "image": "https://covers.openlibrary.org/b/id/8235363-L.jpg"
+ },
+ {
+  "slug": "bo-gia",
+  "title": "The Godfather",
+  "author": "Mario Puzo",
+  "cover_id": 6507069,
+  "source": "https://openlibrary.org/works/OL1673205W",
+  "image": "https://covers.openlibrary.org/b/id/6507069-L.jpg"
+ },
+ {
+  "slug": "hoa-tren-mo-algernon",
+  "title": "Flowers for Algernon",
+  "author": "Daniel Keyes",
+  "cover_id": 12947700,
+  "source": "https://openlibrary.org/works/OL515754W",
+  "image": "https://covers.openlibrary.org/b/id/12947700-L.jpg"
+ }
+]
