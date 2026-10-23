@@ -285,6 +285,17 @@ abstract final class AmbientPalette {
 }
 
 /// Cặp màu cho bìa tự vẽ (khi sách chưa có ảnh). Màu đến từ bìa, giao diện giữ trung tính.
+/// Nền slide sự kiện của băng chuyền trang chủ (ký gửi, mở shop…) và lớp phủ đọc chữ trên ảnh bìa.
+abstract final class HeroPalette {
+  static const consign = <Color>[Color(0xFFD9822B), Color(0xFF8C2F4B)];
+  static const shop = <Color>[Color(0xFF1F8A8A), Color(0xFF1C3D6E)];
+  static const ring = Color(0x26FFFFFF);
+  static const glyph = Color(0x2EFFFFFF);
+
+  /// Tối ở phía chữ → trong ở phía ảnh.
+  static const scrim = <Color>[Color(0xB3000000), Color(0x14000000)];
+}
+
 abstract final class CoverPalette {
   static const pairs = <(Color, Color)>[
     (Color(0xFFB8382B), Color(0xFFF6EEE4)),

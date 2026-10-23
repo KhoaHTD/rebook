@@ -20,6 +20,9 @@ import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Thông tin tối thiểu để vẽ một poster / nền mờ trong slide.
+/// Nền thiết kế riêng cho slide sự kiện (không dùng ảnh bìa): bảng màu + biểu tượng lớn.
+typedef _Theme = ({List<Color> colors, IconData icon});
+
 typedef _Cover = ({String title, String author, String? url, String seed});
 
 _Cover _coverOfBook(Book b) =>
@@ -103,6 +106,7 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
         eyebrow: l10n.heroConsignEyebrow,
         headline: l10n.heroConsignHeadline,
         covers: spare,
+        theme: (colors: HeroPalette.consign, icon: Icons.inventory_2_outlined),
         body: l10n.heroConsignBody,
         cta: l10n.heroConsignCta,
         onTap: () => c.go(Routes.newConsignment),
@@ -120,6 +124,7 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
         eyebrow: l10n.heroShopEyebrow,
         headline: l10n.heroShopHeadline,
         covers: picks.take(1).toList(),
+        theme: (colors: HeroPalette.shop, icon: Icons.storefront_outlined),
         body: l10n.heroShopBody,
         cta: l10n.heroShopCta,
         onTap: () => c.go(Routes.openShop),
@@ -264,7 +269,11 @@ class _HeroCard extends StatelessWidget {
     this.cta,
     this.onTap,
     this.panel,
+    this.theme,
   });
+
+  /// Khác null → nền thiết kế (gradient + họa tiết); null → ảnh bìa phóng to làm nền.
+  final _Theme? theme;
 
   final String eyebrow;
   final String headline;
@@ -344,61 +353,33 @@ class _HeroCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (covers.isNotEmpty)
-                    BlurredCover(
-                      title: covers.first.title,
-                      author: covers.first.author,
-                      coverUrl: covers.first.url,
-                      seed: covers.first.seed,
-                    )
-                  else
-                    ColoredBox(color: c.tint),
-                  const ColoredBox(color: CoverPalette.scrim),
-                  LayoutBuilder(
-                    builder: (context, box) {
-                      final fanH = box.maxHeight * (compact ? 0.56 : 0.78);
-                      final fan = _Fan(covers: covers, height: fanH);
-                      if (compact) {
-                        return Stack(
-                          children: [
-                            Positioned(top: 14, right: 16, child: fan),
-                            Positioned(
-                              left: 12,
-                              right: 12,
-                              bottom: 12,
-                              child: glassPanel,
-                            ),
-                          ],
-                        );
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 11,
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: glassPanel,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.md),
-                            Expanded(
-                              flex: 9,
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                // Thu nhỏ vừa khung để quạt bìa không bị cắt mép thẻ.
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerRight,
-                                  child: fan,
-                                ),
-                              ),
-                            ),
-                          ],
+                  _backdrop(c),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: compact
+                            ? Alignment.bottomCenter
+                            : Alignment.centerLeft,
+                        end: compact
+                            ? Alignment.topCenter
+                            : Alignment.centerRight,
+                        colors: HeroPalette.scrim,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(
+                      compact ? AppSpacing.sm + 4 : AppSpacing.md,
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: compact ? 1000 : 340,
                         ),
-                      );
-                    },
+                        child: glassPanel,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -408,47 +389,72 @@ class _HeroCard extends StatelessWidget {
       ),
     );
   }
-}
 
-/// Các bìa xếp quạt chồng lên nhau (nghiêng nhẹ), bìa đầu nằm trước.
-class _Fan extends StatelessWidget {
-  const _Fan({required this.covers, required this.height});
-
-  final List<_Cover> covers;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    if (covers.isEmpty) return const SizedBox.shrink();
-    final w = height * 2 / 3;
-    final n = covers.length.clamp(1, 3);
-    final step = w * 0.42;
-    return SizedBox(
-      width: w + step * (n - 1) + 12,
-      height: height + 8,
-      child: Stack(
-        clipBehavior: Clip.none,
+  /// Ảnh bìa phóng to phủ kín thẻ, hoặc nền gradient + họa tiết của slide sự kiện.
+  Widget _backdrop(AppColors c) {
+    final t = theme;
+    if (t != null) {
+      return Stack(
+        fit: StackFit.expand,
         children: [
-          for (var i = n - 1; i >= 0; i--)
-            Positioned(
-              left: step * (n - 1 - i),
-              top: 4 + i * 4.0,
-              child: Transform.rotate(
-                angle: (i == 0 ? 0.0 : (i.isOdd ? -0.07 : 0.07)),
-                alignment: Alignment.bottomCenter,
-                child: BookPoster(
-                  title: covers[i].title,
-                  author: covers[i].author,
-                  coverUrl: covers[i].url,
-                  seed: covers[i].seed,
-                  width: w,
-                ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: t.colors,
               ),
             ),
+          ),
+          const CustomPaint(painter: _RingsPainter(HeroPalette.ring)),
+          Positioned(
+            right: -24,
+            top: -10,
+            child: Icon(t.icon, size: 260, color: HeroPalette.glyph),
+          ),
         ],
+      );
+    }
+    if (covers.isEmpty) return ColoredBox(color: c.tint);
+    final cv = covers.first;
+    return FittedBox(
+      fit: BoxFit.cover,
+      alignment: const Alignment(0, -0.45),
+      clipBehavior: Clip.hardEdge,
+      child: SizedBox(
+        width: 480,
+        child: BookPoster(
+          title: cv.title,
+          author: cv.author,
+          coverUrl: cv.url,
+          seed: cv.seed,
+          shadow: false,
+        ),
       ),
     );
   }
+}
+
+/// Vòng tròn đồng tâm mờ ở góc phải — họa tiết nền cho slide sự kiện.
+class _RingsPainter extends CustomPainter {
+  const _RingsPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5
+      ..color = color;
+    final center = Offset(size.width * 0.82, size.height * 0.3);
+    for (var i = 1; i <= 7; i++) {
+      canvas.drawCircle(center, i * 46.0, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingsPainter old) => old.color != color;
 }
 
 /// Thẻ phiên đang diễn ra: lô hiện tại, giá, người đang dẫn, đồng hồ, nút vào phòng.
