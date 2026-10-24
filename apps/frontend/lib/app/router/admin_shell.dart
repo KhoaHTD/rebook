@@ -13,15 +13,26 @@ import 'package:book_marketplace/shared/widgets/admin_scope.dart';
 
 /// Khung web quản trị: sidebar trắng phẳng, mục đang chọn tô đen (dashboard chuyên nghiệp).
 /// Staff chỉ thấy nhóm Kho + Giám sát phiên; Admin thấy đủ các nhóm.
-class AdminShell extends ConsumerWidget {
+class AdminShell extends ConsumerStatefulWidget {
   const AdminShell({super.key, required this.location, required this.child});
 
   final String location;
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminShell> createState() => _AdminShellState();
+}
+
+class _AdminShellState extends ConsumerState<AdminShell> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String get location => widget.location;
+  Widget get child => widget.child;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final compact = MediaQuery.sizeOf(context).width < 900;
     final user = ref.watch(sessionControllerProvider).user;
     final isAdmin = user?.role == AuthRole.admin;
 
@@ -58,7 +69,10 @@ class AdminShell extends ConsumerWidget {
       selected: under(path),
       count: count,
       liveDot: liveDot,
-      onTap: () => context.go(path),
+      onTap: () {
+        if (compact) Navigator.of(context).pop();
+        context.go(path);
+      },
     );
 
     final warehouse = [
@@ -86,193 +100,194 @@ class AdminShell extends ConsumerWidget {
       liveDot: live,
     );
 
-    return Scaffold(
-      backgroundColor: AdminPalette.bg,
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            width: 240,
-            decoration: const BoxDecoration(
-              color: AdminPalette.card,
-              border: Border(right: BorderSide(color: AdminPalette.line)),
-            ),
-            child: SafeArea(
-              right: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    final sidebar = Container(
+      width: compact ? null : 240,
+      decoration: const BoxDecoration(
+        color: AdminPalette.card,
+        border: Border(right: BorderSide(color: AdminPalette.line)),
+      ),
+      child: SafeArea(
+        right: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 16, 8),
+              child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 18, 16, 8),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 26,
-                          height: 26,
-                          decoration: BoxDecoration(
-                            color: AdminPalette.ink,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        const SizedBox(width: 9),
-                        Text(
-                          l10n.appTitle,
-                          style: context.textStyles.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isAdmin
-                                ? AdminPalette.ink
-                                : AdminPalette.info,
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                          child: Text(
-                            isAdmin
-                                ? l10n.adminBadgeAdmin
-                                : l10n.adminBadgeStaff,
-                            style: context.textStyles.labelSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                        ),
-                      ],
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: AdminPalette.ink,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      children: [
-                        if (isAdmin) ...[
-                          _Group(l10n.adminGroupOverview),
-                          item(
-                            Icons.space_dashboard_outlined,
-                            l10n.navDashboard,
-                            AdminRoutes.dashboard,
-                          ),
-                          _Group(l10n.adminGroupReview),
-                          item(
-                            Icons.fact_check_outlined,
-                            l10n.navListingReview,
-                            AdminRoutes.listings,
-                            count: pendingListings,
-                          ),
-                          item(
-                            Icons.gpp_maybe_outlined,
-                            l10n.navDisputes,
-                            AdminRoutes.disputes,
-                            count: disputes,
-                          ),
-                          item(
-                            Icons.people_outline_rounded,
-                            l10n.navUsers,
-                            AdminRoutes.users,
-                          ),
-                          item(
-                            Icons.category_outlined,
-                            l10n.navCategories,
-                            AdminRoutes.categories,
-                          ),
-                          _Group(l10n.adminGroupAuction),
-                          auction,
-                          _Group(l10n.adminGroupWarehouse),
-                          ...warehouse,
-                          _Group(l10n.adminGroupSystem),
-                          item(
-                            Icons.tune_rounded,
-                            l10n.navConfig,
-                            AdminRoutes.config,
-                          ),
-                          item(
-                            Icons.account_balance_outlined,
-                            l10n.navWithdrawals,
-                            AdminRoutes.withdrawals,
-                            count: withdrawals,
-                          ),
-                        ] else ...[
-                          _Group(l10n.adminGroupWarehouse),
-                          ...warehouse,
-                          _Group(l10n.adminGroupAuction),
-                          auction,
-                        ],
-                      ],
+                  const SizedBox(width: 9),
+                  Text(
+                    l10n.appTitle,
+                    style: context.textStyles.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (user != null)
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          top: BorderSide(color: AdminPalette.line),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 15,
-                            backgroundColor: isAdmin
-                                ? AdminPalette.ink
-                                : AdminPalette.info,
-                            child: Text(
-                              user.fullName.isEmpty
-                                  ? '?'
-                                  : user.fullName.characters.first
-                                        .toUpperCase(),
-                              style: context.textStyles.labelLarge?.copyWith(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  user.fullName,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyles.labelLarge,
-                                ),
-                                Text(
-                                  user.email,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyles.labelSmall
-                                      ?.copyWith(color: AdminPalette.muted),
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: l10n.logout,
-                            icon: const Icon(Icons.logout_rounded, size: 19),
-                            onPressed: () => ref
-                                .read(sessionControllerProvider.notifier)
-                                .signOut(),
-                          ),
-                        ],
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isAdmin ? AdminPalette.ink : AdminPalette.info,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      isAdmin ? l10n.adminBadgeAdmin : l10n.adminBadgeStaff,
+                      style: context.textStyles.labelSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
-          ),
-          Expanded(
-            child: AdminScope(
-              child: Theme(data: _adminTheme(Theme.of(context)), child: child),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  if (isAdmin) ...[
+                    _Group(l10n.adminGroupOverview),
+                    item(
+                      Icons.space_dashboard_outlined,
+                      l10n.navDashboard,
+                      AdminRoutes.dashboard,
+                    ),
+                    _Group(l10n.adminGroupReview),
+                    item(
+                      Icons.fact_check_outlined,
+                      l10n.navListingReview,
+                      AdminRoutes.listings,
+                      count: pendingListings,
+                    ),
+                    item(
+                      Icons.gpp_maybe_outlined,
+                      l10n.navDisputes,
+                      AdminRoutes.disputes,
+                      count: disputes,
+                    ),
+                    item(
+                      Icons.people_outline_rounded,
+                      l10n.navUsers,
+                      AdminRoutes.users,
+                    ),
+                    item(
+                      Icons.category_outlined,
+                      l10n.navCategories,
+                      AdminRoutes.categories,
+                    ),
+                    _Group(l10n.adminGroupAuction),
+                    auction,
+                    _Group(l10n.adminGroupWarehouse),
+                    ...warehouse,
+                    _Group(l10n.adminGroupSystem),
+                    item(
+                      Icons.tune_rounded,
+                      l10n.navConfig,
+                      AdminRoutes.config,
+                    ),
+                    item(
+                      Icons.account_balance_outlined,
+                      l10n.navWithdrawals,
+                      AdminRoutes.withdrawals,
+                      count: withdrawals,
+                    ),
+                  ] else ...[
+                    _Group(l10n.adminGroupWarehouse),
+                    ...warehouse,
+                    _Group(l10n.adminGroupAuction),
+                    auction,
+                  ],
+                ],
+              ),
             ),
-          ),
-        ],
+            if (user != null)
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: AdminPalette.line)),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 15,
+                      backgroundColor: isAdmin
+                          ? AdminPalette.ink
+                          : AdminPalette.info,
+                      child: Text(
+                        user.fullName.isEmpty
+                            ? '?'
+                            : user.fullName.characters.first.toUpperCase(),
+                        style: context.textStyles.labelLarge?.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.fullName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyles.labelLarge,
+                          ),
+                          Text(
+                            user.email,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyles.labelSmall?.copyWith(
+                              color: AdminPalette.muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l10n.logout,
+                      icon: const Icon(Icons.logout_rounded, size: 19),
+                      onPressed: () => ref
+                          .read(sessionControllerProvider.notifier)
+                          .signOut(),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
+    );
+
+    final content = AdminScope(
+      onMenu: compact ? () => _scaffoldKey.currentState?.openDrawer() : null,
+      child: Theme(data: _adminTheme(Theme.of(context)), child: child),
+    );
+
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: AdminPalette.bg,
+      drawer: compact ? Drawer(width: 280, child: sidebar) : null,
+      body: compact
+          ? content
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                sidebar,
+                Expanded(child: content),
+              ],
+            ),
     );
   }
 }

@@ -124,6 +124,8 @@ class _CurrentLot extends ConsumerWidget {
     final now = (ref.watch(clockProvider).value ?? DateTime.now()).add(offset);
     final remaining = lot.endsAt?.difference(now);
 
+    // Điện thoại: bìa nhỏ lại để cột thông tin (giá, đồng hồ) đủ chỗ.
+    final narrow = MediaQuery.sizeOf(context).width < 600;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -132,9 +134,9 @@ class _CurrentLot extends ConsumerWidget {
           author: lot.book.author,
           coverUrl: lot.book.coverUrl,
           seed: lot.book.id,
-          width: 180,
+          width: narrow ? 104 : 180,
         ),
-        const SizedBox(width: AppSpacing.xl),
+        SizedBox(width: narrow ? AppSpacing.md : AppSpacing.xl),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,12 +149,20 @@ class _CurrentLot extends ConsumerWidget {
               ),
               Text(lot.book.title, style: context.textStyles.headlineSmall),
               const SizedBox(height: AppSpacing.md),
-              PriceText(
-                lot.currentPrice,
-                style: context.textStyles.headlineLarge?.copyWith(
-                  fontFamily: null,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.6,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: PriceText(
+                  lot.currentPrice,
+                  style:
+                      (narrow
+                              ? context.textStyles.headlineMedium
+                              : context.textStyles.headlineLarge)
+                          ?.copyWith(
+                            fontFamily: null,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.6,
+                          ),
                 ),
               ),
               Text(l10n.bidCount(lot.bidCount)),

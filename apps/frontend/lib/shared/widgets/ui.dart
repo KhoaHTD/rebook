@@ -142,13 +142,17 @@ extension on AppPage {
   /// Trang quản trị: thanh tiêu đề phẳng màu trắng + nội dung trên nền xám nhạt.
   Widget _adminPage(BuildContext context, bool canBack) {
     final text = context.textStyles;
+    final onMenu = AdminScope.menuOf(context);
+    final compact = onMenu != null;
+    final gutter = compact ? 16.0 : 24.0;
     Widget scroll = CustomScrollView(
       slivers: [
         ...?slivers,
         if (children != null)
           SliverPadding(
             padding:
-                contentPadding ?? const EdgeInsets.fromLTRB(24, 20, 24, 32),
+                contentPadding ??
+                EdgeInsets.fromLTRB(gutter, compact ? 16 : 20, gutter, 32),
             sliver: SliverList.list(children: children!),
           ),
       ],
@@ -162,40 +166,62 @@ extension on AppPage {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            // Trên điện thoại thanh đầu trang nằm dưới thanh trạng thái (web: inset = 0).
+            height: 60 + MediaQuery.paddingOf(context).top,
+            padding: EdgeInsets.fromLTRB(
+              gutter - (compact ? 8 : 0),
+              MediaQuery.paddingOf(context).top,
+              gutter,
+              0,
+            ),
             decoration: const BoxDecoration(
               color: AdminPalette.card,
               border: Border(bottom: BorderSide(color: AdminPalette.line)),
             ),
             child: Row(
               children: [
+                if (onMenu != null)
+                  IconButton(
+                    icon: const Icon(Icons.menu_rounded, size: 22),
+                    onPressed: onMenu,
+                  ),
                 if (canBack)
                   IconButton(
                     icon: const Icon(Icons.arrow_back_rounded, size: 20),
                     onPressed: () => context.pop(),
                   ),
-                Text(
-                  title,
-                  style: text.headlineSmall?.copyWith(
-                    fontFamily: AppFonts.serif,
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              (compact ? text.titleLarge : text.headlineSmall)
+                                  ?.copyWith(
+                                    fontFamily: AppFonts.serif,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ),
+                      if (subtitle != null && !compact) ...[
+                        const SizedBox(width: AppSpacing.md),
+                        Flexible(
+                          child: Text(
+                            subtitle!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: text.bodyMedium?.copyWith(
+                              color: AdminPalette.muted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                if (subtitle != null) ...[
-                  const SizedBox(width: AppSpacing.md),
-                  Flexible(
-                    child: Text(
-                      subtitle!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: text.bodyMedium?.copyWith(
-                        color: AdminPalette.muted,
-                      ),
-                    ),
-                  ),
-                ],
-                const Spacer(),
                 for (final a in actions) ...[
                   const SizedBox(width: AppSpacing.sm),
                   a,
@@ -351,15 +377,21 @@ class HeaderAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.windowSize.isCompact) {
+    // Quản trị trên điện thoại: nút tròn đen thay cho nút xanh của app người mua.
+    final adminCompact = AdminScope.menuOf(context) != null;
+    if (adminCompact || context.windowSize.isCompact) {
       return IconButton(
         tooltip: label,
         onPressed: onPressed,
         icon: Icon(icon),
         style: primary
             ? IconButton.styleFrom(
-                backgroundColor: context.appColors.tint,
-                foregroundColor: context.colors.onPrimary,
+                backgroundColor: adminCompact
+                    ? AdminPalette.ink
+                    : context.appColors.tint,
+                foregroundColor: adminCompact
+                    ? AdminPalette.card
+                    : context.colors.onPrimary,
               )
             : null,
       );

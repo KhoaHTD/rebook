@@ -40,55 +40,80 @@ class ConsignmentRow extends StatelessWidget {
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                BookPoster(
-                  title: c.book.title,
-                  author: '',
-                  coverUrl: c.book.coverUrl,
-                  seed: c.book.id,
-                  width: 48,
-                  shadow: false,
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        c.book.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textStyles.titleSmall,
-                      ),
-                      Text(
-                        subtitle ??
-                            '${c.sellerName} · ${formatShortDateTime(c.createdAt)}',
-                        style: context.textStyles.bodySmall?.copyWith(
-                          color: colors.secondaryText,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Wrap(
-                        spacing: AppSpacing.sm,
-                        runSpacing: AppSpacing.xs,
-                        crossAxisAlignment: WrapCrossAlignment.center,
+            child: LayoutBuilder(
+              builder: (context, box) {
+                // Hẹp (điện thoại): nút xuống hàng riêng, không bóp chữ của sách.
+                final stacked = box.maxWidth < 480 && trailing.isNotEmpty;
+                final info = Row(
+                  children: [
+                    BookPoster(
+                      title: c.book.title,
+                      author: '',
+                      coverUrl: c.book.coverUrl,
+                      seed: c.book.id,
+                      width: 48,
+                      shadow: false,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          StatusPill(c.status.label(l10n), tone: c.status.tone),
-                          PriceText(
-                            c.expectedPrice,
-                            style: context.textStyles.bodyMedium,
+                          Text(
+                            c.book.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyles.titleSmall,
+                          ),
+                          Text(
+                            subtitle ??
+                                '${c.sellerName} · ${formatShortDateTime(c.createdAt)}',
+                            style: context.textStyles.bodySmall?.copyWith(
+                              color: colors.secondaryText,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Wrap(
+                            spacing: AppSpacing.sm,
+                            runSpacing: AppSpacing.xs,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              StatusPill(
+                                c.status.label(l10n),
+                                tone: c.status.tone,
+                              ),
+                              PriceText(
+                                c.expectedPrice,
+                                style: context.textStyles.bodyMedium,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                for (final t in trailing) ...[
-                  const SizedBox(width: AppSpacing.sm),
-                  t,
-                ],
-              ],
+                    ),
+                    if (!stacked)
+                      for (final t in trailing) ...[
+                        const SizedBox(width: AppSpacing.sm),
+                        t,
+                      ],
+                  ],
+                );
+                if (!stacked) return info;
+                return Column(
+                  children: [
+                    info,
+                    const SizedBox(height: AppSpacing.sm),
+                    Row(
+                      children: [
+                        for (var i = 0; i < trailing.length; i++) ...[
+                          if (i > 0) const SizedBox(width: AppSpacing.sm),
+                          Expanded(child: trailing[i]),
+                        ],
+                      ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),

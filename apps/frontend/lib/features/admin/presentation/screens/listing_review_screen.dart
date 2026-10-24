@@ -138,98 +138,113 @@ class _ListingTable extends StatelessWidget {
     );
     Widget cell(int flex, Widget child) => Expanded(flex: flex, child: child);
 
-    return AdminCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              children: [
-                cell(5, Text(l10n.adminColBook, style: head)),
-                cell(3, Text(l10n.adminColShop, style: head)),
-                cell(2, Text(l10n.adminColPrice, style: head)),
-                cell(2, Text(l10n.adminColCondition, style: head)),
-              ],
-            ),
-          ),
-          const Divider(height: 1, color: AdminPalette.line),
-          for (final l in items)
-            InkWell(
-              onTap: () => onSelect(l),
-              child: Container(
-                color: l.id == selectedId
-                    ? AdminPalette.selected
-                    : Colors.transparent,
+    return LayoutBuilder(
+      builder: (context, box) {
+        // Điện thoại: bỏ cột Shop / Tình trạng (shop xuống dòng dưới tên sách) để không bị bóp chữ.
+        final wide = box.maxWidth >= 560;
+        return AdminCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 10,
                 ),
                 child: Row(
                   children: [
-                    cell(
-                      5,
-                      Row(
-                        children: [
-                          BookPoster(
-                            title: l.book.title,
-                            author: l.book.author,
-                            coverUrl: l.book.coverUrl,
-                            seed: l.book.id,
-                            width: 30,
-                            shadow: false,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l.book.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyles.bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                                Text(
-                                  l.book.author,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyles.bodySmall?.copyWith(
-                                    color: AdminPalette.muted,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    cell(
-                      3,
-                      Text(
-                        l.shop.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    cell(2, Text(formatVnd(l.price))),
-                    cell(
-                      2,
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: StatusPill(
-                          l.book.condition.label(l10n),
-                          tone: l.book.condition.tone,
-                        ),
-                      ),
-                    ),
+                    cell(5, Text(l10n.adminColBook, style: head)),
+                    if (wide) cell(3, Text(l10n.adminColShop, style: head)),
+                    cell(2, Text(l10n.adminColPrice, style: head)),
+                    if (wide)
+                      cell(2, Text(l10n.adminColCondition, style: head)),
                   ],
                 ),
               ),
-            ),
-        ],
-      ),
+              const Divider(height: 1, color: AdminPalette.line),
+              for (final l in items)
+                InkWell(
+                  onTap: () => onSelect(l),
+                  child: Container(
+                    color: l.id == selectedId
+                        ? AdminPalette.selected
+                        : Colors.transparent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    child: Row(
+                      children: [
+                        cell(
+                          5,
+                          Row(
+                            children: [
+                              BookPoster(
+                                title: l.book.title,
+                                author: l.book.author,
+                                coverUrl: l.book.coverUrl,
+                                seed: l.book.id,
+                                width: 30,
+                                shadow: false,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l.book.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                    ),
+                                    Text(
+                                      wide
+                                          ? l.book.author
+                                          : '${l.book.author} · ${l.shop.name}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: context.textStyles.bodySmall
+                                          ?.copyWith(color: AdminPalette.muted),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (wide)
+                          cell(
+                            3,
+                            Text(
+                              l.shop.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        cell(2, Text(formatVnd(l.price))),
+                        if (wide)
+                          cell(
+                            2,
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: StatusPill(
+                                l.book.condition.label(l10n),
+                                tone: l.book.condition.tone,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
