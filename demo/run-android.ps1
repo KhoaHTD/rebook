@@ -97,21 +97,53 @@ function Get-AndroidDevices {
     @($list | Where-Object { $_.targetPlatform -like 'android*' } | Sort-Object { -not $_.emulator })
 }
 
+# Tim Android SDK (de flutter thay adb/emulator ngay ca khi chua dat ANDROID_HOME).
+$sdk = @($env:ANDROID_HOME, $env:ANDROID_SDK_ROOT, "$env:LOCALAPPDATA\Android\Sdk", 'C:\Android\Sdk', 'D:\Android\Sdk') |
+    Where-Object { $_ -and (Test-Path (Join-Path $_ 'platform-tools\adb.exe')) } | Select-Object -First 1
+if ($sdk -and -not $env:ANDROID_HOME) { $env:ANDROID_HOME = $sdk }
+$emuExe = if ($sdk) { Join-Path $sdk 'emulator\emulator.exe' } else { $null }
+if ($emuExe -and -not (Test-Path $emuExe)) { $emuExe = $null }
+
+# Danh sach ten may ao (AVD): hoi emulator.exe, neu khong duoc thi doc thu muc .android\avd.
+function Get-AvdNames {
+    $ErrorActionPreference = 'Continue'
+    $names = @()
+    if ($emuExe) { $names = @(& $emuExe -list-avds 2>$null | Where-Object { $_ -match '^[\w.-]+$' }) }
+    if ($names.Count -eq 0) {
+        $avdHome = if ($env:ANDROID_AVD_HOME) { $env:ANDROID_AVD_HOME }
+                   elseif ($env:ANDROID_USER_HOME) { Join-Path $env:ANDROID_USER_HOME 'avd' }
+                   else { Join-Path $env:USERPROFILE '.android\avd' }
+        if (Test-Path $avdHome) { $names = @(Get-ChildItem $avdHome -Filter *.ini | ForEach-Object { $_.BaseName }) }
+    }
+    $names
+}
+
 if (-not $Device) {
     $devs = Get-AndroidDevices
     if ($devs.Count -eq 0) {
-        $ErrorActionPreference = 'Continue'
-        # Dong dang "Medium_Phone_API_37.0 * Medium Phone ... * android": lay tu dau tien (ten may ao).
-        $avd = flutter emulators 2>$null | Where-Object { $_ -match 'android\s*$' -and $_ -notmatch '^\s*Id\s' } |
-            ForEach-Object { ($_.Trim() -split '\s+')[0] } | Select-Object -First 1
-        if (-not $avd) { Fail 'Khong co may ao nao. Mo Android Studio > Device Manager, tao mot may ao roi chay lai.' }
+        $avds = @(Get-AvdNames)
+        if ($avds.Count -eq 0) {
+            Say '      Khong tim thay may ao nao.' 'Red'
+            if ($sdk) { Say "      Android SDK: $sdk" 'Gray' } else { Say '      Khong tim thay Android SDK (adb.exe).' 'Gray' }
+            Say '      Cach sua: mo Android Studio > Device Manager > Create Virtual Device, tao xong bam nut Play.' 'Yellow'
+            Say '      Hoac bat san may ao bang Android Studio roi chay lai script nay.' 'Yellow'
+            Fail 'Khong co may ao nao.'
+        }
+        $avd = $avds[0]
+        if (-not $emuExe) {
+            Say "      Co may ao '$avd' nhung khong tim thay emulator.exe (Android SDK)." 'Red'
+            Fail 'Hay bat may ao bang Android Studio (Device Manager > nut Play) roi chay lai script.'
+        }
         Say "      Chua co may ao dang chay. Dang bat '$avd' (khoang 30-90 giay)..." 'Yellow'
-        flutter emulators --launch $avd | Out-Null
+        Start-Process $emuExe -ArgumentList '-avd', $avd | Out-Null
         for ($i = 0; $i -lt 40 -and $devs.Count -eq 0; $i++) {
             Start-Sleep -Seconds 5
             $devs = Get-AndroidDevices
         }
-        if ($devs.Count -eq 0) { Fail 'May ao bat qua lau. Doi no hien man hinh chinh roi chay lai script.' }
+        if ($devs.Count -eq 0) {
+            if (-not $sdk) { Fail 'May ao da bat nhung flutter khong thay. Chay: flutter config --android-sdk <duong dan Android SDK>, roi chay lai.' }
+            Fail 'May ao bat qua lau. Doi no hien man hinh chinh roi chay lai script.'
+        }
     }
     $Device = $devs[0].id
     Say "      Dung thiet bi: $($devs[0].name) ($Device)" 'Green'

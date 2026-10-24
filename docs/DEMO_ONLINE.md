@@ -74,7 +74,7 @@ PC nhà đang chạy `start-demo` thì laptop ở trường cũng chạy đượ
 | Link mở ra trang báo lỗi **1033 / 502** | Tunnel hoặc máy chủ demo đã chết. Chạy lại `start-demo.cmd` rồi gửi **link mới**. |
 | Web trắng / không tải | Chạy `start-demo.cmd -Rebuild`. |
 | `run-android`: `Khong goi duoc .../api/categories` | PC nhà đã tắt demo, mất mạng, hoặc link đã đổi. Lấy link mới rồi chạy lại. |
-| `run-android`: `Khong co may ao nao` | Mở Android Studio → Device Manager → tạo máy ảo, rồi chạy lại. |
+| `run-android`: `Khong co may ao nao` | Laptop chưa có máy ảo: Android Studio → Device Manager → Create Virtual Device. Hoặc bấm nút ▶ bật sẵn máy ảo trong Android Studio rồi chạy lại script. |
 | Bạn bè báo "Lỗi kết nối" | Xem cửa sổ `start-demo` có dòng đỏ "backend khong tra loi" không, và xem `demo\logs\proxy.log`, `demo\logs\tunnel.log`. |
 
 ---
