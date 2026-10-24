@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>ReBook Admin — bản vẽ</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F6F8;--card:#fff;--line:#E5E7EB;--ink:#111318;--mut:#6B7280;--ok:#17924F;--warn:#C27A00;--bad:#D6453D;--info:#0A6CFF}
+*{box-sizing:border-box;margin:0}
+body{background:#d9dce2;font-family:Inter,sans-serif;color:var(--ink);padding:26px;width:1300px;font-size:13px}
+.cap{font:700 12px Inter;color:#555;margin:22px 0 8px;letter-spacing:.2px}
+.win{width:1248px;height:700px;background:var(--bg);border-radius:14px;overflow:hidden;display:flex;box-shadow:0 14px 40px rgba(0,0,0,.2);position:relative}
+.sb{width:232px;background:#fff;border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;flex:none}
+.logo{display:flex;align-items:center;gap:8px;padding:2px 8px 14px;font:700 16px Inter}
+.logo i{width:26px;height:26px;border-radius:8px;background:#111;display:inline-block}
+.logo small{margin-left:auto;font:600 10px Inter;background:#111;color:#fff;padding:2px 7px;border-radius:99px}
+.g{font:600 11px Inter;color:#9AA0AB;padding:12px 10px 5px}
+.it{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;color:#444;font-weight:500;margin:1px 0}
+.it b{width:15px;height:15px;border-radius:4px;background:#C9CDD4;display:inline-block;flex:none}
+.it.on{background:#111;color:#fff}.it.on b{background:#fff}
+.it .n{margin-left:auto;background:#fde8e6;color:var(--bad);font:700 11px Inter;padding:1px 7px;border-radius:99px}
+.it.on .n{background:#fff;color:#111}
+.it .lv{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 3px #fde8e6}
+.me{margin-top:auto;display:flex;align-items:center;gap:9px;padding:10px;border-top:1px solid var(--line)}
+.me i{width:30px;height:30px;border-radius:50%;background:#111;color:#fff;font:700 12px Inter;display:flex;align-items:center;justify-content:center}
+.me div{font-size:12px;line-height:1.3}.me div span{color:var(--mut);display:block;font-size:11px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.top{height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 22px;gap:14px;flex:none}
+.top h1{font:600 22px Newsreader,serif}
+.top .sp{flex:1}
+.search{background:var(--bg);border-radius:9px;padding:8px 12px;width:240px;color:#9AA0AB}
+.chip{font:600 11px Inter;padding:3px 9px;border-radius:99px;display:inline-block}
+.ok{background:#e4f5ea;color:var(--ok)}.wa{background:#fdf1d9;color:var(--warn)}.ba{background:#fde8e6;color:var(--bad)}.in{background:#e6f0ff;color:var(--info)}.gr{background:#eceef2;color:#555}
+.pg{padding:20px 22px;flex:1;overflow:hidden}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.kpi small{color:var(--mut);font-weight:500}.kpi b{display:block;font:700 22px Inter;margin:6px 0 2px;letter-spacing:-.4px}.kpi span{font-size:12px;font-weight:600}
+.row{display:flex;gap:14px}
+h3{font:600 14px Inter;margin-bottom:10px}
+.todo{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.todo:first-of-type{border-top:0}
+.todo b{font:700 18px Inter;width:34px}.todo div{flex:1;font-weight:500}
+.btn{display:inline-block;background:#111;color:#fff;font-weight:600;padding:8px 14px;border-radius:9px;font-size:12.5px}
+.btn.o{background:#fff;color:#111;box-shadow:inset 0 0 0 1.5px #111}
+.btn.r{background:#fff;color:var(--bad);box-shadow:inset 0 0 0 1.5px var(--bad)}
+.btn.s{padding:5px 10px;font-size:12px}
+table{width:100%;border-collapse:collapse}
+th{font:600 11px Inter;color:#9AA0AB;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid #f0f1f4;vertical-align:middle}
+tr.sel td{background:#F2F6FF}
+.cv{width:30px;height:42px;border-radius:3px;background-size:cover;background-position:center;display:inline-block;vertical-align:middle;margin-right:10px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.mut{color:var(--mut)}
+.bars{display:flex;align-items:flex-end;gap:7px;height:150px;margin-top:10px}
+.bars i{flex:1;background:#E4E7EC;border-radius:5px 5px 0 0;display:block}.bars i.h{background:#111}
+.live{background:#111;color:#fff;border-radius:14px;padding:16px}
+.livebar{height:6px;border-radius:9px;background:#333;margin-top:10px}.livebar i{display:block;height:100%;width:62%;background:#fff;border-radius:9px}
+.field{margin-bottom:12px}.field small{display:block;color:var(--mut);font-weight:600;margin-bottom:4px}
+.box{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff}
+.chk{display:flex;align-items:center;gap:8px;padding:5px 0}.chk i{width:17px;height:17px;border-radius:5px;background:#111;display:inline-block;position:relative}.chk i.off{background:#fff;box-shadow:inset 0 0 0 1.5px #C9CDD4}
+.ph{width:78px;height:58px;border-radius:8px;background:#E8EAEE;display:inline-block;margin-right:8px;position:relative}
+.ph.f{background-size:cover}
+.feed div{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.feed div:first-child{border-top:0}
+.feed b{width:64px}.feed span{margin-left:auto;font-weight:700}
+.lot{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.lot:first-of-type{border-top:0}.lot i{font:700 11px Inter;color:#9AA0AB;width:22px;font-style:normal}
+</style></head><body>
+
+<div class="cap">1 · DASHBOARD (Admin) — tổng quan + việc cần xử lý</div>
+<div class="win">
+ <div class="sb">
+  <div class="logo"><i></i>ReBook<small>QUẢN TRỊ</small></div>
+  <div class="g">Tổng quan</div><div class="it on"><b></b>Dashboard</div>
+  <div class="g">Duyệt &amp; kiểm soát</div>
+  <div class="it"><b></b>Duyệt tin đăng<span class="n">7</span></div><div class="it"><b></b>Khiếu nại<span class="n">2</span></div><div class="it"><b></b>Người dùng</div><div class="it"><b></b>Danh mục</div>
+  <div class="g">Đấu giá</div>
+  <div class="it"><b></b>Phiên đấu giá</div><div class="it"><b></b>Giám sát phiên<span class="lv"></span></div>
+  <div class="g">Kho (Staff)</div>
+  <div class="it"><b></b>Ký gửi</div><div class="it"><b></b>Lịch hẹn</div><div class="it"><b></b>Kho</div>
+  <div class="g">Hệ thống</div><div class="it"><b></b>Cấu hình phí</div><div class="it"><b></b>Rút tiền<span class="n">4</span></div>
+  <div class="me"><i>AD</i><div>Admin<span>admin@rebook.vn</span></div></div>
+ </div>
+ <div class="main"><div class="top"><h1>Dashboard</h1><span class="mut">Thứ Bảy, 24/10/2026</span><span class="sp"></span><div class="search">Tìm tin, người dùng, đơn…</div></div>
+  <div class="pg">
+   <div class="kpis">
+    <div class="card kpi"><small>Doanh thu tháng</small><b>128.450.000 ₫</b><span style="color:var(--ok)">▲ 12% so với tháng trước</span></div>
+    <div class="card kpi"><small>Phí sàn đã thu</small><b>9.120.000 ₫</b><span style="color:var(--ok)">▲ 8%</span></div>
+    <div class="card kpi"><small>Đơn hàng</small><b>342</b><span class="mut">23 đơn đang giao</span></div>
+    <div class="card kpi"><small>Tỉ lệ lô bán được</small><b>78%</b><span class="mut">47 / 60 lô</span></div>
+    <div class="card kpi"><small>Người dùng hoạt động</small><b>1.204</b><span style="color:var(--ok)">▲ 63 mới</span></div>
+   </div>
+   <div class="row" style="margin-top:14px">
+    <div class="card" style="flex:1.05"><h3>Cần xử lý</h3>
+     <div class="todo"><b>7</b><div>Tin đăng chờ duyệt<br><span class="mut">Cũ nhất: 2 giờ trước</span></div><span class="btn s">Duyệt ngay</span></div>
+     <div class="todo"><b>3</b><div>Ký gửi chờ sơ duyệt<br><span class="mut">Hạn 48 giờ</span></div><span class="btn s o">Xem</span></div>
+     <div class="todo"><b>2</b><div>Khiếu nại đang mở<br><span class="mut">1 cần phân xử hôm nay</span></div><span class="btn s o">Xem</span></div>
+     <div class="todo"><b>4</b><div>Yêu cầu rút tiền<br><span class="mut">Tổng 6.800.000 ₫</span></div><span class="btn s o">Xem</span></div>
+    </div>
+    <div class="card" style="flex:1.3"><h3>Doanh thu 14 ngày gần nhất</h3>
+     <div class="bars"><i style="height:38%"></i><i style="height:52%"></i><i style="height:44%"></i><i style="height:60%"></i><i style="height:48%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:42%"></i><i style="height:66%"></i><i style="height:74%"></i><i style="height:58%"></i><i style="height:80%"></i><i style="height:68%"></i><i class="h" style="height:92%"></i></div>
+     <div class="mut" style="display:flex;justify-content:space-between;margin-top:6px"><span>11/10</span><span>24/10</span></div>
+    </div>
+    <div class="live" style="flex:.9"><span class="chip" style="background:#e5483d;color:#fff">● ĐANG CHẠY</span>
+     <div style="font:600 17px Newsreader,serif;margin-top:10px">Sách cổ Nam Bộ trước 1975</div><div style="opacity:.7;margin-top:2px">Lô 12 / 18 · 94 người xem</div>
+     <div style="font:700 26px Inter;margin-top:14px;letter-spacing:-.5px">450.000 ₫</div><div style="opacity:.7">Đang dẫn: paddle #078 · còn 00:31</div>
+     <div class="livebar"><i></i></div><div style="margin-top:14px"><span class="btn" style="background:#fff;color:#111">Mở giám sát</span></div>
+    </div>
+   </div>
+  </div></div>
+</div>
+
+<div class="cap">2 · DUYỆT TIN ĐĂNG (Admin) — danh sách bên trái, chi tiết + quyết định bên phải</div>
+<div class="win">
+ <div class="sb">
+  <div class="logo"><i></i>ReBook<small>QUẢN TRỊ</small></div>
+  <div class="g">Tổng quan</div><div class="it"><b></b>Dashboard</div>
+  <div class="g">Duyệt &amp; kiểm soát</div>
+  <div class="it on"><b></b>Duyệt tin đăng<span class="n">7</span></div><div class="it"><b></b>Khiếu nại<span class="n">2</span></div><div class="it"><b></b>Người dùng</div><div class="it"><b></b>Danh mục</div>
+  <div class="g">Đấu giá</div>
+  <div class="it"><b></b>Phiên đấu giá</div><div class="it"><b></b>Giám sát phiên<span class="lv"></span></div>
+  <div class="g">Kho (Staff)</div>
+  <div class="it"><b></b>Ký gửi</div><div class="it"><b></b>Lịch hẹn</div><div class="it"><b></b>Kho</div>
+  <div class="g">Hệ thống</div><div class="it"><b></b>Cấu hình phí</div><div class="it"><b></b>Rút tiền<span class="n">4</span></div>
+  <div class="me"><i>AD</i><div>Admin<span>admin@rebook.vn</span></div></div>
+ </div>
+ <div class="main"><div class="top"><h1>Duyệt tin đăng</h1><span class="chip wa">7 chờ duyệt</span><span class="sp"></span><div class="search">Tìm theo tên sách, shop…</div></div>
+  <div class="pg" style="display:flex;gap:14px">
+   <div class="card" style="flex:1.15;padding:0;overflow:hidden">
+    <table><tr><th>Sách</th><th>Shop</th><th>Giá</th><th>Tình trạng</th><th>Gửi lúc</th></tr>
+     <tr class="sel"><td><i class="cv" style="background-image:url(../apps/frontend/assets/books/so-do-0.jpg)"></i><b>Số Đỏ</b><div class="mut" style="margin-left:40px;margin-top:-20px;font-size:12px">Vũ Trọng Phụng</div></td><td>An Nhiên Books <span class="chip ok">Uy tín</span></td><td>65.000 ₫</td><td><span class="chip gr">Tốt</span></td><td class="mut">2 giờ</td></tr>
+     <tr><td><i class="cv" style="background-image:url(../apps/frontend/assets/books/tat-den-0.jpg)"></i><b>Tắt Đèn</b></td><td>Sách Xưa 88</td><td>48.000 ₫</td><td><span class="chip gr">Khá</span></td><td class="mut">3 giờ</td></tr>
+     <tr><td><i class="cv" style="background-image:url(../apps/frontend/assets/books/sapiens-0.jpg)"></i><b>Sapiens</b></td><td>Minh Anh Store</td><td>168.000 ₫</td><td><span class="chip gr">Như mới</span></td><td class="mut">5 giờ</td></tr>
+     <tr><td><i class="cv" style="background-image:url(../apps/frontend/assets/books/nha-gia-kim-0.jpg)"></i><b>Nhà Giả Kim</b></td><td>An Nhiên Books <span class="chip ok">Uy tín</span></td><td>72.000 ₫</td><td><span class="chip gr">Tốt</span></td><td class="mut">6 giờ</td></tr>
+     <tr><td><i class="cv" style="background-image:url(../apps/frontend/assets/books/vang-bong-0.jpg)"></i><b>Vang Bóng Một Thời</b></td><td>Sách Xưa 88</td><td>120.000 ₫</td><td><span class="chip wa">Trung bình</span></td><td class="mut">Hôm qua</td></tr>
+     <tr><td><i class="cv" style="background-image:url(../apps/frontend/assets/books/de-men-0.jpg)"></i><b>Dế Mèn Phiêu Lưu Ký</b></td><td>Tiệm Sách Nhỏ</td><td>45.000 ₫</td><td><span class="chip gr">Tốt</span></td><td class="mut">Hôm qua</td></tr>
+    </table>
+   </div>
+   <div class="card" style="flex:.95">
+    <div style="display:flex;gap:14px"><div class="cv" style="width:92px;height:130px;margin:0;border-radius:5px;background-image:url(../apps/frontend/assets/books/so-do-0.jpg)"></div>
+     <div><div style="font:600 22px Newsreader,serif">Số Đỏ</div><div class="mut">Vũ Trọng Phụng · NXB Văn học · 2018</div>
+      <div style="margin-top:8px;font:700 20px Inter">65.000 ₫ <span class="chip gr" style="vertical-align:middle">Tốt</span></div>
+      <div class="mut" style="margin-top:6px">Shop <b style="color:#111">An Nhiên Books</b> <span class="chip ok">Uy tín</span> · 4,8★ · 126 đơn</div></div></div>
+    <div class="field" style="margin-top:14px"><small>Mô tả của người bán</small><div class="box" style="line-height:1.5">Bìa mềm, gáy chắc, có vài vết gấp góc nhẹ, đủ trang, không viết vẽ, giấy hơi ngả vàng.</div></div>
+    <div class="field"><small>Ảnh thực tế (4)</small><span class="ph f" style="background-image:url(../apps/frontend/assets/books/so-do-0.jpg)"></span><span class="ph f" style="background-image:url(../apps/frontend/assets/books/so-do-1.jpg)"></span><span class="ph"></span><span class="ph"></span></div>
+    <div class="field"><small>Kiểm tra nhanh</small>
+     <div class="chk"><i></i>Ảnh đúng với sách và rõ ràng</div><div class="chk"><i></i>Tình trạng khớp mô tả</div><div class="chk"><i class="off"></i>Giá nằm trong khoảng hợp lý (45.000 – 90.000 ₫)</div></div>
+    <div style="display:flex;gap:10px"><span class="btn">Duyệt tin</span><span class="btn r">Từ chối…</span><span class="mut" style="margin-left:auto;align-self:center">Shop uy tín có thể tự duyệt</span></div>
+   </div>
+  </div></div>
+</div>
+
+<div class="cap">3 · GIÁM SÁT PHIÊN ĐẤU GIÁ (Staff + Admin) — phiên tự chạy, chỉ can thiệp khi có sự cố</div>
+<div class="win">
+ <div class="sb">
+  <div class="logo"><i></i>ReBook<small>QUẢN TRỊ</small></div>
+  <div class="g">Tổng quan</div><div class="it"><b></b>Dashboard</div>
+  <div class="g">Duyệt &amp; kiểm soát</div>
+  <div class="it"><b></b>Duyệt tin đăng<span class="n">7</span></div><div class="it"><b></b>Khiếu nại<span class="n">2</span></div><div class="it"><b></b>Người dùng</div><div class="it"><b></b>Danh mục</div>
+  <div class="g">Đấu giá</div>
+  <div class="it"><b></b>Phiên đấu giá</div><div class="it on"><b></b>Giám sát phiên<span class="lv" style="box-shadow:none"></span></div>
+  <div class="g">Kho (Staff)</div>
+  <div class="it"><b></b>Ký gửi</div><div class="it"><b></b>Lịch hẹn</div><div class="it"><b></b>Kho</div>
+  <div class="g">Hệ thống</div><div class="it"><b></b>Cấu hình phí</div><div class="it"><b></b>Rút tiền<span class="n">4</span></div>
+  <div class="me"><i>AD</i><div>Admin<span>admin@rebook.vn</span></div></div>
+ </div>
+ <div class="main"><div class="top"><h1>Giám sát phiên</h1><span class="chip ba">● ĐANG CHẠY</span><span class="mut">Sách cổ Nam Bộ trước 1975 · 94 người xem · 41 người đã đăng ký</span><span class="sp"></span><span class="btn o">Tạm dừng phiên</span><span class="btn r">Hủy lô hiện tại</span></div>
+  <div class="pg" style="display:flex;gap:14px">
+   <div class="card" style="flex:1.1">
+    <div style="display:flex;gap:16px"><div class="cv" style="width:130px;height:186px;margin:0;border-radius:6px;background-image:url(../apps/frontend/assets/books/leu-chong-0.jpg)"></div>
+     <div style="flex:1"><span class="mut">Lô 12 / 18</span><div style="font:600 26px Newsreader,serif;margin:2px 0">Lều Chõng</div><div class="mut">Ngô Tất Tố · Tình trạng Khá · Chữ ký chưa xác thực</div>
+      <div style="display:flex;gap:26px;margin-top:16px"><div><small class="mut">Giá hiện tại</small><div style="font:700 28px Inter;letter-spacing:-.6px">450.000 ₫</div></div><div><small class="mut">Còn lại</small><div style="font:700 28px Inter">00:31</div></div><div><small class="mut">Bước giá</small><div style="font:700 28px Inter">10.000</div></div></div>
+      <div class="livebar" style="background:#e6e8ec"><i style="background:#111"></i></div>
+      <div class="mut" style="margin-top:8px">Giá khởi điểm 300.000 ₫ · Giá sàn 420.000 ₫ <span class="chip ok">đã vượt sàn</span></div></div></div>
+    <h3 style="margin-top:20px">Lượt trả giá trực tiếp</h3>
+    <div class="feed"><div><b>vừa xong</b>Paddle #078 trả giá<span>450.000 ₫</span></div><div><b>8 giây</b>Paddle #012 trả giá<span>440.000 ₫</span></div><div><b>15 giây</b>Paddle #078 trả giá<span>430.000 ₫</span></div><div><b>22 giây</b>Paddle #044 trả giá<span>420.000 ₫</span></div><div><b>31 giây</b>Paddle #012 trả giá<span>410.000 ₫</span></div></div>
+   </div>
+   <div class="card" style="flex:.55"><h3>Hàng đợi lô</h3>
+    <div class="lot"><i>10</i><span class="cv" style="width:22px;height:30px;background-image:url(../apps/frontend/assets/books/tat-den-0.jpg)"></span><span style="flex:1">Tắt Đèn</span><span class="chip ok">Đã bán 520k</span></div>
+    <div class="lot"><i>11</i><span class="cv" style="width:22px;height:30px;background-image:url(../apps/frontend/assets/books/nam-phong-0.jpg)"></span><span style="flex:1">Nam Phong</span><span class="chip gr">Không bán</span></div>
+    <div class="lot" style="background:#F2F6FF;margin:0 -8px;padding:8px"><i style="color:#111">12</i><span class="cv" style="width:22px;height:30px;background-image:url(../apps/frontend/assets/books/leu-chong-0.jpg)"></span><span style="flex:1;font-weight:700">Lều Chõng</span><span class="chip ba">● Đang đấu</span></div>
+    <div class="lot"><i>13</i><span class="cv" style="width:22px;height:30px;background-image:url(../apps/frontend/assets/books/tu-dien-0.jpg)"></span><span style="flex:1">Từ điển Annam</span><span class="chip in">Chờ</span></div>
+    <div class="lot"><i>14</i><span class="cv" style="width:22px;height:30px;background-image:url(../apps/frontend/assets/books/truyen-kieu-0.jpg)"></span><span style="flex:1">Truyện Kiều</span><span class="chip in">Chờ</span></div>
+    <div class="lot"><i>15</i><span class="cv" style="width:22px;height:30px;background-image:url(../apps/frontend/assets/books/vang-bong-0.jpg)"></span><span style="flex:1">Vang Bóng Một Thời</span><span class="chip in">Chờ</span></div>
+   </div>
+  </div></div>
+</div>
+
+<div class="cap">4 · NHẬN SÁCH &amp; KIỂM ĐỊNH (Staff) — lịch hẹn → quét QR → phiếu kiểm định → nhập kho</div>
+<div class="win">
+ <div class="sb">
+  <div class="logo"><i></i>ReBook<small style="background:#0A6CFF">KHO</small></div>
+  <div class="g">Kho</div>
+  <div class="it"><b></b>Ký gửi<span class="n">3</span></div><div class="it on"><b></b>Lịch hẹn hôm nay<span class="n">5</span></div><div class="it"><b></b>Kho &amp; vị trí kệ</div><div class="it"><b></b>Đơn đấu giá cần giao</div>
+  <div class="g">Đấu giá</div><div class="it"><b></b>Giám sát phiên<span class="lv"></span></div>
+  <div class="me"><i style="background:#0A6CFF">NV</i><div>Nhân viên kho<span>staff@rebook.vn</span></div></div>
+ </div>
+ <div class="main"><div class="top"><h1>Nhận sách &amp; kiểm định</h1><span class="chip in">Lịch hẹn hôm nay · 5</span><span class="sp"></span><span class="btn">Quét QR lịch hẹn</span></div>
+  <div class="pg" style="display:flex;gap:14px">
+   <div class="card" style="flex:.7"><h3>Lịch hẹn mang sách</h3>
+    <div class="lot"><i>9:00</i><div style="flex:1"><b>Từ điển Annam – Lusitan – Latinh</b><div class="mut">Trần Văn Khoa · khung 09:00–10:00</div></div><span class="chip ok">Đã nhận</span></div>
+    <div class="lot" style="background:#F2F6FF;margin:0 -8px;padding:8px"><i style="color:#111">10:30</i><div style="flex:1"><b>Truyện Kiều (bản 1925)</b><div class="mut">Lê Minh Anh · khung 10:00–11:00</div></div><span class="chip in">Đang kiểm định</span></div>
+    <div class="lot"><i>14:00</i><div style="flex:1"><b>Vang Bóng Một Thời</b><div class="mut">Phạm Thu Hà · khung 14:00–15:00</div></div><span class="chip wa">Chờ</span></div>
+    <div class="lot"><i>15:30</i><div style="flex:1"><b>Nam Phong tạp chí, bộ 12 số</b><div class="mut">Nguyễn Đức Long · khung 15:00–16:00</div></div><span class="chip wa">Chờ</span></div>
+    <div class="lot"><i>16:30</i><div style="flex:1"><b>Hoàng Lê nhất thống chí</b><div class="mut">Đỗ Quang Huy · khung 16:00–17:00</div></div><span class="chip wa">Chờ</span></div>
+   </div>
+   <div class="card" style="flex:1.2"><div style="display:flex;justify-content:space-between;align-items:center"><div><span class="mut">Phiếu kiểm định · Mã kho K-0147</span><div style="font:600 24px Newsreader,serif">Truyện Kiều (bản 1925)</div></div><span class="chip in">Đang kiểm định</span></div>
+    <div style="display:flex;gap:18px;margin-top:12px">
+     <div style="flex:1"><div class="field"><small>Checklist</small>
+      <div class="chk"><i></i>Đủ trang</div><div class="chk"><i></i>Đúng ấn bản / lần in</div><div class="chk"><i></i>Bìa – gáy – ruột còn tốt</div><div class="chk"><i class="off"></i>Ẩm mốc</div><div class="chk"><i class="off"></i>Có chữ ký / ghi chú</div></div>
+      <div class="field"><small>Ảnh chuẩn (4 / 5)</small><span class="ph f" style="background-image:url(../apps/frontend/assets/books/truyen-kieu-0.jpg)"></span><span class="ph f" style="background-image:url(../apps/frontend/assets/books/truyen-kieu-1.jpg)"></span><span class="ph"></span><span class="ph" style="background:#fff;box-shadow:inset 0 0 0 1.5px #C9CDD4;display:inline-flex;align-items:center;justify-content:center;color:#888">+ Thêm</span></div>
+      <div class="field"><small>Báo cáo tình trạng</small><div class="box" style="line-height:1.5;height:72px">Bìa giấy cứng, góc trên sờn nhẹ, ruột đủ 214 trang, ố vàng đều, không rách.</div></div></div>
+     <div style="width:250px"><div class="field"><small>Đề xuất giá</small>
+       <div class="box" style="display:flex;justify-content:space-between;margin-bottom:6px"><span class="mut">Ước tính</span><b>800k – 1.200k ₫</b></div>
+       <div class="box" style="display:flex;justify-content:space-between;margin-bottom:6px"><span class="mut">Giá khởi điểm</span><b>500.000 ₫</b></div>
+       <div class="box" style="display:flex;justify-content:space-between"><span class="mut">Giá sàn</span><b>700.000 ₫</b></div></div>
+      <div class="field"><small>Vị trí kệ</small><div class="box"><b>B-12</b> · Kệ sách cổ</div></div>
+      <div class="btn" style="display:block;text-align:center;margin-top:16px">Lưu phiếu &amp; nhập kho</div></div>
+    </div></div>
+  </div></div>
+</div>
+</body></html>

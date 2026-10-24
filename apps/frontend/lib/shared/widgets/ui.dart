@@ -7,6 +7,7 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/widgets/admin_scope.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 
 /// Khung một trang theo style Liquid Glass (trang tự vẽ nền màu loang nên luôn đặc khi chuyển trang).
@@ -47,8 +48,9 @@ class AppPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final compact = context.windowSize.isCompact;
     final canBack = showBack ?? (GoRouter.of(context).canPop());
+    if (AdminScope.active(context)) return _adminPage(context, canBack);
+    final compact = context.windowSize.isCompact;
     final pad =
         contentPadding ??
         (compact
@@ -132,6 +134,106 @@ class AppPage extends StatelessWidget {
                 page,
               ],
             ),
+    );
+  }
+}
+
+extension on AppPage {
+  /// Trang quản trị: thanh tiêu đề phẳng màu trắng + nội dung trên nền xám nhạt.
+  Widget _adminPage(BuildContext context, bool canBack) {
+    final text = context.textStyles;
+    final onMenu = AdminScope.menuOf(context);
+    final compact = onMenu != null;
+    final gutter = compact ? 16.0 : 24.0;
+    Widget scroll = CustomScrollView(
+      slivers: [
+        ...?slivers,
+        if (children != null)
+          SliverPadding(
+            padding:
+                contentPadding ??
+                EdgeInsets.fromLTRB(gutter, compact ? 16 : 20, gutter, 32),
+            sliver: SliverList.list(children: children!),
+          ),
+      ],
+    );
+    if (onRefresh != null) {
+      scroll = RefreshIndicator(onRefresh: onRefresh!, child: scroll);
+    }
+    return ColoredBox(
+      color: AdminPalette.bg,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            // Trên điện thoại thanh đầu trang nằm dưới thanh trạng thái (web: inset = 0).
+            height: 60 + MediaQuery.paddingOf(context).top,
+            padding: EdgeInsets.fromLTRB(
+              gutter - (compact ? 8 : 0),
+              MediaQuery.paddingOf(context).top,
+              gutter,
+              0,
+            ),
+            decoration: const BoxDecoration(
+              color: AdminPalette.card,
+              border: Border(bottom: BorderSide(color: AdminPalette.line)),
+            ),
+            child: Row(
+              children: [
+                if (onMenu != null)
+                  IconButton(
+                    icon: const Icon(Icons.menu_rounded, size: 22),
+                    onPressed: onMenu,
+                  ),
+                if (canBack)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                    onPressed: () => context.pop(),
+                  ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              (compact ? text.titleLarge : text.headlineSmall)
+                                  ?.copyWith(
+                                    fontFamily: AppFonts.serif,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ),
+                      ),
+                      if (subtitle != null && !compact) ...[
+                        const SizedBox(width: AppSpacing.md),
+                        Flexible(
+                          child: Text(
+                            subtitle!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: text.bodyMedium?.copyWith(
+                              color: AdminPalette.muted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                for (final a in actions) ...[
+                  const SizedBox(width: AppSpacing.sm),
+                  a,
+                ],
+              ],
+            ),
+          ),
+          Expanded(
+            child: Material(color: Colors.transparent, child: scroll),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -275,15 +377,21 @@ class HeaderAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.windowSize.isCompact) {
+    // Quản trị trên điện thoại: nút tròn đen thay cho nút xanh của app người mua.
+    final adminCompact = AdminScope.menuOf(context) != null;
+    if (adminCompact || context.windowSize.isCompact) {
       return IconButton(
         tooltip: label,
         onPressed: onPressed,
         icon: Icon(icon),
         style: primary
             ? IconButton.styleFrom(
-                backgroundColor: context.appColors.tint,
-                foregroundColor: context.colors.onPrimary,
+                backgroundColor: adminCompact
+                    ? AdminPalette.ink
+                    : context.appColors.tint,
+                foregroundColor: adminCompact
+                    ? AdminPalette.card
+                    : context.colors.onPrimary,
               )
             : null,
       );

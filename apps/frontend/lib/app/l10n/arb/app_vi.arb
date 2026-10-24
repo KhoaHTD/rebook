@@ -1255,5 +1255,62 @@
   "heroRareEyebrow": "Sách hiếm & cổ",
   "heroRareHeadline": "Những ấn bản không còn tái bản.",
   "heroRareBody": "Bản in cũ, giấy ố vàng, còn đủ gáy — mỗi cuốn được chuyên viên thẩm định.",
-  "heroRareCta": "Xem sách hiếm"
+  "heroRareCta": "Xem sách hiếm",
+  "adminGroupOverview": "Tổng quan",
+  "adminGroupReview": "Duyệt & kiểm soát",
+  "adminGroupAuction": "Đấu giá",
+  "adminGroupWarehouse": "Kho",
+  "adminGroupSystem": "Hệ thống",
+  "adminBadgeAdmin": "QUẢN TRỊ",
+  "adminBadgeStaff": "KHO",
+  "adminTodoTitle": "Cần xử lý",
+  "adminTodoListings": "Tin đăng chờ duyệt",
+  "adminTodoConsign": "Ký gửi chờ sơ duyệt",
+  "adminTodoDisputes": "Khiếu nại đang mở",
+  "adminTodoWithdrawals": "Yêu cầu rút tiền",
+  "adminReviewNow": "Duyệt ngay",
+  "adminView": "Xem",
+  "adminLiveSession": "Phiên đang chạy",
+  "adminNoLive": "Hiện không có phiên nào đang chạy.",
+  "adminOpenMonitor": "Mở giám sát",
+  "adminSelectListing": "Chọn một tin ở bên trái để xem chi tiết.",
+  "adminSellerDesc": "Mô tả của người bán",
+  "adminPhotos": "Ảnh thực tế ({n})",
+  "@adminPhotos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "adminQuickCheck": "Kiểm tra nhanh",
+  "adminCheckPhoto": "Ảnh đúng với sách và rõ ràng",
+  "adminCheckCondition": "Tình trạng khớp mô tả",
+  "adminCheckPrice": "Giá hợp lý",
+  "adminSubmitted": "Gửi lúc",
+  "adminColBook": "Sách",
+  "adminColShop": "Shop",
+  "adminColPrice": "Giá",
+  "adminColCondition": "Tình trạng",
+  "adminPendingN": "{n} chờ duyệt",
+  "@adminPendingN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "adminLotOf": "Lô {n} / {total}",
+  "@adminLotOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "adminBidFeed": "Lượt trả giá trực tiếp",
+  "adminLotQueue": "Hàng đợi lô"
 }

@@ -50,6 +50,8 @@ GoRouter adminRouter(Ref ref) {
       }
       if (!session.isSignedIn) return onLogin ? null : AdminRoutes.login;
       if (onLogin) return _home(user!);
+      // Địa chỉ của app người mua (vd. /home sau khi đăng nhập ở app thường) → về trang chủ quản trị.
+      if (!_isAdminLocation(location)) return _home(user!);
       // Staff vào trang chỉ dành cho Admin → về trang kho.
       if (user!.role == AuthRole.staff && !_staffAllowed(location)) {
         return AdminRoutes.consignments;
@@ -116,6 +118,23 @@ GoRouter adminRouter(Ref ref) {
 String _home(AuthUser user) => user.role == AuthRole.admin
     ? AdminRoutes.dashboard
     : AdminRoutes.consignments;
+
+bool _isAdminLocation(String location) =>
+    location == AdminRoutes.login ||
+    location == AdminRoutes.dashboard ||
+    [
+      AdminRoutes.consignments,
+      AdminRoutes.appointments,
+      AdminRoutes.warehouse,
+      AdminRoutes.auctionOrders,
+      AdminRoutes.sessions,
+      AdminRoutes.listings,
+      AdminRoutes.users,
+      AdminRoutes.categories,
+      AdminRoutes.config,
+      AdminRoutes.withdrawals,
+      AdminRoutes.disputes,
+    ].any((p) => location == p || location.startsWith('$p/'));
 
 /// Staff: phần kho + danh sách phiên và màn giám sát (SRS 2 — Staff / Auctioneer).
 /// Tạo / sửa phiên chỉ Admin.

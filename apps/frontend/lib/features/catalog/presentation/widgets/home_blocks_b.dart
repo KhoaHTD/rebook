@@ -64,6 +64,8 @@ class HomeCategories extends ConsumerWidget {
     Widget tile((Category, List<Listing>) t, double w, double h) {
       final covers = [for (final l in t.$2.take(3)) coverOfBook(l.book)];
       final onDark = context.appColors.onSelected;
+      // Ô hẹp (2 cột trên điện thoại): tiêu đề nhỏ hơn + quạt bìa nhỏ để chữ không đè lên bìa.
+      final narrow = w < 260;
       return SizedBox(
         width: w,
         child: BlurPanel(
@@ -78,7 +80,7 @@ class HomeCategories extends ConsumerWidget {
                 bottom: 0,
                 child: CoverFan(
                   covers: covers,
-                  width: (h * 0.34).clamp(48, 92),
+                  width: narrow ? 50 : (h * 0.34).clamp(48, 92),
                 ),
               ),
               Align(
@@ -91,9 +93,11 @@ class HomeCategories extends ConsumerWidget {
                       t.$1.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: context.textStyles.headlineSmall?.copyWith(
-                        color: onDark,
-                      ),
+                      style:
+                          (narrow
+                                  ? context.textStyles.titleLarge
+                                  : context.textStyles.headlineSmall)
+                              ?.copyWith(color: onDark),
                     ),
                     Text(
                       l10n.hsListingsN(t.$2.length),
@@ -121,7 +125,7 @@ class HomeCategories extends ConsumerWidget {
             final unit = (box.maxWidth - gap * (cols - 1)) / cols;
             double span(int i) =>
                 compact ? (i == 0 ? 2 : 1) : (i == 0 || i == 5 ? 2 : 1);
-            final h = compact ? 168.0 : 232.0;
+            final h = compact ? 196.0 : 232.0;
             return Wrap(
               spacing: gap,
               runSpacing: gap,

@@ -166,3 +166,9 @@ Dựng lại video tham chiếu người dùng gửi (2026-10-23) bằng bìa s�
 - Màu riêng nằm trong `LandingPalette` (`app_tokens.dart`); chuỗi trong ARB với tiền tố `wl`.
 - `?y=<px>` mở trang ở một vị trí cuộn (dùng để chụp ảnh kiểm tra từng cảnh).
 - Test `test/features/landing/` dựng mọi cảnh ở 11 vị trí cuộn, desktop + điện thoại (bỏ qua lỗi "overflowed" vì test dùng font Ahem).
+
+## Giao diện quản trị (Staff / Admin)
+
+- **Một địa chỉ, tự chuyển theo role:** `BookMarketplaceApp` (app.dart) theo dõi phiên đăng nhập; tài khoản Staff/Admin dùng `adminRouter` + `AdminShell`, người mua dùng `appRouter`. Đăng xuất thì quay lại app người mua. Entrypoint riêng `main_admin.dart` vẫn dùng được.
+- **Phong cách dashboard sáng, phẳng:** `AdminScope` (shared/widgets/admin_scope.dart) đánh dấu cây quản trị; trong đó `Glass`/`InfoPanel` vẽ thẻ trắng viền xám, `AppPage` vẽ thanh tiêu đề phẳng + nền `AdminPalette.bg`. Nút đen, chip đen (xem `_adminTheme` trong admin_shell.dart). Màu ở `AdminPalette` (app_tokens.dart); thẻ và ô số liệu ở `shared/widgets/admin_kit.dart`.
+- **Màn chính:** Dashboard (số liệu + việc cần xử lý + phiên đang chạy), Duyệt tin (danh sách + chi tiết), Giám sát phiên (lô hiện tại, lượt trả giá, hàng đợi lô), Nhận sách / Kiểm định.
