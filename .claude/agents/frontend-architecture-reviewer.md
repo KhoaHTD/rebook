@@ -33,6 +33,14 @@ lỗi thực tế trong phần code vừa thay đổi. KHÔNG sửa code, chỉ 
 - Responsive: màn mới có ổn ở compact (< 600) và expanded (≥ 1024)? Có `MaxWidthBox` trên web?
 - AsyncValue hiển thị qua `AsyncValueView` (có loading, error + retry).
 
+### Giao diện quản trị (khi diff đụng `features/admin` hoặc `features/staff`)
+- Đọc `apps/frontend/docs/TEAM_GUIDE.md`. Màn dựng bằng `AppPage` + `AdminCard`/`AdminKpi` + `AdminPalette`; phẳng, sáng, nút đen — có màu xanh dương, kính, gradient, bóng không?
+- Responsive thật: ở 375px (điện thoại), 800px, 1400px có bảng nhiều cột bị bóp, hàng nhiều nút bị chật, bề rộng cố định lớn, giá / tên bị gãy giữa chữ? Đề xuất cách thu gọn như `_ListingTable` / `ConsignmentRow`.
+- Màn mới đã đăng ký route + mục sidebar + `ownedPaths` + `smokePaths` (nếu có `:tham_số`) trong **module của vai** (`<vai>_module.dart`)? Có ai sửa `admin_router.dart` / `admin_shell.dart` / `admin_modules.dart` không (không được, trừ chủ repo)?
+- Diff có chạm vùng ngoài vai của tác giả (xem `apps/frontend/tool/zones.txt`, tên nhánh `admin/` / `staff/`)? Chạy `dart run tool/locked_check.dart --base <nhánh-gốc> --branch <nhánh>`.
+- Key l10n mới có tiền tố `adm` / `stf` và không đổi key cũ? Có `// arch-ignore` mới không — lý do có chính đáng không?
+- PR có ảnh chụp ở Android + web desktop + web mobile chưa?
+
 ### Khác
 - `pubspec.yaml` thêm package? Phải có trong `tool/allowed_packages.yaml`.
 - Có test cho repository/controller mới không?

@@ -146,21 +146,26 @@ class Glass extends StatelessWidget {
 /// Khối phẳng của giao diện quản trị: nền trắng, viền xám nhạt, không bóng.
 extension on Glass {
   Widget _flat(BuildContext context) {
-    Widget body = DecoratedBox(
-      decoration: BoxDecoration(
-        color: tint ?? AdminPalette.card,
+    // Material (không phải DecoratedBox) để ListTile / InkWell bên trong có chỗ vẽ hiệu ứng chạm.
+    final padded = padding == null
+        ? child
+        : Padding(padding: padding!, child: child);
+    return Material(
+      color: tint ?? AdminPalette.card,
+      shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
-        border: tint == null ? Border.all(color: AdminPalette.line) : null,
+        side: tint == null
+            ? const BorderSide(color: AdminPalette.line)
+            : BorderSide.none,
       ),
-      child: padding == null ? child : Padding(padding: padding!, child: child),
+      child: onTap == null
+          ? padded
+          : InkWell(
+              customBorder: RoundedRectangleBorder(borderRadius: borderRadius),
+              onTap: onTap,
+              child: padded,
+            ),
     );
-    if (onTap != null) {
-      body = Material(
-        type: MaterialType.transparency,
-        child: InkWell(borderRadius: borderRadius, onTap: onTap, child: body),
-      );
-    }
-    return body;
   }
 }
 

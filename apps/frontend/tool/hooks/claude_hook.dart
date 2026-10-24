@@ -10,6 +10,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'zones.dart';
+
 Future<void> main(List<String> args) async {
   final input = await _readInput();
   switch (args.firstOrNull) {
@@ -73,14 +75,17 @@ void _pre(Map<String, dynamic> input) {
   final toolInput =
       (input['tool_input'] as Map?)?.cast<String, dynamic>() ?? {};
 
-  if (tool == 'Bash') {
-    _checkPubAdd(toolInput['command'] as String? ?? '');
+  if (tool == 'Bash' || tool == 'PowerShell') {
+    final command = toolInput['command'] as String? ?? '';
+    _checkPubAdd(command);
+    _checkBashZones(command);
     return;
   }
 
   final filePath = toolInput['file_path'] as String?;
   if (filePath == null) return;
   final rel = _rel(filePath);
+  _checkZones(tool, toolInput, filePath);
 
   if (_isGenerated(rel)) {
     _block(
@@ -109,6 +114,99 @@ void _pre(Map<String, dynamic> input) {
     final deps = _parseDeps(newContent);
     final bad = deps.where((d) => !allowed.contains(d)).toList();
     if (bad.isNotEmpty) _blockPackages(bad);
+  }
+}
+
+// ------------------------------------------------------------ Phân vùng làm việc
+
+/// Gốc monorepo (hai cấp trên apps/frontend).
+final String _repoRoot = Directory(_root).parent.parent.path;
+
+Zones? _zonesCache;
+Zones get _zones => _zonesCache ??= Zones.load('$_root/tool/zones.txt');
+
+const _roleHelp =
+    'Xem apps/frontend/docs/TEAM_GUIDE.md (mục "Vùng khoá"). '
+    'Nếu việc này thật sự cần, dừng lại và báo người dùng để họ nhờ chủ repo.';
+
+/// Chặn sửa file ngoài vùng của vai hiện tại (xem tool/zones.txt).
+void _checkZones(String tool, Map<String, dynamic> toolInput, String filePath) {
+  final role = detectRole();
+  if (role == Role.owner) return;
+  final repoRel = repoRelative(filePath, _repoRoot);
+  if (repoRel == null) return;
+  final exists = File(filePath).existsSync();
+  final why = _zones.roleBlock(role, repoRel, exists: exists);
+  if (why != null) _block('BLOCKED (vùng khoá): $why\n$_roleHelp');
+
+  // File arb dùng chung: chỉ được thêm key mới, không đổi / xoá key cũ.
+  if (repoRel.endsWith('.arb') && exists) {
+    final next = _simulateEdit(tool, toolInput, File(filePath));
+    if (next != null) {
+      final bad = changedArbKeys(File(filePath).readAsStringSync(), next);
+      if (bad.isNotEmpty) {
+        _block(
+          'BLOCKED: $repoRel chỉ được THÊM key mới. Bạn đang đổi / xoá key cũ: '
+          '${bad.take(8).join(", ")}. Dùng `node tool/l10n_add.mjs <file.json>` để thêm key; '
+          'muốn sửa chuỗi cũ thì báo chủ repo.',
+        );
+      }
+    }
+  }
+}
+
+final _bashWriteRe = RegExp(
+  r'(\bsed\s+-i|\btee\b|\bmv\b|\bcp\b|\brm\b|\bgit\s+(checkout|restore|stash|apply|am|cherry-pick)\b|>>?\s*\S|'
+  r'Set-Content|Add-Content|Out-File|Remove-Item|Copy-Item|Move-Item|New-Item|WriteAllText)',
+);
+final _bashPathRe = RegExp(r'[A-Za-z0-9_./:~\\-]+');
+final _bashDangerRe = RegExp(
+  r'--no-verify|push\s+.*--force|push\s+-f\b|reset\s+--hard',
+);
+
+/// Lệnh shell có vẻ ghi vào vùng khoá → chặn. Chỉ là lớp phụ; CI (locked_check) mới là chốt chặn thật.
+void _checkBashZones(String command) {
+  final role = detectRole();
+  if (role == Role.owner) return;
+  if (_bashDangerRe.hasMatch(command)) {
+    _block(
+      'BLOCKED: không dùng --no-verify / force push / reset --hard. $_roleHelp',
+    );
+  }
+  if (!_bashWriteRe.hasMatch(command)) return;
+  for (final m in _bashPathRe.allMatches(command)) {
+    final token = m[0]!;
+    if (!token.contains('/') && !token.contains(r'\')) continue;
+    // Token tương đối có thể tính từ gốc monorepo, gốc app hoặc thư mục đang chạy.
+    final isAbs = RegExp(r'^([A-Za-z]:)?[/\\]').hasMatch(token);
+    final bases = isAbs
+        ? ['']
+        : [
+            '$_repoRoot/',
+            '$_root/',
+            '${Platform.environment['CLAUDE_PROJECT_DIR'] ?? Directory.current.path}/',
+          ];
+    for (final base in bases) {
+      final full = '$base$token';
+      final repoRel = repoRelative(full, _repoRoot);
+      if (repoRel == null) continue;
+      final onDisk = '$_repoRoot/$repoRel';
+      final exists =
+          File(onDisk).existsSync() || Directory(onDisk).existsSync();
+      // Chuỗi kiểu `s/a/b/` (sed) không phải đường dẫn: bỏ qua nếu cả thư mục cha cũng không có.
+      if (!exists && !Directory(File(onDisk).parent.path).existsSync()) {
+        continue;
+      }
+      final asDir = Directory(onDisk).existsSync() && !repoRel.endsWith('/');
+      final why = _zones.roleBlock(
+        role,
+        asDir ? '$repoRel/' : repoRel,
+        exists: exists,
+      );
+      if (why != null) {
+        _block('BLOCKED (vùng khoá, lệnh shell): $why\n$_roleHelp');
+      }
+    }
   }
 }
 

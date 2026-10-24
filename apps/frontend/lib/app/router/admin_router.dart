@@ -3,27 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/app/router/admin_modules.dart';
 import 'package:book_marketplace/app/router/admin_shell.dart';
 import 'package:book_marketplace/app/router/placeholder_page.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/auth_user.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/categories_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/config_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/dashboard_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/disputes_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/listing_review_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/monitor_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/session_edit_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/sessions_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/users_screen.dart';
-import 'package:book_marketplace/features/admin/presentation/screens/withdrawals_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
-import 'package:book_marketplace/features/staff/presentation/screens/appointments_screen.dart';
-import 'package:book_marketplace/features/staff/presentation/screens/auction_orders_screen.dart';
-import 'package:book_marketplace/features/staff/presentation/screens/inspection_screen.dart';
-import 'package:book_marketplace/features/staff/presentation/screens/staff_consignments_screen.dart';
-import 'package:book_marketplace/features/staff/presentation/screens/warehouse_screen.dart';
 
 part 'admin_router.g.dart';
 
@@ -71,45 +57,7 @@ GoRouter adminRouter(Ref ref) {
       ShellRoute(
         builder: (_, state, child) =>
             AdminShell(location: state.matchedLocation, child: child),
-        routes: [
-          _page(AdminRoutes.dashboard, (_) => const DashboardScreen()),
-          _page(
-            AdminRoutes.consignments,
-            (_) => const StaffConsignmentsScreen(),
-            routes: [
-              _page(
-                ':id',
-                (s) => InspectionScreen(consignmentId: s.pathParameters['id']!),
-              ),
-            ],
-          ),
-          _page(AdminRoutes.appointments, (_) => const AppointmentsScreen()),
-          _page(AdminRoutes.warehouse, (_) => const WarehouseScreen()),
-          _page(AdminRoutes.auctionOrders, (_) => const AuctionOrdersScreen()),
-          _page(
-            AdminRoutes.sessions,
-            (_) => const SessionsScreen(),
-            routes: [
-              _page('new', (_) => const SessionEditScreen()),
-              _page(
-                ':id',
-                (s) => SessionEditScreen(sessionId: s.pathParameters['id']),
-                routes: [
-                  _page(
-                    'monitor',
-                    (s) => MonitorScreen(sessionId: s.pathParameters['id']!),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          _page(AdminRoutes.listings, (_) => const ListingReviewScreen()),
-          _page(AdminRoutes.users, (_) => const UsersScreen()),
-          _page(AdminRoutes.categories, (_) => const CategoriesScreen()),
-          _page(AdminRoutes.config, (_) => const ConfigScreen()),
-          _page(AdminRoutes.withdrawals, (_) => const WithdrawalsScreen()),
-          _page(AdminRoutes.disputes, (_) => const DisputesScreen()),
-        ],
+        routes: [for (final m in adminModules) ...m.routes],
       ),
     ],
   );
@@ -120,42 +68,8 @@ String _home(AuthUser user) => user.role == AuthRole.admin
     : AdminRoutes.consignments;
 
 bool _isAdminLocation(String location) =>
-    location == AdminRoutes.login ||
-    location == AdminRoutes.dashboard ||
-    [
-      AdminRoutes.consignments,
-      AdminRoutes.appointments,
-      AdminRoutes.warehouse,
-      AdminRoutes.auctionOrders,
-      AdminRoutes.sessions,
-      AdminRoutes.listings,
-      AdminRoutes.users,
-      AdminRoutes.categories,
-      AdminRoutes.config,
-      AdminRoutes.withdrawals,
-      AdminRoutes.disputes,
-    ].any((p) => location == p || location.startsWith('$p/'));
+    location == AdminRoutes.login || adminModules.any((m) => m.owns(location));
 
-/// Staff: phần kho + danh sách phiên và màn giám sát (SRS 2 — Staff / Auctioneer).
-/// Tạo / sửa phiên chỉ Admin.
+/// Staff chỉ mở được những địa chỉ mà module cho phép (xem `AdminModule.staffCanOpen`).
 bool _staffAllowed(String location) =>
-    location == AdminRoutes.sessions ||
-    (location.startsWith('${AdminRoutes.sessions}/') &&
-        location.endsWith('/monitor')) ||
-    [
-      AdminRoutes.consignments,
-      AdminRoutes.appointments,
-      AdminRoutes.warehouse,
-      AdminRoutes.auctionOrders,
-    ].any((p) => location == p || location.startsWith('$p/'));
-
-/// Trang trong khung admin: không hiệu ứng chuyển trang (giống web truyền thống).
-GoRoute _page(
-  String path,
-  Widget Function(GoRouterState state) build, {
-  List<RouteBase> routes = const [],
-}) => GoRoute(
-  path: path,
-  pageBuilder: (_, state) => NoTransitionPage(child: build(state)),
-  routes: routes,
-);
+    adminModules.any((m) => m.staffCanOpen(location));

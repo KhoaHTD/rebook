@@ -111,3 +111,12 @@ lib/
 - `/sync-api` — sinh lại client từ OpenAPI.
 - Agent `frontend-architecture-reviewer` (ở `.claude/agents/` gốc repo) — review diff theo các luật trên trước khi tạo PR.
 - Hooks (`.claude/settings.json`): chặn package lạ + file sinh tự động, tự `dart format`, chạy `dart analyze` + arch check khi kết thúc lượt.
+
+## Làm việc nhóm: Admin & Staff (đọc [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md))
+
+- Hai người, hai vùng: `features/admin/**` và `features/staff/**` (+ `test/features/<vai>/`). File dùng chung chỉ được THÊM. Phần còn lại là **vùng khoá** — xem `tool/zones.txt`.
+- **Router và sidebar quản trị do module quyết định**: thêm màn = sửa `features/<vai>/presentation/<vai>_module.dart` (route + mục sidebar + `smokePaths`) + file màn hình. Không sửa `app/router/admin_router.dart`, `admin_shell.dart`, `admin_modules.dart`.
+- Màn quản trị dựng bằng `AppPage` + `AdminCard` / `AdminKpi` + `AdminPalette`; phẳng, sáng, nút đen. Cấm `Scaffold`, `Card`, `TextStyle(...)`, bóng, gradient, `Theme(...)` trong features admin/staff (`arch_check` bắt).
+- Chuỗi mới: `node tool/l10n_add.mjs <file.json> --zone adm|stf` (key bắt đầu `adm` / `stf`, không đổi key cũ).
+- Responsive: điểm gãy khung quản trị 900px (dưới đó sidebar là ngăn kéo). Mọi màn phải ổn ở 375 / 800 / 1400px. `test/layout/admin_staff_layout_test.dart` tự quét mọi route; đừng sửa test này để "xanh".
+- Bị hook chặn vùng khoá → dừng và báo người dùng; không lách.

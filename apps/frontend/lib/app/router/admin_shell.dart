@@ -3,12 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
-import 'package:book_marketplace/app/router/routes.dart';
+import 'package:book_marketplace/app/router/admin_module.dart';
+import 'package:book_marketplace/app/router/admin_modules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/auth_user.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
-import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
-import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/admin_scope.dart';
 
 /// Khung web quản trị: sidebar trắng phẳng, mục đang chọn tô đen (dashboard chuyên nghiệp).
@@ -36,68 +35,46 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     final user = ref.watch(sessionControllerProvider).user;
     final isAdmin = user?.role == AuthRole.admin;
 
-    // Số việc chờ xử lý hiện trên sidebar (chỉ Admin gọi được các API này).
-    final pendingListings = isAdmin
-        ? ref.watch(pendingListingsProvider).value?.length ?? 0
-        : 0;
-    final disputes = isAdmin
-        ? ref.watch(adminDisputesProvider).value?.length ?? 0
-        : 0;
-    final withdrawals = isAdmin
-        ? ref
-                  .watch(adminWithdrawalsProvider)
-                  .value
-                  ?.where((w) => w.status == WithdrawalStatus.pending)
-                  .length ??
-              0
-        : 0;
-    final live =
-        ref.watch(adminSessionsProvider).value?.any((s) => s.isLive) ?? false;
+    // Mục sidebar do từng module đăng ký (xem admin_module.dart). Staff chỉ thấy mục `staff: true`.
+    final entries = [
+      for (final m in adminModules)
+        for (final i in m.nav)
+          if (isAdmin || i.staff) i,
+    ];
+    // Thứ tự nhóm: Admin xem tổng quan trước; Staff mở đầu bằng Kho.
+    final groups = [
+      for (final g
+          in isAdmin
+              ? const [
+                  AdminNavGroup.overview,
+                  AdminNavGroup.review,
+                  AdminNavGroup.auction,
+                  AdminNavGroup.warehouse,
+                  AdminNavGroup.system,
+                ]
+              : const [AdminNavGroup.warehouse, AdminNavGroup.auction])
+        if (entries.any((i) => i.group == g)) g,
+    ];
+    String groupLabel(AdminNavGroup g) => switch (g) {
+      AdminNavGroup.overview => l10n.adminGroupOverview,
+      AdminNavGroup.review => l10n.adminGroupReview,
+      AdminNavGroup.auction => l10n.adminGroupAuction,
+      AdminNavGroup.warehouse => l10n.adminGroupWarehouse,
+      AdminNavGroup.system => l10n.adminGroupSystem,
+    };
+    Iterable<AdminNavItem> itemsOf(AdminNavGroup g) =>
+        entries.where((i) => i.group == g);
 
-    bool under(String p) => p == AdminRoutes.dashboard
-        ? location == p
-        : (location == p || location.startsWith('$p/'));
-    Widget item(
-      IconData icon,
-      String label,
-      String path, {
-      int count = 0,
-      bool liveDot = false,
-    }) => _NavItem(
-      icon: icon,
-      label: label,
-      selected: under(path),
-      count: count,
-      liveDot: liveDot,
+    Widget navItem(AdminNavItem i) => _NavItem(
+      icon: i.icon,
+      label: i.label(l10n),
+      selected: underPath(location, i.path),
+      count: i.badge?.call(ref) ?? 0,
+      liveDot: i.liveDot?.call(ref) ?? false,
       onTap: () {
         if (compact) Navigator.of(context).pop();
-        context.go(path);
+        context.go(i.path);
       },
-    );
-
-    final warehouse = [
-      item(
-        Icons.inventory_2_outlined,
-        l10n.navConsignments,
-        AdminRoutes.consignments,
-      ),
-      item(
-        Icons.qr_code_scanner_rounded,
-        l10n.navAppointments,
-        AdminRoutes.appointments,
-      ),
-      item(Icons.warehouse_outlined, l10n.navWarehouse, AdminRoutes.warehouse),
-      item(
-        Icons.local_shipping_outlined,
-        l10n.navAuctionOrders,
-        AdminRoutes.auctionOrders,
-      ),
-    ];
-    final auction = item(
-      Icons.gavel_rounded,
-      l10n.navSessions,
-      AdminRoutes.sessions,
-      liveDot: live,
     );
 
     final sidebar = Container(
@@ -156,57 +133,9 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 children: [
-                  if (isAdmin) ...[
-                    _Group(l10n.adminGroupOverview),
-                    item(
-                      Icons.space_dashboard_outlined,
-                      l10n.navDashboard,
-                      AdminRoutes.dashboard,
-                    ),
-                    _Group(l10n.adminGroupReview),
-                    item(
-                      Icons.fact_check_outlined,
-                      l10n.navListingReview,
-                      AdminRoutes.listings,
-                      count: pendingListings,
-                    ),
-                    item(
-                      Icons.gpp_maybe_outlined,
-                      l10n.navDisputes,
-                      AdminRoutes.disputes,
-                      count: disputes,
-                    ),
-                    item(
-                      Icons.people_outline_rounded,
-                      l10n.navUsers,
-                      AdminRoutes.users,
-                    ),
-                    item(
-                      Icons.category_outlined,
-                      l10n.navCategories,
-                      AdminRoutes.categories,
-                    ),
-                    _Group(l10n.adminGroupAuction),
-                    auction,
-                    _Group(l10n.adminGroupWarehouse),
-                    ...warehouse,
-                    _Group(l10n.adminGroupSystem),
-                    item(
-                      Icons.tune_rounded,
-                      l10n.navConfig,
-                      AdminRoutes.config,
-                    ),
-                    item(
-                      Icons.account_balance_outlined,
-                      l10n.navWithdrawals,
-                      AdminRoutes.withdrawals,
-                      count: withdrawals,
-                    ),
-                  ] else ...[
-                    _Group(l10n.adminGroupWarehouse),
-                    ...warehouse,
-                    _Group(l10n.adminGroupAuction),
-                    auction,
+                  for (final g in groups) ...[
+                    _Group(groupLabel(g)),
+                    for (final i in itemsOf(g)) navItem(i),
                   ],
                 ],
               ),
