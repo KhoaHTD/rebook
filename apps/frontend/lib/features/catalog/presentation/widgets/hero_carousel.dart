@@ -382,7 +382,7 @@ class _HeroCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    _backdrop(c),
+                    _backdrop(c, compact),
                     AnimatedOpacity(
                       opacity: hover ? 1 : 0,
                       duration: AppDurations.normal,
@@ -432,13 +432,20 @@ class _HeroCard extends StatelessWidget {
   }
 
   /// Ảnh bìa phóng to phủ kín thẻ, hoặc nền gradient + họa tiết của slide sự kiện.
-  Widget _backdrop(AppColors c) {
+  /// Điện thoại dùng bản `<tên>-m.webp` (khung vuông); thiếu thì rơi về bản desktop, rồi về nền tạm.
+  Widget _backdrop(AppColors c, bool compact) {
     final img = image;
     if (img != null) {
-      return Image.asset(
+      final desktop = Image.asset(
         img,
         fit: BoxFit.cover,
         errorBuilder: (_, _, _) => _fallbackBackdrop(c),
+      );
+      if (!compact) return desktop;
+      return Image.asset(
+        img.replaceFirst('.webp', '-m.webp'),
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => desktop,
       );
     }
     return _fallbackBackdrop(c);
