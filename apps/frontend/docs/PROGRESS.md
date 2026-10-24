@@ -1,12 +1,12 @@
 # Tiến độ triển khai frontend theo SRS
 
-Nhánh `design/apple-books` (commit local, **không push**). SRS: `docs/SRS.txt` + `docs/srs-*.png`.
+Nhánh `design/liquid-glass-ui` (commit local, **không push**). SRS: `docs/SRS.txt` + `docs/srs-*.png`.
 Quyết định tự đưa ra: `docs/DECISIONS.md`. Giao diện chuẩn: `../../design-preview/png/apple-desktop.png`, `apple-mobile.png`.
 Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style Apple Books.
 
 ## Khi bị ngắt
 
-1. `git switch design/apple-books` trong `D:\Study\FPTUniversity\Semester8\PRM393\rebook`.
+1. `git switch design/liquid-glass-ui` trong `D:\Study\FPTUniversity\Semester8\PRM393\rebook`.
 2. Đọc file này, làm tiếp mục `[ ]` đầu tiên. Đọc `CLAUDE.md` + `docs/ARCHITECTURE.md` trước khi code.
 3. Xong mỗi mục: `dart analyze --fatal-infos && dart run tool/arch_check.dart && flutter test` → commit → đánh `[x]`.
 

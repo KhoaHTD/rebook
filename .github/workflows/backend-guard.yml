@@ -1,10 +1,10 @@
 name: Backend Guard
 
-# LUẬT CỨNG: design/apple-books và MỌI nhánh con của nó (nhánh có chứa commit của nó) chỉ chứa frontend.
+# LUẬT CỨNG: design/liquid-glass-ui và MỌI nhánh con của nó (nhánh có chứa commit của nó) chỉ chứa frontend.
 # Push hay PR nào đụng apps/backend ở các nhánh đó đều bị đánh hỏng. Không có nhãn hay cách bỏ qua.
 # Nhánh backend cắt từ main thì không bị ảnh hưởng.
-# (Bật branch protection cho design/apple-books và đặt "Backend Guard" làm check bắt buộc.
-#  Khi design/apple-books đã merge hết vào main, xoá workflow này.)
+# (Bật branch protection cho design/liquid-glass-ui và đặt "Backend Guard" làm check bắt buộc.
+#  Khi design/liquid-glass-ui đã merge hết vào main, xoá workflow này.)
 on:
   push:
     branches-ignore: [main]
@@ -27,7 +27,7 @@ jobs:
           BEFORE: ${{ github.event.before }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
-          FRONTEND=design/apple-books
+          FRONTEND=design/liquid-glass-ui
           git fetch origin "$FRONTEND" || { echo "Không có origin/$FRONTEND: bỏ qua."; exit 0; }
           ref="origin/$FRONTEND"
           # PR: xét nhánh của tác giả, không xét commit merge tạm của GitHub (nó kéo theo cả main).
@@ -51,7 +51,7 @@ jobs:
           fi
           files=$(git diff --name-only "$base" "$head" -- apps/backend)
           if [ -n "$files" ]; then
-            echo "::error::Code backend không được lên design/apple-books hay nhánh con của nó:"
+            echo "::error::Code backend không được lên design/liquid-glass-ui hay nhánh con của nó:"
             echo "$files"
             exit 1
           fi
