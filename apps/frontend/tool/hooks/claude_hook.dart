@@ -120,13 +120,15 @@ void _pre(Map<String, dynamic> input) {
 /// Gốc monorepo (hai cấp trên apps/frontend).
 final String _repoRoot = Directory(_root).parent.parent.path;
 
-/// Nhánh bảo vệ: tuyệt đối không có code `apps/backend` (backend nằm ở `main`, do người khác làm).
-/// Cùng luật này có ở `.githooks/pre-push` và `.github/workflows/backend-guard.yml`.
-const _protectedBranches = {'design/apple-books'};
+/// Nhánh frontend: nhánh này VÀ mọi nhánh con cắt ra từ nó (nhánh có chứa commit của nó)
+/// tuyệt đối không có code `apps/backend` (backend nằm ở `main`, do người khác làm).
+/// Cùng luật có ở `.githooks/pre-push` và `.github/workflows/backend-guard.yml`.
+/// (Khi nhánh này đã merge hết vào `main`, gỡ luật ở cả ba nơi.)
+const _frontendBranch = 'design/apple-books';
 
 const _backendHelp =
-    'Nhánh design/apple-books chỉ chứa frontend: KHÔNG đưa code apps/backend lên nhánh này. '
-    'Cần backend thì làm ở nhánh khác / main, hoặc báo người dùng để họ nhờ người làm backend.';
+    'Nhánh design/apple-books và mọi nhánh con của nó chỉ chứa frontend: KHÔNG đưa code apps/backend lên. '
+    'Cần backend thì làm ở nhánh cắt từ main, hoặc báo người dùng để họ nhờ người làm backend.';
 
 String _git(List<String> args) {
   try {
@@ -137,8 +139,30 @@ String _git(List<String> args) {
   }
 }
 
-bool _onProtectedBranch() =>
-    _protectedBranches.contains(_git(['rev-parse', '--abbrev-ref', 'HEAD']));
+bool _gitOk(List<String> args) {
+  try {
+    return Process.runSync('git', args, workingDirectory: _repoRoot).exitCode ==
+        0;
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Mốc để đo "nhánh này đã thêm gì so với nhánh frontend". `null` nếu đây không phải nhánh frontend
+/// (vd. nhánh backend cắt từ main).
+String? _frontendBase() {
+  const remote = 'origin/$_frontendBranch';
+  final hasRemote = _gitOk(['rev-parse', '--verify', '--quiet', remote]);
+  if (_git(['rev-parse', '--abbrev-ref', 'HEAD']) == _frontendBranch) {
+    return hasRemote ? remote : 'origin/main';
+  }
+  for (final ref in [remote, _frontendBranch]) {
+    if (_gitOk(['merge-base', '--is-ancestor', ref, 'HEAD'])) return ref;
+  }
+  return null;
+}
+
+bool _onProtectedBranch() => _frontendBase() != null;
 
 /// Đường dẫn tính từ gốc monorepo, `null` nếu nằm ngoài repo.
 String? _repoRel(String path) {
@@ -217,19 +241,25 @@ void _checkBashBackend(String command) {
     }
   }
   if (RegExp(r'\bgit\s+push\b').hasMatch(command)) {
-    final mentions = _protectedBranches.any(command.contains);
-    if (!onProtected && !mentions) return;
-    for (final b in _protectedBranches) {
-      final remote = 'origin/$b';
-      final base = _git(['rev-parse', '--verify', '--quiet', remote]).isNotEmpty
-          ? '$remote..HEAD'
-          : 'origin/main...HEAD';
-      final files = _git(['diff', '--name-only', base, '--', 'apps/backend']);
-      if (files.isNotEmpty) {
-        _block(
-          'BLOCKED: push này mang code apps/backend lên $b:\n$files\n$_backendHelp',
-        );
-      }
+    // Đẩy từ nhánh frontend / nhánh con, hoặc đẩy một nhánh khác thẳng lên design/apple-books.
+    final base =
+        _frontendBase() ??
+        (command.contains(_frontendBranch) ? 'origin/main' : null);
+    if (base == null) return;
+    final mergeBase = _git(['merge-base', base, 'HEAD']);
+    if (mergeBase.isEmpty) return;
+    final files = _git([
+      'diff',
+      '--name-only',
+      mergeBase,
+      'HEAD',
+      '--',
+      'apps/backend',
+    ]);
+    if (files.isNotEmpty) {
+      _block(
+        'BLOCKED: push này mang code apps/backend:\n$files\n$_backendHelp',
+      );
     }
   }
 }

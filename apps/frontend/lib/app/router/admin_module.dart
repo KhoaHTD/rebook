@@ -62,7 +62,7 @@ class AdminModule {
 
   /// Địa chỉ CỤ THỂ cho các route có tham số (vd. `/sessions/s3/monitor`), lấy id từ dữ liệu mẫu.
   /// Test layout (test/layout) mở từng địa chỉ này ở nhiều cỡ màn hình để bắt lỗi tràn / vỡ bố cục.
-  /// Route có `:tham_số` mà không có địa chỉ ở đây thì test hỏng, để màn mới không lọt khỏi kiểm tra.
+  /// Không bắt buộc, nhưng route có `:tham_số` mà không khai báo ở đây thì không được quét.
   final Future<List<String>> Function(ProviderContainer container)? smokePaths;
 
   bool owns(String location) => ownedPaths.any((p) => underPath(location, p));

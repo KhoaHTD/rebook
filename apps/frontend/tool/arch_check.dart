@@ -116,72 +116,9 @@ Iterable<Violation> _checkSources() sync* {
           'UI không gọi HTTP. Gọi qua repository.',
         );
       }
-      if (_isAdminStaffUi(location)) {
-        for (final rule in _vibeRules) {
-          if (rule.pattern.hasMatch(code)) {
-            yield Violation(path, n, rule.id, rule.message);
-          }
-        }
-      }
-    }
-
-    if (_isAdminStaffUi(location) &&
-        path.contains('/presentation/screens/') &&
-        path.endsWith('_screen.dart') &&
-        !lines.any(
-          (l) => l.contains('AppPage(') || l.contains('arch-ignore'),
-        )) {
-      yield Violation(
-        path,
-        1,
-        'screen-needs-apppage',
-        'Màn hình Admin / Staff phải dựng bằng AppPage (shared/widgets/ui.dart) để có thanh đầu trang, '
-            'nút menu trên điện thoại và nền chuẩn.',
-      );
     }
   }
 }
-
-bool _isAdminStaffUi((String, String)? location) =>
-    location != null &&
-    (location.$1 == 'admin' || location.$1 == 'staff') &&
-    location.$2 == 'presentation';
-
-/// Luật giữ vibe web quản trị: dashboard sáng, phẳng, nút đen; không tự vẽ khung / nền / bóng.
-/// Cần ngoại lệ có lý do: thêm `// arch-ignore: <lý do>` (chủ repo sẽ xem ở PR).
-final _vibeRules = <({String id, RegExp pattern, String message})>[
-  (
-    id: 'admin-no-scaffold',
-    pattern: RegExp(
-      r'\b(Scaffold|AppBar|SliverAppBar|BottomNavigationBar|NavigationBar|Drawer)\(',
-    ),
-    message: 'Không tự dựng khung trang. Dùng AppPage; sidebar / ngăn kéo do AdminShell lo (docs/TEAM_GUIDE.md).',
-  ),
-  (
-    id: 'admin-no-raw-widgets',
-    pattern: RegExp(
-      r'\b(Card|ElevatedButton|FloatingActionButton|AlertDialog|SimpleDialog|PopupMenuButton|ExpansionTile)\(|\bshowDialog\(',
-    ),
-    message: 'Dùng AdminCard / FilledButton / OutlinedButton / showModalBottomSheet qua sheets.dart thay cho widget Material thô.',
-  ),
-  (
-    id: 'admin-no-textstyle',
-    pattern: RegExp(r'\bTextStyle\('),
-    message: 'Không tự tạo TextStyle. Dùng context.textStyles.<cỡ>?.copyWith(...) để giữ phông chữ chủ đạo.',
-  ),
-  (
-    id: 'admin-flat-only',
-    pattern: RegExp(
-      r'\b(BoxShadow|LinearGradient|RadialGradient|BackdropFilter|ImageFilter)\b',
-    ),
-    message: 'Web quản trị phẳng và sáng: không bóng, gradient, blur. Dùng AdminCard / Glass (tự phẳng trong AdminScope) / AdminKpi (shared/widgets/admin_kit.dart).',
-  ),
-  (
-    id: 'admin-no-theme-override',
-    pattern: RegExp(r'\b(ThemeData|Theme)\('),
-    message: 'Không ghi đè theme trong màn hình. Muốn đổi kiểu nút / chip chung thì báo chủ repo (admin_shell.dart).',
-  ),
-];
 
 Iterable<Violation> _checkImport(
   String path,

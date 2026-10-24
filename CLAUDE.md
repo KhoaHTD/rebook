@@ -24,10 +24,10 @@ Chợ sách cũ: bán giá cố định + đấu giá.
 
 ## Làm việc nhóm (luật nhẹ, tin nhau; chi tiết ở `apps/frontend/docs/TEAM_GUIDE.md`)
 
-- **LUẬT CỨNG, KHÔNG NGOẠI LỆ: không đưa code `apps/backend` lên nhánh `design/apple-books`** (nhánh chỉ chứa frontend; backend ở `main`).
-  Không sửa / commit / push file backend trên nhánh này, không merge `main` vào nó. Hook push (`.githooks/pre-push`, bật bằng
+- **LUẬT CỨNG, KHÔNG NGOẠI LỆ: không đưa code `apps/backend` lên nhánh `design/apple-books` hay bất kỳ nhánh con nào của nó** (các nhánh này chỉ chứa frontend; backend ở `main`).
+  Không sửa / commit / push file backend trên các nhánh này, không merge `main` vào chúng. Hook push (`.githooks/pre-push`, bật bằng
   `git config core.hooksPath .githooks`), hook Claude và CI "Backend Guard" cùng chặn. Bị chặn → dừng, báo người dùng; không lách.
 - Đọc `apps/frontend/docs/TEAM_GUIDE.md` nếu bạn là Claude của một thành viên nhóm.
 - Không push thẳng `main` / `design/apple-books`: nhánh riêng + PR. Không tự đổi file hạ tầng (`pubspec`, `core/`, `app/`, `api/`, `openapi/`, `env/`, `tool/`, `.github/`, `.claude/`, `android/ios/web`) và không thêm package: hỏi chủ repo.
-- Giao diện (kể cả phần người mua) sửa thoải mái, miễn đúng style và qua `arch_check` + test.
+- Bố cục màn Admin / Staff do người làm tự sáng tạo, chỉ cần hợp gu chung (đọc `apps/frontend/docs/ADMIN_VIBE.md` để hiểu bối cảnh). Giao diện phần người mua sửa thoải mái, miễn đúng style Liquid Glass; mọi thứ qua `arch_check` + test.
 - Web và app là một sản phẩm: mọi thay đổi giao diện phải đúng ở điện thoại (375px / app Android) **và** desktop (≥ 1400px).

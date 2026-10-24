@@ -5,15 +5,17 @@ thoải mái, chỉ giữ chặt vài thứ làm sập app**. Có hai máy kiể
 
 ## 1. Luật (7 dòng)
 
-1. **TUYỆT ĐỐI không đưa code `apps/backend` lên nhánh `design/apple-books`.** Nhánh này chỉ chứa frontend; backend ở `main`
-   do người khác làm. Dù bất cứ lý do gì (kể cả "sửa nhanh một dòng", merge `main` vào) cũng không. Mục 2 nói máy chặn thế nào.
+1. **TUYỆT ĐỐI không đưa code `apps/backend` lên nhánh `design/apple-books` hay bất kỳ nhánh con nào của nó**
+   (nhánh cắt ra từ nó: `admin/...`, `staff/...`, `fix/...`). Các nhánh này chỉ chứa frontend; backend ở `main` do người khác làm.
+   Dù bất cứ lý do gì (kể cả "sửa nhanh một dòng", merge `main` vào) cũng không. Mục 2 nói máy chặn thế nào.
 2. **Không push thẳng `main` hay `design/apple-books`.** Làm trên nhánh riêng, mở PR, chủ repo duyệt.
    Đặt tên nhánh `admin/<việc>` hoặc `staff/<việc>` (hoặc `fix/<việc>`, `feat/<việc>`) cho dễ theo dõi.
 3. **Không tự ý đổi file hạ tầng:** `pubspec`, `lib/core/`, `lib/app/` (router, shell, theme gốc), `lib/api/`, `openapi/`,
    `env/`, `tool/`, `.github/`, `.githooks/`, `.claude/`, `android/ios/web`. Cần đổi → nhắn chủ repo (mục 6).
 4. **Không thêm package, không đổi stack** (Riverpod, go_router, l10n, Dio...). Cần thì hỏi chủ repo.
-5. **Giao diện sửa thoải mái, kể cả phần người mua.** Miễn đúng style: dùng `AppPage` / `Glass` / `AdminCard`,
-   không hardcode màu và chữ, chuỗi mới vào `.arb` (cả `app_vi` và `app_en`).
+5. **Bố cục màn Admin / Staff do người làm tự sáng tạo.** Chỉ cần giữ gu chung (đọc [ADMIN_VIBE.md](ADMIN_VIBE.md), đây là
+   bối cảnh cho Claude chứ không phải luật), màu và chữ qua token, chuỗi mới vào `.arb` (cả `app_vi` và `app_en`).
+   Sửa giao diện phần người mua cũng thoải mái, miễn đúng style Liquid Glass.
 6. **Trước khi mở PR** chạy `dart analyze --fatal-infos`, `dart run tool/arch_check.dart`, `flutter test`. CI chạy lại.
 7. **PR kèm ảnh** ở điện thoại (375px / Android) **và** desktop (≥1400px): web và app là một sản phẩm.
 
@@ -26,8 +28,10 @@ Luật số 1 có ba lớp, cái nào cũng đủ để ngăn. Hai lớp đầu 
 | Lớp | Chặn ở đâu | Bật |
 |---|---|---|
 | **Hook push của git** (`.githooks/pre-push`) | `git push` lên `design/apple-books` mà có file `apps/backend` bị từ chối ngay tại máy. | `git config core.hooksPath .githooks` (một lần sau khi clone) |
-| **Hook Claude** (`.claude/settings.json`) | Khi đang ở nhánh `design/apple-books`, Claude không sửa / tạo file trong `apps/backend`, không `git commit` / `git push` mang theo file backend, không dùng `--no-verify`. | Tự bật khi mở Claude trong repo |
-| **CI "Backend Guard"** (`backend-guard.yml`) | Push / PR vào `design/apple-books` có file `apps/backend` thì đánh hỏng. Không có nhãn hay cách bỏ qua. | Chủ repo đặt làm check bắt buộc (mục 7) |
+| **Hook Claude** (`.claude/settings.json`) | Khi đang ở `design/apple-books` hoặc nhánh con của nó, Claude không sửa / tạo file trong `apps/backend`, không `git commit` / `git push` mang theo file backend, không dùng `--no-verify`. | Tự bật khi mở Claude trong repo |
+| **CI "Backend Guard"** (`backend-guard.yml`) | Push / PR ở `design/apple-books` hoặc nhánh con của nó có file `apps/backend` thì đánh hỏng. Không có nhãn hay cách bỏ qua. | Chủ repo đặt làm check bắt buộc (mục 9) |
+
+"Nhánh con" = nhánh có chứa commit của `design/apple-books`. Nhánh backend cắt từ `main` thì không bị ảnh hưởng.
 
 Nếu bạn lỡ kéo `main` vào nhánh này rồi thấy bị chặn: đó là chủ đích. Muốn lấy thay đổi frontend của `main` thì
 `cherry-pick` từng commit frontend, hoặc hỏi chủ repo.
@@ -55,9 +59,9 @@ Tài khoản mẫu (mật khẩu và OTP đều `123456`): `admin@rebook.vn`, `s
 
 1. **Web và app là MỘT sản phẩm.** Mỗi màn phải đẹp và dùng được ở cả điện thoại (375px, app Android / iOS) lẫn
    desktop (≥1400px). Một màn chỉ đẹp trên desktop là chưa xong.
-2. **Hai phong cách, đừng trộn.** App người mua = Liquid Glass (xem `apps/frontend/CLAUDE.md`).
-   Giao diện quản trị (Admin / Staff) = dashboard sáng, phẳng, nút đen, chữ tiêu đề serif; không kính, không gradient,
-   không đổ bóng. `arch_check` bắt các lỗi này trong `features/admin|staff`.
+2. **Hai phong cách chung một nhà.** App người mua = Liquid Glass (xem `apps/frontend/CLAUDE.md`).
+   Giao diện quản trị mặc định là dashboard sáng, phẳng, nút đen, chữ tiêu đề serif. Đây là *gu gợi ý* cho Claude
+   (xem [ADMIN_VIBE.md](ADMIN_VIBE.md)); bố cục từng màn bạn tự sáng tạo, không có máy nào chặn.
 
 ## 5. Thêm một màn quản trị mới — 5 bước
 
@@ -68,10 +72,10 @@ Ví dụ: Admin thêm màn "Báo cáo". Mỗi vai có một file module, router 
    nó chèn key vào chỗ riêng của vai để hai bạn ít xung đột file `.arb`.
 3. **Repository:** thêm vào `domain/` + `data/fake_<x>_repository.dart` (+ `api_`). Luôn có bản Fake chạy khi `USE_MOCK=true`;
    mọi lời gọi API bọc `guardApi(...)`.
-4. **Màn hình** `presentation/screens/reports_screen.dart`, dựng bằng `AppPage` (khung mẫu bên dưới).
+4. **Màn hình** `presentation/screens/reports_screen.dart`. Nên dựng bằng `AppPage` để có thanh đầu trang và nút ☰ trên điện thoại (khung mẫu bên dưới), nhưng bố cục bên trong tuỳ bạn.
 5. **Đăng ký vào module của vai mình** (`features/admin/presentation/admin_module.dart` hoặc `features/staff/presentation/staff_module.dart`):
-   route vào `routes`, một `AdminNavItem` vào `nav`, đường dẫn vào `ownedPaths`. Route có `:tham_số` thì thêm địa chỉ mẫu
-   vào `smokePaths`. **Không sửa `admin_router.dart` / `admin_shell.dart`.**
+   route vào `routes`, một `AdminNavItem` vào `nav`, đường dẫn vào `ownedPaths`. Route có `:tham_số` thì nên thêm địa chỉ mẫu
+   vào `smokePaths` để test layout quét được. **Không sửa `admin_router.dart` / `admin_shell.dart`.**
 
 ```dart
 class ReportsScreen extends ConsumerWidget {
@@ -99,7 +103,7 @@ class ReportsScreen extends ConsumerWidget {
 }
 ```
 
-**Bộ dựng sẵn — dùng, đừng tự vẽ:** `AppPage` (khung trang), `HeaderAction` (nút thanh đầu), `AdminCard`, `AdminKpi`,
+**Bộ dựng sẵn — dùng cho nhanh và đúng gu (không bắt buộc):** `AppPage` (khung trang), `HeaderAction` (nút thanh đầu), `AdminCard`, `AdminKpi`,
 `AdminPalette.*` (màu), `AppSpacing` / `AppRadius`, `StatusPill`, `EmptyState`, `AsyncValueView`, `BookPoster`, `PriceText` / `formatVnd`.
 Màn mẫu: `admin/dashboard_screen.dart`, `admin/listing_review_screen.dart`, `staff/staff_consignments_screen.dart`, `admin/config_screen.dart`.
 
@@ -127,10 +131,9 @@ dart run tool/arch_check.dart
 flutter test
 ```
 
-- `arch_check`: feature không import feature khác; không hardcode màu / chuỗi; trong `features/admin|staff` cấm
-  `Scaffold` / `Card` / `TextStyle(...)` / bóng / gradient / `Theme(...)`, mọi `*_screen.dart` dùng `AppPage`.
-  Cần ngoại lệ có lý do: `// arch-ignore: <lý do>`.
-- `test/layout/admin_staff_layout_test.dart` tự mở mọi route quản trị ở 375 / 800 / 1400px và hỏng nếu có lỗi tràn / dựng hình.
+- `arch_check` chỉ giữ kiến trúc: feature không import feature khác; không hardcode màu / chuỗi; UI không gọi HTTP;
+  import đúng kiểu. Không dính tới bố cục hay kiểu dáng. Cần ngoại lệ có lý do: `// arch-ignore: <lý do>`.
+- `test/layout/admin_staff_layout_test.dart` tự mở các route quản trị ở 375 / 800 / 1400px và chỉ hỏng nếu có lỗi tràn / dựng hình.
   Đừng sửa test để "xanh", hãy sửa màn hình. Test không bắt được chữ xấu mà không tràn, nên vẫn cần ảnh trong PR.
 - Hook Claude cũng chặn sửa file sinh tự động, chặn package lạ, tự `dart format`, và chạy `analyze` + `arch_check` khi kết thúc lượt.
 
@@ -147,6 +150,8 @@ flutter test
 Thao tác trên GitHub (Settings → Branches) để luật có tác dụng thật:
 
 - **`design/apple-books`:** bắt buộc PR, bắt buộc status check **`Backend Guard`** và `Frontend CI`, chặn force-push, chặn xoá nhánh.
+  Nhánh con (`admin/*`, `staff/*`...) được Backend Guard kiểm khi push và khi mở PR, nhưng chỉ PR vào nhánh được bảo vệ mới *chặn merge*.
+- Khi `design/apple-books` đã merge hết vào `main`: gỡ luật backend (workflow `backend-guard.yml`, `.githooks/pre-push`, hằng `_frontendBranch` trong hook), kẻo nhánh backend cắt từ `main` bị chặn nhầm.
 - **`main`:** bắt buộc PR, bắt buộc review của Code Owners, chặn force-push.
 - Hook máy (git + Claude) chỉ là lớp đầu, có thể bị tắt cục bộ; **CI và branch protection mới là chốt chặn thật**.
 - Muốn họ duyệt chéo hoặc thêm người backend vào CODEOWNERS: sửa `.github/CODEOWNERS`.

@@ -1,18 +1,34 @@
 #!/bin/sh
-# LUẬT CỨNG: không đẩy code apps/backend lên nhánh design/apple-books (nhánh chỉ chứa frontend).
+# LUẬT CỨNG: không đẩy code apps/backend lên nhánh design/apple-books HOẶC bất kỳ nhánh con nào của nó
+# (nhánh con = nhánh có chứa commit của design/apple-books, vd. admin/..., staff/..., fix/...).
+# Nhánh backend cắt từ main thì không bị ảnh hưởng.
 # Bật một lần sau khi clone:  git config core.hooksPath .githooks
 # Cùng luật có ở hook Claude (apps/frontend/tool/hooks/claude_hook.dart) và CI (.github/workflows/backend-guard.yml).
-PROTECTED="refs/heads/design/apple-books"
+# (Khi design/apple-books đã merge hết vào main, gỡ luật ở cả ba nơi.)
+FRONTEND="design/apple-books"
 ZERO="0000000000000000000000000000000000000000"
 
+# Mốc frontend: ưu tiên origin/<nhánh>, không có thì nhánh local cùng tên.
+frontend_ref=""
+for r in "origin/$FRONTEND" "$FRONTEND"; do
+  if git rev-parse --verify --quiet "$r" >/dev/null; then frontend_ref="$r"; break; fi
+done
+
 while read -r local_ref local_sha remote_ref remote_sha; do
-  [ "$remote_ref" = "$PROTECTED" ] || continue
   [ "$local_sha" = "$ZERO" ] && continue # xoá nhánh: không có gì để kiểm
-  if [ "$remote_sha" = "$ZERO" ]; then
-    base=$(git merge-base "$local_sha" origin/main 2>/dev/null)
+
+  if [ "$remote_ref" = "refs/heads/$FRONTEND" ]; then
+    if [ "$remote_sha" = "$ZERO" ]; then
+      base=$(git merge-base "$local_sha" origin/main 2>/dev/null)
+    else
+      base="$remote_sha"
+    fi
+  elif [ -n "$frontend_ref" ] && git merge-base --is-ancestor "$frontend_ref" "$local_sha" 2>/dev/null; then
+    base=$(git merge-base "$frontend_ref" "$local_sha")
   else
-    base="$remote_sha"
+    continue # không phải nhánh frontend / nhánh con
   fi
+
   if [ -z "$base" ] || ! git cat-file -e "$base" 2>/dev/null; then
     echo "pre-push: chưa kiểm được thay đổi (thiếu commit gốc). Chạy 'git fetch' rồi push lại." >&2
     exit 1
@@ -20,9 +36,9 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   files=$(git diff --name-only "$base" "$local_sha" -- apps/backend)
   if [ -n "$files" ]; then
     echo "" >&2
-    echo "PUSH BỊ CHẶN: các file backend không được lên design/apple-books:" >&2
+    echo "PUSH BỊ CHẶN ($remote_ref): code backend không được lên $FRONTEND hay nhánh con của nó:" >&2
     echo "$files" | sed 's/^/  - /' >&2
-    echo "Nhánh này chỉ chứa frontend. Bỏ thay đổi apps/backend khỏi commit (hoặc làm ở nhánh khác / main)." >&2
+    echo "Bỏ thay đổi apps/backend khỏi commit, hoặc làm việc backend ở nhánh cắt từ main." >&2
     exit 1
   fi
 done

@@ -34,9 +34,9 @@ lỗi thực tế trong phần code vừa thay đổi. KHÔNG sửa code, chỉ 
 - AsyncValue hiển thị qua `AsyncValueView` (có loading, error + retry).
 
 ### Giao diện quản trị (khi diff đụng `features/admin` hoặc `features/staff`)
-- Đọc `apps/frontend/docs/TEAM_GUIDE.md`. Màn dựng bằng `AppPage` + `AdminCard`/`AdminKpi` + `AdminPalette`; phẳng, sáng, nút đen — có màu xanh dương, kính, gradient, bóng không?
+- Đọc `apps/frontend/docs/ADMIN_VIBE.md`. Bố cục màn do người làm tự sáng tạo: chỉ góp ý (không chặn) nếu lệch hẳn gu chung (sáng, phẳng, nút đen, tiêu đề serif).
 - Responsive thật: ở 375px (điện thoại), 800px, 1400px có bảng nhiều cột bị bóp, hàng nhiều nút bị chật, bề rộng cố định lớn, giá / tên bị gãy giữa chữ? Đề xuất cách thu gọn như `_ListingTable` / `ConsignmentRow`.
-- Màn mới đã đăng ký route + mục sidebar + `ownedPaths` + `smokePaths` (nếu có `:tham_số`) trong **module của vai** (`<vai>_module.dart`)? Có ai sửa `admin_router.dart` / `admin_shell.dart` / `admin_modules.dart` không (không được, trừ chủ repo)?
+- Màn mới đã đăng ký route + mục sidebar + `ownedPaths` trong **module của vai** (`<vai>_module.dart`)? Có ai sửa `admin_router.dart` / `admin_shell.dart` không (hạ tầng: cần chủ repo đồng ý)?
 - **Diff có file nào dưới `apps/backend` không (nhánh `design/apple-books` cấm tuyệt đối)?** Chạy `git diff --name-only <nhánh-gốc>...HEAD -- apps/backend`; có là chặn PR.
 - Diff có đổi file hạ tầng (`pubspec`, `lib/core`, `lib/app`, `lib/api`, `openapi`, `env`, `tool`, `.github`, `.claude`, `android/ios/web`) mà chưa được chủ repo đồng ý không?
 - Key l10n mới có đủ ở cả `app_vi.arb` và `app_en.arb`? Có `// arch-ignore` mới không — lý do có chính đáng không?
