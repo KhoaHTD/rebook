@@ -1083,14 +1083,16 @@ Map<String, String> systemConfigToValues(SystemConfig c) => {
 };
 
 extension DashboardResponseMapper on api.DashboardResponse {
-  Dashboard toDomain() => Dashboard(
+  /// Backend không trả số người dùng và số ký gửi chờ sơ duyệt: repository tự đếm rồi truyền vào.
+  /// `lotSellThroughRate` của backend là phần trăm 0–100, entity dùng 0–1.
+  Dashboard toDomain({int users = 0, int pendingConsignments = 0}) => Dashboard(
     revenueTotal: _n(revenueThisMonth),
-    platformFees: 0,
+    platformFees: _n(platformBalance),
     orderCount: ordersThisMonth ?? 0,
-    lotSoldRate: (lotSellThroughRate ?? 0).toDouble(),
-    activeUsers: 0,
+    lotSoldRate: (lotSellThroughRate ?? 0).toDouble() / 100,
+    activeUsers: users,
     pendingListings: pendingListings ?? 0,
-    pendingConsignments: 0,
+    pendingConsignments: pendingConsignments,
   );
 }
 

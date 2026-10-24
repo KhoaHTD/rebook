@@ -16,9 +16,21 @@ class ApiAdminRepository implements AdminRepository {
   final api.RestClient _client;
 
   @override
-  Future<Dashboard> dashboard() => guardApi(
-    () async => (await _client.admin.getAdminDashboard()).toDomain(),
-  );
+  Future<Dashboard> dashboard() => guardApi(() async {
+    final results = await Future.wait([
+      _client.admin.getAdminDashboard(),
+      _client.admin.getAdminUsers(size: 1),
+      _client.consignment.getStaffConsignments(
+        status: api.ConsignmentStatus.submitted,
+        size: 1,
+      ),
+    ]);
+    return (results[0] as api.DashboardResponse).toDomain(
+      users: (results[1] as api.PageResponseUserResponse).totalItems ?? 0,
+      pendingConsignments:
+          (results[2] as api.PageResponseConsignmentResponse).totalItems ?? 0,
+    );
+  });
 
   // ── Tin đăng ──
 
