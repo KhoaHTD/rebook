@@ -114,9 +114,10 @@ lib/
 
 ## Làm việc nhóm: Admin & Staff (đọc [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md))
 
-- Hai người, hai vùng: `features/admin/**` và `features/staff/**` (+ `test/features/<vai>/`). File dùng chung chỉ được THÊM. Phần còn lại là **vùng khoá** — xem `tool/zones.txt`.
+- **Luật cứng: không đưa code `apps/backend` lên nhánh `design/apple-books`** (hook push, hook Claude và CI "Backend Guard" cùng chặn). Phần còn lại là luật nhẹ: PR + review, không tự đổi file hạ tầng / thêm package, giao diện sửa thoải mái.
+- Phần quản trị chia hai module: `features/admin/**` và `features/staff/**` (+ `test/features/<vai>/`), mỗi vai một file module nên ít đụng nhau.
 - **Router và sidebar quản trị do module quyết định**: thêm màn = sửa `features/<vai>/presentation/<vai>_module.dart` (route + mục sidebar + `smokePaths`) + file màn hình. Không sửa `app/router/admin_router.dart`, `admin_shell.dart`, `admin_modules.dart`.
 - Màn quản trị dựng bằng `AppPage` + `AdminCard` / `AdminKpi` + `AdminPalette`; phẳng, sáng, nút đen. Cấm `Scaffold`, `Card`, `TextStyle(...)`, bóng, gradient, `Theme(...)` trong features admin/staff (`arch_check` bắt).
 - Chuỗi mới: `node tool/l10n_add.mjs <file.json> --zone adm|stf` (key bắt đầu `adm` / `stf`, không đổi key cũ).
 - Responsive: điểm gãy khung quản trị 900px (dưới đó sidebar là ngăn kéo). Mọi màn phải ổn ở 375 / 800 / 1400px. `test/layout/admin_staff_layout_test.dart` tự quét mọi route; đừng sửa test này để "xanh".
-- Bị hook chặn vùng khoá → dừng và báo người dùng; không lách.
+- Bị hook chặn (backend trên nhánh bảo vệ, package lạ, file sinh tự động) → dừng và báo người dùng; không lách.

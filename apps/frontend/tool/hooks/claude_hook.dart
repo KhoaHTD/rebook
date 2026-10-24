@@ -10,8 +10,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'zones.dart';
-
 Future<void> main(List<String> args) async {
   final input = await _readInput();
   switch (args.firstOrNull) {
@@ -78,14 +76,14 @@ void _pre(Map<String, dynamic> input) {
   if (tool == 'Bash' || tool == 'PowerShell') {
     final command = toolInput['command'] as String? ?? '';
     _checkPubAdd(command);
-    _checkBashZones(command);
+    _checkBashBackend(command);
     return;
   }
 
   final filePath = toolInput['file_path'] as String?;
   if (filePath == null) return;
   final rel = _rel(filePath);
-  _checkZones(tool, toolInput, filePath);
+  _checkBackendFile(filePath);
 
   if (_isGenerated(rel)) {
     _block(
@@ -117,94 +115,120 @@ void _pre(Map<String, dynamic> input) {
   }
 }
 
-// ------------------------------------------------------------ Phân vùng làm việc
+// ------------------------------------------------------- Luật cứng: backend
 
 /// Gốc monorepo (hai cấp trên apps/frontend).
 final String _repoRoot = Directory(_root).parent.parent.path;
 
-Zones? _zonesCache;
-Zones get _zones => _zonesCache ??= Zones.load('$_root/tool/zones.txt');
+/// Nhánh bảo vệ: tuyệt đối không có code `apps/backend` (backend nằm ở `main`, do người khác làm).
+/// Cùng luật này có ở `.githooks/pre-push` và `.github/workflows/backend-guard.yml`.
+const _protectedBranches = {'design/apple-books'};
 
-const _roleHelp =
-    'Xem apps/frontend/docs/TEAM_GUIDE.md (mục "Vùng khoá"). '
-    'Nếu việc này thật sự cần, dừng lại và báo người dùng để họ nhờ chủ repo.';
+const _backendHelp =
+    'Nhánh design/apple-books chỉ chứa frontend: KHÔNG đưa code apps/backend lên nhánh này. '
+    'Cần backend thì làm ở nhánh khác / main, hoặc báo người dùng để họ nhờ người làm backend.';
 
-/// Chặn sửa file ngoài vùng của vai hiện tại (xem tool/zones.txt).
-void _checkZones(String tool, Map<String, dynamic> toolInput, String filePath) {
-  final role = detectRole();
-  if (role == Role.owner) return;
-  final repoRel = repoRelative(filePath, _repoRoot);
-  if (repoRel == null) return;
-  final exists = File(filePath).existsSync();
-  final why = _zones.roleBlock(role, repoRel, exists: exists);
-  if (why != null) _block('BLOCKED (vùng khoá): $why\n$_roleHelp');
-
-  // File arb dùng chung: chỉ được thêm key mới, không đổi / xoá key cũ.
-  if (repoRel.endsWith('.arb') && exists) {
-    final next = _simulateEdit(tool, toolInput, File(filePath));
-    if (next != null) {
-      final bad = changedArbKeys(File(filePath).readAsStringSync(), next);
-      if (bad.isNotEmpty) {
-        _block(
-          'BLOCKED: $repoRel chỉ được THÊM key mới. Bạn đang đổi / xoá key cũ: '
-          '${bad.take(8).join(", ")}. Dùng `node tool/l10n_add.mjs <file.json>` để thêm key; '
-          'muốn sửa chuỗi cũ thì báo chủ repo.',
-        );
-      }
-    }
+String _git(List<String> args) {
+  try {
+    final r = Process.runSync('git', args, workingDirectory: _repoRoot);
+    return r.exitCode == 0 ? (r.stdout as String).trim() : '';
+  } catch (_) {
+    return '';
   }
 }
 
-final _bashWriteRe = RegExp(
-  r'(\bsed\s+-i|\btee\b|\bmv\b|\bcp\b|\brm\b|\bgit\s+(checkout|restore|stash|apply|am|cherry-pick)\b|>>?\s*\S|'
-  r'Set-Content|Add-Content|Out-File|Remove-Item|Copy-Item|Move-Item|New-Item|WriteAllText)',
-);
-final _bashPathRe = RegExp(r'[A-Za-z0-9_./:~\\-]+');
+bool _onProtectedBranch() =>
+    _protectedBranches.contains(_git(['rev-parse', '--abbrev-ref', 'HEAD']));
+
+/// Đường dẫn tính từ gốc monorepo, `null` nếu nằm ngoài repo.
+String? _repoRel(String path) {
+  if (!File(path).isAbsolute && !path.startsWith('/')) {
+    final projectDir =
+        Platform.environment['CLAUDE_PROJECT_DIR'] ?? Directory.current.path;
+    path = '$projectDir/$path';
+  }
+  final norm = path.replaceAll(r'\', '/');
+  final root = _repoRoot.replaceAll(r'\', '/');
+  final lower = norm.toLowerCase();
+  if (lower.startsWith('${root.toLowerCase()}/')) {
+    return norm.substring(root.length + 1);
+  }
+  // Git Bash có thể truyền dạng /d/... thay vì D:/...
+  final drive = RegExp(r'^([a-zA-Z]):/').firstMatch(root);
+  if (drive != null) {
+    final bashRoot = '/${drive[1]!.toLowerCase()}/${root.substring(3)}'
+        .toLowerCase();
+    if (lower.startsWith('$bashRoot/')) {
+      return norm.substring(bashRoot.length + 1);
+    }
+  }
+  return null;
+}
+
+/// Sửa / tạo file trong apps/backend khi đang ở nhánh bảo vệ → chặn.
+void _checkBackendFile(String filePath) {
+  final rel = _repoRel(filePath);
+  if (rel == null || !rel.startsWith('apps/backend/')) return;
+  if (_onProtectedBranch()) {
+    _block('BLOCKED: không sửa $rel trên nhánh bảo vệ. $_backendHelp');
+  }
+}
+
 final _bashDangerRe = RegExp(
   r'--no-verify|push\s+.*--force|push\s+-f\b|reset\s+--hard',
 );
 
-/// Lệnh shell có vẻ ghi vào vùng khoá → chặn. Chỉ là lớp phụ; CI (locked_check) mới là chốt chặn thật.
-void _checkBashZones(String command) {
-  final role = detectRole();
-  if (role == Role.owner) return;
+/// Một dòng lệnh vừa có động từ ghi vừa trỏ vào apps/backend (xét từng dòng để không bắt nhầm
+/// văn bản heredoc chỉ nhắc tới backend).
+final _bashBackendWriteRe = RegExp(
+  r'(\bsed\s+-i|\btee\b|\bmv\b|\bcp\b|\brm\b|\bgit\s+(checkout|restore|stash|apply|am|cherry-pick|add)\b|>>?(?!&)|'
+  r'Set-Content|Add-Content|Out-File|Remove-Item|Copy-Item|Move-Item|New-Item|WriteAllText)'
+  r'[^\n]*apps[/\\]backend',
+);
+
+/// Lệnh shell: chặn --no-verify / force push / reset --hard; chặn ghi vào apps/backend và
+/// `git commit` / `git push` mang theo thay đổi apps/backend khi liên quan nhánh bảo vệ.
+void _checkBashBackend(String command) {
   if (_bashDangerRe.hasMatch(command)) {
     _block(
-      'BLOCKED: không dùng --no-verify / force push / reset --hard. $_roleHelp',
+      'BLOCKED: không dùng --no-verify / force push / reset --hard. '
+      'Hook push và CI là lưới an toàn của team; nếu bị chặn hãy đọc lý do và sửa gốc.',
     );
   }
-  if (!_bashWriteRe.hasMatch(command)) return;
-  for (final m in _bashPathRe.allMatches(command)) {
-    final token = m[0]!;
-    if (!token.contains('/') && !token.contains(r'\')) continue;
-    // Token tương đối có thể tính từ gốc monorepo, gốc app hoặc thư mục đang chạy.
-    final isAbs = RegExp(r'^([A-Za-z]:)?[/\\]').hasMatch(token);
-    final bases = isAbs
-        ? ['']
-        : [
-            '$_repoRoot/',
-            '$_root/',
-            '${Platform.environment['CLAUDE_PROJECT_DIR'] ?? Directory.current.path}/',
-          ];
-    for (final base in bases) {
-      final full = '$base$token';
-      final repoRel = repoRelative(full, _repoRoot);
-      if (repoRel == null) continue;
-      final onDisk = '$_repoRoot/$repoRel';
-      final exists =
-          File(onDisk).existsSync() || Directory(onDisk).existsSync();
-      // Chuỗi kiểu `s/a/b/` (sed) không phải đường dẫn: bỏ qua nếu cả thư mục cha cũng không có.
-      if (!exists && !Directory(File(onDisk).parent.path).existsSync()) {
-        continue;
-      }
-      final asDir = Directory(onDisk).existsSync() && !repoRel.endsWith('/');
-      final why = _zones.roleBlock(
-        role,
-        asDir ? '$repoRel/' : repoRel,
-        exists: exists,
+  final onProtected = _onProtectedBranch();
+  // Bỏ nội dung `-m "..."` (thông điệp commit chỉ nhắc tới backend) và xét từng lệnh con riêng.
+  final stripped = command.replaceAll(
+    RegExp(r'''(-m|--message)\s+("[^"]*"|'[^']*')'''),
+    '-m ""',
+  );
+  final writesBackend = stripped
+      .split(RegExp(r'&&|\|\||;|\||\n'))
+      .any(_bashBackendWriteRe.hasMatch);
+  if (onProtected && writesBackend) {
+    _block('BLOCKED: lệnh có vẻ ghi vào apps/backend. $_backendHelp');
+  }
+
+  if (RegExp(r'\bgit\s+commit\b').hasMatch(command) && onProtected) {
+    final files = _git(['diff', 'HEAD', '--name-only', '--', 'apps/backend']);
+    if (files.isNotEmpty) {
+      _block(
+        'BLOCKED: commit đang mang file apps/backend:\n$files\n$_backendHelp',
       );
-      if (why != null) {
-        _block('BLOCKED (vùng khoá, lệnh shell): $why\n$_roleHelp');
+    }
+  }
+  if (RegExp(r'\bgit\s+push\b').hasMatch(command)) {
+    final mentions = _protectedBranches.any(command.contains);
+    if (!onProtected && !mentions) return;
+    for (final b in _protectedBranches) {
+      final remote = 'origin/$b';
+      final base = _git(['rev-parse', '--verify', '--quiet', remote]).isNotEmpty
+          ? '$remote..HEAD'
+          : 'origin/main...HEAD';
+      final files = _git(['diff', '--name-only', base, '--', 'apps/backend']);
+      if (files.isNotEmpty) {
+        _block(
+          'BLOCKED: push này mang code apps/backend lên $b:\n$files\n$_backendHelp',
+        );
       }
     }
   }

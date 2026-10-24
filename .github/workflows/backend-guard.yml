@@ -1,0 +1,39 @@
+name: Backend Guard
+
+# LUẬT CỨNG: nhánh design/apple-books chỉ chứa frontend. Mọi push / PR vào nhánh này
+# mà đụng apps/backend đều bị đánh hỏng. Không có nhãn hay cách bỏ qua.
+# (Bật thêm branch protection cho design/apple-books và đặt "Backend Guard" làm check bắt buộc.)
+on:
+  push:
+    branches: [design/apple-books]
+  pull_request:
+    branches: [design/apple-books]
+
+jobs:
+  no-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Không có thay đổi apps/backend
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            files=$(git diff --name-only "origin/$BASE_REF...HEAD" -- apps/backend)
+          elif [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            files=$(git diff --name-only "$(git merge-base origin/main HEAD)" HEAD -- apps/backend)
+          else
+            files=$(git diff --name-only "$BEFORE" HEAD -- apps/backend)
+          fi
+          if [ -n "$files" ]; then
+            echo "::error::Code backend không được lên design/apple-books:"
+            echo "$files"
+            exit 1
+          fi
+          echo "OK: không có thay đổi apps/backend."

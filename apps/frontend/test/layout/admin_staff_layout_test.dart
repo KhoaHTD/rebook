@@ -4,7 +4,7 @@
 //
 // Màn mới tự được quét nếu đã đăng ký route trong module. Route có `:tham_số` phải khai báo
 // `smokePaths` trong module, nếu không test này hỏng (để màn mới không lọt khỏi kiểm tra).
-// Thư mục này thuộc vùng khoá (tool/zones.txt): không sửa để làm test "xanh" — hãy sửa màn hình.
+// Đừng sửa test này để "xanh" — hãy sửa màn hình.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

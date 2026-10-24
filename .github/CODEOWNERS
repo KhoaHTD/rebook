@@ -1,48 +1,27 @@
-# Người duyệt bắt buộc cho VÙNG KHOÁ (bật "Require review from Code Owners" trong branch protection của main).
-# Danh sách vùng đầy đủ + lý do: apps/frontend/tool/zones.txt và apps/frontend/docs/TEAM_GUIDE.md.
-# Vùng riêng của Admin (lib/features/admin) và Staff (lib/features/staff) KHÔNG liệt kê ở đây:
-# hai bạn tự duyệt chéo cho nhau, chủ repo chỉ cần xem khi có nhãn core-change.
+# Người duyệt bắt buộc khi PR chạm file hạ tầng (bật "Require review from Code Owners" trong branch protection).
+# Giao diện (kể cả phần người mua) và vùng admin / staff KHÔNG liệt kê: ai cũng được sửa, review như PR thường.
+# Luật chung: apps/frontend/docs/TEAM_GUIDE.md
 
 /.github/                                        @damLay03
+/.githooks/                                      @damLay03
 /.claude/                                        @damLay03
 /CLAUDE.md                                       @damLay03
-/design-preview/                                 @damLay03
-/docs/                                           @damLay03
 
 /apps/frontend/lib/app/                          @damLay03
 /apps/frontend/lib/core/                         @damLay03
 /apps/frontend/lib/api/                          @damLay03
-/apps/frontend/lib/shared/widgets/               @damLay03
-/apps/frontend/lib/shared/layout/                @damLay03
-/apps/frontend/lib/main.dart                     @damLay03
-/apps/frontend/lib/main_admin.dart               @damLay03
-/apps/frontend/lib/features/account/             @damLay03
-/apps/frontend/lib/features/auction/             @damLay03
-/apps/frontend/lib/features/auth/                @damLay03
-/apps/frontend/lib/features/cart/                @damLay03
-/apps/frontend/lib/features/catalog/             @damLay03
-/apps/frontend/lib/features/consignment/         @damLay03
-/apps/frontend/lib/features/landing/             @damLay03
-/apps/frontend/lib/features/notifications/       @damLay03
-/apps/frontend/lib/features/orders/              @damLay03
-/apps/frontend/lib/features/seller/              @damLay03
-/apps/frontend/lib/features/wallet/              @damLay03
-/apps/frontend/test/core/                        @damLay03
-/apps/frontend/test/layout/                      @damLay03
 /apps/frontend/tool/                             @damLay03
 /apps/frontend/openapi/                          @damLay03
 /apps/frontend/env/                              @damLay03
 /apps/frontend/android/                          @damLay03
 /apps/frontend/ios/                              @damLay03
 /apps/frontend/web/                              @damLay03
-/apps/frontend/assets/                           @damLay03
 /apps/frontend/pubspec.yaml                      @damLay03
 /apps/frontend/pubspec.lock                      @damLay03
 /apps/frontend/analysis_options.yaml             @damLay03
 /apps/frontend/CLAUDE.md                         @damLay03
 /apps/frontend/.claude/                          @damLay03
-/apps/frontend/docs/ARCHITECTURE.md              @damLay03
-/apps/frontend/docs/TEAM_GUIDE.md                @damLay03
 
 # Backend là việc của người khác: thay @damLay03 bằng username người làm backend nếu muốn họ duyệt.
+# Riêng nhánh design/apple-books thì backend bị CẤM hoàn toàn (xem .github/workflows/backend-guard.yml).
 /apps/backend/                                   @damLay03

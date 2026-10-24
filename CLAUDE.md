@@ -12,7 +12,7 @@ Chợ sách cũ: bán giá cố định + đấu giá.
 - Hợp đồng API giữa frontend và backend là `apps/frontend/openapi/openapi.yaml` (viết từ SRS, bao phủ toàn bộ nghiệp vụ).
   Backend cập nhật spec thì frontend chạy `/sync-api`.
 - Workflow CI nằm ở `.github/workflows/` (gốc repo), mỗi app một file `<app>-*.yml`, lọc theo `paths`.
-- Hooks trong `.claude/settings.json` chỉ tác động lên file trong `apps/frontend/`.
+- Hooks trong `.claude/settings.json` chủ yếu tác động lên file trong `apps/frontend/`; riêng luật "không có code `apps/backend` trên `design/apple-books`" áp cho cả repo.
 
 ## Giai đoạn hiện tại: frontend ĐÃ XONG theo SRS (GĐ0–7) — tiếp theo là thêm thắt theo yêu cầu người dùng (đọc `HANDOFF.md`, `apps/frontend/docs/PROGRESS.md`)
 
@@ -22,11 +22,12 @@ Chợ sách cũ: bán giá cố định + đấu giá.
 - Không push, không force-push, không xoá branch/tag `backup/*`, không reset Git. Không tự suy diễn ngoài SRS; chỗ SRS thiếu → ghi vào `apps/frontend/docs/DECISIONS.md`.
 - Commit không thêm dòng `Co-Authored-By` hay ghi tên Claude.
 
-## Làm việc nhóm (Admin / Staff do hai người khác nhau đảm nhận)
+## Làm việc nhóm (luật nhẹ, tin nhau; chi tiết ở `apps/frontend/docs/TEAM_GUIDE.md`)
 
-- **Đọc `apps/frontend/docs/TEAM_GUIDE.md` trước khi sửa bất cứ thứ gì** nếu bạn là Claude của một thành viên nhóm.
-- Vai của người dùng nằm ở `~/.rebook-role` (`owner` / `admin` / `staff`; đặt bằng `dart run tool/set_role.dart <vai>` trong `apps/frontend`).
-  Ranh giới vùng làm việc: `apps/frontend/tool/zones.txt`. Hook (`.claude/settings.json`) chặn sửa ngoài vùng của vai.
-- Bị chặn "vùng khoá" → **dừng, báo người dùng cần gì và vì sao**. Không lách (đổi tên file, sửa qua shell, copy widget lõi ra feature).
-- Nhánh làm việc đặt tên `admin/<việc>` hoặc `staff/<việc>`. CI "Frontend Guard" kiểm tra.
+- **LUẬT CỨNG, KHÔNG NGOẠI LỆ: không đưa code `apps/backend` lên nhánh `design/apple-books`** (nhánh chỉ chứa frontend; backend ở `main`).
+  Không sửa / commit / push file backend trên nhánh này, không merge `main` vào nó. Hook push (`.githooks/pre-push`, bật bằng
+  `git config core.hooksPath .githooks`), hook Claude và CI "Backend Guard" cùng chặn. Bị chặn → dừng, báo người dùng; không lách.
+- Đọc `apps/frontend/docs/TEAM_GUIDE.md` nếu bạn là Claude của một thành viên nhóm.
+- Không push thẳng `main` / `design/apple-books`: nhánh riêng + PR. Không tự đổi file hạ tầng (`pubspec`, `core/`, `app/`, `api/`, `openapi/`, `env/`, `tool/`, `.github/`, `.claude/`, `android/ios/web`) và không thêm package: hỏi chủ repo.
+- Giao diện (kể cả phần người mua) sửa thoải mái, miễn đúng style và qua `arch_check` + test.
 - Web và app là một sản phẩm: mọi thay đổi giao diện phải đúng ở điện thoại (375px / app Android) **và** desktop (≥ 1400px).
