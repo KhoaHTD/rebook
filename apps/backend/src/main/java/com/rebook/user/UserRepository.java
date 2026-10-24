@@ -19,6 +19,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u.status from User u where u.id = :id")
     Optional<UserStatus> findStatusById(@Param("id") Long id);
 
+    /** Trạng thái + vai trò hiện tại trong DB (JWT chỉ dùng để nhận diện, quyền luôn lấy từ DB). */
+    @Query("select u.status as status, u.role as role from User u where u.id = :id")
+    Optional<StatusRole> findStatusRoleById(@Param("id") Long id);
+
+    interface StatusRole {
+        UserStatus getStatus();
+
+        Role getRole();
+    }
+
     @Query("""
             select u from User u
             where (:q = '' or lower(u.email) like lower(concat('%', :q, '%'))

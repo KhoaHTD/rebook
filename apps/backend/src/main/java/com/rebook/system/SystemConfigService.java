@@ -93,9 +93,41 @@ public class SystemConfigService {
         return repository.findAll();
     }
 
+    /** Kiểm giá trị theo loại khoá; trả về giá trị đã cắt khoảng trắng. */
+    private String validate(String key, String value) {
+        String v = value == null ? "" : value.trim();
+        try {
+            if (key.equals(AUTO_APPROVE_TRUSTED)) {
+                if (!v.equals("true") && !v.equals("false")) throw new IllegalArgumentException("true/false");
+            } else if (key.equals(WAREHOUSE_PROVINCE)) {
+                if (v.isEmpty()) throw new IllegalArgumentException("không được rỗng");
+            } else if (key.equals(BID_TIERS)) {
+                BigDecimal prev = null;
+                for (String part : v.split(",")) {
+                    String[] kv = part.trim().split(":");
+                    BigDecimal from = new BigDecimal(kv[0].trim());
+                    BigDecimal step = new BigDecimal(kv[1].trim());
+                    if (kv.length != 2 || from.signum() < 0 || step.signum() <= 0 || (prev != null && from.compareTo(prev) <= 0)) {
+                        throw new IllegalArgumentException("dạng từ_giá:bước, tăng dần");
+                    }
+                    prev = from;
+                }
+            } else if (key.endsWith("_percent")) {
+                BigDecimal p = new BigDecimal(v);
+                if (p.signum() < 0 || p.compareTo(BigDecimal.valueOf(100)) > 0) throw new IllegalArgumentException("0–100");
+            } else {
+                if (Integer.parseInt(v) < (key.equals(BID_LIMIT_MULTIPLIER) ? 1 : 0)) throw new IllegalArgumentException("số nguyên không âm");
+            }
+        } catch (RuntimeException e) {
+            throw ApiException.badRequest("INVALID_CONFIG", "Giá trị không hợp lệ cho " + key + " (" + e.getMessage() + ")");
+        }
+        return v;
+    }
+
     @Transactional
     public SystemConfig update(String key, String value) {
         SystemConfig config = repository.findById(key).orElseThrow(() -> ApiException.notFound("cấu hình " + key));
+        value = validate(key, value);
         config.setValue(value);
         cache.remove(key);
         return repository.save(config);

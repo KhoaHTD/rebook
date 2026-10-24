@@ -16,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-/** Đọc "Authorization: Bearer <jwt>", gắn UserPrincipal vào SecurityContext. Tài khoản bị khoá coi như chưa đăng nhập. */
+/** Đọc "Authorization: Bearer <jwt>", gắn UserPrincipal vào SecurityContext. Vai trò lấy từ DB (đổi vai trò có hiệu lực ngay); tài khoản bị khoá coi như chưa đăng nhập. */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -29,13 +29,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
-            jwtService.parse(header.substring(7))
-                    .filter(p -> userRepository.findStatusById(p.id()).orElse(null) == UserStatus.ACTIVE)
-                    .ifPresent(principal -> {
-                        var auth = new UsernamePasswordAuthenticationToken(principal, null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + principal.role().name())));
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    });
+            jwtService.parse(header.substring(7)).ifPresent(parsed -> {
+                userRepository.findStatusRoleById(parsed.id())
+                        .filter(sr -> sr.getStatus() == UserStatus.ACTIVE)
+                        .ifPresent(sr -> {
+                            var principal = new UserPrincipal(parsed.id(), parsed.email(), sr.getRole());
+                            var auth = new UsernamePasswordAuthenticationToken(principal, null,
+                                    List.of(new SimpleGrantedAuthority("ROLE_" + principal.role().name())));
+                            SecurityContextHolder.getContext().setAuthentication(auth);
+                        });
+            });
         }
         chain.doFilter(request, response);
     }

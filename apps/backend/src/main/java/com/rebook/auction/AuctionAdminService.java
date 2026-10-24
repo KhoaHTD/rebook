@@ -122,6 +122,10 @@ public class AuctionAdminService {
     }
 
     private void apply(AuctionSession s, SessionRequest req) {
+        Instant now = Instant.now();
+        if (!req.startAt().isAfter(now) || !req.registrationDeadline().isAfter(now)) {
+            throw ApiException.badRequest("INVALID_SCHEDULE", "Giờ bắt đầu và hạn đăng ký phải ở tương lai");
+        }
         if (req.registrationDeadline().isAfter(req.startAt())) {
             throw ApiException.badRequest("INVALID_SCHEDULE", "Hạn đăng ký phải trước giờ bắt đầu");
         }
