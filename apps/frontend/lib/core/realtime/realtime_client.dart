@@ -40,9 +40,7 @@ class RealtimeClient {
       if (!active || _disposed) return;
       try {
         final token = await accessToken();
-        final uri = Uri.parse(
-          '$url/$channel${token == null ? '' : '?token=${Uri.encodeQueryComponent(token)}'}',
-        );
+        final uri = _endpoint(channel, token);
         final ch = WebSocketChannel.connect(uri);
         socket = ch;
         await ch.ready;
@@ -83,6 +81,28 @@ class RealtimeClient {
       },
     );
     return controller.stream;
+  }
+
+  /// `url` có thể là đường dẫn tương đối (`/ws`) khi web và backend chung một origin
+  /// (chạy sau proxy / tunnel): khi đó lấy máy chủ từ địa chỉ trang đang mở.
+  Uri _endpoint(String channel, String? token) {
+    final base = Uri.parse(url);
+    final page = Uri.base;
+    final root = base.hasScheme
+        ? base
+        : Uri(
+            scheme: page.scheme == 'https' ? 'wss' : 'ws',
+            host: page.host,
+            port: page.hasPort ? page.port : null,
+            path: base.path,
+          );
+    return Uri(
+      scheme: root.scheme,
+      host: root.host,
+      port: root.hasPort ? root.port : null,
+      path: '${root.path}/$channel',
+      queryParameters: token == null ? null : {'token': token},
+    );
   }
 
   Future<void> _retry(
