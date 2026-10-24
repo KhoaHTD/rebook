@@ -11,7 +11,7 @@
 - [ ] `dart analyze --fatal-infos` sạch
 - [ ] `dart run tool/arch_check.dart` sạch
 - [ ] `flutter test` sạch
-- [ ] Không chạm `apps/backend` (**design/liquid-glass-ui và nhánh con cấm tuyệt đối**)
+- [ ] Không chạm `apps/backend` (**design/apple-books và nhánh con cấm tuyệt đối**)
 - [ ] Không thêm package, không đổi stack; chuỗi mới qua l10n, không hardcode màu
 - [ ] Có Fake repository chạy được khi `USE_MOCK=true` (nếu thêm tính năng)
 

@@ -5,10 +5,10 @@ thoải mái, chỉ giữ chặt vài thứ làm sập app**. Có hai máy kiể
 
 ## 1. Luật (7 dòng)
 
-1. **TUYỆT ĐỐI không đưa code `apps/backend` lên nhánh `design/liquid-glass-ui` hay bất kỳ nhánh con nào của nó**
+1. **TUYỆT ĐỐI không đưa code `apps/backend` lên nhánh `design/apple-books` hay bất kỳ nhánh con nào của nó**
    (nhánh cắt ra từ nó: `admin/...`, `staff/...`, `fix/...`). Các nhánh này chỉ chứa frontend; backend ở `main` do người khác làm.
    Dù bất cứ lý do gì (kể cả "sửa nhanh một dòng", merge `main` vào) cũng không. Mục 2 nói máy chặn thế nào.
-2. **Không push thẳng `main` hay `design/liquid-glass-ui`.** Làm trên nhánh riêng, mở PR, chủ repo duyệt.
+2. **Không push thẳng `main` hay `design/apple-books`.** Làm trên nhánh riêng, mở PR, chủ repo duyệt.
    Đặt tên nhánh `admin/<việc>` hoặc `staff/<việc>` (hoặc `fix/<việc>`, `feat/<việc>`) cho dễ theo dõi.
 3. **Không tự ý đổi file hạ tầng:** `pubspec`, `lib/core/`, `lib/app/` (router, shell, theme gốc), `lib/api/`, `openapi/`,
    `env/`, `tool/`, `.github/`, `.githooks/`, `.claude/`, `android/ios/web`. Cần đổi → nhắn chủ repo (mục 6).
@@ -27,11 +27,11 @@ Luật số 1 có ba lớp, cái nào cũng đủ để ngăn. Hai lớp đầu 
 
 | Lớp | Chặn ở đâu | Bật |
 |---|---|---|
-| **Hook push của git** (`.githooks/pre-push`) | `git push` lên `design/liquid-glass-ui` mà có file `apps/backend` bị từ chối ngay tại máy. | `git config core.hooksPath .githooks` (một lần sau khi clone) |
-| **Hook Claude** (`.claude/settings.json`) | Khi đang ở `design/liquid-glass-ui` hoặc nhánh con của nó, Claude không sửa / tạo file trong `apps/backend`, không `git commit` / `git push` mang theo file backend, không dùng `--no-verify`. | Tự bật khi mở Claude trong repo |
-| **CI "Backend Guard"** (`backend-guard.yml`) | Push / PR ở `design/liquid-glass-ui` hoặc nhánh con của nó có file `apps/backend` thì đánh hỏng. Không có nhãn hay cách bỏ qua. | Chủ repo đặt làm check bắt buộc (mục 9) |
+| **Hook push của git** (`.githooks/pre-push`) | `git push` lên `design/apple-books` mà có file `apps/backend` bị từ chối ngay tại máy. | `git config core.hooksPath .githooks` (một lần sau khi clone) |
+| **Hook Claude** (`.claude/settings.json`) | Khi đang ở `design/apple-books` hoặc nhánh con của nó, Claude không sửa / tạo file trong `apps/backend`, không `git commit` / `git push` mang theo file backend, không dùng `--no-verify`. | Tự bật khi mở Claude trong repo |
+| **CI "Backend Guard"** (`backend-guard.yml`) | Push / PR ở `design/apple-books` hoặc nhánh con của nó có file `apps/backend` thì đánh hỏng. Không có nhãn hay cách bỏ qua. | Chủ repo đặt làm check bắt buộc (mục 9) |
 
-"Nhánh con" = nhánh có chứa commit của `design/liquid-glass-ui`. Nhánh backend cắt từ `main` thì không bị ảnh hưởng.
+"Nhánh con" = nhánh có chứa commit của `design/apple-books`. Nhánh backend cắt từ `main` thì không bị ảnh hưởng.
 
 Nếu bạn lỡ kéo `main` vào nhánh này rồi thấy bị chặn: đó là chủ đích. Muốn lấy thay đổi frontend của `main` thì
 `cherry-pick` từng commit frontend, hoặc hỏi chủ repo.
@@ -149,9 +149,9 @@ flutter test
 
 Thao tác trên GitHub (Settings → Branches) để luật có tác dụng thật:
 
-- **`design/liquid-glass-ui`:** bắt buộc PR, bắt buộc status check **`Backend Guard`** và `Frontend CI`, chặn force-push, chặn xoá nhánh.
+- **`design/apple-books`:** bắt buộc PR, bắt buộc status check **`Backend Guard`** và `Frontend CI`, chặn force-push, chặn xoá nhánh.
   Nhánh con (`admin/*`, `staff/*`...) được Backend Guard kiểm khi push và khi mở PR, nhưng chỉ PR vào nhánh được bảo vệ mới *chặn merge*.
-- Khi `design/liquid-glass-ui` đã merge hết vào `main`: gỡ luật backend (workflow `backend-guard.yml`, `.githooks/pre-push`, hằng `_frontendBranch` trong hook), kẻo nhánh backend cắt từ `main` bị chặn nhầm.
+- Khi `design/apple-books` đã merge hết vào `main`: gỡ luật backend (workflow `backend-guard.yml`, `.githooks/pre-push`, hằng `_frontendBranch` trong hook), kẻo nhánh backend cắt từ `main` bị chặn nhầm.
 - **`main`:** bắt buộc PR, bắt buộc review của Code Owners, chặn force-push.
 - Hook máy (git + Claude) chỉ là lớp đầu, có thể bị tắt cục bộ; **CI và branch protection mới là chốt chặn thật**.
 - Muốn họ duyệt chéo hoặc thêm người backend vào CODEOWNERS: sửa `.github/CODEOWNERS`.

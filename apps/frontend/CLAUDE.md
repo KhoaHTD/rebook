@@ -114,7 +114,7 @@ lib/
 
 ## Làm việc nhóm: Admin & Staff (đọc [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md))
 
-- **Luật cứng: không đưa code `apps/backend` lên nhánh `design/liquid-glass-ui` hay nhánh con của nó** (hook push, hook Claude và CI "Backend Guard" cùng chặn). Phần còn lại là luật nhẹ: PR + review, không tự đổi file hạ tầng / thêm package, giao diện sửa thoải mái.
+- **Luật cứng: không đưa code `apps/backend` lên nhánh `design/apple-books` hay nhánh con của nó** (hook push, hook Claude và CI "Backend Guard" cùng chặn). Phần còn lại là luật nhẹ: PR + review, không tự đổi file hạ tầng / thêm package, giao diện sửa thoải mái.
 - Phần quản trị chia hai module: `features/admin/**` và `features/staff/**` (+ `test/features/<vai>/`), mỗi vai một file module nên ít đụng nhau.
 - **Router và sidebar quản trị do module quyết định**: thêm màn = sửa `features/<vai>/presentation/<vai>_module.dart` (route + mục sidebar + `smokePaths`) + file màn hình. Không sửa `app/router/admin_router.dart`, `admin_shell.dart`, `admin_modules.dart`.
 - **Bố cục màn Admin / Staff do người làm tự sáng tạo.** Gu chung (sáng, phẳng, nút đen, tiêu đề serif, dữ liệu là nhân vật chính) và đồ nghề có sẵn (`AppPage`, `AdminCard`, `AdminKpi`, `AdminPalette`) nằm ở [docs/ADMIN_VIBE.md](docs/ADMIN_VIBE.md): đọc để hiểu bối cảnh, không phải luật. Không có máy nào chặn kiểu dáng.

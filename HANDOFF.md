@@ -1,11 +1,11 @@
 > **TRẠNG THÁI HIỆN TẠI (2026-10-22): ĐÃ TRIỂN KHAI XONG frontend theo SRS** — 8 giai đoạn trong `apps/frontend/docs/PROGRESS.md` đều `[x]`.
-> Nhánh `design/liquid-glass-ui`, commit local, **chưa push**. Phần bên dưới là lịch sử giai đoạn thiết kế, giữ để tham khảo.
+> Nhánh `design/apple-books`, commit local, **chưa push**. Phần bên dưới là lịch sử giai đoạn thiết kế, giữ để tham khảo.
 > Việc còn mở: backend thật (spec `apps/frontend/openapi/openapi.yaml`), các ghi chú "Nên thêm … vào openapi.yaml" trong `apps/frontend/docs/DECISIONS.md`, site Firebase thứ hai cho web quản trị.
 
 
 # HANDOFF
 
-Giai đoạn THIẾT KẾ, chưa code website. Nhánh `design/liquid-glass-ui` (chưa push). Không reset Git.
+Giai đoạn THIẾT KẾ, chưa code website. Nhánh `design/apple-books` (chưa push). Không reset Git.
 
 ## Hiện trạng (2026-10-22)
 

@@ -1,6 +1,6 @@
 # PROJECT_STATE
 
-Cập nhật: 2026-10-22 — ĐÃ TRIỂN KHAI XONG frontend theo SRS (GĐ0–7, commit local trên `design/liquid-glass-ui`, chưa push). Chi tiết: apps/frontend/docs/PROGRESS.md. Các mục bên dưới là lịch sử giai đoạn thiết kế.
+Cập nhật: 2026-10-22 — ĐÃ TRIỂN KHAI XONG frontend theo SRS (GĐ0–7, commit local trên `design/apple-books`, chưa push). Chi tiết: apps/frontend/docs/PROGRESS.md. Các mục bên dưới là lịch sử giai đoạn thiết kế.
 
 ## Giai đoạn hiện tại: THIẾT KẾ (chưa code website)
 
@@ -9,7 +9,7 @@ Chỉ chuyển sang code khi người dùng gửi SRS **và** yêu cầu triển
 
 ## Git
 
-- Nhánh làm việc: `design/liquid-glass-ui` (tạo từ `3326d28`, chưa push).
+- Nhánh làm việc: `design/apple-books` (tạo từ `3326d28`, chưa push).
 - `main` = `origin/main` = `3326d28` (không đổi).
 - Code phát triển cũ (SRS frontend, 12 commit, chưa từng push) giữ nguyên trên nhánh local `feat/srs-frontend`
   + tag `backup/srs-frontend-2026-10-22` (= `77ccf9c`).

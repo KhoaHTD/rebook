@@ -3,7 +3,7 @@
 > **2026-10-22 — làm lại UI theo style Apple Books.** File này lấy từ tag `backup/srs-frontend-2026-10-22`; các mục về nghiệp vụ
 > vẫn giữ. Các mục về giao diện cũ (kính, theme tối tự động trên mobile, trang giới thiệu web) **không còn áp dụng**:
 > giao diện chuẩn là `design-preview/png/apple-desktop.png` + `apple-mobile.png`, nền sáng, web mở thẳng trang chủ.
-> Nhánh làm việc hiện tại: `design/liquid-glass-ui` (không phải `feat/srs-frontend`).
+> Nhánh làm việc hiện tại: `design/apple-books` (không phải `feat/srs-frontend`).
 
 Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, lý do, cách đổi nếu không đồng ý.
 

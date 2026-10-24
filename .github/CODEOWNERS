@@ -23,5 +23,5 @@
 /apps/frontend/.claude/                          @damLay03
 
 # Backend là việc của người khác: thay @damLay03 bằng username người làm backend nếu muốn họ duyệt.
-# Riêng design/liquid-glass-ui và nhánh con của nó thì backend bị CẤM hoàn toàn (xem .github/workflows/backend-guard.yml).
+# Riêng design/apple-books và nhánh con của nó thì backend bị CẤM hoàn toàn (xem .github/workflows/backend-guard.yml).
 /apps/backend/                                   @damLay03
