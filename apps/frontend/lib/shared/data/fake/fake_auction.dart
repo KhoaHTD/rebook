@@ -1009,6 +1009,7 @@ extension FakeAuction on FakeStore {
             unitPrice: r.lot.currentPrice,
             quantity: 1,
             lotId: r.lot.id,
+            imageUrl: r.lot.book.coverUrl,
           ),
       ],
       subtotal: subtotal,

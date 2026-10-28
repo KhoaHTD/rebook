@@ -5,6 +5,7 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/widgets/glass_menu.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 import 'package:book_marketplace/shared/widgets/photo_picker.dart';
@@ -172,17 +173,15 @@ class BookFormState extends State<BookForm> {
                 gap,
                 field(_author, l10n.author, needed: true),
                 gap,
-                DropdownButtonFormField<String>(
-                  initialValue: _categoryId,
-                  decoration: InputDecoration(labelText: l10n.category),
-                  hint: Text(l10n.pickCategory),
+                GlassDropdownField<String>(
+                  value: _categoryId,
+                  label: l10n.category,
+                  hint: l10n.pickCategory,
                   items: [
                     for (final c in widget.categories)
-                      DropdownMenuItem(
+                      GlassMenuItem(
                         value: c.id,
-                        child: Text(
-                          c.parentId == null ? c.name : '  ${c.name}',
-                        ),
+                        label: c.parentId == null ? c.name : '  ${c.name}',
                       ),
                   ],
                   onChanged: (v) => setState(() => _categoryId = v),

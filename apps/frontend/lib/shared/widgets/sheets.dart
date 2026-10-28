@@ -12,6 +12,8 @@ Future<T?> showAppSheet<T>(
   required Widget Function(BuildContext, StateSetter) body,
 }) => showModalBottomSheet<T>(
   context: context,
+  // Mở trên navigator gốc để phủ cả thanh tab nổi / sidebar, không bị chúng đè lên nút bên dưới.
+  useRootNavigator: true,
   isScrollControlled: true,
   builder: (c) => StatefulBuilder(
     builder: (c, setState) => Padding(

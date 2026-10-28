@@ -15,6 +15,7 @@ import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/glass_picker.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -164,20 +165,15 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
     super.dispose();
   }
 
-  Future<DateTime?> _pick(DateTime initial) async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+  Future<DateTime?> _pick(DateTime initial, String title) {
+    final now = DateTime.now();
+    return showGlassDateTimePicker(
+      context,
+      initial: initial,
+      min: now,
+      max: now.add(const Duration(days: 365)),
+      title: title,
     );
-    if (date == null || !mounted) return null;
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(initial),
-    );
-    if (time == null) return null;
-    return date.copyWith(hour: time.hour, minute: time.minute);
   }
 
   Future<void> _save() async {
@@ -259,7 +255,7 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
             ),
             const SizedBox(height: AppSpacing.md),
             when(l10n.sessionStart, _start, Icons.event_outlined, () async {
-              final d = await _pick(_start);
+              final d = await _pick(_start, l10n.sessionStart);
               if (d != null) setState(() => _start = d);
             }),
             when(
@@ -267,7 +263,7 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
               _deadline,
               Icons.event_busy_outlined,
               () async {
-                final d = await _pick(_deadline);
+                final d = await _pick(_deadline, l10n.sessionDeadline);
                 if (d != null) setState(() => _deadline = d);
               },
             ),

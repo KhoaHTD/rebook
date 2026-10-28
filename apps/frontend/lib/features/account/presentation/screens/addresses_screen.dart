@@ -16,6 +16,7 @@ class AddressesScreen extends ConsumerWidget {
   Future<void> _edit(BuildContext context, WidgetRef ref, [Address? a]) async {
     final saved = await showModalBottomSheet<Address>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       builder: (_) => _AddressSheet(address: a),
     );

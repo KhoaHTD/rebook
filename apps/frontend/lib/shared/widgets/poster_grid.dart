@@ -92,11 +92,30 @@ class PosterGrid extends StatelessWidget {
         final cols = columnsFor(box.maxWidth, maxColumns);
         final gapX = cols == 2 ? AppSpacing.md : AppSpacing.posterGapX;
         final tileW = (box.maxWidth - gapX * (cols - 1)) / cols;
-        return Wrap(
-          spacing: gapX,
-          runSpacing: AppSpacing.posterGapY,
+        // Lưới so le: bìa sách cao thấp theo ảnh thật nên mỗi cột xếp riêng (thứ tự đọc vẫn trái → phải),
+        // không bắt cả hàng thẳng với nhau.
+        final columns = [for (var i = 0; i < cols; i++) <Widget>[]];
+        for (var i = 0; i < children.length; i++) {
+          columns[i % cols].add(children[i]);
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final c in children) SizedBox(width: tileW, child: c),
+            for (var c = 0; c < cols; c++) ...[
+              if (c > 0) SizedBox(width: gapX),
+              SizedBox(
+                width: tileW,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var j = 0; j < columns[c].length; j++) ...[
+                      if (j > 0) const SizedBox(height: AppSpacing.posterGapY),
+                      columns[c][j],
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ],
         );
       },
@@ -144,7 +163,8 @@ class Shelf extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               clipBehavior: Clip.none,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                // Canh đáy: sách cao thấp khác nhau cùng đứng trên một đường kẻ như trên giá.
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   for (var i = 0; i < children.length; i++) ...[
                     if (i > 0) const SizedBox(width: AppSpacing.md),

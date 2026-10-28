@@ -258,6 +258,7 @@ class _BidPanel extends ConsumerWidget {
     final ctrl = TextEditingController(text: '$minAmount');
     final max = await showModalBottomSheet<int>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       builder: (c) => Padding(
         padding: EdgeInsets.fromLTRB(

@@ -274,7 +274,12 @@ extension OrderDtoMapper on api.OrderDto {
           quantity: i.quantity,
           listingId: i.listingId,
           lotId: i.lotId,
-          imageUrl: i.imageUrl,
+          // Cùng bộ bìa với trang chủ: ưu tiên bìa đóng gói khớp tên sách, rồi mới tới ảnh backend trả về.
+          imageUrl:
+              bundledCoversFor(
+                i.titleSnapshot.replaceFirst(RegExp(r'^Lô \d+ · '), ''),
+              ).firstOrNull ??
+              i.imageUrl,
         ),
     ],
     subtotal: subtotal,

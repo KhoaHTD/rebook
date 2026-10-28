@@ -9,6 +9,7 @@ import 'package:book_marketplace/features/catalog/presentation/providers/catalog
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
+import 'package:book_marketplace/shared/widgets/glass_menu.dart';
 import 'package:book_marketplace/shared/widgets/listing_tile.dart';
 import 'package:book_marketplace/shared/widgets/poster_grid.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
@@ -195,6 +196,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final max = TextEditingController(text: query.maxPrice?.toString() ?? '');
     final apply = await showModalBottomSheet<bool>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       builder: (c) => Padding(
         padding: EdgeInsets.fromLTRB(
@@ -281,10 +283,10 @@ class _MenuChip<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: AppSpacing.sm),
-      child: PopupMenuButton<int>(
-        itemBuilder: (_) => [
+      child: GlassMenuButton<int>(
+        items: [
           for (var i = 0; i < options.length; i++)
-            PopupMenuItem(value: i, child: Text(options[i].$2)),
+            GlassMenuItem(value: i, label: options[i].$2),
         ],
         onSelected: (i) => onSelected(options[i].$1),
         child: Chip(

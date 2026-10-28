@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show max, min;
 import 'dart:ui' show PointerDeviceKind;
 
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:book_marketplace/features/catalog/presentation/providers/catalog
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/layout/shell_inset.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -53,6 +55,11 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
   Timer? _timer;
   bool _dragging = false;
 
+  /// Desktop: băng chuyền tràn ra dưới sidebar, dùng danh sách cuộn ngang tự bắt khớp từng thẻ.
+  final ScrollController _scroll = ScrollController();
+  double _extent = 1;
+  bool _bleed = false;
+
   @override
   void initState() {
     super.initState();
@@ -63,16 +70,32 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
   void dispose() {
     _timer?.cancel();
     _controller?.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
   void _advance() {
+    if (!mounted || _dragging) return;
+    if (_bleed) {
+      if (_scroll.hasClients) _goTo(_page + 1);
+      return;
+    }
     final c = _controller;
-    if (!mounted || _dragging || c == null || !c.hasClients) return;
+    if (c == null || !c.hasClients) return;
     _goTo(_page + 1);
   }
 
   void _goTo(int page, {int? count}) {
+    if (_bleed) {
+      if (!_scroll.hasClients) return;
+      final n = count ?? _slideCount;
+      _scroll.animateTo(
+        ((page % n + n) % n) * _extent,
+        duration: AppDurations.normal * 2,
+        curve: Curves.easeOutCubic,
+      );
+      return;
+    }
     final c = _controller;
     if (c == null || !c.hasClients) return;
     final n = count ?? _slideCount;
@@ -84,6 +107,127 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
   }
 
   int _slideCount = 1;
+
+  /// Desktop: băng chuyền phủ từ mép trái màn hình tới mép phải, nằm dưới sidebar kính. Thẻ đầu tiên vẫn
+  /// bắt đầu ở lề nội dung; kéo sang phải thì các thẻ trượt xuống dưới sidebar và bị kính làm nhoè.
+  /// (Lề trái = sidebar + lề trang, lề phải = lề trang của `AppPage` mặc định.)
+  Widget _buildBleed(
+    BuildContext context,
+    List<Widget Function(BuildContext)> slides,
+  ) {
+    final c = context.appColors;
+    final left = ShellInset.of(context) + AppSpacing.pageX;
+    const right = AppSpacing.pageX + 12;
+    const height = 400.0;
+    final n = slides.length;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final total = box.maxWidth + left + right;
+        final card = min(600.0, box.maxWidth);
+        _extent = card + AppSpacing.md;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: height,
+              child: OverflowBox(
+                alignment: Alignment.centerLeft,
+                minWidth: total,
+                maxWidth: total,
+                child: Transform.translate(
+                  offset: Offset(-left, 0),
+                  child: Stack(
+                    children: [
+                      NotificationListener<ScrollNotification>(
+                        onNotification: (note) {
+                          if (note.depth != 0) return false;
+                          if (note is ScrollStartNotification &&
+                              note.dragDetails != null) {
+                            _dragging = true;
+                          } else if (note is ScrollEndNotification) {
+                            _dragging = false;
+                          }
+                          final p = (note.metrics.pixels / _extent)
+                              .round()
+                              .clamp(0, n - 1);
+                          if (p != _page) setState(() => _page = p);
+                          return false;
+                        },
+                        child: ScrollConfiguration(
+                          // Cho phép kéo bằng chuột trên web.
+                          behavior: ScrollConfiguration.of(context).copyWith(
+                            dragDevices: {
+                              PointerDeviceKind.touch,
+                              PointerDeviceKind.mouse,
+                              PointerDeviceKind.trackpad,
+                            },
+                          ),
+                          child: ListView.builder(
+                            controller: _scroll,
+                            scrollDirection: Axis.horizontal,
+                            physics: _SnapPhysics(extent: _extent),
+                            padding: EdgeInsets.only(
+                              left: left,
+                              // Đủ chỗ để thẻ cuối cũng dừng được ở lề nội dung.
+                              right: max(right, total - left - _extent),
+                            ),
+                            itemExtent: _extent,
+                            itemCount: n,
+                            itemBuilder: (context, i) => Padding(
+                              padding: const EdgeInsets.only(
+                                right: AppSpacing.md,
+                              ),
+                              child: slides[i](context),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: left + 10,
+                        top: height / 2 - 20,
+                        child: _Arrow(
+                          icon: Icons.chevron_left_rounded,
+                          onTap: () => _goTo(_page - 1, count: n),
+                        ),
+                      ),
+                      Positioned(
+                        right: right + 10,
+                        top: height / 2 - 20,
+                        child: _Arrow(
+                          icon: Icons.chevron_right_rounded,
+                          onTap: () => _goTo(_page + 1, count: n),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < n; i++)
+                  GestureDetector(
+                    onTap: () => _goTo(i, count: n),
+                    child: AnimatedContainer(
+                      duration: AppDurations.fast,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: i == _page ? 20 : 7,
+                      height: 7,
+                      decoration: ShapeDecoration(
+                        shape: const StadiumBorder(),
+                        color: i == _page ? c.tint : c.tertiaryText,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   List<Widget Function(BuildContext)> _slides(BuildContext context) {
     final l10n = context.l10n;
@@ -155,6 +299,8 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
     final slides = _slides(context);
     _slideCount = slides.length;
     final c = context.appColors;
+    _bleed = !compact;
+    if (_bleed) return _buildBleed(context, slides);
 
     return LayoutBuilder(
       builder: (context, box) {
@@ -261,6 +407,54 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
       },
     );
   }
+}
+
+/// Cuộn ngang bắt khớp từng thẻ (mỗi thẻ rộng [extent]), như `PageScrollPhysics` nhưng theo bề rộng thẻ
+/// chứ không theo bề rộng khung nhìn.
+class _SnapPhysics extends ScrollPhysics {
+  const _SnapPhysics({required this.extent, super.parent});
+
+  final double extent;
+
+  @override
+  _SnapPhysics applyTo(ScrollPhysics? ancestor) =>
+      _SnapPhysics(extent: extent, parent: buildParent(ancestor));
+
+  double _target(ScrollMetrics position, double velocity) {
+    var page = position.pixels / extent;
+    if (velocity < -toleranceFor(position).velocity) {
+      page -= 0.5;
+    } else if (velocity > toleranceFor(position).velocity) {
+      page += 0.5;
+    }
+    return (page.roundToDouble() * extent).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+  }
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    if ((velocity <= 0 && position.pixels <= position.minScrollExtent) ||
+        (velocity >= 0 && position.pixels >= position.maxScrollExtent)) {
+      return super.createBallisticSimulation(position, velocity);
+    }
+    final target = _target(position, velocity);
+    if (target == position.pixels) return null;
+    return ScrollSpringSimulation(
+      spring,
+      position.pixels,
+      target,
+      velocity,
+      tolerance: toleranceFor(position),
+    );
+  }
+
+  @override
+  bool get allowImplicitScrolling => false;
 }
 
 class _Arrow extends StatelessWidget {

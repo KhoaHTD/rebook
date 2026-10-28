@@ -293,6 +293,7 @@ extension _Seed on FakeStore {
             unitPrice: row.listing.price,
             quantity: 1,
             listingId: listingId,
+            imageUrl: book.coverUrl,
           ),
         ],
         subtotal: row.listing.price,

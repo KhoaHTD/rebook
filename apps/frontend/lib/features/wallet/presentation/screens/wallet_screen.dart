@@ -31,6 +31,7 @@ class WalletScreen extends ConsumerWidget {
     String? error;
     return showModalBottomSheet<int>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       builder: (c) => StatefulBuilder(
         builder: (c, setState) => Padding(

@@ -11,6 +11,7 @@ import 'package:book_marketplace/features/cart/presentation/providers/cart_provi
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/notifications/presentation/providers/notifications_providers.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/layout/shell_inset.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 
 /// Khung app người dùng theo style Liquid Glass.
@@ -38,12 +39,20 @@ class AppShell extends ConsumerWidget {
         ),
       );
     }
+    // Nội dung phủ hết bề rộng, sidebar kính nổi đè lên mép trái: thứ gì cuộn / trải ra dưới sidebar
+    // (vd. băng chuyền banner) sẽ bị kính làm mờ. `AppPage` tự chừa lề trái theo [ShellInset].
     return Scaffold(
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Stack(
         children: [
-          _Sidebar(onBranch: _goBranch),
-          Expanded(child: navigationShell),
+          Positioned.fill(
+            child: ShellInset(left: SidebarPanel.width, child: navigationShell),
+          ),
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: _Sidebar(onBranch: _goBranch),
+          ),
         ],
       ),
     );
@@ -213,14 +222,37 @@ class _TabBar extends ConsumerWidget {
     final c = context.appColors;
     final signedIn = ref.watch(sessionControllerProvider).isSignedIn;
     final unread = signedIn ? ref.watch(unreadCountProvider) : 0;
+    final cart = signedIn ? ref.watch(cartCountProvider) : 0;
+    final loc = GoRouterState.of(context).uri.path;
+    // Giỏ hàng là route con của nhánh Mua sách nên tab này chọn theo địa chỉ, không theo nhánh.
+    final inCart = loc == Routes.cart || loc.startsWith('${Routes.cart}/');
     final tabs = [
-      (Icons.home_rounded, l10n.navHome, 0),
-      (Icons.gavel_rounded, l10n.navAuctions, 0),
-      (Icons.notifications_rounded, l10n.navNotifications, unread),
-      (Icons.person_rounded, l10n.navAccount, 0),
+      (
+        Icons.home_rounded,
+        l10n.navHome,
+        0,
+        !inCart && index == 0,
+        () => onSelect(0),
+      ),
+      (Icons.gavel_rounded, l10n.navAuctions, 0, index == 1, () => onSelect(1)),
+      (
+        Icons.shopping_bag_rounded,
+        l10n.navCart,
+        cart,
+        inCart,
+        () => context.go(Routes.cart),
+      ),
+      (
+        Icons.notifications_rounded,
+        l10n.navNotifications,
+        unread,
+        index == 2,
+        () => onSelect(2),
+      ),
+      (Icons.person_rounded, l10n.navAccount, 0, index == 3, () => onSelect(3)),
     ];
 
-    // Kiểu iOS 26: viên kính chứa 4 tab + nút tìm kiếm tròn tách riêng.
+    // Kiểu iOS 26: viên kính chứa 5 tab + nút tìm kiếm tròn tách riêng.
     return SafeArea(
       top: false,
       child: Padding(
@@ -241,8 +273,8 @@ class _TabBar extends ConsumerWidget {
                             icon: tabs[i].$1,
                             label: tabs[i].$2,
                             badge: tabs[i].$3,
-                            selected: i == index,
-                            onTap: () => onSelect(i),
+                            selected: tabs[i].$4,
+                            onTap: tabs[i].$5,
                           ),
                         ),
                     ],

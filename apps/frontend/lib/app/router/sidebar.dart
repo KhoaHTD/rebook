@@ -10,11 +10,14 @@ class SidebarPanel extends StatelessWidget {
 
   final Widget child;
 
+  /// Bề rộng sidebar; nội dung trang chừa đúng bằng này ở mép trái (xem `ShellInset`).
+  static const width = 268.0;
+
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     return SizedBox(
-      width: 268,
+      width: width,
       child: ClipRect(
         child: BackdropFilter(
           filter: Glass.filter,

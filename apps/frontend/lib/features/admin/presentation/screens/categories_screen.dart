@@ -8,6 +8,7 @@ import 'package:book_marketplace/features/admin/presentation/providers/admin_pro
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/glass_menu.dart';
 import 'package:book_marketplace/shared/widgets/sheets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -44,15 +45,15 @@ class CategoriesScreen extends ConsumerWidget {
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: AppSpacing.md),
-          DropdownButtonFormField<String?>(
-            initialValue: parent,
-            decoration: InputDecoration(labelText: l10n.parentCategory),
+          GlassDropdownField<String?>(
+            value: parent,
+            label: l10n.parentCategory,
             items: [
-              DropdownMenuItem(value: null, child: Text(l10n.noParent)),
+              GlassMenuItem<String?>(value: null, label: l10n.noParent),
               for (final p in all.where(
                 (x) => x.parentId == null && x.id != c?.id,
               ))
-                DropdownMenuItem(value: p.id, child: Text(p.name)),
+                GlassMenuItem<String?>(value: p.id, label: p.name),
             ],
             onChanged: (v) => setState(() => parent = v),
           ),

@@ -1,13 +1,42 @@
 import 'dart:ui' show ImageFilter, TileMode;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/network/upload_service.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
 
-/// Poster sách: tỉ lệ 2:3, gáy sáng bên trái, bóng đổ mềm. [badge] là chip kính đặt ở góc dưới trái bìa.
+/// Tỉ lệ rộng/cao thật của từng ảnh bìa (đọc từ chính ảnh), nhớ lại để lần sau dựng ngay không giật.
+/// Bìa tự vẽ (chưa có ảnh) không có tỉ lệ thật nên giữ 2:3.
+abstract final class CoverAspect {
+  static const fallback = 2 / 3;
+
+  /// Chặn các ảnh quá dẹt / quá cao (bìa chụp ngang) để lưới không méo.
+  static const min = 0.5;
+  static const max = 1.0;
+
+  static final _cache = <String, double>{};
+
+  static double? cached(String url) => _cache[url];
+
+  static ImageProvider? providerFor(String url) {
+    if (MemoryImages.isMemory(url)) {
+      final bytes = MemoryImages.get(url);
+      return bytes == null ? null : MemoryImage(bytes);
+    }
+    if (url.startsWith('assets/')) return AssetImage(url);
+    return CachedNetworkImageProvider(url);
+  }
+
+  static double normalize(double ratio) => ratio.clamp(min, max);
+}
+
+/// Poster sách: gáy sáng bên trái, bóng đổ mềm. Chiều cao theo **tỉ lệ ảnh bìa thật** (xem [CoverAspect]),
+/// nên các cuốn sách cao thấp khác nhau như ngoài đời; bìa tự vẽ giữ 2:3.
+/// [badge] là chip kính đặt ở góc dưới trái bìa.
 /// Có ảnh bìa ([coverUrl]) thì hiện ảnh; chưa có thì tự vẽ bìa từ tên sách.
-class BookPoster extends StatelessWidget {
+class BookPoster extends StatefulWidget {
   const BookPoster({
     super.key,
     required this.title,
@@ -32,24 +61,83 @@ class BookPoster extends StatelessWidget {
   final Widget? badge;
 
   @override
+  State<BookPoster> createState() => _BookPosterState();
+}
+
+class _BookPosterState extends State<BookPoster> {
+  double _ratio = CoverAspect.fallback;
+  ImageStream? _stream;
+  ImageStreamListener? _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolve();
+  }
+
+  @override
+  void didUpdateWidget(BookPoster old) {
+    super.didUpdateWidget(old);
+    if (old.coverUrl != widget.coverUrl) _resolve();
+  }
+
+  @override
+  void dispose() {
+    _unlisten();
+    super.dispose();
+  }
+
+  void _unlisten() {
+    final l = _listener;
+    if (l != null) _stream?.removeListener(l);
+    _stream = null;
+    _listener = null;
+  }
+
+  void _resolve() {
+    _unlisten();
+    final url = widget.coverUrl;
+    if (url == null) {
+      _ratio = CoverAspect.fallback;
+      return;
+    }
+    final known = CoverAspect.cached(url);
+    if (known != null) {
+      _ratio = known;
+      return;
+    }
+    _ratio = CoverAspect.fallback;
+    final provider = CoverAspect.providerFor(url);
+    if (provider == null) return;
+    final stream = provider.resolve(ImageConfiguration.empty);
+    final listener = ImageStreamListener((info, _) {
+      final r = CoverAspect.normalize(info.image.width / info.image.height);
+      CoverAspect._cache[url] = r;
+      if (mounted && widget.coverUrl == url) setState(() => _ratio = r);
+    }, onError: (_, _) {});
+    _stream = stream..addListener(listener);
+    _listener = listener;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final fallback = DrawnCover(
-      title: title,
-      author: author,
-      seed: seed ?? title,
+      title: widget.title,
+      author: widget.author,
+      seed: widget.seed ?? widget.title,
     );
-    final cover = coverUrl == null
+    final cover = widget.coverUrl == null
         ? fallback
-        : AppImage(coverUrl!, fallback: fallback);
+        : AppImage(widget.coverUrl!, fallback: fallback);
 
     return SizedBox(
-      width: width,
+      width: widget.width,
       child: AspectRatio(
-        aspectRatio: 2 / 3,
+        aspectRatio: _ratio,
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: AppRadius.poster,
-            boxShadow: shadow
+            boxShadow: widget.shadow
                 ? [
                     BoxShadow(
                       color: context.appColors.posterShadow,
@@ -83,8 +171,8 @@ class BookPoster extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (badge != null)
-                  Positioned(left: 7, bottom: 7, child: badge!),
+                if (widget.badge != null)
+                  Positioned(left: 7, bottom: 7, child: widget.badge!),
               ],
             ),
           ),
