@@ -18,7 +18,6 @@ import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/layout/shell_inset.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
-import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Thông tin tối thiểu để vẽ một poster / nền mờ trong slide.
@@ -180,22 +179,6 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
                               child: slides[i](context),
                             ),
                           ),
-                        ),
-                      ),
-                      Positioned(
-                        left: left + 10,
-                        top: height / 2 - 20,
-                        child: _Arrow(
-                          icon: Icons.chevron_left_rounded,
-                          onTap: () => _goTo(_page - 1, count: n),
-                        ),
-                      ),
-                      Positioned(
-                        right: right + 10,
-                        top: height / 2 - 20,
-                        child: _Arrow(
-                          icon: Icons.chevron_right_rounded,
-                          onTap: () => _goTo(_page + 1, count: n),
                         ),
                       ),
                     ],
@@ -361,24 +344,6 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
                       ),
                     ),
                   ),
-                  if (!compact) ...[
-                    Positioned(
-                      left: 10,
-                      top: height / 2 - 20,
-                      child: _Arrow(
-                        icon: Icons.chevron_left_rounded,
-                        onTap: () => _goTo(_page - 1, count: slides.length),
-                      ),
-                    ),
-                    Positioned(
-                      right: 10,
-                      top: height / 2 - 20,
-                      child: _Arrow(
-                        icon: Icons.chevron_right_rounded,
-                        onTap: () => _goTo(_page + 1, count: slides.length),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -455,22 +420,6 @@ class _SnapPhysics extends ScrollPhysics {
 
   @override
   bool get allowImplicitScrolling => false;
-}
-
-class _Arrow extends StatelessWidget {
-  const _Arrow({required this.icon, required this.onTap});
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => SizedBox.square(
-    dimension: 40,
-    child: Glass.circle(
-      onTap: onTap,
-      child: Center(child: Icon(icon, size: 26)),
-    ),
-  );
 }
 
 /// Một thẻ: nhãn + tiêu đề serif phía trên, thẻ ảnh (nền bìa mờ + khung kính) phía dưới.
