@@ -377,20 +377,26 @@ class HomeRare extends ConsumerWidget {
                     const SizedBox(width: AppSpacing.xxl),
                     Expanded(child: info),
                     const SizedBox(width: AppSpacing.xl),
-                    for (final l in rest)
-                      Padding(
-                        padding: const EdgeInsets.only(left: AppSpacing.md),
-                        child: GestureDetector(
-                          onTap: () => context.go(Routes.listing(l.id)),
-                          child: BookPoster(
-                            title: l.book.title,
-                            author: l.book.author,
-                            coverUrl: l.book.coverUrl,
-                            seed: l.book.id,
-                            width: 104,
+                    // Các cuốn nhỏ bên phải canh đáy với nhau (cao thấp theo bìa thật).
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        for (final l in rest)
+                          Padding(
+                            padding: const EdgeInsets.only(left: AppSpacing.md),
+                            child: GestureDetector(
+                              onTap: () => context.go(Routes.listing(l.id)),
+                              child: BookPoster(
+                                title: l.book.title,
+                                author: l.book.author,
+                                coverUrl: l.book.coverUrl,
+                                seed: l.book.id,
+                                width: 104,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                      ],
+                    ),
                   ],
                 ),
         ),
@@ -629,6 +635,7 @@ class HomeShops extends ConsumerWidget {
               ),
               const Spacer(),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   for (final cv in covers)
                     Padding(

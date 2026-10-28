@@ -157,7 +157,9 @@ class CoverFan extends StatelessWidget {
     final n = covers.length.clamp(0, 3);
     if (n == 0) return const SizedBox.shrink();
     final step = width * 0.55;
-    final h = width * 1.5;
+    // Bìa cao thấp theo ảnh thật (tỉ lệ ~0,6–0,75 → cao 1,33–1,65 × bề rộng): chừa đủ chỗ cho cuốn cao nhất
+    // và canh đáy để các cuốn đứng trên cùng một đường kẻ.
+    final h = width * 1.7;
     return SizedBox(
       width: width + step * (n - 1),
       height: h + 10,
@@ -167,7 +169,7 @@ class CoverFan extends StatelessWidget {
           for (var i = n - 1; i >= 0; i--)
             Positioned(
               left: step * i,
-              top: (n - 1 - i) * 5.0,
+              bottom: 10 - (n - 1 - i) * 5.0,
               child: Transform.rotate(
                 angle: (i - (n - 1) / 2) * 0.09,
                 alignment: Alignment.bottomCenter,
@@ -389,13 +391,17 @@ class _LiveCard extends ConsumerWidget {
                 for (final lot in lots.take(10))
                   Padding(
                     padding: const EdgeInsets.only(right: AppSpacing.sm),
-                    child: BookPoster(
-                      title: lot.book.title,
-                      author: lot.book.author,
-                      coverUrl: lot.book.coverUrl,
-                      seed: lot.book.id,
-                      width: 56,
-                      shadow: false,
+                    // Align nới ràng buộc chiều cao để bìa giữ tỉ lệ thật, canh đáy dải.
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: BookPoster(
+                        title: lot.book.title,
+                        author: lot.book.author,
+                        coverUrl: lot.book.coverUrl,
+                        seed: lot.book.id,
+                        width: 56,
+                        shadow: false,
+                      ),
                     ),
                   ),
               ],

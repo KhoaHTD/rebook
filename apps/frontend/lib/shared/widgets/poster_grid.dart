@@ -92,28 +92,25 @@ class PosterGrid extends StatelessWidget {
         final cols = columnsFor(box.maxWidth, maxColumns);
         final gapX = cols == 2 ? AppSpacing.md : AppSpacing.posterGapX;
         final tileW = (box.maxWidth - gapX * (cols - 1)) / cols;
-        // Lưới so le: bìa sách cao thấp theo ảnh thật nên mỗi cột xếp riêng (thứ tự đọc vẫn trái → phải),
-        // không bắt cả hàng thẳng với nhau.
-        final columns = [for (var i = 0; i < cols; i++) <Widget>[]];
-        for (var i = 0; i < children.length; i++) {
-          columns[i % cols].add(children[i]);
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        // Bìa sách cao thấp theo ảnh thật, nhưng mỗi hàng canh ĐÁY: sách trong cùng một hàng đứng trên
+        // một đường kẻ như trên giá (tên + giá bên dưới cũng thẳng hàng), chỉ đỉnh bìa là lệch nhau.
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (var c = 0; c < cols; c++) ...[
-              if (c > 0) SizedBox(width: gapX),
-              SizedBox(
-                width: tileW,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var j = 0; j < columns[c].length; j++) ...[
-                      if (j > 0) const SizedBox(height: AppSpacing.posterGapY),
-                      columns[c][j],
-                    ],
+            for (var start = 0; start < children.length; start += cols) ...[
+              if (start > 0) const SizedBox(height: AppSpacing.posterGapY),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (
+                    var i = start;
+                    i < start + cols && i < children.length;
+                    i++
+                  ) ...[
+                    if (i > start) SizedBox(width: gapX),
+                    SizedBox(width: tileW, child: children[i]),
                   ],
-                ),
+                ],
               ),
             ],
           ],
