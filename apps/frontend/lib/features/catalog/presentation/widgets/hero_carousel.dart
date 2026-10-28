@@ -22,8 +22,8 @@ import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Thông tin tối thiểu để vẽ một poster / nền mờ trong slide.
-/// Đường dẫn tranh banner: `assets/banners/<id>.webp` (xem docs/BANNERS.md).
-String _banner(String id) => 'assets/banners/$id.webp';
+/// Đường dẫn tranh banner: `assets/banners/<id>.jpg` (xem docs/BANNERS.md).
+String _banner(String id) => 'assets/banners/$id.jpg';
 
 /// Nền thiết kế riêng cho slide sự kiện (không dùng ảnh bìa): bảng màu + biểu tượng lớn.
 typedef _Theme = ({List<Color> colors, IconData icon});
@@ -487,7 +487,7 @@ class _HeroCard extends StatelessWidget {
     this.image,
   });
 
-  /// Tranh banner do người dùng vẽ (`assets/banners/<tên>.webp`); thiếu file thì rơi về nền bên dưới.
+  /// Tranh banner do người dùng vẽ (`assets/banners/<tên>.jpg`); thiếu file thì rơi về nền bên dưới.
   final String? image;
 
   /// Khác null → nền thiết kế (gradient + họa tiết); null → ảnh bìa phóng to làm nền.
@@ -577,23 +577,6 @@ class _HeroCard extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     _backdrop(c, compact),
-                    AnimatedOpacity(
-                      opacity: hover ? 1 : 0,
-                      duration: AppDurations.normal,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: compact
-                                ? Alignment.bottomCenter
-                                : Alignment.centerLeft,
-                            end: compact
-                                ? Alignment.topCenter
-                                : Alignment.centerRight,
-                            colors: HeroPalette.scrim,
-                          ),
-                        ),
-                      ),
-                    ),
                     Padding(
                       padding: EdgeInsets.all(
                         compact ? AppSpacing.sm + 4 : AppSpacing.md,
@@ -626,18 +609,20 @@ class _HeroCard extends StatelessWidget {
   }
 
   /// Ảnh bìa phóng to phủ kín thẻ, hoặc nền gradient + họa tiết của slide sự kiện.
-  /// Điện thoại dùng bản `<tên>-m.webp` (khung vuông); thiếu thì rơi về bản desktop, rồi về nền tạm.
+  /// Điện thoại dùng bản `<tên>-m.jpg` (khung vuông); thiếu thì rơi về bản desktop, rồi về nền tạm.
   Widget _backdrop(AppColors c, bool compact) {
     final img = image;
     if (img != null) {
       final desktop = Image.asset(
         img,
         fit: BoxFit.cover,
+        // Vật thể thường nằm giữa-phải: khi bị cắt vuông trên điện thoại thì giữ phía phải.
+        alignment: compact ? const Alignment(0.55, 0) : Alignment.center,
         errorBuilder: (_, _, _) => _fallbackBackdrop(c),
       );
       if (!compact) return desktop;
       return Image.asset(
-        img.replaceFirst('.webp', '-m.webp'),
+        img.replaceFirst('.jpg', '-m.jpg'),
         fit: BoxFit.cover,
         errorBuilder: (_, _, _) => desktop,
       );

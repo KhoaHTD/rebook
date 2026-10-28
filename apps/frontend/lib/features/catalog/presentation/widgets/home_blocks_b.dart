@@ -24,7 +24,7 @@ String _searchPath({String? category}) => category == null
 
 // ───────────────────── Duyệt theo danh mục (mosaic) ─────────────────────
 
-/// Tên tranh theo mã danh mục gốc (`assets/banners/<tên>.webp`); danh mục khác dùng nền bìa mờ.
+/// Tên tranh theo mã danh mục gốc (`assets/banners/<tên>.jpg`); danh mục khác dùng nền bìa mờ.
 const _categoryArt = <String, String>{
   'c1': 'cat-vn',
   'c2': 'cat-foreign',
@@ -340,7 +340,7 @@ class HomeRare extends ConsumerWidget {
       children: [
         BlockHeader(l10n.hsRareTitle, sub: l10n.hsRareSub),
         BlurPanel(
-          art: 'rare-spotlight',
+          art: 'rare',
           cover: coverOfBook(hero.book),
           radius: 32,
           padding: EdgeInsets.all(compact ? AppSpacing.md : AppSpacing.xl),

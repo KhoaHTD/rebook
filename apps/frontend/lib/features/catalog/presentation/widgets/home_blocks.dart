@@ -37,7 +37,7 @@ class BlurPanel extends StatelessWidget {
 
   final CoverRef? cover;
 
-  /// Tên tranh trong `assets/banners/<art>.webp` (người dùng vẽ); thiếu file thì dùng nền bìa mờ.
+  /// Tên tranh trong `assets/banners/<art>.jpg` (người dùng vẽ); thiếu file thì dùng nền bìa mờ.
   final String? art;
   final Widget child;
   final bool dark;
@@ -67,7 +67,7 @@ class BlurPanel extends StatelessWidget {
           if (art != null)
             Positioned.fill(
               child: Image.asset(
-                'assets/banners/$art.webp',
+                'assets/banners/$art.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => _fallback(c),
               ),
@@ -297,7 +297,7 @@ class _LiveCard extends ConsumerWidget {
     final posterW = compact ? 120.0 : 170.0;
 
     return BlurPanel(
-      art: 'auction-live',
+      art: 'live',
       cover: cover,
       height: compact ? 440 : null,
       onTap: () => context.go(Routes.live(session.id)),
@@ -426,7 +426,7 @@ class _UpcomingCard extends ConsumerWidget {
     final lots = ref.watch(sessionLotsProvider(session.id)).value ?? const [];
     final covers = [for (final l in lots.take(3)) coverOfBook(l.book)];
     return BlurPanel(
-      art: 'auction-upcoming',
+      art: 'upcoming',
       cover: covers.isEmpty ? null : covers.first,
       height: 168,
       padding: const EdgeInsets.all(AppSpacing.md),
