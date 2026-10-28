@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Design tokens — style Liquid Glass đã duyệt (`design-preview/png/lg-*.png`).
@@ -46,22 +45,15 @@ abstract final class AppDurations {
   static const normal = Duration(milliseconds: 250);
 }
 
-/// Chữ San Francisco: trên iPhone / Mac dùng SF có sẵn của hệ điều hành
-/// (giấy phép Apple không cho đóng gói SF vào app). Web và Android dùng Inter — gần SF nhất, OFL.
+/// Font chữ: Be Vietnam Pro (nội dung) + Playfair Display (tiêu đề), đóng gói trong assets/fonts, OFL.
 abstract final class AppFonts {
-  static const inter = 'Inter';
+  static const sans = 'BeVietnamPro';
 
-  /// Tiêu đề trang, tiêu đề kệ, dòng sự kiện: serif mềm (giống New York của Apple) cho chữ mềm mại hơn.
-  static const serif = 'Newsreader';
+  /// Tiêu đề trang, tiêu đề kệ, dòng sự kiện: serif Playfair Display.
+  static const serif = 'PlayfairDisplay';
 
-  /// null → để Flutter dùng chữ hệ thống (SF) trên iOS / macOS.
-  static String? get family {
-    if (kIsWeb) return inter;
-    return switch (defaultTargetPlatform) {
-      TargetPlatform.iOS || TargetPlatform.macOS => null,
-      _ => inter,
-    };
-  }
+  /// Chữ nội dung: Be Vietnam Pro trên mọi nền tảng (đủ dấu tiếng Việt, dùng chung web / Android / iOS).
+  static const String family = sans;
 }
 
 /// Màu riêng của style Liquid Glass, ngoài ColorScheme.
@@ -159,7 +151,7 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBottom: Color(0x57FFFFFF),
     glassBorder: Color(0xB3FFFFFF),
     glassShadow: Color(0x2219233C),
-    background: Color(0xFFFFFFFF),
+    background: Color(0xFFEBEFF4),
   );
 
   static const dark = AppColors(

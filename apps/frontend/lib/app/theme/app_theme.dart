@@ -38,7 +38,7 @@ abstract final class AppTheme {
           error: c.live,
         );
 
-    final family = AppFonts.family;
+    const family = AppFonts.family;
     TextStyle t(
       double size,
       FontWeight weight,

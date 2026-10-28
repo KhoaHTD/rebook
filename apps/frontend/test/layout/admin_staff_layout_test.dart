@@ -1,6 +1,6 @@
 // Chốt chặn vỡ bố cục của web / app quản trị: tự mở MỌI route của các module Admin / Staff
 // (xem lib/app/router/admin_module.dart) ở điện thoại, máy tính bảng và desktop, bằng phông thật
-// (Inter / Newsreader), rồi báo mọi lỗi dựng hình, kể cả "RenderFlex overflowed".
+// (Be Vietnam Pro / Playfair Display), rồi báo mọi lỗi dựng hình, kể cả "RenderFlex overflowed".
 //
 // Test chỉ bắt lỗi vỡ (tràn, lỗi dựng hình), không áp đặt kiểu bố cục: sáng tạo thoải mái.
 // Màn mới được quét nếu đã đăng ký `ownedPaths` trong module. Route có `:tham_số` muốn được quét
@@ -53,11 +53,11 @@ Future<void> _loadFonts() async {
     await loader.load();
   }
 
-  await load('Inter', [
-    for (final w in [400, 500, 600, 700, 800]) 'Inter-$w.ttf',
+  await load('BeVietnamPro', [
+    for (final w in [400, 500, 600, 700, 800]) 'BeVietnamPro-$w.ttf',
   ]);
-  await load('Newsreader', [
-    for (final w in [500, 600, 700]) 'Newsreader-$w.ttf',
+  await load('PlayfairDisplay', [
+    for (final w in [500, 600, 700]) 'PlayfairDisplay-$w.ttf',
   ]);
 }
 
