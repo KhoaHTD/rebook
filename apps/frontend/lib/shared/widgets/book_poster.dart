@@ -32,11 +32,87 @@ abstract final class CoverAspect {
   static double normalize(double ratio) => ratio.clamp(min, max);
 }
 
+/// Cấp cho [builder] tỉ lệ rộng/cao thật của ảnh bìa [url] (xem [CoverAspect]). Chưa biết (ảnh đang tải,
+/// hoặc [url] null) thì dùng 2:3 rồi tự dựng lại khi đọc được kích thước ảnh. Dùng chung cho mọi nơi
+/// vẽ bìa sách để chiều cao các cuốn khác nhau giống nhau ở mọi trang (trang chủ, giới thiệu, đăng nhập…).
+class CoverAspectBuilder extends StatefulWidget {
+  const CoverAspectBuilder({
+    super.key,
+    required this.url,
+    required this.builder,
+  });
+
+  final String? url;
+  final Widget Function(BuildContext context, double ratio) builder;
+
+  @override
+  State<CoverAspectBuilder> createState() => _CoverAspectBuilderState();
+}
+
+class _CoverAspectBuilderState extends State<CoverAspectBuilder> {
+  double _ratio = CoverAspect.fallback;
+  ImageStream? _stream;
+  ImageStreamListener? _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolve();
+  }
+
+  @override
+  void didUpdateWidget(CoverAspectBuilder old) {
+    super.didUpdateWidget(old);
+    if (old.url != widget.url) _resolve();
+  }
+
+  @override
+  void dispose() {
+    _unlisten();
+    super.dispose();
+  }
+
+  void _unlisten() {
+    final l = _listener;
+    if (l != null) _stream?.removeListener(l);
+    _stream = null;
+    _listener = null;
+  }
+
+  void _resolve() {
+    _unlisten();
+    final url = widget.url;
+    if (url == null) {
+      _ratio = CoverAspect.fallback;
+      return;
+    }
+    final known = CoverAspect.cached(url);
+    if (known != null) {
+      _ratio = known;
+      return;
+    }
+    _ratio = CoverAspect.fallback;
+    final provider = CoverAspect.providerFor(url);
+    if (provider == null) return;
+    final stream = provider.resolve(ImageConfiguration.empty);
+    final listener = ImageStreamListener((info, _) {
+      final r = CoverAspect.normalize(info.image.width / info.image.height);
+      CoverAspect._cache[url] = r;
+      if (mounted && widget.url == url) setState(() => _ratio = r);
+    }, onError: (_, _) {});
+    _stream = stream..addListener(listener);
+    _listener = listener;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _ratio);
+}
+
 /// Poster sách: gáy sáng bên trái, bóng đổ mềm. Chiều cao theo **tỉ lệ ảnh bìa thật** (xem [CoverAspect]),
 /// nên các cuốn sách cao thấp khác nhau như ngoài đời; bìa tự vẽ giữ 2:3.
 /// [badge] là chip kính đặt ở góc dưới trái bìa.
 /// Có ảnh bìa ([coverUrl]) thì hiện ảnh; chưa có thì tự vẽ bìa từ tên sách.
-class BookPoster extends StatefulWidget {
+class BookPoster extends StatelessWidget {
   const BookPoster({
     super.key,
     required this.title,
@@ -61,119 +137,62 @@ class BookPoster extends StatefulWidget {
   final Widget? badge;
 
   @override
-  State<BookPoster> createState() => _BookPosterState();
-}
-
-class _BookPosterState extends State<BookPoster> {
-  double _ratio = CoverAspect.fallback;
-  ImageStream? _stream;
-  ImageStreamListener? _listener;
-
-  @override
-  void initState() {
-    super.initState();
-    _resolve();
-  }
-
-  @override
-  void didUpdateWidget(BookPoster old) {
-    super.didUpdateWidget(old);
-    if (old.coverUrl != widget.coverUrl) _resolve();
-  }
-
-  @override
-  void dispose() {
-    _unlisten();
-    super.dispose();
-  }
-
-  void _unlisten() {
-    final l = _listener;
-    if (l != null) _stream?.removeListener(l);
-    _stream = null;
-    _listener = null;
-  }
-
-  void _resolve() {
-    _unlisten();
-    final url = widget.coverUrl;
-    if (url == null) {
-      _ratio = CoverAspect.fallback;
-      return;
-    }
-    final known = CoverAspect.cached(url);
-    if (known != null) {
-      _ratio = known;
-      return;
-    }
-    _ratio = CoverAspect.fallback;
-    final provider = CoverAspect.providerFor(url);
-    if (provider == null) return;
-    final stream = provider.resolve(ImageConfiguration.empty);
-    final listener = ImageStreamListener((info, _) {
-      final r = CoverAspect.normalize(info.image.width / info.image.height);
-      CoverAspect._cache[url] = r;
-      if (mounted && widget.coverUrl == url) setState(() => _ratio = r);
-    }, onError: (_, _) {});
-    _stream = stream..addListener(listener);
-    _listener = listener;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final fallback = DrawnCover(
-      title: widget.title,
-      author: widget.author,
-      seed: widget.seed ?? widget.title,
+      title: title,
+      author: author,
+      seed: seed ?? title,
     );
-    final cover = widget.coverUrl == null
-        ? fallback
-        : AppImage(widget.coverUrl!, fallback: fallback);
+    final url = coverUrl;
+    final cover = url == null ? fallback : AppImage(url, fallback: fallback);
 
-    return SizedBox(
-      width: widget.width,
-      child: AspectRatio(
-        aspectRatio: _ratio,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: AppRadius.poster,
-            boxShadow: widget.shadow
-                ? [
-                    BoxShadow(
-                      color: context.appColors.posterShadow,
-                      blurRadius: 28,
-                      spreadRadius: -10,
-                      offset: const Offset(0, 18),
-                    ),
-                    BoxShadow(
-                      color: context.appColors.posterShadow.withValues(
-                        alpha: 0.12,
+    return CoverAspectBuilder(
+      url: url,
+      builder: (context, ratio) => SizedBox(
+        width: width,
+        child: AspectRatio(
+          aspectRatio: ratio,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: AppRadius.poster,
+              boxShadow: shadow
+                  ? [
+                      BoxShadow(
+                        color: context.appColors.posterShadow,
+                        blurRadius: 28,
+                        spreadRadius: -10,
+                        offset: const Offset(0, 18),
                       ),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: ClipRRect(
-            borderRadius: AppRadius.poster,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                cover,
-                const IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: CoverPalette.spine,
-                        stops: CoverPalette.spineStops,
+                      BoxShadow(
+                        color: context.appColors.posterShadow.withValues(
+                          alpha: 0.12,
+                        ),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: ClipRRect(
+              borderRadius: AppRadius.poster,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  cover,
+                  const IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: CoverPalette.spine,
+                          stops: CoverPalette.spineStops,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (widget.badge != null)
-                  Positioned(left: 7, bottom: 7, child: widget.badge!),
-              ],
+                  if (badge != null)
+                    Positioned(left: 7, bottom: 7, child: badge!),
+                ],
+              ),
             ),
           ),
         ),
