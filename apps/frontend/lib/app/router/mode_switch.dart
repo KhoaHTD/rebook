@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,97 +10,118 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 /// Hai khu của app: mua bán sách giá cố định và sàn đấu giá. Mỗi khu có khung, màu và trang chủ riêng.
 enum AppMode { books, auction }
 
-/// Công tắc hai nấc "Mua sách | Đấu giá". Bấm sang nấc kia là đổi cả khung giao diện
-/// (sidebar / tab bar / bảng màu). Màu lấy từ theme hiện hành nên khớp với khu đang đứng.
-class ModeSwitch extends StatelessWidget {
-  const ModeSwitch({super.key, required this.mode, this.onHero = false});
+/// Hiệu ứng "loang": khi đổi khu, giao diện khu mới lan ra như một vòng tròn từ chỗ vừa bấm
+/// và phủ lên giao diện cũ. Điểm bắt đầu được nhớ ở đây trong lúc router dựng trang mới.
+abstract final class ModeReveal {
+  static Offset? _origin;
 
+  /// Điểm loang bắt đầu (toạ độ màn hình), null nếu không phải do bấm nút đổi khu.
+  static Offset? get origin => _origin;
+
+  /// Đổi sang [target]; vòng loang bắt đầu từ tâm widget của [context] (nút vừa bấm).
+  static void go(BuildContext context, AppMode target) {
+    final box = context.findRenderObject();
+    if (box is RenderBox && box.hasSize) {
+      _origin = box.localToGlobal(box.size.center(Offset.zero));
+      // Hết hiệu lực sau khi hiệu ứng chạy xong, để lần đổi trang khác không bị loang nhầm.
+      Future<void>.delayed(const Duration(seconds: 2), () => _origin = null);
+    }
+    context.go(target == AppMode.auction ? Routes.auctions : Routes.home);
+  }
+
+  /// Bọc trang mới: có điểm bắt đầu thì hiện dần theo vòng tròn, không thì hiện thẳng.
+  static Widget transition(
+    BuildContext context,
+    Animation<double> animation,
+    Widget child,
+  ) {
+    final origin = _origin;
+    if (origin == null) return child;
+    return AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) => ClipPath(
+        clipper: _CircleClipper(
+          origin,
+          Curves.easeInOutCubic.transform(animation.value),
+        ),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _CircleClipper extends CustomClipper<Path> {
+  _CircleClipper(this.center, this.t);
+
+  final Offset center;
+  final double t;
+
+  @override
+  Path getClip(Size size) {
+    final far = math.max(
+      math.max(center.distance, (center - Offset(size.width, 0)).distance),
+      math.max(
+        (center - Offset(0, size.height)).distance,
+        (center - Offset(size.width, size.height)).distance,
+      ),
+    );
+    return Path()..addOval(Rect.fromCircle(center: center, radius: far * t));
+  }
+
+  @override
+  bool shouldReclip(_CircleClipper old) => old.t != t || old.center != center;
+}
+
+/// Nút tròn đổi khu: búa đấu giá ở khu mua sách, cửa hàng ở khu đấu giá. Bấm là đổi khu với hiệu ứng loang.
+class ModeButton extends StatelessWidget {
+  const ModeButton({super.key, required this.mode, this.onHero = false});
+
+  /// Khu đang đứng (nút dẫn sang khu còn lại).
   final AppMode mode;
 
-  /// Đặt trên nền màu của bìa (đầu trang chủ điện thoại): nền kính trong, nấc đang chọn trắng chữ tối.
+  /// Đặt trên nền màu của bìa (đầu trang chủ điện thoại): nền trong, biểu tượng trắng.
   final bool onHero;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.appColors;
     final l10n = context.l10n;
-    Widget segment(AppMode m, IconData icon, String label, String path) {
-      final on = mode == m;
-      return Expanded(
-        child: Semantics(
-          button: true,
-          selected: on,
-          label: label,
-          child: InkWell(
-            borderRadius: AppRadius.chip,
-            onTap: on ? null : () => context.go(path),
-            child: AnimatedContainer(
-              duration: AppDurations.fast,
-              height: 36,
+    final toAuction = mode == AppMode.books;
+    final fg = onHero ? CoverPalette.onHero : context.colors.onSurface;
+    return Builder(
+      builder: (context) => Semantics(
+        button: true,
+        label: toAuction ? l10n.modeToAuction : l10n.modeBackToBooks,
+        child: Tooltip(
+          message: toAuction ? l10n.modeToAuction : l10n.modeBackToBooks,
+          child: InkResponse(
+            radius: 26,
+            onTap: () => ModeReveal.go(
+              context,
+              toAuction ? AppMode.auction : AppMode.books,
+            ),
+            child: Container(
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                borderRadius: AppRadius.chip,
-                color: on
-                    ? (onHero ? CoverPalette.onHero : c.selected)
-                    : Colors.transparent,
+                shape: BoxShape.circle,
+                color: onHero
+                    ? CoverPalette.onHero.withValues(alpha: 0.18)
+                    : context.appColors.fill,
+                border: Border.all(
+                  color: onHero
+                      ? CoverPalette.onHero.withValues(alpha: 0.28)
+                      : context.appColors.glassBorder,
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: 16,
-                    color: on
-                        ? (onHero ? CoverPalette.onHeroInk : c.onSelected)
-                        : (onHero ? CoverPalette.onHero : c.secondaryText),
-                  ),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyles.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: on
-                            ? (onHero ? CoverPalette.onHeroInk : c.onSelected)
-                            : (onHero ? CoverPalette.onHero : c.secondaryText),
-                      ),
-                    ),
-                  ),
-                ],
+              child: Icon(
+                toAuction ? Icons.gavel_rounded : Icons.storefront_rounded,
+                size: 22,
+                color: fg,
               ),
             ),
           ),
         ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        borderRadius: AppRadius.chip,
-        color: onHero ? CoverPalette.onHero.withValues(alpha: 0.18) : c.fill,
-        border: Border.all(
-          color: onHero
-              ? CoverPalette.onHero.withValues(alpha: 0.28)
-              : c.glassBorder,
-        ),
-      ),
-      child: Row(
-        children: [
-          segment(
-            AppMode.books,
-            Icons.menu_book_rounded,
-            l10n.modeBooks,
-            Routes.home,
-          ),
-          segment(
-            AppMode.auction,
-            Icons.gavel_rounded,
-            l10n.modeAuction,
-            Routes.auctions,
-          ),
-        ],
       ),
     );
   }

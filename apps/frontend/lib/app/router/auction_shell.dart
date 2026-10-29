@@ -124,9 +124,16 @@ class _AuctionSidebar extends ConsumerWidget {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(14, 0, 14, 8),
-            child: ModeSwitch(mode: AppMode.auction),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+            child: Builder(
+              builder: (context) => SidebarItem(
+                Icons.storefront_rounded,
+                l10n.modeBooks,
+                selected: false,
+                onTap: () => ModeReveal.go(context, AppMode.books),
+              ),
+            ),
           ),
           Expanded(
             child: ListView(

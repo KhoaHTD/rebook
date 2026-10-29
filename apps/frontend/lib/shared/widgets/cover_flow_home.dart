@@ -41,8 +41,7 @@ class CoverFlowHome extends StatefulWidget {
   const CoverFlowHome({
     super.key,
     required this.title,
-    required this.top,
-    required this.onSearch,
+    required this.trailing,
     required this.hero,
     required this.tabs,
     required this.tabIndex,
@@ -53,9 +52,8 @@ class CoverFlowHome extends StatefulWidget {
 
   final String title;
 
-  /// Phần đặt trên tiêu đề (công tắc Mua sách | Đấu giá).
-  final Widget top;
-  final VoidCallback onSearch;
+  /// Nút bên phải tiêu đề (nút đổi khu); tham số cho biết đang đặt trên nền màu (true) hay trên tờ giấy (false).
+  final Widget Function(bool onHero) trailing;
 
   /// Các cuốn ở hàng bìa lớn (chừng 5 cuốn).
   final List<CoverFlowEntry> hero;
@@ -123,7 +121,7 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
   Widget build(BuildContext context) {
     final paper = context.colors.surface;
     final safeTop = MediaQuery.paddingOf(context).top;
-    final heroH = safeTop + 500;
+    final heroH = safeTop + 446;
     final current = widget.hero.isEmpty
         ? null
         : widget.hero[_index.clamp(0, widget.hero.length - 1)];
@@ -236,10 +234,8 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
                 style: context.textStyles.headlineSmall,
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.search_rounded),
-              onPressed: widget.onSearch,
-            ),
+            widget.trailing(false),
+            const SizedBox(width: 12),
           ],
         ),
       ),
@@ -263,17 +259,6 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 260),
-                child: widget.top,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
             padding: const EdgeInsets.only(left: 20, right: 8),
             child: Row(
               children: [
@@ -288,14 +273,8 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
                     ),
                   ),
                 ),
-                IconButton(
-                  tooltip: MaterialLocalizations.of(context).searchFieldLabel,
-                  icon: const Icon(
-                    Icons.search_rounded,
-                    color: CoverPalette.onHero,
-                  ),
-                  onPressed: widget.onSearch,
-                ),
+                widget.trailing(true),
+                const SizedBox(width: 12),
               ],
             ),
           ),

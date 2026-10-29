@@ -885,5 +885,10 @@
   "floorShelfUpcoming": "Coming up",
   "floorShelfLots": "Featured lots",
   "floorShelfWatched": "Watching",
-  "floorShelfEmpty": "Nothing here yet."
+  "floorShelfEmpty": "Nothing here yet.",
+  "navExplore": "Explore",
+  "exploreRecent": "Recent searches",
+  "exploreClearAll": "Clear all",
+  "exploreTrending": "Trending this week",
+  "exploreCategories": "Explore by categories"
 }

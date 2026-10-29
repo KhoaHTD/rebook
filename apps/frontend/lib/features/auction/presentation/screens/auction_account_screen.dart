@@ -3,13 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
-import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
-import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -23,7 +21,6 @@ class AuctionAccountScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final c = context.appColors;
     final text = context.textStyles;
-    final compact = context.windowSize.isCompact;
     final user = ref.watch(sessionControllerProvider).user;
     final wallet = ref.watch(auctionWalletProvider).value;
 
@@ -45,11 +42,6 @@ class AuctionAccountScreen extends ConsumerWidget {
       title: l10n.auctionAccountTitle,
       onRefresh: () => ref.refresh(auctionWalletProvider.future),
       children: [
-        if (compact)
-          const Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.lg),
-            child: ModeSwitch(mode: AppMode.auction),
-          ),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
           child: Column(

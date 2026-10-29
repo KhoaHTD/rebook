@@ -195,8 +195,7 @@ class _MobileHomeState extends ConsumerState<_MobileHome> {
         final heroSource = f.trending.isNotEmpty ? f.trending : f.newArrivals;
         return CoverFlowHome(
           title: l10n.homeExploreTitle,
-          top: const ModeSwitch(mode: AppMode.books, onHero: true),
-          onSearch: () => context.go(Routes.search),
+          trailing: (onHero) => ModeButton(mode: AppMode.books, onHero: onHero),
           hero: [for (final l in heroSource.take(5)) _entry(context, l)],
           tabs: [l10n.allCategories, for (final c in cats) c.name],
           tabIndex: tab,

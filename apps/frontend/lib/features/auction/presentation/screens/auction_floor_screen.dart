@@ -37,11 +37,6 @@ class AuctionFloorScreen extends ConsumerWidget {
       subtitle: l10n.auctionsTagline,
       onRefresh: () => ref.refresh(auctionSessionsProvider.future),
       children: [
-        if (compact)
-          const Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.lg),
-            child: ModeSwitch(mode: AppMode.auction),
-          ),
         AsyncValueView(
           value: sessions,
           onRetry: () => ref.invalidate(auctionSessionsProvider),
@@ -357,8 +352,8 @@ class _MobileFloorState extends ConsumerState<_MobileFloor> {
         final heroLots = featured.isNotEmpty ? featured : active;
         return CoverFlowHome(
           title: l10n.auctionAppTitle,
-          top: const ModeSwitch(mode: AppMode.auction, onHero: true),
-          onSearch: () => context.go(Routes.auctionSchedule),
+          trailing: (onHero) =>
+              ModeButton(mode: AppMode.auction, onHero: onHero),
           hero: [for (final l in heroLots.take(5)) _lot(context, l)],
           tabs: [l10n.tabLive, l10n.tabUpcoming, l10n.auctionNavMine],
           tabIndex: tab,

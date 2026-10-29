@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
-import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
@@ -11,7 +10,6 @@ import 'package:book_marketplace/features/auction/presentation/providers/auction
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_widgets.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
-import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -29,11 +27,6 @@ class MyAuctionsScreen extends ConsumerWidget {
       showBack: false,
       onRefresh: () => ref.refresh(myRegistrationsProvider.future),
       children: [
-        if (context.windowSize.isCompact)
-          const Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.lg),
-            child: ModeSwitch(mode: AppMode.auction),
-          ),
         Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
           child: Text(

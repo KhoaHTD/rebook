@@ -1395,5 +1395,10 @@
   "floorShelfUpcoming": "Sắp diễn ra",
   "floorShelfLots": "Lô nổi bật",
   "floorShelfWatched": "Đang theo dõi",
-  "floorShelfEmpty": "Chưa có gì ở mục này."
+  "floorShelfEmpty": "Chưa có gì ở mục này.",
+  "navExplore": "Khám phá",
+  "exploreRecent": "Tìm gần đây",
+  "exploreClearAll": "Xóa tất cả",
+  "exploreTrending": "Thịnh hành tuần này",
+  "exploreCategories": "Khám phá theo danh mục"
 }

@@ -3,14 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
-import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_stage_widgets.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
-import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -38,7 +36,6 @@ class _AuctionScheduleScreenState extends ConsumerState<AuctionScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final compact = context.windowSize.isCompact;
     final sessions = ref.watch(auctionSessionsProvider);
 
     return AppPage(
@@ -46,11 +43,6 @@ class _AuctionScheduleScreenState extends ConsumerState<AuctionScheduleScreen> {
       subtitle: l10n.scheduleSub,
       onRefresh: () => ref.refresh(auctionSessionsProvider.future),
       children: [
-        if (compact)
-          const Padding(
-            padding: EdgeInsets.only(bottom: AppSpacing.lg),
-            child: ModeSwitch(mode: AppMode.auction),
-          ),
         Align(
           alignment: Alignment.centerLeft,
           child: FilterChip(

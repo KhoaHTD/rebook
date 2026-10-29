@@ -7,6 +7,7 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/app_shell.dart';
 import 'package:book_marketplace/app/router/auction_shell.dart';
 import 'package:book_marketplace/app/router/placeholder_page.dart';
+import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/account/presentation/screens/account_screen.dart';
@@ -105,7 +106,8 @@ GoRouter appRouter(Ref ref) {
         builder: (_, _) => const ForgotPasswordScreen(),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (_, _, shell) => AppShell(navigationShell: shell),
+        pageBuilder: (_, state, shell) =>
+            _revealPage(state, AppShell(navigationShell: shell)),
         branches: [
           // Nhánh 1 — Mua sách
           StatefulShellBranch(
@@ -255,7 +257,8 @@ GoRouter appRouter(Ref ref) {
       ),
       // Khu đấu giá: khung, theme và trang chủ riêng (Sàn · Lịch · Của tôi · Kết quả · Tài khoản).
       StatefulShellRoute.indexedStack(
-        builder: (_, _, shell) => AuctionShell(navigationShell: shell),
+        pageBuilder: (_, state, shell) =>
+            _revealPage(state, AuctionShell(navigationShell: shell)),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -337,3 +340,15 @@ GoRouter appRouter(Ref ref) {
     ],
   );
 }
+
+/// Trang khung của một khu: khi đổi khu bằng nút tròn thì loang ra từ chỗ bấm ([ModeReveal]),
+/// còn lại (mở app, đăng nhập xong…) hiện thẳng.
+Page<void> _revealPage(GoRouterState state, Widget child) =>
+    CustomTransitionPage<void>(
+      key: state.pageKey,
+      transitionDuration: const Duration(milliseconds: 700),
+      reverseTransitionDuration: Duration.zero,
+      child: child,
+      transitionsBuilder: (context, animation, _, child) =>
+          ModeReveal.transition(context, animation, child),
+    );

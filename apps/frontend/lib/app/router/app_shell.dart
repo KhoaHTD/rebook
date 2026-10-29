@@ -31,6 +31,7 @@ class AppShell extends ConsumerWidget {
   /// Trang gốc của từng mục: ở điện thoại chỉ ở đây mới hiện nút (trang con có nút quay lại và thanh mua hàng).
   static const _roots = {
     Routes.home,
+    Routes.search,
     Routes.cart,
     Routes.notifications,
     Routes.account,
@@ -40,6 +41,7 @@ class AppShell extends ConsumerWidget {
     if (loc == Routes.cart || loc.startsWith('${Routes.cart}/')) {
       return Icons.shopping_bag_rounded;
     }
+    if (loc == Routes.search) return Icons.explore_rounded;
     return switch (navigationShell.currentIndex) {
       1 => Icons.notifications_rounded,
       2 => Icons.person_rounded,
@@ -103,17 +105,24 @@ class _Sidebar extends ConsumerWidget {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(14, 0, 14, 8),
-            child: ModeSwitch(mode: AppMode.books),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+            child: Builder(
+              builder: (context) => SidebarItem(
+                Icons.gavel_rounded,
+                l10n.auctionAppTitle,
+                selected: false,
+                onTap: () => ModeReveal.go(context, AppMode.auction),
+              ),
+            ),
           ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               children: [
                 SidebarItem(
-                  Icons.search_rounded,
-                  l10n.search,
+                  Icons.explore_outlined,
+                  l10n.navExplore,
                   selected: under(Routes.search),
                   onTap: () => context.go(Routes.search),
                 ),
@@ -220,13 +229,21 @@ class _TabBar extends ConsumerWidget {
     final loc = GoRouterState.of(context).uri.path;
     // Giỏ hàng là route con của nhánh Mua sách nên tab này chọn theo địa chỉ, không theo nhánh.
     final inCart = loc == Routes.cart || loc.startsWith('${Routes.cart}/');
+    // Khám phá (tìm kiếm) cũng là route con của nhánh Mua sách.
+    final inExplore = loc == Routes.search;
     return GlassTabBar(
       items: [
         GlassTabItem(
           icon: Icons.home_rounded,
           label: l10n.navHome,
-          selected: !inCart && index == 0,
+          selected: !inCart && !inExplore && index == 0,
           onTap: () => onSelect(0),
+        ),
+        GlassTabItem(
+          icon: Icons.explore_rounded,
+          label: l10n.navExplore,
+          selected: inExplore,
+          onTap: () => context.go(Routes.search),
         ),
         GlassTabItem(
           icon: Icons.shopping_bag_rounded,
