@@ -7,10 +7,11 @@ import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
-import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_floor_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
+import 'package:book_marketplace/features/auction/presentation/widgets/auction_home_widgets.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_stage_widgets.dart';
+import 'package:book_marketplace/features/auction/presentation/widgets/auto_shelf.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_widgets.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
@@ -266,25 +267,35 @@ class _FeaturedLots extends ConsumerWidget {
   }
 }
 
-/// Điện thoại: "Sàn" kiểu sân khấu — thẻ LIVE cao chiếm gần cả màn hình, rồi dòng thời gian các phiên sắp tới
-/// (gom theo ngày) và lưới 2 cột lô nổi bật. Khác hẳn trang chủ khu mua sách; desktop giữ bố cục thẻ ở trên.
-class _MobileFloor extends ConsumerWidget {
+/// Điện thoại: ô tìm, hàng banner phiên (ghi tên phiên), kệ sách tự trôi từ trái sang phải, tab
+/// Khám phá / Sắp diễn ra / Yêu thích / Của tôi và danh sách thẻ lô lớn (đồng hồ + giá nằm trên ảnh).
+/// Desktop giữ bố cục thẻ ở trên.
+class _MobileFloor extends ConsumerStatefulWidget {
   const _MobileFloor();
 
-  String _dayLabel(BuildContext context, DateTime day) {
-    final l10n = context.l10n;
-    final today = DateUtils.dateOnly(DateTime.now());
-    final diff = DateUtils.dateOnly(day.toLocal()).difference(today).inDays;
-    if (diff == 0) return l10n.scheduleToday;
-    if (diff == 1) return l10n.scheduleTomorrow;
-    return formatDate(day);
+  @override
+  ConsumerState<_MobileFloor> createState() => _MobileFloorState();
+}
+
+class _MobileFloorState extends ConsumerState<_MobileFloor> {
+  final _search = TextEditingController();
+  int _tab = 0;
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final c = context.appColors;
+    final text = context.textStyles;
     final sessions = ref.watch(auctionSessionsProvider);
-    final lots = ref.watch(featuredLotsProvider).value ?? const <Lot>[];
+    final active = ref.watch(activeLotsProvider).value ?? const <Lot>[];
+    final watched = ref.watch(watchedLotsProvider).value ?? const <Lot>[];
+    final mine = ref.watch(myRegistrationsProvider).value ?? const [];
 
     return AppPage(
       title: l10n.auctionAppTitle,
@@ -300,85 +311,112 @@ class _MobileFloor extends ConsumerWidget {
           value: sessions,
           onRetry: () => ref.invalidate(auctionSessionsProvider),
           data: (all) {
+            final byId = {for (final s in all) s.id: s};
             final live = all
                 .where((s) => SessionTab.live.matches(s.status))
                 .toList();
             final upcoming =
                 all.where((s) => SessionTab.upcoming.matches(s.status)).toList()
                   ..sort((a, b) => a.startAt.compareTo(b.startAt));
-            final days = <DateTime, List<AuctionSession>>{};
-            for (final s in upcoming) {
-              days
-                  .putIfAbsent(
-                    DateUtils.dateOnly(s.startAt.toLocal()),
-                    () => [],
-                  )
-                  .add(s);
+            final banners = [...live, ...upcoming].take(6).toList();
+            final q = _search.text.trim().toLowerCase();
+            final mineIds = {for (final r in mine) r.sessionId};
+            var lots = switch (_tab) {
+              0 => [
+                ...active.where((l) => byId[l.sessionId]?.isLive ?? false),
+                ...active.where((l) => !(byId[l.sessionId]?.isLive ?? false)),
+              ],
+              1 => active.where((l) {
+                final st = byId[l.sessionId]?.status;
+                return st != null && SessionTab.upcoming.matches(st);
+              }).toList(),
+              2 => watched,
+              _ => active.where((l) => mineIds.contains(l.sessionId)).toList(),
+            };
+            if (q.isNotEmpty) {
+              lots = [
+                for (final l in lots)
+                  if (l.book.title.toLowerCase().contains(q) ||
+                      l.book.author.toLowerCase().contains(q))
+                    l,
+              ];
             }
+            final tabs = [
+              l10n.navExplore,
+              l10n.floorShelfUpcoming,
+              l10n.floorTabFavorite,
+              l10n.auctionNavMine,
+            ];
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (live.isEmpty)
-                  _NoLiveCard(next: upcoming.isEmpty ? null : upcoming.first)
-                else
-                  for (final s in live)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                      child: LiveStageCard(session: s),
-                    ),
-                const SizedBox(height: AppSpacing.xl),
-                const _MySummary(),
-                if (days.isNotEmpty) ...[
+                TextField(
+                  controller: _search,
+                  decoration: InputDecoration(
+                    hintText: l10n.auctionSearchHint,
+                    prefixIcon: const Icon(Icons.search_rounded),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                SessionBannerCarousel(sessions: banners),
+                if (active.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xl),
-                  _Heading(l10n.tabUpcoming, l10n.floorUpcomingSub),
-                  for (final entry in days.entries) ...[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: AppSpacing.sm,
-                        bottom: AppSpacing.sm,
-                      ),
-                      child: Text(
-                        _dayLabel(context, entry.key).toUpperCase(),
-                        style: context.textStyles.labelMedium?.copyWith(
-                          color: context.appColors.tint,
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.w800,
+                  AutoShelf(
+                    books: [
+                      for (final l in active)
+                        ShelfBook(
+                          id: l.id,
+                          title: l.book.title,
+                          author: l.book.author,
+                          coverUrl: l.book.coverUrl,
+                          onTap: () => context.go(Routes.lot(l.id)),
                         ),
-                      ),
-                    ),
-                    for (final s in entry.value)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: EventCard(
-                          session: s,
-                          onTap: () => context.go(Routes.session(s.id)),
-                        ),
-                      ),
-                  ],
-                ],
-                if (lots.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xl),
-                  _Heading(l10n.floorFeaturedLots, l10n.floorFeaturedSub),
-                  LayoutBuilder(
-                    builder: (context, box) {
-                      final w = (box.maxWidth - AppSpacing.md) / 2;
-                      return Wrap(
-                        spacing: AppSpacing.md,
-                        runSpacing: AppSpacing.lg,
-                        children: [
-                          for (final l in lots.take(8))
-                            SizedBox(
-                              width: w,
-                              child: LotTile(
-                                lot: l,
-                                onTap: () => context.go(Routes.lot(l.id)),
-                              ),
-                            ),
-                        ],
-                      );
-                    },
+                    ],
                   ),
                 ],
+                const SizedBox(height: AppSpacing.xl),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < tabs.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 22),
+                          child: InkResponse(
+                            onTap: () => setState(() => _tab = i),
+                            child: Text(
+                              tabs[i],
+                              style: text.titleMedium?.copyWith(
+                                fontWeight: i == _tab
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
+                                color: i == _tab
+                                    ? context.colors.onSurface
+                                    : c.secondaryText,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                if (lots.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: Text(
+                      l10n.floorShelfEmpty,
+                      textAlign: TextAlign.center,
+                      style: text.bodyMedium?.copyWith(color: c.secondaryText),
+                    ),
+                  )
+                else
+                  for (final l in lots)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                      child: AuctionLotCard(lot: l, session: byId[l.sessionId]),
+                    ),
                 const SizedBox(height: 110),
               ],
             );

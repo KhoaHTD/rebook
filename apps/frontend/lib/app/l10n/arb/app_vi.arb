@@ -1400,5 +1400,10 @@
   "exploreRecent": "Tìm gần đây",
   "exploreClearAll": "Xóa tất cả",
   "exploreTrending": "Thịnh hành tuần này",
-  "exploreCategories": "Khám phá theo danh mục"
+  "exploreCategories": "Khám phá theo danh mục",
+  "auctionSearchHint": "Tìm lô, sách, tác giả…",
+  "floorTabFavorite": "Yêu thích",
+  "lotEndsIn": "Kết thúc sau",
+  "lotBidNow": "Vào phòng trả giá",
+  "lotBidders": "Người trả giá"
 }

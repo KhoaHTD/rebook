@@ -890,5 +890,10 @@
   "exploreRecent": "Recent searches",
   "exploreClearAll": "Clear all",
   "exploreTrending": "Trending this week",
-  "exploreCategories": "Explore by categories"
+  "exploreCategories": "Explore by categories",
+  "auctionSearchHint": "Search lots, books, authors…",
+  "floorTabFavorite": "Favorites",
+  "lotEndsIn": "Ends in",
+  "lotBidNow": "Go to the bidding room",
+  "lotBidders": "Bidders"
 }
