@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/app/router/glass_tab_bar.dart';
 import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/nav_overlay.dart';
 import 'package:book_marketplace/app/router/routes.dart';
@@ -77,6 +78,10 @@ class AuctionShell extends ConsumerWidget {
               panel: _AuctionSidebar(
                 index: navigationShell.currentIndex,
                 onBranch: _goBranch,
+              ),
+              bar: _AuctionTabBar(
+                index: navigationShell.currentIndex,
+                onSelect: _goBranch,
               ),
               child: navigationShell,
             ),
@@ -171,6 +176,54 @@ class _AuctionSidebar extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AuctionTabBar extends ConsumerWidget {
+  const _AuctionTabBar({required this.index, required this.onSelect});
+
+  final int index;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final live = ref.watch(_liveCountProvider);
+    return GlassTabBar(
+      items: [
+        GlassTabItem(
+          icon: Icons.gavel_rounded,
+          label: l10n.auctionNavFloor,
+          badge: live,
+          selected: index == 0,
+          onTap: () => onSelect(0),
+        ),
+        GlassTabItem(
+          icon: Icons.event_rounded,
+          label: l10n.auctionNavSchedule,
+          selected: index == 1,
+          onTap: () => onSelect(1),
+        ),
+        GlassTabItem(
+          icon: Icons.confirmation_number_rounded,
+          label: l10n.auctionNavMine,
+          selected: index == 2,
+          onTap: () => onSelect(2),
+        ),
+        GlassTabItem(
+          icon: Icons.emoji_events_rounded,
+          label: l10n.auctionNavResults,
+          selected: index == 3,
+          onTap: () => onSelect(3),
+        ),
+        GlassTabItem(
+          icon: Icons.person_rounded,
+          label: l10n.navAccount,
+          selected: index == 4,
+          onTap: () => onSelect(4),
+        ),
+      ],
     );
   }
 }

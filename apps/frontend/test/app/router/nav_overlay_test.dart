@@ -9,7 +9,7 @@ import 'package:book_marketplace/app/router/sidebar.dart';
 import 'package:book_marketplace/app/theme/app_theme.dart';
 import 'package:book_marketplace/core/settings/app_settings_controller.dart';
 
-Widget _app({bool showButton = true}) => ProviderScope(
+Widget _app({bool showButton = true, bool withBar = false}) => ProviderScope(
   child: MaterialApp(
     theme: AppTheme.light(),
     locale: const Locale('vi'),
@@ -24,6 +24,7 @@ Widget _app({bool showButton = true}) => ProviderScope(
       body: NavOverlay(
         icon: Icons.home_rounded,
         showButton: showButton,
+        bar: withBar ? const Text('thanh ngang') : null,
         panel: Builder(
           builder: (context) => SidebarItem(
             Icons.search_rounded,
@@ -87,4 +88,25 @@ void main() {
       NavSide.right,
     );
   });
+
+  testWidgets(
+    'điện thoại có thanh ngang: bấm nút thì thanh nở ra thay sidebar',
+    (tester) async {
+      tester.view
+        ..physicalSize = const Size(390, 844)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(_app(withBar: true));
+      expect(find.text('thanh ngang'), findsNothing);
+
+      await tester.tap(find.byIcon(Icons.home_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('thanh ngang'), findsOneWidget);
+      expect(find.text('Mục thử'), findsNothing);
+
+      await tester.tapAt(const Offset(200, 200));
+      await tester.pumpAndSettle();
+      expect(find.text('thanh ngang'), findsNothing);
+    },
+  );
 }

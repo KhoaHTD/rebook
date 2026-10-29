@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/app/router/glass_tab_bar.dart';
 import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/nav_overlay.dart';
 import 'package:book_marketplace/app/router/routes.dart';
@@ -54,6 +55,7 @@ class AppShell extends ConsumerWidget {
         icon: _icon(loc),
         showButton: !context.windowSize.isCompact || _roots.contains(loc),
         panel: _Sidebar(onBranch: _goBranch),
+        bar: _TabBar(index: navigationShell.currentIndex, onSelect: _goBranch),
         child: navigationShell,
       ),
     );
@@ -197,6 +199,56 @@ class _Sidebar extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ───────────────────────── Tab bar nổi (điện thoại, nở ra từ nút) ─────────────────────────
+
+class _TabBar extends ConsumerWidget {
+  const _TabBar({required this.index, required this.onSelect});
+
+  final int index;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final signedIn = ref.watch(sessionControllerProvider).isSignedIn;
+    final unread = signedIn ? ref.watch(unreadCountProvider) : 0;
+    final cart = signedIn ? ref.watch(cartCountProvider) : 0;
+    final loc = GoRouterState.of(context).uri.path;
+    // Giỏ hàng là route con của nhánh Mua sách nên tab này chọn theo địa chỉ, không theo nhánh.
+    final inCart = loc == Routes.cart || loc.startsWith('${Routes.cart}/');
+    return GlassTabBar(
+      items: [
+        GlassTabItem(
+          icon: Icons.home_rounded,
+          label: l10n.navHome,
+          selected: !inCart && index == 0,
+          onTap: () => onSelect(0),
+        ),
+        GlassTabItem(
+          icon: Icons.shopping_bag_rounded,
+          label: l10n.navCart,
+          badge: cart,
+          selected: inCart,
+          onTap: () => context.go(Routes.cart),
+        ),
+        GlassTabItem(
+          icon: Icons.notifications_rounded,
+          label: l10n.navNotifications,
+          badge: unread,
+          selected: index == 1,
+          onTap: () => onSelect(1),
+        ),
+        GlassTabItem(
+          icon: Icons.person_rounded,
+          label: l10n.navAccount,
+          selected: index == 2,
+          onTap: () => onSelect(2),
+        ),
+      ],
     );
   }
 }

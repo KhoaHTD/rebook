@@ -7,6 +7,7 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/sidebar.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/settings/app_settings_controller.dart';
+import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 
 /// Cho các mục trong sidebar trượt biết cách đóng sidebar sau khi bấm (xem [NavOverlay]).
@@ -31,14 +32,18 @@ class NavOverlay extends ConsumerStatefulWidget {
     required this.child,
     required this.panel,
     required this.icon,
+    this.bar,
     this.showButton = true,
   });
 
   /// Nội dung trang (khung điều hướng của go_router).
   final Widget child;
 
-  /// Ruột sidebar (công tắc khu, các mục, tài khoản).
+  /// Ruột sidebar (công tắc khu, các mục, tài khoản): dùng ở máy tính bảng và desktop.
   final Widget panel;
+
+  /// Thanh tab ngang liquid glass: ở điện thoại, bấm nút thì nó nở lên từ đáy thay cho sidebar.
+  final Widget? bar;
 
   /// Biểu tượng của mục đang đứng, hiện trên nút.
   final IconData icon;
@@ -96,6 +101,7 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
     final screenW = media.size.width;
     final panelW = math.min(SidebarPanel.width, screenW * 0.86);
     final hidden = -panelW;
+    final useBar = widget.bar != null && context.windowSize.isCompact;
 
     return PopScope(
       canPop: !_open,
@@ -119,7 +125,19 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
                 ),
               ),
             ),
-          if (_mounted)
+          if (_mounted && useBar)
+            AnimatedPositioned(
+              duration: AppDurations.normal,
+              curve: Curves.easeOutCubic,
+              left: 0,
+              right: 0,
+              bottom: _open ? 0 : -140,
+              onEnd: () {
+                if (!_open && mounted) setState(() => _mounted = false);
+              },
+              child: NavPanelScope(close: _close, child: widget.bar!),
+            ),
+          if (_mounted && !useBar)
             AnimatedPositioned(
               duration: AppDurations.normal,
               curve: Curves.easeOutCubic,
