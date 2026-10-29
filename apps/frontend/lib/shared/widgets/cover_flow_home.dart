@@ -494,7 +494,7 @@ class _ShelfItem extends StatelessWidget {
               coverUrl: entry.coverUrl,
               seed: entry.id,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 14),
             SizedBox(
               height: 34,
               child: Text(

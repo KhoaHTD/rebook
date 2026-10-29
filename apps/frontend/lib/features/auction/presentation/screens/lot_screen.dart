@@ -332,18 +332,11 @@ class _CompactLotBody extends ConsumerWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          BlurredCover(
-                            title: book.title,
-                            author: book.author,
-                            coverUrl: book.coverUrl,
-                            seed: book.id,
-                            sigma: 36,
-                          ),
-                          DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: context.colors.surface.withValues(
-                                alpha: 0.3,
-                              ),
+                          // Nền đặc (không làm mờ ảnh): khu đấu giá là nền đen phẳng.
+                          ColoredBox(
+                            color: Color.alphaBlend(
+                              c.fill,
+                              context.colors.surface,
                             ),
                           ),
                           Padding(

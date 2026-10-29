@@ -146,7 +146,10 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
                 onEnd: () {
                   if (!_open && mounted) setState(() => _mounted = false);
                 },
-                child: NavPanelScope(close: _close, child: widget.bar!),
+                child: FlatScope(
+                  flat: false,
+                  child: NavPanelScope(close: _close, child: widget.bar!),
+                ),
               ),
             if (_mounted && !useBar)
               AnimatedPositioned(
@@ -160,9 +163,12 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
                 onEnd: () {
                   if (!_open && mounted) setState(() => _mounted = false);
                 },
-                child: NavPanelScope(
-                  close: _close,
-                  child: SidebarPanel(side: side, child: widget.panel),
+                child: FlatScope(
+                  flat: false,
+                  child: NavPanelScope(
+                    close: _close,
+                    child: SidebarPanel(side: side, child: widget.panel),
+                  ),
                 ),
               ),
             if (widget.showButton && !_open)
@@ -183,15 +189,18 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
                   child: Semantics(
                     button: true,
                     label: context.l10n.navMenu,
-                    child: Glass.circle(
-                      tint: widget.accent ? context.appColors.selected : null,
-                      onTap: _openPanel,
-                      child: Icon(
-                        widget.icon,
-                        size: 24,
-                        color: widget.accent
-                            ? context.appColors.onSelected
-                            : context.colors.onSurface,
+                    child: FlatScope(
+                      flat: false,
+                      child: Glass.circle(
+                        tint: widget.accent ? context.appColors.selected : null,
+                        onTap: _openPanel,
+                        child: Icon(
+                          widget.icon,
+                          size: 24,
+                          color: widget.accent
+                              ? context.appColors.onSelected
+                              : context.colors.onSurface,
+                        ),
                       ),
                     ),
                   ),

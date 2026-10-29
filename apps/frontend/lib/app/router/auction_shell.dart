@@ -31,7 +31,7 @@ class AuctionTheme extends StatelessWidget {
     data: _auctionTheme,
     child: AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: AmbientBackground(child: child),
+      child: FlatScope(flat: true, child: AmbientBackground(child: child)),
     ),
   );
 }

@@ -225,17 +225,9 @@ class AuctionLotCard extends ConsumerWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  BlurredCover(
-                    title: book.title,
-                    author: book.author,
-                    coverUrl: book.coverUrl,
-                    seed: book.id,
-                    sigma: 30,
-                  ),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: context.colors.surface.withValues(alpha: 0.35),
-                    ),
+                  // Nền đặc (không làm mờ ảnh): khu đấu giá là nền đen phẳng.
+                  ColoredBox(
+                    color: Color.alphaBlend(c.fill, context.colors.surface),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 18, bottom: 34),

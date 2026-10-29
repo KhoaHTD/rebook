@@ -325,17 +325,23 @@ class _MobileHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    // Thanh đầu bằng kính: làm mờ nội dung cuộn phía dưới, kẻ sáng mảnh ở đáy.
+    // Thanh đầu bằng kính: làm mờ nội dung cuộn phía dưới, kẻ sáng mảnh ở đáy (khu phẳng: nền đặc).
+    final flat = FlatScope.active(context);
     return ClipRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        filter: flat
+            ? ImageFilter.blur(sigmaX: 0.001, sigmaY: 0.001)
+            : ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [c.glassTop, c.glassBottom],
-            ),
+            color: flat ? c.background : null,
+            gradient: flat
+                ? null
+                : LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [c.glassTop, c.glassBottom],
+                  ),
             border: Border(bottom: BorderSide(color: c.separator, width: 0.5)),
           ),
           child: SafeArea(

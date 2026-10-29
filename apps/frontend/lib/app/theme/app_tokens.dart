@@ -209,7 +209,7 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBottom: Color(0x4D1A130E),
     glassBorder: Color(0x33FFE2B0),
     glassShadow: Color(0x99000000),
-    background: Color(0xFF0E0A08),
+    background: Color(0xFF000000),
     ambient: AmbientPalette.auction,
   );
 
@@ -308,12 +308,8 @@ abstract final class AmbientPalette {
     (Color(0x4D2D4A36), Alignment(-0.35, 0.85), 0.7),
   ];
 
-  /// Phòng đấu giá: ánh đỏ ở một góc, ánh vàng đồng ở góc đối diện trên nền gần đen.
-  static const auction = <(Color, Alignment, double)>[
-    (Color(0x80B3261E), Alignment(-0.7, -0.85), 0.8),
-    (Color(0x66A87420), Alignment(0.8, -0.2), 0.85),
-    (Color(0x4D5A1A14), Alignment(-0.2, 0.9), 0.75),
-  ];
+  /// Khu đấu giá: nền đen phẳng, không vệt màu loang.
+  static const auction = <(Color, Alignment, double)>[];
 }
 
 /// Thẻ mời sang khu đấu giá đặt ở app mua sách (nền đỏ rượu → đồng, chữ kem).

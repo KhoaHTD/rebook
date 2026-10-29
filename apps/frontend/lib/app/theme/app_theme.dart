@@ -16,7 +16,7 @@ abstract final class AppTheme {
   static ThemeData auction() => _build(
     Brightness.dark,
     AppColors.auction,
-    darkSurface: const Color(0xFF1B140F),
+    darkSurface: const Color(0xFF121212),
   );
 
   static ThemeData _build(
