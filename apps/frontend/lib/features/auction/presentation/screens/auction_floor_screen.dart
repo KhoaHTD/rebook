@@ -15,7 +15,6 @@ import 'package:book_marketplace/features/auction/presentation/widgets/auction_w
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
-import 'package:book_marketplace/shared/widgets/cover_flow_home.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/poster_grid.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -267,101 +266,125 @@ class _FeaturedLots extends ConsumerWidget {
   }
 }
 
-/// Điện thoại: "Sàn" dùng [CoverFlowHome] (nền màu theo bìa lô, hàng bìa lớn, tab Đang LIVE / Sắp diễn ra /
-/// Của tôi, các kệ phiên và lô). Desktop giữ bố cục thẻ ở trên.
-class _MobileFloor extends ConsumerStatefulWidget {
+/// Điện thoại: "Sàn" kiểu sân khấu — thẻ LIVE cao chiếm gần cả màn hình, rồi dòng thời gian các phiên sắp tới
+/// (gom theo ngày) và lưới 2 cột lô nổi bật. Khác hẳn trang chủ khu mua sách; desktop giữ bố cục thẻ ở trên.
+class _MobileFloor extends ConsumerWidget {
   const _MobileFloor();
 
-  @override
-  ConsumerState<_MobileFloor> createState() => _MobileFloorState();
-}
-
-class _MobileFloorState extends ConsumerState<_MobileFloor> {
-  int _tab = 0;
-
-  CoverFlowEntry _lot(BuildContext context, Lot l) => CoverFlowEntry(
-    id: l.id,
-    title: l.book.title,
-    author: l.book.author,
-    coverUrl: l.book.coverUrl,
-    price: formatVnd(l.currentPrice),
-    onTap: () => context.go(Routes.lot(l.id)),
-  );
-
-  CoverFlowEntry _session(BuildContext context, AuctionSession s) =>
-      CoverFlowEntry(
-        id: s.id,
-        title: s.title,
-        author: s.description ?? '',
-        coverUrl: s.coverImageUrl,
-        onTap: () => context.go(Routes.session(s.id)),
-      );
-
-  CoverFlowShelf? _shelf(String label, List<CoverFlowEntry> entries) =>
-      entries.isEmpty ? null : CoverFlowShelf(label, entries);
+  String _dayLabel(BuildContext context, DateTime day) {
+    final l10n = context.l10n;
+    final today = DateUtils.dateOnly(DateTime.now());
+    final diff = DateUtils.dateOnly(day.toLocal()).difference(today).inDays;
+    if (diff == 0) return l10n.scheduleToday;
+    if (diff == 1) return l10n.scheduleTomorrow;
+    return formatDate(day);
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final sessions = ref.watch(auctionSessionsProvider);
-    final featured = ref.watch(featuredLotsProvider).value ?? const <Lot>[];
-    final active = ref.watch(activeLotsProvider).value ?? const <Lot>[];
-    final watched = ref.watch(watchedLotsProvider).value ?? const <Lot>[];
+    final lots = ref.watch(featuredLotsProvider).value ?? const <Lot>[];
 
-    return sessions.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(
-        child: TextButton(
-          onPressed: () => ref.invalidate(auctionSessionsProvider),
-          child: Text(l10n.retry),
+    return AppPage(
+      title: l10n.auctionAppTitle,
+      onRefresh: () => ref.refresh(auctionSessionsProvider.future),
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: AppSpacing.sm),
+          child: ModeButton(mode: AppMode.auction),
         ),
-      ),
-      data: (all) {
-        final live = all
-            .where((s) => SessionTab.live.matches(s.status))
-            .toList();
-        final upcoming =
-            all.where((s) => SessionTab.upcoming.matches(s.status)).toList()
-              ..sort((a, b) => a.startAt.compareTo(b.startAt));
-        final tab = _tab.clamp(0, 2);
-        final shelves = <CoverFlowShelf>[
-          ...switch (tab) {
-            0 => [
-              ?_shelf(l10n.floorShelfLive, [
-                for (final s in live) _session(context, s),
-              ]),
-              ?_shelf(l10n.floorShelfLots, [
-                for (final l in featured) _lot(context, l),
-              ]),
-            ],
-            1 => [
-              ?_shelf(l10n.floorShelfUpcoming, [
-                for (final s in upcoming) _session(context, s),
-              ]),
-              ?_shelf(l10n.floorShelfLots, [
-                for (final l in active) _lot(context, l),
-              ]),
-            ],
-            _ => [
-              ?_shelf(l10n.floorShelfWatched, [
-                for (final l in watched) _lot(context, l),
-              ]),
-            ],
+      ],
+      children: [
+        AsyncValueView(
+          value: sessions,
+          onRetry: () => ref.invalidate(auctionSessionsProvider),
+          data: (all) {
+            final live = all
+                .where((s) => SessionTab.live.matches(s.status))
+                .toList();
+            final upcoming =
+                all.where((s) => SessionTab.upcoming.matches(s.status)).toList()
+                  ..sort((a, b) => a.startAt.compareTo(b.startAt));
+            final days = <DateTime, List<AuctionSession>>{};
+            for (final s in upcoming) {
+              days
+                  .putIfAbsent(
+                    DateUtils.dateOnly(s.startAt.toLocal()),
+                    () => [],
+                  )
+                  .add(s);
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (live.isEmpty)
+                  _NoLiveCard(next: upcoming.isEmpty ? null : upcoming.first)
+                else
+                  for (final s in live)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      child: LiveStageCard(session: s),
+                    ),
+                const SizedBox(height: AppSpacing.xl),
+                const _MySummary(),
+                if (days.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xl),
+                  _Heading(l10n.tabUpcoming, l10n.floorUpcomingSub),
+                  for (final entry in days.entries) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: AppSpacing.sm,
+                        bottom: AppSpacing.sm,
+                      ),
+                      child: Text(
+                        _dayLabel(context, entry.key).toUpperCase(),
+                        style: context.textStyles.labelMedium?.copyWith(
+                          color: context.appColors.tint,
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    for (final s in entry.value)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: EventCard(
+                          session: s,
+                          onTap: () => context.go(Routes.session(s.id)),
+                        ),
+                      ),
+                  ],
+                ],
+                if (lots.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.xl),
+                  _Heading(l10n.floorFeaturedLots, l10n.floorFeaturedSub),
+                  LayoutBuilder(
+                    builder: (context, box) {
+                      final w = (box.maxWidth - AppSpacing.md) / 2;
+                      return Wrap(
+                        spacing: AppSpacing.md,
+                        runSpacing: AppSpacing.lg,
+                        children: [
+                          for (final l in lots.take(8))
+                            SizedBox(
+                              width: w,
+                              child: LotTile(
+                                lot: l,
+                                onTap: () => context.go(Routes.lot(l.id)),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+                const SizedBox(height: 110),
+              ],
+            );
           },
-        ];
-        final heroLots = featured.isNotEmpty ? featured : active;
-        return CoverFlowHome(
-          title: l10n.auctionAppTitle,
-          trailing: (onHero) =>
-              ModeButton(mode: AppMode.auction, onHero: onHero),
-          hero: [for (final l in heroLots.take(5)) _lot(context, l)],
-          tabs: [l10n.tabLive, l10n.tabUpcoming, l10n.auctionNavMine],
-          tabIndex: tab,
-          onTab: (i) => setState(() => _tab = i),
-          shelves: shelves,
-          emptyText: l10n.floorShelfEmpty,
-        );
-      },
+        ),
+      ],
     );
   }
 }

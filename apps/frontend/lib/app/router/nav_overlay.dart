@@ -35,6 +35,7 @@ class NavOverlay extends ConsumerStatefulWidget {
     required this.icon,
     this.bar,
     this.showButton = true,
+    this.accent = false,
   });
 
   /// Nội dung trang (khung điều hướng của go_router).
@@ -51,6 +52,9 @@ class NavOverlay extends ConsumerStatefulWidget {
 
   /// false ở các trang con (chi tiết, thanh toán…) để nút không đè lên thanh mua hàng.
   final bool showButton;
+
+  /// Nút tô màu nhấn của khu (khu đấu giá: vàng đồng) thay cho kính trong.
+  final bool accent;
 
   static const _button = 52.0;
   static const _margin = 18.0;
@@ -180,11 +184,14 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
                     button: true,
                     label: context.l10n.navMenu,
                     child: Glass.circle(
+                      tint: widget.accent ? context.appColors.selected : null,
                       onTap: _openPanel,
                       child: Icon(
                         widget.icon,
                         size: 24,
-                        color: context.colors.onSurface,
+                        color: widget.accent
+                            ? context.appColors.onSelected
+                            : context.colors.onSurface,
                       ),
                     ),
                   ),

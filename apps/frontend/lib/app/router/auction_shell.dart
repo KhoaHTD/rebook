@@ -73,6 +73,7 @@ class AuctionShell extends ConsumerWidget {
           final loc = GoRouterState.of(context).uri.path;
           return Scaffold(
             body: NavOverlay(
+              accent: true,
               icon: _icons[navigationShell.currentIndex],
               showButton: !context.windowSize.isCompact || _roots.contains(loc),
               panel: _AuctionSidebar(
@@ -198,6 +199,7 @@ class _AuctionTabBar extends ConsumerWidget {
     final l10n = context.l10n;
     final live = ref.watch(_liveCountProvider);
     return GlassTabBar(
+      solidSelected: true,
       items: [
         GlassTabItem(
           icon: Icons.gavel_rounded,

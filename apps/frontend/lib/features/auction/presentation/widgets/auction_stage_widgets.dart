@@ -395,3 +395,182 @@ class EventCard extends StatelessWidget {
     );
   }
 }
+
+/// Sân khấu LIVE (điện thoại): một thẻ cao chiếm gần cả màn hình cho phiên đang diễn ra — bìa lô hiện tại
+/// to giữa sân khấu có quầng sáng, giá hiện tại cỡ chữ lớn, đồng hồ lô, nút vào phòng bản rộng.
+class LiveStageCard extends ConsumerWidget {
+  const LiveStageCard({super.key, required this.session});
+
+  final AuctionSession session;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final c = context.appColors;
+    final text = context.textStyles;
+    final room = ref.watch(liveRoomProvider(session.id)).value;
+    final lot = room?.snapshot.currentLot;
+    final book = lot?.book;
+
+    return ClipRRect(
+      borderRadius: const BorderRadius.all(Radius.circular(32)),
+      child: Stack(
+        children: [
+          if (book != null)
+            Positioned.fill(
+              child: BlurredCover(
+                title: book.title,
+                author: book.author,
+                coverUrl: book.coverUrl,
+                seed: book.id,
+                sigma: 36,
+              ),
+            ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    context.colors.surface.withValues(alpha: 0.55),
+                    context.colors.surface.withValues(alpha: 0.93),
+                  ],
+                ),
+                border: Border.all(color: c.live.withValues(alpha: 0.6)),
+                borderRadius: const BorderRadius.all(Radius.circular(32)),
+              ),
+            ),
+          ),
+          // Quầng sáng vàng sau bìa, như đèn rọi sân khấu.
+          Positioned(
+            top: 40,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 260,
+                height: 260,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      c.tint.withValues(alpha: 0.28),
+                      c.tint.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const LiveBadge(),
+                    const Spacer(),
+                    Icon(
+                      Icons.visibility_rounded,
+                      size: 16,
+                      color: c.secondaryText,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      l10n.viewers(
+                        room?.snapshot.viewerCount ?? session.watcherCount,
+                      ),
+                      style: text.bodySmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                if (book != null)
+                  Center(
+                    child: BookPoster(
+                      title: book.title,
+                      author: book.author,
+                      coverUrl: book.coverUrl,
+                      seed: book.id,
+                      width: 190,
+                    ),
+                  ),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  session.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: text.labelLarge?.copyWith(color: c.secondaryText),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  book?.title ?? l10n.waitingNextLot,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: text.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                if (lot != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    l10n.floorCurrentPrice,
+                    textAlign: TextAlign.center,
+                    style: text.labelMedium,
+                  ),
+                  Text(
+                    formatVnd(lot.currentPrice),
+                    textAlign: TextAlign.center,
+                    style: text.displaySmall?.copyWith(
+                      color: c.tint,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.timer_outlined, size: 18, color: c.live),
+                      const SizedBox(width: 6),
+                      if (lot.endsAt != null)
+                        CountdownText(
+                          target: lot.endsAt!,
+                          offset: room?.serverOffset ?? Duration.zero,
+                          style: text.titleLarge?.copyWith(color: c.live),
+                        ),
+                      if (lot.leadingPaddle != null) ...[
+                        const SizedBox(width: AppSpacing.md),
+                        Flexible(
+                          child: Text(
+                            l10n.leadingPaddle(lot.leadingPaddle!),
+                            style: text.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.lg),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: c.selected,
+                    foregroundColor: c.onSelected,
+                    minimumSize: const Size.fromHeight(52),
+                  ),
+                  onPressed: () => context.go(Routes.live(session.id)),
+                  icon: const Icon(Icons.sensors_rounded),
+                  label: Text(l10n.enterLiveRoom),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

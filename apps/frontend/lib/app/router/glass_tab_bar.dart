@@ -28,9 +28,16 @@ class GlassTabItem {
 /// tab đang chọn là "thấu kính" sáng nổi lên. Dùng chung cho khu mua sách và khu đấu giá
 /// (màu lấy từ theme nên mỗi khu có diện mạo riêng).
 class GlassTabBar extends StatelessWidget {
-  const GlassTabBar({super.key, required this.items});
+  const GlassTabBar({
+    super.key,
+    required this.items,
+    this.solidSelected = false,
+  });
 
   final List<GlassTabItem> items;
+
+  /// Tab đang chọn là viên đặc màu nhấn (khu đấu giá: vàng đồng) thay cho "thấu kính" sáng.
+  final bool solidSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +52,10 @@ class GlassTabBar extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             child: Row(
               children: [
-                for (final item in items) Expanded(child: _Tab(item: item)),
+                for (final item in items)
+                  Expanded(
+                    child: _Tab(item: item, solid: solidSelected),
+                  ),
               ],
             ),
           ),
@@ -56,9 +66,10 @@ class GlassTabBar extends StatelessWidget {
 }
 
 class _Tab extends StatelessWidget {
-  const _Tab({required this.item});
+  const _Tab({required this.item, required this.solid});
 
   final GlassTabItem item;
+  final bool solid;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +88,9 @@ class _Tab extends StatelessWidget {
         // Tab đang chọn: "thấu kính" nổi lên trong viên kính.
         child: Ink(
           decoration: ShapeDecoration(
-            color: selected ? c.tabBar : Colors.transparent,
+            color: selected
+                ? (solid ? c.selected : c.tabBar)
+                : Colors.transparent,
             shape: const StadiumBorder(),
             shadows: selected
                 ? [
@@ -99,7 +112,9 @@ class _Tab extends StatelessWidget {
                 child: Icon(
                   item.icon,
                   size: 24,
-                  color: selected ? context.colors.onSurface : c.secondaryText,
+                  color: selected
+                      ? (solid ? c.onSelected : context.colors.onSurface)
+                      : c.secondaryText,
                 ),
               ),
               const SizedBox(height: 3),
@@ -108,7 +123,9 @@ class _Tab extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.textStyles.labelSmall?.copyWith(
-                  color: selected ? context.colors.onSurface : c.secondaryText,
+                  color: selected
+                      ? (solid ? c.onSelected : context.colors.onSurface)
+                      : c.secondaryText,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0,
                 ),
