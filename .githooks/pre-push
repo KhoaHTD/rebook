@@ -1,11 +1,11 @@
 #!/bin/sh
-# LUẬT CỨNG: không đẩy code apps/backend lên nhánh design/apple-books HOẶC bất kỳ nhánh con nào của nó
-# (nhánh con = nhánh có chứa commit của design/apple-books, vd. admin/..., staff/..., fix/...).
+# LUẬT CỨNG: không đẩy code apps/backend lên nhánh interface HOẶC bất kỳ nhánh con nào của nó
+# (nhánh con = nhánh có chứa commit của interface, vd. admin/..., staff/..., fix/...).
 # Nhánh backend cắt từ main thì không bị ảnh hưởng.
 # Bật một lần sau khi clone:  git config core.hooksPath .githooks
 # Cùng luật có ở hook Claude (apps/frontend/tool/hooks/claude_hook.dart) và CI (.github/workflows/backend-guard.yml).
-# (Khi design/apple-books đã merge hết vào main, gỡ luật ở cả ba nơi.)
-FRONTEND="design/apple-books"
+# (Khi interface đã merge hết vào main, gỡ luật ở cả ba nơi.)
+FRONTEND="interface"
 ZERO="0000000000000000000000000000000000000000"
 
 # Mốc frontend: ưu tiên origin/<nhánh>, không có thì nhánh local cùng tên.

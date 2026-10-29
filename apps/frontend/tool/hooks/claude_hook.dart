@@ -124,10 +124,10 @@ final String _repoRoot = Directory(_root).parent.parent.path;
 /// tuyệt đối không có code `apps/backend` (backend nằm ở `main`, do người khác làm).
 /// Cùng luật có ở `.githooks/pre-push` và `.github/workflows/backend-guard.yml`.
 /// (Khi nhánh này đã merge hết vào `main`, gỡ luật ở cả ba nơi.)
-const _frontendBranch = 'design/apple-books';
+const _frontendBranch = 'interface';
 
 const _backendHelp =
-    'Nhánh design/apple-books và mọi nhánh con của nó chỉ chứa frontend: KHÔNG đưa code apps/backend lên. '
+    'Nhánh interface và mọi nhánh con của nó chỉ chứa frontend: KHÔNG đưa code apps/backend lên. '
     'Cần backend thì làm ở nhánh cắt từ main, hoặc báo người dùng để họ nhờ người làm backend.';
 
 String _git(List<String> args) {
@@ -241,7 +241,7 @@ void _checkBashBackend(String command) {
     }
   }
   if (RegExp(r'\bgit\s+push\b').hasMatch(command)) {
-    // Đẩy từ nhánh frontend / nhánh con, hoặc đẩy một nhánh khác thẳng lên design/apple-books.
+    // Đẩy từ nhánh frontend / nhánh con, hoặc đẩy một nhánh khác thẳng lên interface.
     final base =
         _frontendBase() ??
         (command.contains(_frontendBranch) ? 'origin/main' : null);
