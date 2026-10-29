@@ -219,7 +219,6 @@ class _TabBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final c = context.appColors;
     final signedIn = ref.watch(sessionControllerProvider).isSignedIn;
     final unread = signedIn ? ref.watch(unreadCountProvider) : 0;
     final cart = signedIn ? ref.watch(cartCountProvider) : 0;
@@ -252,52 +251,31 @@ class _TabBar extends ConsumerWidget {
       (Icons.person_rounded, l10n.navAccount, 0, index == 3, () => onSelect(3)),
     ];
 
-    // Kiểu iOS 26: viên kính chứa 5 tab + nút tìm kiếm tròn tách riêng.
+    // Kiểu iOS 26: một viên kính dài chứa 5 tab (tìm kiếm đã có ở thanh đầu trang).
     return SafeArea(
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
-        child: Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 64,
-                child: Glass(
-                  borderRadius: AppRadius.chip,
-                  padding: const EdgeInsets.all(4),
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < tabs.length; i++)
-                        Expanded(
-                          child: _Tab(
-                            icon: tabs[i].$1,
-                            label: tabs[i].$2,
-                            badge: tabs[i].$3,
-                            selected: tabs[i].$4,
-                            onTap: tabs[i].$5,
-                          ),
-                        ),
-                    ],
+        child: SizedBox(
+          height: 64,
+          child: Glass(
+            borderRadius: AppRadius.chip,
+            padding: const EdgeInsets.all(4),
+            child: Row(
+              children: [
+                for (var i = 0; i < tabs.length; i++)
+                  Expanded(
+                    child: _Tab(
+                      icon: tabs[i].$1,
+                      label: tabs[i].$2,
+                      badge: tabs[i].$3,
+                      selected: tabs[i].$4,
+                      onTap: tabs[i].$5,
+                    ),
                   ),
-                ),
-              ),
+              ],
             ),
-            const SizedBox(width: 10),
-            SizedBox.square(
-              dimension: 64,
-              child: Glass.circle(
-                onTap: () => context.go(Routes.search),
-                child: Center(
-                  child: Icon(
-                    Icons.search_rounded,
-                    size: 26,
-                    semanticLabel: l10n.search,
-                    color: c.secondaryText,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
