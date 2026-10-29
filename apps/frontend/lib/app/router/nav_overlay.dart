@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
@@ -103,87 +104,94 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
     final hidden = -panelW;
     final useBar = widget.bar != null && context.windowSize.isCompact;
 
-    return PopScope(
-      canPop: !_open,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _close();
-      },
-      child: Stack(
-        children: [
-          Positioned.fill(child: widget.child),
-          if (_mounted)
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _close,
-                child: AnimatedOpacity(
-                  duration: AppDurations.normal,
-                  opacity: _open ? 1 : 0,
-                  child: ColoredBox(
-                    color: CoverPalette.scrim.withValues(alpha: 0.5),
-                  ),
-                ),
-              ),
-            ),
-          if (_mounted && useBar)
-            AnimatedPositioned(
-              duration: AppDurations.normal,
-              curve: Curves.easeOutCubic,
-              left: 0,
-              right: 0,
-              bottom: _open ? 0 : -140,
-              onEnd: () {
-                if (!_open && mounted) setState(() => _mounted = false);
-              },
-              child: NavPanelScope(close: _close, child: widget.bar!),
-            ),
-          if (_mounted && !useBar)
-            AnimatedPositioned(
-              duration: AppDurations.normal,
-              curve: Curves.easeOutCubic,
-              left: onRight ? null : (_open ? 0 : hidden),
-              right: onRight ? (_open ? 0 : hidden) : null,
-              top: 0,
-              bottom: 0,
-              width: panelW,
-              onEnd: () {
-                if (!_open && mounted) setState(() => _mounted = false);
-              },
-              child: NavPanelScope(
-                close: _close,
-                child: SidebarPanel(side: side, child: widget.panel),
-              ),
-            ),
-          if (widget.showButton && !_open)
-            Positioned(
-              left:
-                  (onRight
-                      ? screenW - NavOverlay._margin - NavOverlay._button
-                      : NavOverlay._margin) +
-                  _dx,
-              bottom: NavOverlay._margin + media.padding.bottom,
-              width: NavOverlay._button,
-              height: NavOverlay._button,
-              child: GestureDetector(
-                onHorizontalDragUpdate: (d) => setState(
-                  () => _dx = (_dx + d.delta.dx).clamp(-screenW, screenW),
-                ),
-                onHorizontalDragEnd: (_) => _endDrag(screenW, side),
-                child: Semantics(
-                  button: true,
-                  label: context.l10n.navMenu,
-                  child: Glass.circle(
-                    onTap: _openPanel,
-                    child: Icon(
-                      widget.icon,
-                      size: 24,
-                      color: context.colors.onSurface,
+    // Biểu tượng thanh trạng thái theo nền của khu (sáng → biểu tượng tối). Trang chủ điện thoại tự đặt lại khi nền màu còn ở đầu trang.
+    final style = Theme.of(context).brightness == Brightness.dark
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: style,
+      child: PopScope(
+        canPop: !_open,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _close();
+        },
+        child: Stack(
+          children: [
+            Positioned.fill(child: widget.child),
+            if (_mounted)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _close,
+                  child: AnimatedOpacity(
+                    duration: AppDurations.normal,
+                    opacity: _open ? 1 : 0,
+                    child: ColoredBox(
+                      color: CoverPalette.scrim.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+            if (_mounted && useBar)
+              AnimatedPositioned(
+                duration: AppDurations.normal,
+                curve: Curves.easeOutCubic,
+                left: 0,
+                right: 0,
+                bottom: _open ? 0 : -140,
+                onEnd: () {
+                  if (!_open && mounted) setState(() => _mounted = false);
+                },
+                child: NavPanelScope(close: _close, child: widget.bar!),
+              ),
+            if (_mounted && !useBar)
+              AnimatedPositioned(
+                duration: AppDurations.normal,
+                curve: Curves.easeOutCubic,
+                left: onRight ? null : (_open ? 0 : hidden),
+                right: onRight ? (_open ? 0 : hidden) : null,
+                top: 0,
+                bottom: 0,
+                width: panelW,
+                onEnd: () {
+                  if (!_open && mounted) setState(() => _mounted = false);
+                },
+                child: NavPanelScope(
+                  close: _close,
+                  child: SidebarPanel(side: side, child: widget.panel),
+                ),
+              ),
+            if (widget.showButton && !_open)
+              Positioned(
+                left:
+                    (onRight
+                        ? screenW - NavOverlay._margin - NavOverlay._button
+                        : NavOverlay._margin) +
+                    _dx,
+                bottom: NavOverlay._margin + media.padding.bottom,
+                width: NavOverlay._button,
+                height: NavOverlay._button,
+                child: GestureDetector(
+                  onHorizontalDragUpdate: (d) => setState(
+                    () => _dx = (_dx + d.delta.dx).clamp(-screenW, screenW),
+                  ),
+                  onHorizontalDragEnd: (_) => _endDrag(screenW, side),
+                  child: Semantics(
+                    button: true,
+                    label: context.l10n.navMenu,
+                    child: Glass.circle(
+                      onTap: _openPanel,
+                      child: Icon(
+                        widget.icon,
+                        size: 24,
+                        color: context.colors.onSurface,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
