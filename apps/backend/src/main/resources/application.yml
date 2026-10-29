@@ -25,6 +25,10 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -46,6 +50,9 @@ management:
         include: health,info
 
 app:
+  storage:
+    # Thư mục lưu ảnh tải lên (biên lai chuyển khoản...)
+    dir: ${STORAGE_DIR:uploads}
   jwt:
     # Đổi bằng biến môi trường JWT_SECRET (>= 32 ký tự) khi deploy.
     secret: ${JWT_SECRET:rebook-dev-secret-change-me-please-0123456789abcdef}

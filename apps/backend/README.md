@@ -46,11 +46,13 @@ Modular monolith, mỗi package một module (entity, repository, service, contr
 | `user` | hồ sơ, sổ địa chỉ, bật shop |
 | `catalog` | danh mục cây, sách, tin đăng, tìm kiếm / lọc / sắp xếp, Admin duyệt tin |
 | `order` | giỏ nhiều shop, checkout tách đơn theo shop, vòng đời đơn, trả hàng, đánh giá, job tự động |
-| `wallet` | ví (available / held), sổ cái, VNPay sandbox, rút tiền |
+| `wallet` | ví (available / held), sổ cái, VNPay sandbox, rút tiền (Admin duyệt phải nhập biên lai chuyển khoản: người chuyển, giờ, số tiền, ảnh) |
 | `consignment` | ký gửi, lịch hẹn, nhận sách, kiểm định, kho |
 | `auction` | phiên, lô, đăng ký + cọc, trả giá, proxy bid, bộ máy chạy phiên, quyết toán sau phiên |
 | `notification` | lưu thông báo + đẩy realtime qua WebSocket |
 | `admin` | khoá tài khoản, phân quyền, cấu hình phí, duyệt rút tiền, dashboard |
+| `audit` | nhật ký thao tác Admin (`GET /admin/activity-logs`) |
+| `file` | tải ảnh lên `POST /files`, xem lại `GET /files/{name}` (lưu ở `app.storage.dir`) |
 | `system` | bảng `system_configs` (phí %, bước giá, thời hạn — Admin sửa được) |
 
 Database: [V1__init_schema.sql](src/main/resources/db/migration/V1__init_schema.sql) (26 bảng),
@@ -92,3 +94,12 @@ gọi `GET /sessions/{id}/state` trước rồi mới nghe tiếp WebSocket. M�
 - **Vận chuyển**: giả lập bằng nút bấm (`/seller/orders/{id}/ship`, `/delivered`); phí ship theo bảng nội tỉnh / liên tỉnh + khối lượng.
 - **Lô không bán được → bán giá cố định**: tạo tin đăng chờ duyệt trong shop người bán (dùng lại `Book`), người bán nhận sách về và tự giao.
 - Bộ máy chạy phiên chỉ chạy đúng trên **một** instance backend.
+
+## Chạy test
+
+```bash
+./mvnw test
+```
+
+Test tích hợp chạy trên PostgreSQL thật (cùng server với `rebook_dev`) nhưng trong schema riêng `rebook_test`
+(và `rebook_seedtest` cho test dữ liệu mẫu), nên không đụng dữ liệu dev. Đổi bằng biến `TEST_DB_URL`.

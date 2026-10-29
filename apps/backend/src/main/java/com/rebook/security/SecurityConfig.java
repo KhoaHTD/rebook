@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         // Khách (Guest) được xem sách, shop, lịch phiên, catalogue
                         .requestMatchers(HttpMethod.GET, "/categories/**", "/listings/**", "/shops/**",
-                                "/sessions/**", "/lots/**").permitAll()
+                                "/sessions/**", "/lots/**", "/files/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/staff/**").hasAnyRole("STAFF", "ADMIN")
                         .anyRequest().authenticated())

@@ -127,13 +127,14 @@ public class CatalogController {
     }
 
     @PostMapping("/admin/listings/{id}/approve")
-    public ListingDetail approve(@PathVariable Long id) {
-        return listingService.approve(id);
+    public ListingDetail approve(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return listingService.approve(me.id(), id);
     }
 
     @PostMapping("/admin/listings/{id}/reject")
-    public ListingDetail reject(@PathVariable Long id, @Valid @RequestBody RejectRequest req) {
-        return listingService.reject(id, req.reason());
+    public ListingDetail reject(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
+                                @Valid @RequestBody RejectRequest req) {
+        return listingService.reject(me.id(), id, req.reason());
     }
 
     @PostMapping("/admin/categories")

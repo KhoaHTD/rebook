@@ -1,5 +1,6 @@
 package com.rebook.catalog;
 
+import com.rebook.audit.ActivityLogService;
 import com.rebook.catalog.CatalogDtos.ListingDetail;
 import com.rebook.catalog.CatalogDtos.ListingQuery;
 import com.rebook.catalog.CatalogDtos.ListingRequest;
@@ -35,6 +36,7 @@ public class ListingService {
     private final UserService userService;
     private final SystemConfigService config;
     private final NotificationService notifications;
+    private final ActivityLogService activityLog;
 
     // ---- Người mua / khách ----
 
@@ -135,20 +137,24 @@ public class ListingService {
     }
 
     @Transactional
-    public ListingDetail approve(Long id) {
+    public ListingDetail approve(Long adminId, Long id) {
         Listing l = getDetailed(id);
         l.setStatus(l.getStatus().moveTo(activeOrOut(l.getStock())));
         l.setRejectReason(null);
+        activityLog.record(adminId, "APPROVE_LISTING", ActivityLogService.LISTING, id,
+                "Duyệt tin \"" + l.getBook().getTitle() + "\" của shop " + l.getShop().getName());
         notifications.notify(l.getShop().getUserId(), NotificationService.LISTING, "Tin đăng đã được duyệt",
                 "\"" + l.getBook().getTitle() + "\" đã được duyệt và đang bán", Map.of("listingId", l.getId()));
         return ListingDetail.of(l);
     }
 
     @Transactional
-    public ListingDetail reject(Long id, String reason) {
+    public ListingDetail reject(Long adminId, Long id, String reason) {
         Listing l = getDetailed(id);
         l.setStatus(l.getStatus().moveTo(ListingStatus.REJECTED));
         l.setRejectReason(reason);
+        activityLog.record(adminId, "REJECT_LISTING", ActivityLogService.LISTING, id,
+                "Từ chối tin \"" + l.getBook().getTitle() + "\" của shop " + l.getShop().getName() + ": " + reason);
         notifications.notify(l.getShop().getUserId(), NotificationService.LISTING, "Tin đăng bị từ chối",
                 "\"" + l.getBook().getTitle() + "\": " + reason, Map.of("listingId", l.getId()));
         return ListingDetail.of(l);
