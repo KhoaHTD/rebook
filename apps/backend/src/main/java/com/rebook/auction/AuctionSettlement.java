@@ -158,7 +158,8 @@ public class AuctionSettlement {
             forfeitAndBan(lot, o.getBuyerId());
             List<Bid> runnerUp = lot.getOpenedAt() == null ? List.of()
                     : bidRepository.findTopExcluding(lot.getId(), lot.getOpenedAt(), o.getBuyerId(), PageRequest.of(0, 1));
-            if (!runnerUp.isEmpty()) {
+            // Giá người về nhì dưới giá sàn thì người bán chưa đồng ý bán ở mức đó → không mời
+            if (!runnerUp.isEmpty() && runnerUp.getFirst().getAmount().compareTo(lot.getReservePrice()) >= 0) {
                 Bid second = runnerUp.getFirst();
                 lot.setWinnerId(second.getUserId());
                 lot.setHammerPrice(second.getAmount());
