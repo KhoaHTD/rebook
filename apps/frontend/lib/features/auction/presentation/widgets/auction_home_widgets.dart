@@ -118,7 +118,7 @@ class _Banner extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     CoverPalette.scrim.withValues(alpha: 0),
-                    CoverPalette.scrim.withValues(alpha: 0.8),
+                    CoverPalette.scrim.withValues(alpha: 0.88),
                   ],
                 ),
               ),
@@ -130,7 +130,17 @@ class _Banner extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (session.isLive)
-                    const LiveBadge()
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: CoverPalette.scrim.withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const LiveBadge(),
+                    )
                   else
                     Container(
                       padding: const EdgeInsets.symmetric(
