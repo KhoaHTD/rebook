@@ -3,6 +3,7 @@ package com.rebook.wallet;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -39,16 +40,31 @@ public final class WalletDtos {
             @NotBlank String accountHolder) {
     }
 
-    public record WithdrawResponse(Long id, Long userId, BigDecimal amount, String bankName, String accountNumber,
-                                   String accountHolder, WithdrawRequest.Status status, String note,
-                                   Instant processedAt, Instant createdAt) {
+    public record TransferReceipt(String senderName, Instant transferTime, BigDecimal amount, String proofImageUrl) {
 
-        public static WithdrawResponse of(WithdrawRequest w) {
-            return new WithdrawResponse(w.getId(), w.getUserId(), w.getAmount(), w.getBankName(), w.getAccountNumber(),
-                    w.getAccountHolder(), w.getStatus(), w.getNote(), w.getProcessedAt(), w.getCreatedAt());
+        public static TransferReceipt of(WithdrawTransfer t) {
+            return t == null ? null : new TransferReceipt(t.getSenderName(), t.getTransferTime(), t.getAmount(), t.getProofImageUrl());
         }
     }
 
-    public record ProcessRequest(boolean approve, String note) {
+    public record WithdrawResponse(Long id, Long userId, String userName, BigDecimal amount, String bankName,
+                                   String accountNumber, String accountHolder, WithdrawRequest.Status status,
+                                   String note, Long processedBy, String processedByName, Instant processedAt,
+                                   Instant createdAt, TransferReceipt transfer) {
+
+        public static WithdrawResponse of(WithdrawRequest w, String userName, String processedByName, WithdrawTransfer transfer) {
+            return new WithdrawResponse(w.getId(), w.getUserId(), userName, w.getAmount(), w.getBankName(),
+                    w.getAccountNumber(), w.getAccountHolder(), w.getStatus(), w.getNote(), w.getProcessedBy(),
+                    processedByName, w.getProcessedAt(), w.getCreatedAt(), TransferReceipt.of(transfer));
+        }
+    }
+
+    /**
+     * Duyệt (approve = true) cần đủ thông tin chuyển khoản thủ công: người chuyển, giờ chuyển,
+     * số tiền thực chuyển và ảnh biên lai (URL lấy từ {@code POST /files}). Từ chối chỉ cần ghi chú.
+     */
+    public record ProcessRequest(boolean approve, @Size(max = 500) String note,
+                                 @Size(max = 120) String senderName, Instant transferTime,
+                                 BigDecimal transferAmount, @Size(max = 500) String proofImageUrl) {
     }
 }

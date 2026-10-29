@@ -1,5 +1,6 @@
 package com.rebook.admin;
 
+import com.rebook.audit.ActivityLogService;
 import com.rebook.auction.AuctionSessionRepository;
 import com.rebook.auction.LotRepository;
 import com.rebook.auction.SessionStatus;
@@ -44,6 +45,7 @@ public class AdminService {
     private final LotRepository lotRepository;
     private final AuctionSessionRepository sessionRepository;
     private final WalletService walletService;
+    private final ActivityLogService activityLog;
 
     public record DashboardResponse(BigDecimal revenueThisMonth, long ordersThisMonth, long ordersInProgress,
                                     long pendingListings, long activeListings, long liveSessions,
@@ -67,14 +69,16 @@ public class AdminService {
         u.setStatus(UserStatus.LOCKED);
         u.setLockReason(reason);
         refreshTokenRepository.revokeAllForUser(userId);
+        activityLog.record(adminId, "LOCK_USER", ActivityLogService.USER, userId, "Khoá " + u.getEmail() + ": " + reason);
         return UserResponse.of(u, null);
     }
 
     @Transactional
-    public UserResponse unlock(Long userId) {
+    public UserResponse unlock(Long adminId, Long userId) {
         User u = user(userId);
         u.setStatus(UserStatus.ACTIVE);
         u.setLockReason(null);
+        activityLog.record(adminId, "UNLOCK_USER", ActivityLogService.USER, userId, "Mở khoá " + u.getEmail());
         return UserResponse.of(u, null);
     }
 
@@ -84,24 +88,35 @@ public class AdminService {
             throw ApiException.badRequest("SELF_ROLE", "Không thể đổi quyền của chính mình");
         }
         User u = user(userId);
+        Role old = u.getRole();
         u.setRole(role);
         refreshTokenRepository.revokeAllForUser(userId); // token cũ còn role cũ
+        activityLog.record(adminId, "CHANGE_ROLE", ActivityLogService.USER, userId,
+                "Đổi quyền " + u.getEmail() + ": " + old + " → " + role);
         return UserResponse.of(u, null);
     }
 
     @Transactional
-    public UserResponse liftAuctionBan(Long userId) {
+    public UserResponse liftAuctionBan(Long adminId, Long userId) {
         User u = user(userId);
         u.setAuctionBannedUntil(null);
+        activityLog.record(adminId, "LIFT_AUCTION_BAN", ActivityLogService.USER, userId, "Gỡ cấm đấu giá " + u.getEmail());
         return UserResponse.of(u, null);
     }
 
     /** Shop uy tín được tự duyệt tin đăng. */
     @Transactional
-    public ShopResponse setShopTrusted(Long shopId, boolean trusted) {
+    public ShopResponse setShopTrusted(Long adminId, Long shopId, boolean trusted) {
         Shop s = shopRepository.findById(shopId).orElseThrow(() -> ApiException.notFound("shop"));
         s.setTrusted(trusted);
+        activityLog.record(adminId, trusted ? "TRUST_SHOP" : "UNTRUST_SHOP", ActivityLogService.SHOP, shopId,
+                (trusted ? "Đánh dấu uy tín shop " : "Bỏ uy tín shop ") + s.getName());
         return ShopResponse.ownerView(s);
+    }
+
+    @Transactional
+    public void logConfigChange(Long adminId, String key, String value) {
+        activityLog.record(adminId, "UPDATE_CONFIG", ActivityLogService.CONFIG, key, "Đặt " + key + " = " + value);
     }
 
     @Transactional(readOnly = true)

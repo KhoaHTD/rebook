@@ -1,6 +1,8 @@
 package com.rebook.admin;
 
 import com.rebook.admin.AdminService.DashboardResponse;
+import com.rebook.audit.ActivityLogService;
+import com.rebook.audit.ActivityLogService.ActivityLogResponse;
 import com.rebook.common.PageResponse;
 import com.rebook.security.UserPrincipal;
 import com.rebook.system.SystemConfig;
@@ -12,6 +14,7 @@ import com.rebook.user.UserStatus;
 import com.rebook.wallet.WalletDtos.ProcessRequest;
 import com.rebook.wallet.WalletDtos.WalletResponse;
 import com.rebook.wallet.WalletDtos.WithdrawResponse;
+import com.rebook.wallet.WithdrawRequest;
 import com.rebook.wallet.WalletService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +44,7 @@ public class AdminController {
     private final AdminService adminService;
     private final SystemConfigService configService;
     private final WalletService walletService;
+    private final ActivityLogService activityLogService;
 
     public record LockRequest(@NotBlank @Size(max = 500) String reason) {
     }
@@ -76,8 +80,8 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}/unlock")
-    public UserResponse unlock(@PathVariable Long id) {
-        return adminService.unlock(id);
+    public UserResponse unlock(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return adminService.unlock(me.id(), id);
     }
 
     @Operation(summary = "Đổi role (USER / STAFF / ADMIN)")
@@ -87,14 +91,14 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}/lift-auction-ban")
-    public UserResponse liftBan(@PathVariable Long id) {
-        return adminService.liftAuctionBan(id);
+    public UserResponse liftBan(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return adminService.liftAuctionBan(me.id(), id);
     }
 
     @Operation(summary = "Đánh dấu shop uy tín (tin đăng được tự duyệt)")
     @PutMapping("/shops/{id}/trusted")
-    public ShopResponse trusted(@PathVariable Long id, @RequestBody TrustedRequest req) {
-        return adminService.setShopTrusted(id, req.trusted());
+    public ShopResponse trusted(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id, @RequestBody TrustedRequest req) {
+        return adminService.setShopTrusted(me.id(), id, req.trusted());
     }
 
     @Operation(summary = "Cấu hình phí sàn, hoa hồng, bước giá, thời hạn")
@@ -104,21 +108,36 @@ public class AdminController {
     }
 
     @PutMapping("/configs/{key}")
-    public SystemConfig updateConfig(@PathVariable String key, @Valid @RequestBody ConfigRequest req) {
-        return configService.update(key, req.value());
+    public SystemConfig updateConfig(@AuthenticationPrincipal UserPrincipal me, @PathVariable String key,
+                                     @Valid @RequestBody ConfigRequest req) {
+        SystemConfig updated = configService.update(key, req.value());
+        adminService.logConfigChange(me.id(), key, req.value());
+        return updated;
     }
 
+    @Operation(summary = "Yêu cầu rút tiền theo trạng thái (mặc định PENDING; APPROVED / REJECTED để xem lịch sử duyệt)")
     @GetMapping("/withdrawals")
-    public PageResponse<WithdrawResponse> withdrawals(@RequestParam(defaultValue = "0") int page,
+    public PageResponse<WithdrawResponse> withdrawals(@RequestParam(required = false) WithdrawRequest.Status status,
+                                                      @RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "20") int size) {
-        return walletService.pendingWithdrawals(page, size);
+        return walletService.withdrawals(status, page, size);
     }
 
-    @Operation(summary = "Duyệt rút tiền (giả lập đã chuyển khoản) hoặc từ chối")
+    @Operation(summary = "Duyệt rút tiền (kèm biên lai chuyển khoản thủ công) hoặc từ chối")
     @PostMapping("/withdrawals/{id}")
     public WithdrawResponse processWithdrawal(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
-                                              @RequestBody ProcessRequest req) {
-        return walletService.processWithdraw(me.id(), id, req.approve(), req.note());
+                                              @Valid @RequestBody ProcessRequest req) {
+        return walletService.processWithdraw(me.id(), id, req);
+    }
+
+    @Operation(summary = "Lịch sử thao tác của Admin (duyệt tin, duyệt rút tiền, khoá tài khoản, đổi cấu hình...)")
+    @GetMapping("/activity-logs")
+    public PageResponse<ActivityLogResponse> activityLogs(@RequestParam(required = false) String targetType,
+                                                          @RequestParam(required = false) String action,
+                                                          @RequestParam(required = false) Long adminId,
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "20") int size) {
+        return activityLogService.search(targetType, action, adminId, page, size);
     }
 
     @Operation(summary = "Số dư ví sàn (phí đã thu)")

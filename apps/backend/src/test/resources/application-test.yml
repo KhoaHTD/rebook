@@ -1,0 +1,15 @@
+# Test chạy trên cùng PostgreSQL nhưng trong schema riêng rebook_test để không đụng dữ liệu dev.
+spring:
+  datasource:
+    url: ${TEST_DB_URL:jdbc:postgresql://localhost:5432/rebook_dev?currentSchema=rebook_test}
+  flyway:
+    schemas: rebook_test
+    default-schema: rebook_test
+    create-schemas: true
+    locations: classpath:db/migration
+
+app:
+  auction:
+    engine-enabled: false
+  storage:
+    dir: target/test-uploads
