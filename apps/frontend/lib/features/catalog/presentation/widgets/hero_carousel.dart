@@ -9,16 +9,11 @@ import 'package:go_router/go_router.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
-import 'package:book_marketplace/core/utils/clock.dart';
-import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/catalog/domain/catalog_repository.dart';
-import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
-import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/layout/shell_inset.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
-import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Thông tin tối thiểu để vẽ một poster / nền mờ trong slide.
 /// Đường dẫn tranh banner: `assets/banners/<id>.jpg` (xem docs/BANNERS.md).
@@ -221,8 +216,16 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
       for (final l in f.newArrivals.reversed.take(2)) _coverOfBook(l.book),
     ];
     return [
-      for (final s in f.liveSessions.take(2))
-        (c) => _LiveSlide(session: s, onOpen: () => c.go(Routes.live(s.id))),
+      // Đấu giá là khu riêng: ở đây chỉ còn một thẻ mời sang sàn đấu giá.
+      (c) => _HeroCard(
+        eyebrow: l10n.heroLiveEyebrow,
+        headline: l10n.auctionAppTitle,
+        covers: picks.take(1).toList(),
+        image: _banner('live'),
+        body: l10n.modeToAuctionBody,
+        cta: l10n.modeToAuction,
+        onTap: () => c.go(Routes.auctions),
+      ),
       if (picks.isNotEmpty)
         (c) => _HeroCard(
           eyebrow: l10n.heroPicksEyebrow,
@@ -431,7 +434,6 @@ class _HeroCard extends StatelessWidget {
     this.body,
     this.cta,
     this.onTap,
-    this.panel,
     this.theme,
     this.image,
   });
@@ -451,9 +453,6 @@ class _HeroCard extends StatelessWidget {
   final String? cta;
   final VoidCallback? onTap;
 
-  /// Thay cho [body] + [cta] (thẻ phiên live có giá / đồng hồ riêng).
-  final Widget? panel;
-
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
@@ -461,25 +460,23 @@ class _HeroCard extends StatelessWidget {
     final text = context.textStyles;
     final onDark = context.colors.onSurface;
 
-    final content =
-        panel ??
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (body != null)
-              Text(
-                body!,
-                maxLines: compact ? 3 : 4,
-                overflow: TextOverflow.ellipsis,
-                style: text.bodyMedium?.copyWith(color: onDark),
-              ),
-            if (cta != null) ...[
-              const SizedBox(height: AppSpacing.md),
-              _BlackButton(label: cta!, onPressed: onTap),
-            ],
-          ],
-        );
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (body != null)
+          Text(
+            body!,
+            maxLines: compact ? 3 : 4,
+            overflow: TextOverflow.ellipsis,
+            style: text.bodyMedium?.copyWith(color: onDark),
+          ),
+        if (cta != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          _BlackButton(label: cta!, onPressed: onTap),
+        ],
+      ],
+    );
 
     // Chỉ hiện khi rê chuột vào thẻ: thẻ trắng mờ, chữ đen, nút đen.
     final glassPanel = DecoratedBox(
@@ -643,98 +640,6 @@ class _RingsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingsPainter old) => old.color != color;
-}
-
-/// Thẻ phiên đang diễn ra: lô hiện tại, giá, người đang dẫn, đồng hồ, nút vào phòng.
-/// Làm mới mỗi 2 giây qua [liveStateProvider].
-class _LiveSlide extends ConsumerWidget {
-  const _LiveSlide({required this.session, required this.onOpen});
-
-  final AuctionSession session;
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final c = context.appColors;
-    final text = context.textStyles;
-    final onDark = context.colors.onSurface;
-    final state = ref.watch(liveStateProvider(session.id)).value;
-    final lot = state?.currentLot;
-
-    final cover = lot != null
-        ? _coverOfBook(lot.book)
-        : (
-            title: session.title,
-            author: l10n.lotsCount(session.lotCount),
-            url: session.coverImageUrl,
-            seed: session.id,
-          );
-
-    Widget panel;
-    if (state == null || lot == null) {
-      panel = Text(
-        l10n.waitingNextLot,
-        style: text.bodyMedium?.copyWith(color: onDark),
-      );
-    } else {
-      final offset = state.serverTime.difference(DateTime.now());
-      final now = (ref.watch(clockProvider).value ?? DateTime.now()).add(
-        offset,
-      );
-      final left = lot.endsAt?.difference(now);
-      panel = Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              PillBadge(l10n.live, color: c.live),
-              const SizedBox(width: AppSpacing.sm),
-              Flexible(
-                child: Text(
-                  l10n.viewers(state.viewerCount),
-                  overflow: TextOverflow.ellipsis,
-                  style: text.bodySmall?.copyWith(
-                    color: onDark.withValues(alpha: 0.85),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            formatVnd(lot.currentPrice),
-            style: text.headlineSmall?.copyWith(color: onDark),
-          ),
-          Text(
-            [
-              if (lot.leadingPaddle != null)
-                l10n.leadingPaddle(lot.leadingPaddle!),
-              if (left != null)
-                l10n.timeLeft(
-                  formatCountdown(left.isNegative ? Duration.zero : left),
-                ),
-            ].join(' · '),
-            style: text.bodySmall?.copyWith(
-              color: onDark.withValues(alpha: 0.85),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _BlackButton(label: l10n.enterLiveRoom, onPressed: onOpen),
-        ],
-      );
-    }
-
-    return _HeroCard(
-      eyebrow: l10n.heroLiveEyebrow,
-      headline: lot?.book.title ?? session.title,
-      covers: [cover],
-      image: _banner('live'),
-      panel: panel,
-      onTap: onOpen,
-    );
-  }
 }
 
 /// Theo dõi chuột đang nằm trên thẻ hay không (điện thoại không có chuột → luôn false, chạm để mở).

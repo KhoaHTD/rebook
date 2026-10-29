@@ -180,11 +180,10 @@ class AmbientBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final dark = Theme.of(context).brightness == Brightness.dark;
     return _Ambient(
       screen: MediaQuery.sizeOf(context),
       base: c.background,
-      blobs: dark ? AmbientPalette.dark : AmbientPalette.light,
+      blobs: c.ambient,
       child: child,
     );
   }

@@ -11,6 +11,8 @@ chữ nội dung Be Vietnam Pro (đủ dấu tiếng Việt, mọi nền tảng)
 lưới 4 poster/hàng trên desktop, kệ cuộn ngang + tab bar kính nổi trên mobile). Mọi màn mới theo đúng style này:
 dùng `Glass`, `InfoPanel`, `AppPage`, `HeaderAction` trong `shared/widgets/` thay vì tự vẽ nền / viền.
 
+**Khu đấu giá tách riêng khỏi mua sách (2026-10-29):** đấu giá có khung, theme và trang chủ riêng — khung `app/router/auction_shell.dart` (sidebar + tab bar Sàn · Lịch · Của tôi · Kết quả · Tài khoản), theme luôn tối `AppTheme.auction()` (đỏ LIVE + vàng đồng, `AppColors.auction`), màn ở `features/auction/`. Công tắc `ModeSwitch` chuyển qua lại; app mua sách không bán / hiện đấu giá, chỉ còn thẻ mời sang (`AuctionEntryBanner`, slide banner). Màn đấu giá mới dùng màu từ theme (`context.appColors`) nên tự theo khu tối.
+
 Chi tiết kiến trúc, lý do và ví dụ: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Đọc file đó trước khi thêm feature mới.
 
 ## Lệnh thường dùng

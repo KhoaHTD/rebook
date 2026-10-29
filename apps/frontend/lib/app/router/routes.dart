@@ -27,6 +27,9 @@ abstract final class Routes {
   static String results(String id) => '/auctions/sessions/$id/results';
   static String lot(String id) => '/auctions/lots/$id';
   static const myAuctions = '/auctions/mine';
+  static const auctionSchedule = '/auctions/schedule';
+  static const auctionResults = '/auctions/results';
+  static const auctionAccount = '/auctions/account';
 
   // Nhánh 3 — Thông báo
   static const notifications = '/notifications';
@@ -62,6 +65,7 @@ abstract final class Routes {
       location.startsWith(cart) ||
       location.startsWith('/home/payments') ||
       location == myAuctions ||
+      location == auctionAccount ||
       location.endsWith('/register');
   // Phòng `/live` mở cho khách xem (SRS 2: khách xem trực tiếp phiên, không được trả giá).
 }

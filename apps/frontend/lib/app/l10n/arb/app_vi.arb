@@ -1312,5 +1312,76 @@
     }
   },
   "adminBidFeed": "Lượt trả giá trực tiếp",
-  "adminLotQueue": "Hàng đợi lô"
+  "adminLotQueue": "Hàng đợi lô",
+  "modeBooks": "Mua sách",
+  "modeAuction": "Đấu giá",
+  "modeBackToBooks": "Về Mua sách",
+  "modeToAuction": "Sang sàn đấu giá",
+  "modeToAuctionBody": "Sách hiếm, phiên trực tiếp, mỗi lô 60 giây. Một khu riêng dành cho đấu giá.",
+  "auctionAppTitle": "Sàn đấu giá",
+  "auctionNavFloor": "Sàn",
+  "auctionNavSchedule": "Lịch",
+  "auctionNavMine": "Của tôi",
+  "auctionNavResults": "Kết quả",
+  "floorNoLive": "Chưa có phiên nào đang diễn ra",
+  "floorNextIn": "Phiên tiếp theo sau {time}",
+  "@floorNextIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "floorNowOnBlock": "Đang trên bục",
+  "floorCurrentPrice": "Giá hiện tại",
+  "floorFeaturedLots": "Lô nổi bật",
+  "floorFeaturedSub": "Những lô đáng chú ý trong các phiên sắp tới.",
+  "floorUpcomingSub": "Đăng ký và đặt cọc trước giờ mở.",
+  "floorMySummary": "Bạn đã đăng ký {count} phiên",
+  "@floorMySummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "floorMySummaryNone": "Bạn chưa đăng ký phiên nào",
+  "scheduleTitle": "Lịch đấu giá",
+  "scheduleSub": "Mọi phiên theo ngày, đăng ký ngay khi còn mở.",
+  "scheduleToday": "Hôm nay",
+  "scheduleTomorrow": "Ngày mai",
+  "scheduleRegOpen": "Đang mở đăng ký",
+  "scheduleRegClosed": "Đã đóng đăng ký",
+  "scheduleEmpty": "Chưa có phiên nào được lên lịch",
+  "historyTitle": "Kết quả & lịch sử",
+  "historySub": "Các phiên đã kết thúc và lô bạn đã thắng.",
+  "historyEmpty": "Chưa có phiên nào kết thúc",
+  "historyViewResults": "Xem kết quả",
+  "historyWonHint": "Lô thắng cần thanh toán nằm ở Đơn mua",
+  "auctionAccountTitle": "Tài khoản đấu giá",
+  "auctionAccountAvailable": "Khả dụng",
+  "auctionAccountHeld": "Đang giữ cọc",
+  "auctionAccountOrders": "Đơn thắng cần thanh toán",
+  "countdownDays": "{days} ngày {hours} giờ",
+  "@countdownDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "mineRegistrations": "Phiên đã đăng ký",
+  "mineWatching": "Lô đang theo dõi",
+  "mineWatchingEmpty": "Chưa theo dõi lô nào. Bấm theo dõi ở trang lô để nhận nhắc khi lô sắp lên bục.",
+  "floorEventsAt": "{time}",
+  "@floorEventsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

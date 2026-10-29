@@ -83,6 +83,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.glassBorder,
     required this.glassShadow,
     required this.background,
+    required this.ambient,
   });
 
   /// Nền khối thông tin trong trang (kính trong, không làm mờ).
@@ -129,6 +130,9 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Nền dưới lớp màu loang.
   final Color background;
 
+  /// Các vệt màu loang phía sau kính (xem [AmbientPalette]).
+  final List<(Color, Alignment, double)> ambient;
+
   static const light = AppColors(
     sidebar: Color(0x8CFFFFFF),
     selected: Color(0xFF0A6CFF),
@@ -152,6 +156,7 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBorder: Color(0xB3FFFFFF),
     glassShadow: Color(0x2219233C),
     background: Color(0xFFEBEFF4),
+    ambient: AmbientPalette.light,
   );
 
   static const dark = AppColors(
@@ -177,6 +182,34 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBorder: Color(0x26FFFFFF),
     glassShadow: Color(0x66000000),
     background: Color(0xFF111114),
+    ambient: AmbientPalette.dark,
+  );
+
+  /// Khu đấu giá: nền tối ấm như phòng đấu giá, đỏ LIVE + vàng đồng. Luôn tối, không theo máy.
+  static const auction = AppColors(
+    sidebar: Color(0x4D2A211B),
+    selected: Color(0xFFD9A441),
+    onSelected: Color(0xFF1A1208),
+    shelfAlt: Color(0x14FFFFFF),
+    fill: Color(0x1FFFFFFF),
+    separator: Color(0x26FFFFFF),
+    secondaryText: Color(0xFFB4A99C),
+    tertiaryText: Color(0xFF7E7468),
+    badgeNew: Color(0x66000000),
+    live: Color(0xFFFF4A3D),
+    success: Color(0xFF4CD27C),
+    warning: Color(0xFFE9A23B),
+    info: Color(0xFF8DB8FF),
+    tabBar: Color(0x33D9A441),
+    posterShadow: Color(0xB3000000),
+    tint: Color(0xFFD9A441),
+    tintSoft: Color(0x40D9A441),
+    glassTop: Color(0x6B3B2F26),
+    glassBottom: Color(0x4D1A130E),
+    glassBorder: Color(0x33FFE2B0),
+    glassShadow: Color(0x99000000),
+    background: Color(0xFF0E0A08),
+    ambient: AmbientPalette.auction,
   );
 
   @override
@@ -203,6 +236,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? glassBorder,
     Color? glassShadow,
     Color? background,
+    List<(Color, Alignment, double)>? ambient,
   }) => AppColors(
     sidebar: sidebar ?? this.sidebar,
     selected: selected ?? this.selected,
@@ -226,6 +260,7 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBorder: glassBorder ?? this.glassBorder,
     glassShadow: glassShadow ?? this.glassShadow,
     background: background ?? this.background,
+    ambient: ambient ?? this.ambient,
   );
 
   @override
@@ -255,6 +290,7 @@ class AppColors extends ThemeExtension<AppColors> {
       glassBorder: l(glassBorder, other.glassBorder),
       glassShadow: l(glassShadow, other.glassShadow),
       background: l(background, other.background),
+      ambient: t < 0.5 ? ambient : other.ambient,
     );
   }
 }
@@ -270,6 +306,20 @@ abstract final class AmbientPalette {
     (Color(0x4D6E2620), Alignment(0.8, 0.55), 0.65),
     (Color(0x4D2D4A36), Alignment(-0.35, 0.85), 0.7),
   ];
+
+  /// Phòng đấu giá: ánh đỏ ở một góc, ánh vàng đồng ở góc đối diện trên nền gần đen.
+  static const auction = <(Color, Alignment, double)>[
+    (Color(0x80B3261E), Alignment(-0.7, -0.85), 0.8),
+    (Color(0x66A87420), Alignment(0.8, -0.2), 0.85),
+    (Color(0x4D5A1A14), Alignment(-0.2, 0.9), 0.75),
+  ];
+}
+
+/// Thẻ mời sang khu đấu giá đặt ở app mua sách (nền đỏ rượu → đồng, chữ kem).
+abstract final class AuctionPalette {
+  static const entry = <Color>[Color(0xFF5A1812), Color(0xFF8A5A1C)];
+  static const ink = Color(0xFFFFF3DC);
+  static const gold = Color(0xFFE9B955);
 }
 
 /// Bảng màu giao diện quản trị (Staff / Admin): dashboard sáng, phẳng, nút đen.

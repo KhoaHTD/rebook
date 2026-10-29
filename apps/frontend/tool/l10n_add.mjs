@@ -15,7 +15,7 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 const args = process.argv.slice(2);
 const zoneIdx = args.indexOf('--zone');
 const zone = zoneIdx >= 0 ? args[zoneIdx + 1] : null;
-const srcPath = args.find((a, i) => !a.startsWith('--') && i !== zoneIdx + 1);
+const srcPath = args.find((a, i) => !a.startsWith("--") && (zoneIdx < 0 || i !== zoneIdx + 1));
 if (!srcPath) {
   console.error('Dùng: node tool/l10n_add.mjs <strings.json> [--zone adm|stf]');
   process.exit(64);

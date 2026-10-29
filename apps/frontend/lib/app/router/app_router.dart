@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/app_shell.dart';
+import 'package:book_marketplace/app/router/auction_shell.dart';
 import 'package:book_marketplace/app/router/placeholder_page.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
@@ -14,7 +15,10 @@ import 'package:book_marketplace/features/account/presentation/screens/profile_s
 import 'package:book_marketplace/features/account/presentation/screens/settings_screen.dart';
 import 'package:book_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:book_marketplace/features/wallet/presentation/screens/wallet_screen.dart';
-import 'package:book_marketplace/features/auction/presentation/screens/auctions_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/auction_account_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/auction_floor_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/auction_history_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/auction_schedule_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/live_room_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/lot_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/my_auctions_screen.dart';
@@ -146,52 +150,7 @@ GoRouter appRouter(Ref ref) {
               ),
             ],
           ),
-          // Nhánh 2 — Đấu giá
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: Routes.auctions,
-                builder: (_, _) => const AuctionsScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'mine',
-                    builder: (_, _) => const MyAuctionsScreen(),
-                  ),
-                  GoRoute(
-                    path: 'lots/:id',
-                    builder: (_, s) =>
-                        LotScreen(lotId: s.pathParameters['id']!),
-                  ),
-                  GoRoute(
-                    path: 'sessions/:id',
-                    builder: (_, s) =>
-                        SessionScreen(sessionId: s.pathParameters['id']!),
-                    routes: [
-                      GoRoute(
-                        path: 'register',
-                        builder: (_, s) => RegisterSessionScreen(
-                          sessionId: s.pathParameters['id']!,
-                        ),
-                      ),
-                      GoRoute(
-                        path: 'results',
-                        builder: (_, s) =>
-                            ResultsScreen(sessionId: s.pathParameters['id']!),
-                      ),
-                      // Phòng đấu giá phủ toàn màn hình, không có sidebar / tab bar.
-                      GoRoute(
-                        path: 'live',
-                        parentNavigatorKey: _rootKey,
-                        builder: (_, s) =>
-                            LiveRoomScreen(sessionId: s.pathParameters['id']!),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          // Nhánh 3 — Thông báo
+          // Nhánh 2 — Thông báo
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -200,7 +159,7 @@ GoRouter appRouter(Ref ref) {
               ),
             ],
           ),
-          // Nhánh 4 — Tài khoản (gồm kênh người bán, ký gửi)
+          // Nhánh 3 — Tài khoản (gồm kênh người bán, ký gửi)
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -289,6 +248,87 @@ GoRouter appRouter(Ref ref) {
                     ],
                   ),
                 ],
+              ),
+            ],
+          ),
+        ],
+      ),
+      // Khu đấu giá: khung, theme và trang chủ riêng (Sàn · Lịch · Của tôi · Kết quả · Tài khoản).
+      StatefulShellRoute.indexedStack(
+        builder: (_, _, shell) => AuctionShell(navigationShell: shell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.auctions,
+                builder: (_, _) => const AuctionFloorScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'lots/:id',
+                    builder: (_, s) =>
+                        LotScreen(lotId: s.pathParameters['id']!),
+                  ),
+                  GoRoute(
+                    path: 'sessions/:id',
+                    builder: (_, s) =>
+                        SessionScreen(sessionId: s.pathParameters['id']!),
+                    routes: [
+                      GoRoute(
+                        path: 'register',
+                        builder: (_, s) => RegisterSessionScreen(
+                          sessionId: s.pathParameters['id']!,
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'results',
+                        builder: (_, s) =>
+                            ResultsScreen(sessionId: s.pathParameters['id']!),
+                      ),
+                      // Phòng đấu giá phủ toàn màn hình, không có sidebar / tab bar (vẫn theme đấu giá).
+                      GoRoute(
+                        path: 'live',
+                        parentNavigatorKey: _rootKey,
+                        builder: (_, s) => AuctionTheme(
+                          child: LiveRoomScreen(
+                            sessionId: s.pathParameters['id']!,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.auctionSchedule,
+                builder: (_, _) => const AuctionScheduleScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.myAuctions,
+                builder: (_, _) => const MyAuctionsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.auctionResults,
+                builder: (_, _) => const AuctionHistoryScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.auctionAccount,
+                builder: (_, _) => const AuctionAccountScreen(),
               ),
             ],
           ),

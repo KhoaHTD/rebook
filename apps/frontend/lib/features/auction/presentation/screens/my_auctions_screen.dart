@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
+import 'package:book_marketplace/features/auction/presentation/providers/auction_floor_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_widgets.dart';
+import 'package:book_marketplace/shared/domain/auction.dart';
+import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -22,9 +26,21 @@ class MyAuctionsScreen extends ConsumerWidget {
     final regs = ref.watch(myRegistrationsProvider);
     return AppPage(
       title: l10n.myAuctions,
-      showBack: true,
+      showBack: false,
       onRefresh: () => ref.refresh(myRegistrationsProvider.future),
       children: [
+        if (context.windowSize.isCompact)
+          const Padding(
+            padding: EdgeInsets.only(bottom: AppSpacing.lg),
+            child: ModeSwitch(mode: AppMode.auction),
+          ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: Text(
+            l10n.mineRegistrations,
+            style: context.textStyles.headlineSmall,
+          ),
+        ),
         AsyncValueView(
           value: regs,
           onRetry: () => ref.invalidate(myRegistrationsProvider),
@@ -33,8 +49,8 @@ class MyAuctionsScreen extends ConsumerWidget {
                   icon: Icons.gavel_rounded,
                   title: l10n.noRegistrations,
                   action: FilledButton(
-                    onPressed: () => context.go(Routes.auctions),
-                    child: Text(l10n.auctionsTitle),
+                    onPressed: () => context.go(Routes.auctionSchedule),
+                    child: Text(l10n.scheduleTitle),
                   ),
                 )
               : ConstrainedBox(
@@ -92,7 +108,47 @@ class MyAuctionsScreen extends ConsumerWidget {
                   ),
                 ),
         ),
+        const SizedBox(height: AppSpacing.xl),
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: Text(
+            l10n.mineWatching,
+            style: context.textStyles.headlineSmall,
+          ),
+        ),
+        _WatchedLots(),
+        const SizedBox(height: 110),
       ],
+    );
+  }
+}
+
+class _WatchedLots extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final lots = ref.watch(watchedLotsProvider).value ?? const <Lot>[];
+    if (lots.isEmpty) {
+      return Text(l10n.mineWatchingEmpty, style: context.textStyles.bodyMedium);
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      clipBehavior: Clip.none,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (var i = 0; i < lots.length; i++) ...[
+            if (i > 0) const SizedBox(width: AppSpacing.md),
+            SizedBox(
+              width: 160,
+              child: LotTile(
+                lot: lots[i],
+                onTap: () => context.go(Routes.lot(lots[i].id)),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

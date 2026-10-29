@@ -104,11 +104,6 @@ class AccountScreen extends ConsumerWidget {
                   () => context.go(Routes.orders),
                 ),
                 row(
-                  Icons.timer_outlined,
-                  l10n.myAuctions,
-                  () => context.go(Routes.myAuctions),
-                ),
-                row(
                   Icons.account_balance_wallet_outlined,
                   l10n.wallet,
                   () => context.go(Routes.wallet),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
@@ -102,7 +103,7 @@ class _DesktopSections extends StatelessWidget {
             for (final l in feed.trending.take(8))
               ListingTile(listing: l, onTap: () => _openListing(context, l.id)),
           ]),
-        gap(const HomeAuctions()),
+        gap(const AuctionEntryBanner()),
         gap(const HomeCategories()),
         gap(HomeChart(feed: feed)),
         if (feed.newArrivals.isNotEmpty)
@@ -137,7 +138,7 @@ class _MobileShelves extends StatelessWidget {
               ListingTile(listing: l, onTap: () => _openListing(context, l.id)),
           ],
         ),
-      const _Pad(HomeAuctions()),
+      const _Pad(AuctionEntryBanner()),
       const _Pad(HomeCategories()),
       if (feed.newArrivals.isNotEmpty)
         Shelf(
@@ -157,6 +158,11 @@ class _MobileShelves extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Điện thoại: công tắc sang khu đấu giá (desktop có ở đầu sidebar).
+        const Padding(
+          padding: EdgeInsets.fromLTRB(20, AppSpacing.sm, 20, 0),
+          child: ModeSwitch(mode: AppMode.books),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           child: HeroCarousel(feed: feed),
