@@ -13,3 +13,5 @@ app:
     engine-enabled: false
   storage:
     dir: target/test-uploads
+  payment:
+    simulate-enabled: true

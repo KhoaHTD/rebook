@@ -199,15 +199,20 @@ public class CheckoutService {
         orderService.transition(o, OrderStatus.PENDING_CONFIRM, o.getBuyerId(), "Đã thanh toán (" + method + ")");
     }
 
-    /** VNPay báo thành công → chuyển các đơn sang chờ xác nhận. Đơn đã bị huỷ thì hoàn tiền vào ví. */
+    /**
+     * VNPay báo thành công → chuyển các đơn sang chờ xác nhận. Đơn đã bị huỷ thì hoàn tiền vào ví.
+     * Phần tiền không còn đơn nào nhận (người mua đã trả lại đơn bằng ví hoặc link VNPay mới) cũng hoàn vào ví.
+     */
     @EventListener
     public void onPaymentSucceeded(PaymentSucceededEvent event) {
         Payment p = event.payment();
         if (p.getPurpose() != Payment.Purpose.ORDER || p.getMethod() != Payment.Method.VNPAY) {
             return;
         }
+        BigDecimal handled = BigDecimal.ZERO;
         for (Order o : orderService.byPayment(p.getId())) {
             Order locked = orderService.lock(o.getId());
+            handled = handled.add(locked.amountDue());
             if (locked.getStatus() == OrderStatus.PENDING_PAYMENT) {
                 markPaid(locked, Payment.Method.VNPAY, p.getId());
             } else {
@@ -215,6 +220,12 @@ public class CheckoutService {
                 walletService.credit(locked.getBuyerId(), WalletTxType.REFUND, locked.amountDue(), "ORDER", locked.getId(),
                         "Hoàn tiền: thanh toán đến sau khi đơn đã huỷ");
             }
+        }
+        BigDecimal orphan = p.getAmount().subtract(handled);
+        if (orphan.signum() > 0) {
+            log.warn("Payment {} có {} đ không còn đơn nào cần trả, hoàn vào ví", p.getCode(), orphan);
+            walletService.credit(p.getUserId(), WalletTxType.REFUND, orphan, "PAYMENT", p.getId(),
+                    "Hoàn tiền: đơn đã được thanh toán bằng cách khác");
         }
     }
 
