@@ -1405,5 +1405,31 @@
   "floorTabFavorite": "Yêu thích",
   "lotEndsIn": "Kết thúc sau",
   "lotBidNow": "Vào phòng trả giá",
-  "lotBidders": "Người trả giá"
+  "lotBidders": "Người trả giá",
+  "bookDetailTitle": "Chi tiết sách",
+  "bookByAuthor": "của {author}",
+  "@bookByAuthor": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "realPhotos": "Ảnh thực tế",
+  "realPhotosCount": "{count} ảnh do người bán chụp",
+  "@realPhotosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statPages": "{count} trang",
+  "@statPages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

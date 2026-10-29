@@ -895,5 +895,10 @@
   "floorTabFavorite": "Favorites",
   "lotEndsIn": "Ends in",
   "lotBidNow": "Go to the bidding room",
-  "lotBidders": "Bidders"
+  "lotBidders": "Bidders",
+  "bookDetailTitle": "Book details",
+  "bookByAuthor": "by {author}",
+  "realPhotos": "Real photos",
+  "realPhotosCount": "{count} photos from the seller",
+  "statPages": "{count} pages"
 }
