@@ -121,7 +121,7 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
   Widget build(BuildContext context) {
     final paper = context.colors.surface;
     final safeTop = MediaQuery.paddingOf(context).top;
-    final heroH = safeTop + 446;
+    final heroH = safeTop + 466;
     final current = widget.hero.isEmpty
         ? null
         : widget.hero[_index.clamp(0, widget.hero.length - 1)];
@@ -291,7 +291,7 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
               itemBuilder: (context, i) => _coverPage(i, widget.hero[i]),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 26),
           if (current != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
