@@ -900,5 +900,14 @@
   "bookByAuthor": "by {author}",
   "realPhotos": "Real photos",
   "realPhotosCount": "{count} photos from the seller",
-  "statPages": "{count} pages"
+  "statPages": "{count} pages",
+  "cartToCheckout": "Proceed to checkout",
+  "bagTotal": "Bag total ({count} items)",
+  "checkoutShippingTo": "Shipping to",
+  "payShortCod": "Cash",
+  "payShortWallet": "Wallet",
+  "payShortVnpay": "VNPay",
+  "totalPayment": "Total payment",
+  "orderSummary": "Order",
+  "walletAvailable": "Available balance"
 }

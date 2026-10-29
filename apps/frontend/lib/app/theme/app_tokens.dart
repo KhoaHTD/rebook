@@ -383,6 +383,10 @@ abstract final class CoverPalette {
   /// Chữ và biểu tượng đặt trên nền màu chủ đạo của bìa (đầu trang chủ điện thoại).
   static const onHero = Color(0xFFFFFFFF);
 
+  /// Thẻ đen giải thích phương thức thanh toán (màn thanh toán điện thoại).
+  static const cardTop = Color(0xFF2B2B30);
+  static const cardBottom = Color(0xFF0C0C0E);
+
   /// Chữ tối đặt trên nền [onHero] (nấc đang chọn của công tắc khu).
   static const onHeroInk = Color(0xFF1D1D1F);
 

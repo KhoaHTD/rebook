@@ -805,7 +805,7 @@
   "listingSaved": "Đã lưu tin đăng",
   "invalidNumber": "Số không hợp lệ",
   "buyer": "Người mua",
-  "confirmOrder": "Xác nhận đơn",
+  "confirmOrder": "Xác nhận đặt hàng",
   "handToShipper": "Giao cho shipper",
   "trackingCodeLabel": "Mã vận đơn (không bắt buộc)",
   "markDeliveredDemo": "Giả lập: đã giao thành công",
@@ -1431,5 +1431,21 @@
         "type": "int"
       }
     }
-  }
+  },
+  "cartToCheckout": "Tiến hành thanh toán",
+  "bagTotal": "Tổng giỏ ({count} sản phẩm)",
+  "@bagTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "checkoutShippingTo": "Giao đến",
+  "payShortCod": "Tiền mặt",
+  "payShortWallet": "Ví",
+  "payShortVnpay": "VNPay",
+  "totalPayment": "Tổng thanh toán",
+  "orderSummary": "Đơn hàng",
+  "walletAvailable": "Số dư khả dụng"
 }

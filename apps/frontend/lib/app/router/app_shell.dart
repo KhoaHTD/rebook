@@ -32,7 +32,6 @@ class AppShell extends ConsumerWidget {
   static const _roots = {
     Routes.home,
     Routes.search,
-    Routes.cart,
     Routes.notifications,
     Routes.account,
   };
