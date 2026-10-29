@@ -107,3 +107,9 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
   Video chỉ cho thấy bố cục và chuyển động, không có chữ của ReBook → nội dung được viết lại cho ReBook; ảnh là bìa sách mẫu; "membership" của video thành ba mức phí theo SRS 8.2 (5% bán thường, 15% hoa hồng ký gửi, 10% phí người mua đấu giá).
 - Bảng màu theo video (nền trắng ngà, cam, băng vàng chanh, hồng, xanh dương) — khác với phần còn lại của app (Liquid Glass + xanh); trang này là trang giới thiệu riêng.
 - Web mở `/` là trang giới thiệu; người đã đăng nhập vào thẳng `/home`; app điện thoại không có trang này. Đổi lại bằng `initialLocation` trong `app_router.dart`.
+
+### Backend: sửa lỗi nghiệp vụ sau rà soát (2026-10-29)
+- Mời người trả giá cao thứ hai mua lại lô chỉ khi giá của họ **≥ giá sàn**. SRS chỉ nói "mời người trả cao thứ hai", không nói giá sàn; dưới giá sàn thì người bán chưa đồng ý bán nên lô quay về chờ xếp phiên.
+- Người bán (hoặc kho) phải trả lời yêu cầu trả hàng trong **2 ngày** (cấu hình `order.return_response_days`); quá hạn thì tự chuyển Admin phân xử như khi người bán từ chối, tiền vẫn giữ ở sàn. SRS không có hạn này.
+- Người mua bấm "Đã nhận hàng" khi đang yêu cầu trả hàng = rút yêu cầu: yêu cầu đóng lại (REJECTED).
+- Thanh toán VNPay về muộn mà đơn đã được trả bằng cách khác (ví / link mới): phần tiền thừa hoàn vào ví người mua.

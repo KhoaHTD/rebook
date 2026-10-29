@@ -29,6 +29,7 @@ public class SystemConfigService {
     public static final String PAYMENT_TIMEOUT_MIN = "order.payment_timeout_minutes";
     public static final String CONFIRM_TIMEOUT_HOURS = "order.confirm_timeout_hours";
     public static final String AUTO_COMPLETE_DAYS = "order.auto_complete_days";
+    public static final String RETURN_RESPONSE_DAYS = "order.return_response_days";
     public static final String SHIP_SAME_PROVINCE = "shipping.same_province";
     public static final String SHIP_OTHER_PROVINCE = "shipping.other_province";
     public static final String SHIP_EXTRA_PER_500G = "shipping.extra_per_500g";

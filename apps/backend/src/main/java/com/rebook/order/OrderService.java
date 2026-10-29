@@ -232,6 +232,15 @@ public class OrderService {
     @Transactional
     public OrderDetail confirmReceived(Long userId, Long orderId) {
         Order o = requireBuyerOrder(userId, orderId);
+        if (o.getStatus() == OrderStatus.RETURN_REQUESTED) {
+            // Người mua rút yêu cầu trả hàng: đóng yêu cầu để không còn treo chờ người bán / Admin
+            returnRepository.findByOrderId(orderId)
+                    .filter(x -> x.getStatus() == ReturnRequest.Status.PENDING || x.getStatus() == ReturnRequest.Status.DISPUTED)
+                    .ifPresent(x -> {
+                        x.setStatus(ReturnRequest.Status.REJECTED);
+                        x.setResolution("Người mua rút yêu cầu, đã xác nhận nhận hàng");
+                    });
+        }
         transition(o, OrderStatus.COMPLETED, userId, "Người mua xác nhận đã nhận hàng");
         return toDetail(o);
     }
@@ -445,6 +454,24 @@ public class OrderService {
     // =====================================================================
     // Dùng bởi job tự động
     // =====================================================================
+
+    /** Người bán không trả lời yêu cầu trả hàng đúng hạn → chuyển Admin phân xử, tiền vẫn giữ ở sàn. */
+    @Transactional
+    public void autoEscalateReturn(Long orderId) {
+        Order o = lock(orderId);
+        ReturnRequest r = returnRepository.findByOrderId(orderId)
+                .filter(x -> x.getStatus() == ReturnRequest.Status.PENDING)
+                .orElse(null);
+        if (r == null || o.getStatus() != OrderStatus.RETURN_REQUESTED) {
+            return;
+        }
+        r.setStatus(ReturnRequest.Status.DISPUTED);
+        r.setSellerNote("Người bán không trả lời đúng hạn");
+        recordHistory(o, o.getStatus(), o.getStatus(), null, "Người bán không trả lời yêu cầu trả hàng, chuyển Admin phân xử");
+        notifications.notify(o.getBuyerId(), NotificationService.ORDER, "Yêu cầu trả hàng đã chuyển Admin",
+                "Người bán chưa trả lời yêu cầu trả hàng đơn " + o.getCode() + ", Admin sẽ phân xử", Map.of("orderId", o.getId()));
+        notifyShop(o, "Bạn không trả lời yêu cầu trả hàng đơn " + o.getCode() + " đúng hạn, Admin sẽ phân xử");
+    }
 
     @Transactional
     public void autoCancelUnpaid(Long orderId) {
