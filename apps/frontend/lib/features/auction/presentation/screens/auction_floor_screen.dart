@@ -7,6 +7,7 @@ import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_floor_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_stage_widgets.dart';
@@ -14,6 +15,7 @@ import 'package:book_marketplace/features/auction/presentation/widgets/auction_w
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
+import 'package:book_marketplace/shared/widgets/cover_flow_home.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/poster_grid.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -27,6 +29,7 @@ class AuctionFloorScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final compact = context.windowSize.isCompact;
+    if (compact) return const _MobileFloor();
     final sessions = ref.watch(auctionSessionsProvider);
 
     return AppPage(
@@ -265,6 +268,105 @@ class _FeaturedLots extends ConsumerWidget {
         else
           PosterGrid(children: tiles.take(8).toList()),
       ],
+    );
+  }
+}
+
+/// Điện thoại: "Sàn" dùng [CoverFlowHome] (nền màu theo bìa lô, hàng bìa lớn, tab Đang LIVE / Sắp diễn ra /
+/// Của tôi, các kệ phiên và lô). Desktop giữ bố cục thẻ ở trên.
+class _MobileFloor extends ConsumerStatefulWidget {
+  const _MobileFloor();
+
+  @override
+  ConsumerState<_MobileFloor> createState() => _MobileFloorState();
+}
+
+class _MobileFloorState extends ConsumerState<_MobileFloor> {
+  int _tab = 0;
+
+  CoverFlowEntry _lot(BuildContext context, Lot l) => CoverFlowEntry(
+    id: l.id,
+    title: l.book.title,
+    author: l.book.author,
+    coverUrl: l.book.coverUrl,
+    price: formatVnd(l.currentPrice),
+    onTap: () => context.go(Routes.lot(l.id)),
+  );
+
+  CoverFlowEntry _session(BuildContext context, AuctionSession s) =>
+      CoverFlowEntry(
+        id: s.id,
+        title: s.title,
+        author: s.description ?? '',
+        coverUrl: s.coverImageUrl,
+        onTap: () => context.go(Routes.session(s.id)),
+      );
+
+  CoverFlowShelf? _shelf(String label, List<CoverFlowEntry> entries) =>
+      entries.isEmpty ? null : CoverFlowShelf(label, entries);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final sessions = ref.watch(auctionSessionsProvider);
+    final featured = ref.watch(featuredLotsProvider).value ?? const <Lot>[];
+    final active = ref.watch(activeLotsProvider).value ?? const <Lot>[];
+    final watched = ref.watch(watchedLotsProvider).value ?? const <Lot>[];
+
+    return sessions.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: TextButton(
+          onPressed: () => ref.invalidate(auctionSessionsProvider),
+          child: Text(l10n.retry),
+        ),
+      ),
+      data: (all) {
+        final live = all
+            .where((s) => SessionTab.live.matches(s.status))
+            .toList();
+        final upcoming =
+            all.where((s) => SessionTab.upcoming.matches(s.status)).toList()
+              ..sort((a, b) => a.startAt.compareTo(b.startAt));
+        final tab = _tab.clamp(0, 2);
+        final shelves = <CoverFlowShelf>[
+          ...switch (tab) {
+            0 => [
+              ?_shelf(l10n.floorShelfLive, [
+                for (final s in live) _session(context, s),
+              ]),
+              ?_shelf(l10n.floorShelfLots, [
+                for (final l in featured) _lot(context, l),
+              ]),
+            ],
+            1 => [
+              ?_shelf(l10n.floorShelfUpcoming, [
+                for (final s in upcoming) _session(context, s),
+              ]),
+              ?_shelf(l10n.floorShelfLots, [
+                for (final l in active) _lot(context, l),
+              ]),
+            ],
+            _ => [
+              ?_shelf(l10n.floorShelfWatched, [
+                for (final l in watched) _lot(context, l),
+              ]),
+            ],
+          },
+        ];
+        final heroLots = featured.isNotEmpty ? featured : active;
+        return CoverFlowHome(
+          title: l10n.auctionAppTitle,
+          top: const ModeSwitch(mode: AppMode.auction, onHero: true),
+          onSearch: () => context.go(Routes.auctionSchedule),
+          hero: [for (final l in heroLots.take(5)) _lot(context, l)],
+          tabs: [l10n.tabLive, l10n.tabUpcoming, l10n.auctionNavMine],
+          tabIndex: tab,
+          onTab: (i) => setState(() => _tab = i),
+          shelves: shelves,
+          emptyText: l10n.floorShelfEmpty,
+        );
+      },
     );
   }
 }

@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
-import 'package:book_marketplace/app/router/glass_tab_bar.dart';
 import 'package:book_marketplace/app/router/mode_switch.dart';
+import 'package:book_marketplace/app/router/nav_overlay.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/router/sidebar.dart';
 import 'package:book_marketplace/app/theme/app_theme.dart';
@@ -13,7 +13,6 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
-import 'package:book_marketplace/shared/layout/shell_inset.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 
 /// Theme riêng của khu đấu giá: luôn tối, đỏ LIVE + vàng đồng (không theo chế độ sáng/tối của máy).
@@ -37,9 +36,8 @@ class AuctionTheme extends StatelessWidget {
 }
 
 /// Khung khu đấu giá: một giao diện riêng, tách hẳn khỏi khu mua sách (xem `app_shell.dart`).
-/// - Desktop: sidebar kính tối (Sàn · Lịch · Của tôi · Kết quả, tài khoản ở đáy).
-/// - Điện thoại: tab bar kính nổi 5 mục (Sàn · Lịch · Của tôi · Kết quả · Tài khoản).
-/// Công tắc [ModeSwitch] ở đầu sidebar (desktop) hoặc đầu trang gốc (điện thoại) để quay về Mua sách.
+/// Điều hướng là một nút kính ở góc dưới (xem [NavOverlay]); bấm vào thì sidebar tối trượt ra
+/// (Sàn · Lịch · Của tôi · Kết quả, tài khoản ở đáy). Công tắc [ModeSwitch] ở đầu sidebar và đầu trang gốc.
 class AuctionShell extends ConsumerWidget {
   const AuctionShell({super.key, required this.navigationShell});
 
@@ -50,40 +48,37 @@ class AuctionShell extends ConsumerWidget {
     initialLocation: i == navigationShell.currentIndex,
   );
 
+  static const _roots = {
+    Routes.auctions,
+    Routes.auctionSchedule,
+    Routes.myAuctions,
+    Routes.auctionResults,
+    Routes.auctionAccount,
+  };
+
+  static const _icons = [
+    Icons.gavel_rounded,
+    Icons.event_rounded,
+    Icons.confirmation_number_rounded,
+    Icons.emoji_events_rounded,
+    Icons.person_rounded,
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AuctionTheme(
       child: Builder(
         builder: (context) {
-          if (context.windowSize.isCompact) {
-            return Scaffold(
-              extendBody: true,
-              body: navigationShell,
-              bottomNavigationBar: _AuctionTabBar(
-                index: navigationShell.currentIndex,
-                onSelect: _goBranch,
-              ),
-            );
-          }
+          final loc = GoRouterState.of(context).uri.path;
           return Scaffold(
-            body: Stack(
-              children: [
-                Positioned.fill(
-                  child: ShellInset(
-                    left: SidebarPanel.width,
-                    child: navigationShell,
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: _AuctionSidebar(
-                    index: navigationShell.currentIndex,
-                    onBranch: _goBranch,
-                  ),
-                ),
-              ],
+            body: NavOverlay(
+              icon: _icons[navigationShell.currentIndex],
+              showButton: !context.windowSize.isCompact || _roots.contains(loc),
+              panel: _AuctionSidebar(
+                index: navigationShell.currentIndex,
+                onBranch: _goBranch,
+              ),
+              child: navigationShell,
             ),
           );
         },
@@ -176,54 +171,6 @@ class _AuctionSidebar extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _AuctionTabBar extends ConsumerWidget {
-  const _AuctionTabBar({required this.index, required this.onSelect});
-
-  final int index;
-  final ValueChanged<int> onSelect;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final live = ref.watch(_liveCountProvider);
-    return GlassTabBar(
-      items: [
-        GlassTabItem(
-          icon: Icons.gavel_rounded,
-          label: l10n.auctionNavFloor,
-          badge: live,
-          selected: index == 0,
-          onTap: () => onSelect(0),
-        ),
-        GlassTabItem(
-          icon: Icons.event_rounded,
-          label: l10n.auctionNavSchedule,
-          selected: index == 1,
-          onTap: () => onSelect(1),
-        ),
-        GlassTabItem(
-          icon: Icons.confirmation_number_rounded,
-          label: l10n.auctionNavMine,
-          selected: index == 2,
-          onTap: () => onSelect(2),
-        ),
-        GlassTabItem(
-          icon: Icons.emoji_events_rounded,
-          label: l10n.auctionNavResults,
-          selected: index == 3,
-          onTap: () => onSelect(3),
-        ),
-        GlassTabItem(
-          icon: Icons.person_rounded,
-          label: l10n.navAccount,
-          selected: index == 4,
-          onTap: () => onSelect(4),
-        ),
-      ],
     );
   }
 }

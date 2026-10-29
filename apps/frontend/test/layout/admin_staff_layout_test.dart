@@ -1,11 +1,13 @@
 // Chốt chặn vỡ bố cục của web / app quản trị: tự mở MỌI route của các module Admin / Staff
-// (xem lib/app/router/admin_module.dart) ở điện thoại, máy tính bảng và desktop, bằng phông thật
-// (Be Vietnam Pro / Playfair Display), rồi báo mọi lỗi dựng hình, kể cả "RenderFlex overflowed".
+// (xem lib/app/router/admin_module.dart) ở điện thoại, máy tính bảng và desktop, bằng một phông tiếng Việt
+// thật (nạp dưới tên Roboto, vì app dùng font hệ thống), rồi báo mọi lỗi dựng hình, kể cả "RenderFlex overflowed".
 //
 // Test chỉ bắt lỗi vỡ (tràn, lỗi dựng hình), không áp đặt kiểu bố cục: sáng tạo thoải mái.
 // Màn mới được quét nếu đã đăng ký `ownedPaths` trong module. Route có `:tham_số` muốn được quét
 // thì khai báo địa chỉ mẫu trong `smokePaths` (không bắt buộc).
 // Đừng sửa test này để "xanh" — hãy sửa màn hình.
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -44,21 +46,18 @@ class _MemoryTokenStorage extends TokenStorage {
   }
 }
 
+/// App dùng font hệ thống (Roboto trên Android). Trong test mặc định chữ là Ahem (ô vuông, sai độ rộng),
+/// nên nạp một font tiếng Việt thật dưới tên `Roboto` để đo độ rộng chữ gần với thực tế.
 Future<void> _loadFonts() async {
-  Future<void> load(String family, List<String> files) async {
-    final loader = FontLoader(family);
-    for (final f in files) {
-      loader.addFont(rootBundle.load('assets/fonts/$f'));
-    }
-    await loader.load();
+  final loader = FontLoader('Roboto');
+  for (final w in [400, 500, 600, 700, 800]) {
+    loader.addFont(
+      File('assets/fonts/BeVietnamPro-$w.ttf')
+          .readAsBytes()
+          .then((b) => ByteData.sublistView(b)),
+    );
   }
-
-  await load('BeVietnamPro', [
-    for (final w in [400, 500, 600, 700, 800]) 'BeVietnamPro-$w.ttf',
-  ]);
-  await load('PlayfairDisplay', [
-    for (final w in [500, 600, 700]) 'PlayfairDisplay-$w.ttf',
-  ]);
+  await loader.load();
 }
 
 const _sizes = <(String, Size)>[

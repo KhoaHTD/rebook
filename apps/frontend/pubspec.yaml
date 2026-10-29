@@ -50,25 +50,4 @@ flutter:
     - assets/books/
     # Tranh banner trang chủ (người dùng vẽ) — xem docs/BANNERS.md.
     - assets/banners/
-  fonts:
-    # Tiêu đề / dòng sự kiện: serif Playfair Display (OFL — Google Fonts).
-    - family: PlayfairDisplay
-      fonts:
-        - asset: assets/fonts/PlayfairDisplay-500.ttf
-          weight: 500
-        - asset: assets/fonts/PlayfairDisplay-600.ttf
-          weight: 600
-        - asset: assets/fonts/PlayfairDisplay-700.ttf
-          weight: 700
-    # Chữ giao diện trên mọi nền tảng: Be Vietnam Pro, vẽ riêng cho tiếng Việt (OFL — Google Fonts).
-    - family: BeVietnamPro
-      fonts:
-        - asset: assets/fonts/BeVietnamPro-400.ttf
-        - asset: assets/fonts/BeVietnamPro-500.ttf
-          weight: 500
-        - asset: assets/fonts/BeVietnamPro-600.ttf
-          weight: 600
-        - asset: assets/fonts/BeVietnamPro-700.ttf
-          weight: 700
-        - asset: assets/fonts/BeVietnamPro-800.ttf
-          weight: 800
+  # Không đóng gói font riêng: chữ dùng font hệ thống (xem AppFonts trong app_tokens.dart).

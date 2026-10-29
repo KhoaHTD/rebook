@@ -11,9 +11,12 @@ enum AppMode { books, auction }
 /// Công tắc hai nấc "Mua sách | Đấu giá". Bấm sang nấc kia là đổi cả khung giao diện
 /// (sidebar / tab bar / bảng màu). Màu lấy từ theme hiện hành nên khớp với khu đang đứng.
 class ModeSwitch extends StatelessWidget {
-  const ModeSwitch({super.key, required this.mode});
+  const ModeSwitch({super.key, required this.mode, this.onHero = false});
 
   final AppMode mode;
+
+  /// Đặt trên nền màu của bìa (đầu trang chủ điện thoại): nền kính trong, nấc đang chọn trắng chữ tối.
+  final bool onHero;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,9 @@ class ModeSwitch extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 borderRadius: AppRadius.chip,
-                color: on ? c.selected : Colors.transparent,
+                color: on
+                    ? (onHero ? CoverPalette.onHero : c.selected)
+                    : Colors.transparent,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +47,9 @@ class ModeSwitch extends StatelessWidget {
                   Icon(
                     icon,
                     size: 16,
-                    color: on ? c.onSelected : c.secondaryText,
+                    color: on
+                        ? (onHero ? CoverPalette.onHeroInk : c.onSelected)
+                        : (onHero ? CoverPalette.onHero : c.secondaryText),
                   ),
                   const SizedBox(width: 6),
                   Flexible(
@@ -52,7 +59,9 @@ class ModeSwitch extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: context.textStyles.labelMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: on ? c.onSelected : c.secondaryText,
+                        color: on
+                            ? (onHero ? CoverPalette.onHeroInk : c.onSelected)
+                            : (onHero ? CoverPalette.onHero : c.secondaryText),
                       ),
                     ),
                   ),
@@ -68,8 +77,12 @@ class ModeSwitch extends StatelessWidget {
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         borderRadius: AppRadius.chip,
-        color: c.fill,
-        border: Border.all(color: c.glassBorder),
+        color: onHero ? CoverPalette.onHero.withValues(alpha: 0.18) : c.fill,
+        border: Border.all(
+          color: onHero
+              ? CoverPalette.onHero.withValues(alpha: 0.28)
+              : c.glassBorder,
+        ),
       ),
       child: Row(
         children: [

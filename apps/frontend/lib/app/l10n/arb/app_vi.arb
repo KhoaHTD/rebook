@@ -1383,5 +1383,17 @@
         "type": "String"
       }
     }
-  }
+  },
+  "navMenu": "Menu điều hướng",
+  "settingsNavSide": "Vị trí nút điều hướng",
+  "navSideLeft": "Bên trái",
+  "navSideRight": "Bên phải",
+  "homeExploreTitle": "Khám phá",
+  "homeShelfCheap": "Giá tốt",
+  "homeShelfEmpty": "Chưa có sách trong mục này.",
+  "floorShelfLive": "Đang LIVE",
+  "floorShelfUpcoming": "Sắp diễn ra",
+  "floorShelfLots": "Lô nổi bật",
+  "floorShelfWatched": "Đang theo dõi",
+  "floorShelfEmpty": "Chưa có gì ở mục này."
 }

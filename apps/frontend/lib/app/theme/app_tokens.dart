@@ -45,15 +45,16 @@ abstract final class AppDurations {
   static const normal = Duration(milliseconds: 250);
 }
 
-/// Font chữ: Be Vietnam Pro (nội dung) + Playfair Display (tiêu đề), đóng gói trong assets/fonts, OFL.
+/// Font chữ: font hệ thống (`null` = mặc định của nền tảng: SF trên iOS / macOS, Roboto trên Android,
+/// Segoe UI trên Windows). Không đóng gói font riêng. Giữ ba tên để chỗ nào cần đổi font chỉ sửa ở đây.
 abstract final class AppFonts {
-  static const sans = 'BeVietnamPro';
+  static const String? sans = null;
 
-  /// Tiêu đề trang, tiêu đề kệ, dòng sự kiện: serif Playfair Display.
-  static const serif = 'PlayfairDisplay';
+  /// Tiêu đề trang, tiêu đề kệ, dòng sự kiện: cũng dùng font hệ thống.
+  static const String? serif = null;
 
-  /// Chữ nội dung: Be Vietnam Pro trên mọi nền tảng (đủ dấu tiếng Việt, dùng chung web / Android / iOS).
-  static const String family = sans;
+  /// Chữ nội dung.
+  static const String? family = sans;
 }
 
 /// Màu riêng của style Liquid Glass, ngoài ColorScheme.
@@ -382,6 +383,12 @@ abstract final class CoverPalette {
 
   /// Lớp phủ tối dưới chữ trên ảnh bìa (badge, nhãn).
   static const scrim = Color(0x66000000);
+
+  /// Chữ và biểu tượng đặt trên nền màu chủ đạo của bìa (đầu trang chủ điện thoại).
+  static const onHero = Color(0xFFFFFFFF);
+
+  /// Chữ tối đặt trên nền [onHero] (nấc đang chọn của công tắc khu).
+  static const onHeroInk = Color(0xFF1D1D1F);
 
   /// Màu phụ cho hình vẽ trên bìa.
   static const motif = <Color>[

@@ -122,11 +122,15 @@ class BookPoster extends StatelessWidget {
     this.width,
     this.shadow = true,
     this.badge,
+    this.square = false,
   });
 
   final String title;
   final String author;
   final String? coverUrl;
+
+  /// Bìa vuông góc (không bo), dùng ở trang chủ điện thoại.
+  final bool square;
 
   /// Giữ màu/hình bìa tự vẽ ổn định cho cùng một cuốn (thường là id sách).
   final String? seed;
@@ -146,6 +150,7 @@ class BookPoster extends StatelessWidget {
     final url = coverUrl;
     final cover = url == null ? fallback : AppImage(url, fallback: fallback);
 
+    final radius = square ? BorderRadius.zero : AppRadius.poster;
     return CoverAspectBuilder(
       url: url,
       builder: (context, ratio) => SizedBox(
@@ -154,7 +159,7 @@ class BookPoster extends StatelessWidget {
           aspectRatio: ratio,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: AppRadius.poster,
+              borderRadius: radius,
               boxShadow: shadow
                   ? [
                       BoxShadow(
@@ -174,7 +179,7 @@ class BookPoster extends StatelessWidget {
                   : null,
             ),
             child: ClipRRect(
-              borderRadius: AppRadius.poster,
+              borderRadius: radius,
               child: Stack(
                 fit: StackFit.expand,
                 children: [

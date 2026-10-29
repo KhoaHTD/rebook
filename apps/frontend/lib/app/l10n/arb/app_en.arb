@@ -873,5 +873,17 @@
   "mineRegistrations": "Registered sessions",
   "mineWatching": "Watched lots",
   "mineWatchingEmpty": "No watched lots yet. Watch a lot to be reminded before it goes on the block.",
-  "floorEventsAt": "{time}"
+  "floorEventsAt": "{time}",
+  "navMenu": "Navigation menu",
+  "settingsNavSide": "Navigation button position",
+  "navSideLeft": "Left",
+  "navSideRight": "Right",
+  "homeExploreTitle": "Explore",
+  "homeShelfCheap": "Good prices",
+  "homeShelfEmpty": "No books in this section yet.",
+  "floorShelfLive": "Live now",
+  "floorShelfUpcoming": "Coming up",
+  "floorShelfLots": "Featured lots",
+  "floorShelfWatched": "Watching",
+  "floorShelfEmpty": "Nothing here yet."
 }

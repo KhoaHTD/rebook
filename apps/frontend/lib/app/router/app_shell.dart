@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
-import 'package:book_marketplace/app/router/glass_tab_bar.dart';
 import 'package:book_marketplace/app/router/mode_switch.dart';
+import 'package:book_marketplace/app/router/nav_overlay.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/router/sidebar.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
@@ -13,11 +13,9 @@ import 'package:book_marketplace/features/cart/presentation/providers/cart_provi
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/notifications/presentation/providers/notifications_providers.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
-import 'package:book_marketplace/shared/layout/shell_inset.dart';
 
-/// Khung app người dùng theo style Liquid Glass.
-/// - Desktop/tablet: sidebar kính nổi bên trái (Khám phá · Của tôi · Kệ sách, người dùng ở đáy).
-/// - Điện thoại: tab bar kính nổi ở đáy (Mua sách · Giỏ hàng · Thông báo · Tài khoản).
+/// Khung app người dùng theo style Liquid Glass: nội dung phủ hết màn hình, điều hướng là một nút kính
+/// ở góc dưới (xem [NavOverlay]); bấm vào thì sidebar kính trượt ra (Khám phá · Của tôi · Kệ sách, người dùng ở đáy).
 /// Đấu giá là một khu riêng với khung riêng (xem `auction_shell.dart`); công tắc [ModeSwitch] chuyển qua lại.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.navigationShell});
@@ -29,39 +27,40 @@ class AppShell extends ConsumerWidget {
     initialLocation: i == navigationShell.currentIndex,
   );
 
+  /// Trang gốc của từng mục: ở điện thoại chỉ ở đây mới hiện nút (trang con có nút quay lại và thanh mua hàng).
+  static const _roots = {
+    Routes.home,
+    Routes.cart,
+    Routes.notifications,
+    Routes.account,
+  };
+
+  IconData _icon(String loc) {
+    if (loc == Routes.cart || loc.startsWith('${Routes.cart}/')) {
+      return Icons.shopping_bag_rounded;
+    }
+    return switch (navigationShell.currentIndex) {
+      1 => Icons.notifications_rounded,
+      2 => Icons.person_rounded,
+      _ => Icons.home_rounded,
+    };
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (context.windowSize.isCompact) {
-      return Scaffold(
-        extendBody: true,
-        body: navigationShell,
-        bottomNavigationBar: _TabBar(
-          index: navigationShell.currentIndex,
-          onSelect: _goBranch,
-        ),
-      );
-    }
-    // Nội dung phủ hết bề rộng, sidebar kính nổi đè lên mép trái: thứ gì cuộn / trải ra dưới sidebar
-    // (vd. băng chuyền banner) sẽ bị kính làm mờ. `AppPage` tự chừa lề trái theo [ShellInset].
+    final loc = GoRouterState.of(context).uri.path;
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: ShellInset(left: SidebarPanel.width, child: navigationShell),
-          ),
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            child: _Sidebar(onBranch: _goBranch),
-          ),
-        ],
+      body: NavOverlay(
+        icon: _icon(loc),
+        showButton: !context.windowSize.isCompact || _roots.contains(loc),
+        panel: _Sidebar(onBranch: _goBranch),
+        child: navigationShell,
       ),
     );
   }
 }
 
-// ───────────────────────── Sidebar (desktop) ─────────────────────────
+// ───────────────────────── Sidebar (trượt ra từ nút điều hướng) ─────────────────────────
 
 class _Sidebar extends ConsumerWidget {
   const _Sidebar({required this.onBranch});
@@ -198,56 +197,6 @@ class _Sidebar extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ───────────────────────── Tab bar nổi (mobile) ─────────────────────────
-
-class _TabBar extends ConsumerWidget {
-  const _TabBar({required this.index, required this.onSelect});
-
-  final int index;
-  final ValueChanged<int> onSelect;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final signedIn = ref.watch(sessionControllerProvider).isSignedIn;
-    final unread = signedIn ? ref.watch(unreadCountProvider) : 0;
-    final cart = signedIn ? ref.watch(cartCountProvider) : 0;
-    final loc = GoRouterState.of(context).uri.path;
-    // Giỏ hàng là route con của nhánh Mua sách nên tab này chọn theo địa chỉ, không theo nhánh.
-    final inCart = loc == Routes.cart || loc.startsWith('${Routes.cart}/');
-    return GlassTabBar(
-      items: [
-        GlassTabItem(
-          icon: Icons.home_rounded,
-          label: l10n.navHome,
-          selected: !inCart && index == 0,
-          onTap: () => onSelect(0),
-        ),
-        GlassTabItem(
-          icon: Icons.shopping_bag_rounded,
-          label: l10n.navCart,
-          badge: cart,
-          selected: inCart,
-          onTap: () => context.go(Routes.cart),
-        ),
-        GlassTabItem(
-          icon: Icons.notifications_rounded,
-          label: l10n.navNotifications,
-          badge: unread,
-          selected: index == 1,
-          onTap: () => onSelect(1),
-        ),
-        GlassTabItem(
-          icon: Icons.person_rounded,
-          label: l10n.navAccount,
-          selected: index == 2,
-          onTap: () => onSelect(2),
-        ),
-      ],
     );
   }
 }
