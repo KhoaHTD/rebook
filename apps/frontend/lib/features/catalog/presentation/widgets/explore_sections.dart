@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -370,8 +372,52 @@ class _ExplorePosterFlowState extends ConsumerState<ExplorePosterFlow> {
   int _index = 0;
   final _pages = PageController(viewportFraction: 0.56);
 
+  /// Tự lướt sang cuốn kế tiếp; chạm / vuốt thì tạm dừng, thả ra một lúc sau mới chạy tiếp.
+  static const _autoEvery = Duration(seconds: 4);
+  Timer? _auto;
+  Timer? _resume;
+  bool _held = false;
+  int _count = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _auto = Timer.periodic(_autoEvery, (_) => _advance());
+  }
+
+  void _advance() {
+    if (!mounted || _held || _grid || _count < 2 || !_pages.hasClients) return;
+    final next = (_index + 1) % _count;
+    if (next == 0) {
+      // Hết vòng: quay về cuốn đầu bằng một cú lướt mượt thay vì nhảy.
+      _pages.animateToPage(
+        0,
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeInOutCubic,
+      );
+    } else {
+      _pages.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  void _hold() {
+    _resume?.cancel();
+    _held = true;
+  }
+
+  void _release() {
+    _resume?.cancel();
+    _resume = Timer(const Duration(seconds: 3), () => _held = false);
+  }
+
   @override
   void dispose() {
+    _auto?.cancel();
+    _resume?.cancel();
     _pages.dispose();
     super.dispose();
   }
@@ -447,6 +493,7 @@ class _ExplorePosterFlowState extends ConsumerState<ExplorePosterFlow> {
     }
     final items = _items(feed, all, cats).take(20).toList();
     if (_index >= items.length) _index = 0;
+    _count = items.length;
 
     Widget tab(String label, _FlowTab t) {
       final on = _tab == t;
@@ -532,27 +579,32 @@ class _ExplorePosterFlowState extends ConsumerState<ExplorePosterFlow> {
         else ...[
           SizedBox(
             height: 380,
-            child: PageView.builder(
-              controller: _pages,
-              itemCount: items.length,
-              onPageChanged: (i) => setState(() => _index = i),
-              itemBuilder: (context, i) => _FlowPoster(
+            child: Listener(
+              onPointerDown: (_) => _hold(),
+              onPointerUp: (_) => _release(),
+              onPointerCancel: (_) => _release(),
+              child: PageView.builder(
                 controller: _pages,
-                index: i,
-                rank: i + 1,
-                listing: items[i],
-                onTap: () {
-                  if (i == _index) {
-                    widget.onOpen(items[i]);
-                  } else {
-                    _pages.animateToPage(
-                      i,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                    );
-                  }
-                },
-                onCart: () => _addToCart(items[i]),
+                itemCount: items.length,
+                onPageChanged: (i) => setState(() => _index = i),
+                itemBuilder: (context, i) => _FlowPoster(
+                  controller: _pages,
+                  index: i,
+                  rank: i + 1,
+                  listing: items[i],
+                  onTap: () {
+                    if (i == _index) {
+                      widget.onOpen(items[i]);
+                    } else {
+                      _pages.animateToPage(
+                        i,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                      );
+                    }
+                  },
+                  onCart: () => _addToCart(items[i]),
+                ),
               ),
             ),
           ),

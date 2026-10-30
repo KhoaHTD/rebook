@@ -95,4 +95,28 @@ void main() {
     await _load(tester);
     expect(find.byType(ChoiceChip), findsWidgets);
   });
+
+  testWidgets('băng chuyền tự chạy sang cuốn kế tiếp, chạm thì tạm dừng', (
+    tester,
+  ) async {
+    phone(tester);
+    await tester.pumpWidget(_app((_) {}));
+    await _load(tester);
+    // Cuốn đầu đang ở giữa.
+    expect(find.text('Số Đỏ'), findsWidgets);
+    expect(find.text('Tắt Đèn'), findsNothing);
+
+    // Sau chừng 4 giây tự lướt sang cuốn thứ hai.
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Tắt Đèn'), findsOneWidget);
+
+    // Chạm giữ thì dừng: sau 5 giây vẫn ở cuốn thứ hai.
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byType(PageView)),
+    );
+    await tester.pump(const Duration(seconds: 5));
+    expect(find.text('Tắt Đèn'), findsOneWidget);
+    await gesture.up();
+  });
 }
