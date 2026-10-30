@@ -468,12 +468,16 @@ class FlatPayTile extends StatelessWidget {
   const FlatPayTile({
     super.key,
     required this.icon,
+    required this.color,
     required this.label,
     required this.selected,
     required this.onTap,
   });
 
   final IconData icon;
+
+  /// Màu thương hiệu của phương thức: icon trắng nằm trong ô bo màu này.
+  final Color color;
   final String label;
   final bool selected;
 
@@ -490,7 +494,7 @@ class FlatPayTile extends StatelessWidget {
         child: Opacity(
           opacity: enabled ? 1 : 0.4,
           child: Container(
-            height: 78,
+            height: 86,
             decoration: BoxDecoration(
               color: context.colors.surface,
               borderRadius: BorderRadius.circular(20),
@@ -502,7 +506,15 @@ class FlatPayTile extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 26),
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Icon(icon, size: 21, color: CoverPalette.onHero),
+                ),
                 const SizedBox(height: 6),
                 Text(
                   label,

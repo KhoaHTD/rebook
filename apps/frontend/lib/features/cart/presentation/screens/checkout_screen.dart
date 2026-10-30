@@ -156,14 +156,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         Row(
           children: [
             FlatPayTile(
-              icon: Icons.payments_outlined,
+              icon: Icons.payments_rounded,
+              color: PayPalette.cod,
               label: l10n.payShortCod,
               selected: _method == PaymentMethod.cod,
               onTap: () => setState(() => _method = PaymentMethod.cod),
             ),
             const SizedBox(width: 12),
             FlatPayTile(
-              icon: Icons.account_balance_wallet_outlined,
+              icon: Icons.account_balance_wallet_rounded,
+              color: PayPalette.wallet,
               label: l10n.payShortWallet,
               selected: _method == PaymentMethod.wallet,
               onTap: walletEnough
@@ -173,6 +175,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             const SizedBox(width: 12),
             FlatPayTile(
               icon: Icons.qr_code_2_rounded,
+              color: PayPalette.vnpay,
               label: l10n.payShortVnpay,
               selected: _method == PaymentMethod.vnpay,
               onTap: () => setState(() => _method = PaymentMethod.vnpay),

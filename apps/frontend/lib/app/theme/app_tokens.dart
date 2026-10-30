@@ -312,6 +312,18 @@ abstract final class AmbientPalette {
   static const auction = <(Color, Alignment, double)>[];
 }
 
+/// Màu thương hiệu của các phương thức thanh toán (ô icon ở màn thanh toán).
+abstract final class PayPalette {
+  /// Tiền mặt khi nhận hàng.
+  static const cod = Color(0xFF2EAD5A);
+
+  /// Ví ReBook.
+  static const wallet = Color(0xFFF2994A);
+
+  /// VNPay.
+  static const vnpay = Color(0xFF1E6FE8);
+}
+
 /// Thẻ mời sang khu đấu giá đặt ở app mua sách (nền đen → xám đậm, chữ trắng): đối lập với khu mua sách sáng.
 abstract final class AuctionPalette {
   static const entry = <Color>[Color(0xFF000000), Color(0xFF2A2A2A)];
