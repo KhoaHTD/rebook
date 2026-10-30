@@ -1447,5 +1447,16 @@
   "payShortVnpay": "VNPay",
   "totalPayment": "Tổng thanh toán",
   "orderSummary": "Đơn hàng",
-  "walletAvailable": "Số dư khả dụng"
+  "walletAvailable": "Số dư khả dụng",
+  "exploreKicker": "Sách bạn có thể thích",
+  "shelfCount": "{count, plural, =1{1 cuốn} other{{count} cuốn}}",
+  "@shelfCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shelfPrev": "Kệ trước",
+  "shelfNext": "Kệ sau"
 }

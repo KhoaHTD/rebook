@@ -909,5 +909,9 @@
   "payShortVnpay": "VNPay",
   "totalPayment": "Total payment",
   "orderSummary": "Order",
-  "walletAvailable": "Available balance"
+  "walletAvailable": "Available balance",
+  "exploreKicker": "Books you may like",
+  "shelfCount": "{count, plural, =1{1 book} other{{count} books}}",
+  "shelfPrev": "Previous",
+  "shelfNext": "Next"
 }

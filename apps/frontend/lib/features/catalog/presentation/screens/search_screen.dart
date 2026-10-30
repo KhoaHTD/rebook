@@ -10,6 +10,7 @@ import 'package:book_marketplace/features/catalog/presentation/providers/recent_
 import 'package:book_marketplace/features/catalog/presentation/widgets/explore_sections.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/glass_menu.dart';
 import 'package:book_marketplace/shared/widgets/listing_tile.dart';
@@ -92,9 +93,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ?.name;
     final idle = _idle(query);
 
+    // Điện thoại, chưa tìm / lọc: tiêu đề lớn căn giữa nằm trong trang (như "BOOKS" ở ảnh mẫu), thanh đầu để trống.
+    final bigTitle = idle && context.windowSize.isCompact;
     return AppPage(
-      title: catName ?? l10n.navExplore,
+      title: bigTitle ? '' : (catName ?? l10n.navExplore),
       children: [
+        if (bigTitle) ...[
+          Text(
+            l10n.exploreKicker,
+            textAlign: TextAlign.center,
+            style: context.textStyles.bodyMedium?.copyWith(
+              color: context.appColors.secondaryText,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            l10n.navExplore,
+            textAlign: TextAlign.center,
+            style: context.textStyles.displaySmall?.copyWith(
+              fontSize: 44,
+              height: 1.05,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+        ],
         Row(
           children: [
             Expanded(
@@ -136,14 +159,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             },
           ),
           const SizedBox(height: AppSpacing.xl),
-          ExploreTrending(
-            onSeeAll: () => setState(() => _showAll = true),
+          ExploreShelves(
             onOpen: (l) => context.go(Routes.listing(l.id)),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          ExploreCategories(
-            onSeeAll: () => setState(() => _showAll = true),
-            onPick: (id) => notifier.update(query.copyWith(categoryId: id)),
+            onCategory: (id) => notifier.update(query.copyWith(categoryId: id)),
+            onTrending: () => setState(() => _showAll = true),
           ),
           const SizedBox(height: 110),
         ] else

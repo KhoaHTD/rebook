@@ -6,7 +6,9 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/recent_searches.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
+import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
+import 'package:book_marketplace/shared/widgets/glass_shelf.dart';
 
 /// Tiêu đề một mục của trang Khám phá: biểu tượng nhỏ, tên, và "Xem tất cả" bên phải.
 class ExploreHeader extends StatelessWidget {
@@ -337,6 +339,83 @@ class ExploreCategories extends ConsumerWidget {
             },
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Các kệ kính của trang Khám phá: một kệ "Thịnh hành" rồi mỗi thể loại gốc một kệ (tối đa 12 cuốn),
+/// mỗi kệ một màu ván. Bấm tên kệ thì lọc theo thể loại đó.
+class ExploreShelves extends ConsumerWidget {
+  const ExploreShelves({
+    super.key,
+    required this.onOpen,
+    required this.onCategory,
+    required this.onTrending,
+  });
+
+  final ValueChanged<Listing> onOpen;
+  final ValueChanged<String> onCategory;
+  final VoidCallback onTrending;
+
+  static const maxPerShelf = 12;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final feed = ref.watch(homeFeedProvider).value;
+    final all = ref.watch(allListingsProvider).value ?? const <Listing>[];
+    final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
+    final roots = cats.where((c) => c.parentId == null).toList();
+
+    ShelfEntry entry(Listing l) => ShelfEntry(
+      id: l.id,
+      title: l.book.title,
+      author: l.book.author,
+      coverUrl: l.book.coverUrl,
+      price: formatVnd(l.price),
+      onTap: () => onOpen(l),
+    );
+
+    bool inCategory(Listing l, Category c) {
+      final id = l.book.categoryId;
+      return id == c.id || cats.any((x) => x.id == id && x.parentId == c.id);
+    }
+
+    final trending = (feed?.trending.isNotEmpty ?? false)
+        ? feed!.trending
+        : (feed?.newArrivals ?? const <Listing>[]);
+    final shelves = <(String, List<ShelfEntry>, VoidCallback?)>[
+      if (trending.isNotEmpty)
+        (
+          l10n.exploreTrending,
+          [for (final l in trending.take(maxPerShelf)) entry(l)],
+          onTrending,
+        ),
+      for (final c in roots)
+        (
+          c.name,
+          [
+            for (final l
+                in all.where((l) => inCategory(l, c)).take(maxPerShelf))
+              entry(l),
+          ],
+          () => onCategory(c.id),
+        ),
+    ].where((s) => s.$2.isNotEmpty).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final (i, s) in shelves.indexed) ...[
+          GlassShelf(
+            title: s.$1,
+            entries: s.$2,
+            color: ShelfPalette.at(i),
+            onTitleTap: s.$3,
+          ),
+          const SizedBox(height: 30),
+        ],
       ],
     );
   }
