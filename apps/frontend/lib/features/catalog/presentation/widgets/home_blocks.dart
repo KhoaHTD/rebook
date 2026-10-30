@@ -216,7 +216,7 @@ class AuctionEntryBanner extends StatelessWidget {
     final button = FilledButton.icon(
       onPressed: () => context.go(Routes.auctions),
       style: FilledButton.styleFrom(
-        backgroundColor: AuctionPalette.gold,
+        backgroundColor: AuctionPalette.ink,
         foregroundColor: AppColors.auction.onSelected,
       ),
       icon: const Icon(Icons.gavel_rounded),

@@ -188,26 +188,26 @@ class AppColors extends ThemeExtension<AppColors> {
 
   /// Khu đấu giá: nền tối ấm như phòng đấu giá, đỏ LIVE + vàng đồng. Luôn tối, không theo máy.
   static const auction = AppColors(
-    sidebar: Color(0x4D2A211B),
-    selected: Color(0xFFD9A441),
-    onSelected: Color(0xFF1A1208),
+    sidebar: Color(0x4D2A2A2A),
+    selected: Color(0xFFFFFFFF),
+    onSelected: Color(0xFF000000),
     shelfAlt: Color(0x14FFFFFF),
     fill: Color(0x1FFFFFFF),
     separator: Color(0x26FFFFFF),
-    secondaryText: Color(0xFFB4A99C),
-    tertiaryText: Color(0xFF7E7468),
+    secondaryText: Color(0xFFB3B3B3),
+    tertiaryText: Color(0xFF7A7A7A),
     badgeNew: Color(0x66000000),
     live: Color(0xFFFF4A3D),
     success: Color(0xFF4CD27C),
     warning: Color(0xFFE9A23B),
     info: Color(0xFF8DB8FF),
-    tabBar: Color(0x33D9A441),
+    tabBar: Color(0x33FFFFFF),
     posterShadow: Color(0xB3000000),
-    tint: Color(0xFFD9A441),
-    tintSoft: Color(0x40D9A441),
-    glassTop: Color(0x6B3B2F26),
-    glassBottom: Color(0x4D1A130E),
-    glassBorder: Color(0x33FFE2B0),
+    tint: Color(0xFFF2F2F2),
+    tintSoft: Color(0x26FFFFFF),
+    glassTop: Color(0x6B3A3A3A),
+    glassBottom: Color(0x4D161616),
+    glassBorder: Color(0x33FFFFFF),
     glassShadow: Color(0x99000000),
     background: Color(0xFF000000),
     ambient: AmbientPalette.auction,
@@ -312,11 +312,10 @@ abstract final class AmbientPalette {
   static const auction = <(Color, Alignment, double)>[];
 }
 
-/// Thẻ mời sang khu đấu giá đặt ở app mua sách (nền đỏ rượu → đồng, chữ kem).
+/// Thẻ mời sang khu đấu giá đặt ở app mua sách (nền đen → xám đậm, chữ trắng): đối lập với khu mua sách sáng.
 abstract final class AuctionPalette {
-  static const entry = <Color>[Color(0xFF5A1812), Color(0xFF8A5A1C)];
-  static const ink = Color(0xFFFFF3DC);
-  static const gold = Color(0xFFE9B955);
+  static const entry = <Color>[Color(0xFF000000), Color(0xFF2A2A2A)];
+  static const ink = Color(0xFFFFFFFF);
 }
 
 /// Bảng màu giao diện quản trị (Staff / Admin): dashboard sáng, phẳng, nút đen.

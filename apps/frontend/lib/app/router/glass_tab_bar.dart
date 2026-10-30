@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:book_marketplace/app/router/nav_overlay.dart';
+import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 
-/// Một tab trên thanh tab kính nổi.
+/// Một tab trên thanh tab kính.
 class GlassTabItem {
   const GlassTabItem({
     required this.icon,
@@ -23,41 +23,125 @@ class GlassTabItem {
   final int badge;
 }
 
-/// Thanh tab kính nổi ở đáy điện thoại (kiểu iOS 26),  nở ra từ nút điều hướng [NavOverlay] khi bấm nút (chọn một tab thì thu lại).
-///: một viên kính dài chứa các tab,
-/// tab đang chọn là "thấu kính" sáng nổi lên. Dùng chung cho khu mua sách và khu đấu giá
-/// (màu lấy từ theme nên mỗi khu có diện mạo riêng).
-class GlassTabBar extends StatelessWidget {
-  const GlassTabBar({
+/// Trạng thái thanh điều hướng do `NavOverlay` giữ và đưa cho thanh vẽ ra.
+class NavBarState {
+  const NavBarState({
+    required this.open,
+    required this.onRight,
+    required this.icon,
+    required this.toggle,
+    required this.close,
+  });
+
+  final bool open;
+
+  /// Nút nằm sát mép phải (thanh xổ sang trái).
+  final bool onRight;
+
+  /// Biểu tượng của mục đang đứng, hiện trên nút khi thanh đang thu.
+  final IconData icon;
+  final VoidCallback toggle;
+  final VoidCallback close;
+}
+
+/// Thanh điều hướng kính nằm ngang, **xổ ra từ chính nút**: lúc thu là một viên tròn mang biểu tượng của mục
+/// đang đứng; bấm vào thì viên kính giãn ngang sang bên kia, và ô đầu tiên nằm đúng chỗ của nút. Dùng chung
+/// cho khu mua sách và khu đấu giá ([solidSelected]: tab đang chọn là viên đặc thay cho "thấu kính" sáng).
+class ExpandingTabBar extends StatelessWidget {
+  const ExpandingTabBar({
     super.key,
     required this.items,
+    required this.state,
     this.solidSelected = false,
   });
 
   final List<GlassTabItem> items;
-
-  /// Tab đang chọn là viên đặc màu nhấn (khu đấu giá: vàng đồng) thay cho "thấu kính" sáng.
+  final NavBarState state;
   final bool solidSelected;
+
+  static const height = 64.0;
+  static const _pad = 4.0;
+  static const _cell = 56.0;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
-        child: SizedBox(
-          height: 64,
-          child: Glass(
-            borderRadius: AppRadius.chip,
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                for (final item in items)
-                  Expanded(
-                    child: _Tab(item: item, solid: solidSelected),
+    final full = _pad * 2 + _cell * items.length;
+    final open = state.open;
+    return AnimatedContainer(
+      duration: AppDurations.normal,
+      curve: Curves.easeOutCubic,
+      width: open ? full : height,
+      height: height,
+      child: Glass(
+        borderRadius: AppRadius.chip,
+        padding: EdgeInsets.zero,
+        // Material trong suốt nằm TRÊN nền kính, để viên tab đang chọn (Ink) vẽ lên trên lớp kính chứ không bị che.
+        child: Material(
+          type: MaterialType.transparency,
+          child: Stack(
+            children: [
+              // Lúc thu: biểu tượng của mục đang đứng, nằm ở tâm viên tròn (cũng là tâm ô đầu tiên khi mở).
+              Positioned.fill(
+                child: IgnorePointer(
+                  ignoring: open,
+                  child: AnimatedOpacity(
+                    duration: AppDurations.fast,
+                    opacity: open ? 0 : 1,
+                    child: Semantics(
+                      button: true,
+                      label: context.l10n.navMenu,
+                      child: InkWell(
+                        customBorder: const StadiumBorder(),
+                        onTap: state.toggle,
+                        child: Center(
+                          child: Icon(
+                            state.icon,
+                            size: 24,
+                            color: context.colors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-              ],
-            ),
+                ),
+              ),
+              // Lúc mở: các ô tab; neo vào phía nút để thanh trông như giãn ra từ nút.
+              Positioned.fill(
+                child: IgnorePointer(
+                  ignoring: !open,
+                  child: AnimatedOpacity(
+                    duration: AppDurations.fast,
+                    opacity: open ? 1 : 0,
+                    child: OverflowBox(
+                      minWidth: 0,
+                      maxWidth: full,
+                      alignment: state.onRight
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: SizedBox(
+                        width: full,
+                        child: Padding(
+                          padding: const EdgeInsets.all(_pad),
+                          child: Row(
+                            children: [
+                              for (final item in items)
+                                SizedBox(
+                                  width: _cell,
+                                  child: _Tab(
+                                    item: item,
+                                    solid: solidSelected,
+                                    onClose: state.close,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -66,15 +150,19 @@ class GlassTabBar extends StatelessWidget {
 }
 
 class _Tab extends StatelessWidget {
-  const _Tab({required this.item, required this.solid});
+  const _Tab({required this.item, required this.solid, required this.onClose});
 
   final GlassTabItem item;
   final bool solid;
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     final selected = item.selected;
+    final fg = selected
+        ? (solid ? c.onSelected : context.colors.onSurface)
+        : c.secondaryText;
     return Semantics(
       selected: selected,
       button: true,
@@ -83,16 +171,16 @@ class _Tab extends StatelessWidget {
         customBorder: const StadiumBorder(),
         onTap: () {
           item.onTap();
-          NavPanelScope.closeOf(context);
+          onClose();
         },
-        // Tab đang chọn: "thấu kính" nổi lên trong viên kính.
+        // Tab đang chọn: "thấu kính" nổi lên trong viên kính (khu đấu giá: viên đặc).
         child: Ink(
           decoration: ShapeDecoration(
             color: selected
                 ? (solid ? c.selected : c.tabBar)
                 : Colors.transparent,
             shape: const StadiumBorder(),
-            shadows: selected
+            shadows: selected && !solid
                 ? [
                     BoxShadow(
                       color: c.glassShadow,
@@ -109,13 +197,7 @@ class _Tab extends StatelessWidget {
                 isLabelVisible: item.badge > 0,
                 label: Text('${item.badge}'),
                 backgroundColor: c.live,
-                child: Icon(
-                  item.icon,
-                  size: 24,
-                  color: selected
-                      ? (solid ? c.onSelected : context.colors.onSurface)
-                      : c.secondaryText,
-                ),
+                child: Icon(item.icon, size: 24, color: fg),
               ),
               const SizedBox(height: 3),
               Text(
@@ -123,9 +205,7 @@ class _Tab extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: context.textStyles.labelSmall?.copyWith(
-                  color: selected
-                      ? (solid ? c.onSelected : context.colors.onSurface)
-                      : c.secondaryText,
+                  color: fg,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0,
                 ),

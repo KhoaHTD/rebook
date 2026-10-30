@@ -73,14 +73,14 @@ class AuctionShell extends ConsumerWidget {
           final loc = GoRouterState.of(context).uri.path;
           return Scaffold(
             body: NavOverlay(
-              accent: true,
               icon: _icons[navigationShell.currentIndex],
               showButton: !context.windowSize.isCompact || _roots.contains(loc),
               panel: _AuctionSidebar(
                 index: navigationShell.currentIndex,
                 onBranch: _goBranch,
               ),
-              bar: _AuctionTabBar(
+              bar: (context, state) => _AuctionTabBar(
+                state: state,
                 index: navigationShell.currentIndex,
                 onSelect: _goBranch,
               ),
@@ -189,8 +189,13 @@ class _AuctionSidebar extends ConsumerWidget {
 }
 
 class _AuctionTabBar extends ConsumerWidget {
-  const _AuctionTabBar({required this.index, required this.onSelect});
+  const _AuctionTabBar({
+    required this.state,
+    required this.index,
+    required this.onSelect,
+  });
 
+  final NavBarState state;
   final int index;
   final ValueChanged<int> onSelect;
 
@@ -198,7 +203,8 @@ class _AuctionTabBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final live = ref.watch(_liveCountProvider);
-    return GlassTabBar(
+    return ExpandingTabBar(
+      state: state,
       solidSelected: true,
       items: [
         GlassTabItem(

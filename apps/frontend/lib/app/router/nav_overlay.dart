@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/app/router/glass_tab_bar.dart';
 import 'package:book_marketplace/app/router/sidebar.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/settings/app_settings_controller.dart';
@@ -25,36 +26,36 @@ class NavPanelScope extends InheritedWidget {
   bool updateShouldNotify(NavPanelScope old) => false;
 }
 
-/// Điều hướng của app người dùng: một nút kính tròn ở góc dưới; bấm vào thì sidebar kính trượt ra
-/// từ cùng phía, đè lên nội dung. Kéo nút sang nửa bên kia (hoặc đổi trong Cài đặt) để đổi phía.
+/// Điều hướng của app người dùng, một nút kính ở góc dưới:
+/// - Điện thoại: bấm nút thì **thanh tab ngang xổ ra từ chính nút** ([bar]); ô đầu tiên nằm đúng chỗ nút.
+/// - Máy tính bảng / desktop: bấm nút thì sidebar kính trượt ra từ mép ([panel]).
+///
+/// Không có lớp tối nền; bấm ra ngoài hoặc chọn một mục thì thu lại. Kéo nút sang nửa bên kia (hoặc đổi trong
+/// Cài đặt) để đổi phía.
 class NavOverlay extends ConsumerStatefulWidget {
   const NavOverlay({
     super.key,
     required this.child,
     required this.panel,
+    required this.bar,
     required this.icon,
-    this.bar,
     this.showButton = true,
-    this.accent = false,
   });
 
   /// Nội dung trang (khung điều hướng của go_router).
   final Widget child;
 
-  /// Ruột sidebar (công tắc khu, các mục, tài khoản): dùng ở máy tính bảng và desktop.
+  /// Ruột sidebar (các mục, tài khoản).
   final Widget panel;
 
-  /// Thanh tab ngang liquid glass: ở điện thoại, bấm nút thì nó nở lên từ đáy thay cho sidebar.
-  final Widget? bar;
+  /// Thanh tab ngang của điện thoại, dựng từ trạng thái nút.
+  final Widget Function(BuildContext context, NavBarState state) bar;
 
   /// Biểu tượng của mục đang đứng, hiện trên nút.
   final IconData icon;
 
   /// false ở các trang con (chi tiết, thanh toán…) để nút không đè lên thanh mua hàng.
   final bool showButton;
-
-  /// Nút tô màu nhấn của khu (khu đấu giá: vàng đồng) thay cho kính trong.
-  final bool accent;
 
   static const _button = 52.0;
   static const _margin = 18.0;
@@ -66,7 +67,7 @@ class NavOverlay extends ConsumerStatefulWidget {
 class _NavOverlayState extends ConsumerState<NavOverlay> {
   bool _open = false;
 
-  /// Panel được dựng khi mở và đến hết hoạt ảnh đóng (để khỏi tốn kính mờ lúc không dùng).
+  /// Sidebar được dựng khi mở và đến hết hoạt ảnh đóng (để khỏi tốn kính mờ lúc không dùng).
   bool _mounted = false;
   double _dx = 0;
 
@@ -77,18 +78,20 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
     });
   }
 
+  void _toggleBar() => setState(() => _open = !_open);
+
   void _close() {
     if (_open) setState(() => _open = false);
   }
 
-  void _endDrag(double screenWidth, NavSide side) {
+  void _endDrag(double screenWidth, NavSide side, double size) {
     final onRight = side == NavSide.right;
     final left =
         (onRight
-            ? screenWidth - NavOverlay._margin - NavOverlay._button
+            ? screenWidth - NavOverlay._margin - size
             : NavOverlay._margin) +
         _dx;
-    final center = left + NavOverlay._button / 2;
+    final center = left + size / 2;
     final next = center > screenWidth / 2 ? NavSide.right : NavSide.left;
     setState(() => _dx = 0);
     if (next != side) {
@@ -106,12 +109,17 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
     final screenW = media.size.width;
     final panelW = math.min(SidebarPanel.width, screenW * 0.86);
     final hidden = -panelW;
-    final useBar = widget.bar != null && context.windowSize.isCompact;
-
-    // Biểu tượng thanh trạng thái theo nền của khu (sáng → biểu tượng tối). Trang chủ điện thoại tự đặt lại khi nền màu còn ở đầu trang.
+    final useBar = context.windowSize.isCompact;
+    // Biểu tượng thanh trạng thái theo nền của khu (sáng → biểu tượng tối). Trang chủ điện thoại tự đặt lại
+    // khi nền màu còn ở đầu trang.
     final style = Theme.of(context).brightness == Brightness.dark
         ? SystemUiOverlayStyle.light
         : SystemUiOverlayStyle.dark;
+    final size = useBar ? ExpandingTabBar.height : NavOverlay._button;
+    final fabLeft =
+        (onRight ? screenW - NavOverlay._margin - size : NavOverlay._margin) +
+        _dx;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: style,
       child: PopScope(
@@ -122,37 +130,18 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
         child: Stack(
           children: [
             Positioned.fill(child: widget.child),
-            if (_mounted)
+            // Chạm ra ngoài thì thu lại (không tô tối nền).
+            if (_open)
               Positioned.fill(
+                key: const ValueKey('nav-dismiss'),
                 child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
+                  behavior: HitTestBehavior.translucent,
                   onTap: _close,
-                  child: AnimatedOpacity(
-                    duration: AppDurations.normal,
-                    opacity: _open ? 1 : 0,
-                    child: ColoredBox(
-                      color: CoverPalette.scrim.withValues(alpha: 0.5),
-                    ),
-                  ),
                 ),
               ),
-            if (_mounted && useBar)
+            if (!useBar && _mounted)
               AnimatedPositioned(
-                duration: AppDurations.normal,
-                curve: Curves.easeOutCubic,
-                left: 0,
-                right: 0,
-                bottom: _open ? 0 : -140,
-                onEnd: () {
-                  if (!_open && mounted) setState(() => _mounted = false);
-                },
-                child: FlatScope(
-                  flat: false,
-                  child: NavPanelScope(close: _close, child: widget.bar!),
-                ),
-              ),
-            if (_mounted && !useBar)
-              AnimatedPositioned(
+                key: const ValueKey('nav-sidebar'),
                 duration: AppDurations.normal,
                 curve: Curves.easeOutCubic,
                 left: onRight ? null : (_open ? 0 : hidden),
@@ -171,13 +160,42 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
                   ),
                 ),
               ),
-            if (widget.showButton && !_open)
+            if (widget.showButton && useBar)
               Positioned(
-                left:
-                    (onRight
-                        ? screenW - NavOverlay._margin - NavOverlay._button
-                        : NavOverlay._margin) +
-                    _dx,
+                key: const ValueKey('nav-bar'),
+                // Thanh xổ ra từ nút: neo mép trái (hoặc phải) vào đúng chỗ nút.
+                left: onRight ? null : fabLeft,
+                right: onRight ? NavOverlay._margin - _dx : null,
+                bottom: NavOverlay._margin + media.padding.bottom,
+                child: GestureDetector(
+                  onHorizontalDragUpdate: _open
+                      ? null
+                      : (d) => setState(
+                          () =>
+                              _dx = (_dx + d.delta.dx).clamp(-screenW, screenW),
+                        ),
+                  onHorizontalDragEnd: _open
+                      ? null
+                      : (_) => _endDrag(screenW, side, size),
+                  child: FlatScope(
+                    flat: false,
+                    child: widget.bar(
+                      context,
+                      NavBarState(
+                        open: _open,
+                        onRight: onRight,
+                        icon: widget.icon,
+                        toggle: _toggleBar,
+                        close: _close,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            if (widget.showButton && !useBar && !_open)
+              Positioned(
+                key: const ValueKey('nav-fab'),
+                left: fabLeft,
                 bottom: NavOverlay._margin + media.padding.bottom,
                 width: NavOverlay._button,
                 height: NavOverlay._button,
@@ -185,21 +203,18 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
                   onHorizontalDragUpdate: (d) => setState(
                     () => _dx = (_dx + d.delta.dx).clamp(-screenW, screenW),
                   ),
-                  onHorizontalDragEnd: (_) => _endDrag(screenW, side),
+                  onHorizontalDragEnd: (_) => _endDrag(screenW, side, size),
                   child: Semantics(
                     button: true,
                     label: context.l10n.navMenu,
                     child: FlatScope(
                       flat: false,
                       child: Glass.circle(
-                        tint: widget.accent ? context.appColors.selected : null,
                         onTap: _openPanel,
                         child: Icon(
                           widget.icon,
                           size: 24,
-                          color: widget.accent
-                              ? context.appColors.onSelected
-                              : context.colors.onSurface,
+                          color: context.colors.onSurface,
                         ),
                       ),
                     ),

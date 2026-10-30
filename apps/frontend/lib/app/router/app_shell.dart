@@ -56,7 +56,11 @@ class AppShell extends ConsumerWidget {
         icon: _icon(loc),
         showButton: !context.windowSize.isCompact || _roots.contains(loc),
         panel: _Sidebar(onBranch: _goBranch),
-        bar: _TabBar(index: navigationShell.currentIndex, onSelect: _goBranch),
+        bar: (context, state) => _TabBar(
+          state: state,
+          index: navigationShell.currentIndex,
+          onSelect: _goBranch,
+        ),
         child: navigationShell,
       ),
     );
@@ -214,8 +218,13 @@ class _Sidebar extends ConsumerWidget {
 // ───────────────────────── Tab bar nổi (điện thoại, nở ra từ nút) ─────────────────────────
 
 class _TabBar extends ConsumerWidget {
-  const _TabBar({required this.index, required this.onSelect});
+  const _TabBar({
+    required this.state,
+    required this.index,
+    required this.onSelect,
+  });
 
+  final NavBarState state;
   final int index;
   final ValueChanged<int> onSelect;
 
@@ -230,7 +239,8 @@ class _TabBar extends ConsumerWidget {
     final inCart = loc == Routes.cart || loc.startsWith('${Routes.cart}/');
     // Khám phá (tìm kiếm) cũng là route con của nhánh Mua sách.
     final inExplore = loc == Routes.search;
-    return GlassTabBar(
+    return ExpandingTabBar(
+      state: state,
       items: [
         GlassTabItem(
           icon: Icons.home_rounded,
