@@ -129,7 +129,7 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
     final style = Theme.of(context).brightness == Brightness.dark
         ? SystemUiOverlayStyle.light
         : SystemUiOverlayStyle.dark;
-    final size = useBar ? ExpandingTabBar.height : NavOverlay._button;
+    final size = useBar ? ExpandingTabBar.button : NavOverlay._button;
     final fabLeft =
         (onRight ? screenW - NavOverlay._margin - size : NavOverlay._margin) +
         _dx;

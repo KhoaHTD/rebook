@@ -59,31 +59,42 @@ class ExpandingTabBar extends StatelessWidget {
   final NavBarState state;
   final bool solidSelected;
 
-  static const height = 64.0;
-  static const pad = 4.0;
+  /// Chiều cao cả thanh.
+  static const height = 68.0;
 
-  /// Đường kính của ô icon trên thanh, cũng là đường kính của nút khi thanh thu lại.
-  static const cell = 56.0;
+  /// Khoảng đệm giữa viên kính và các ô bên trong.
+  static const pad = 5.0;
+
+  /// Lề hai bên của thanh so với mép màn hình: thanh phủ hết bề ngang trừ hai lề này, như thanh tab của Apple.
+  static const sideMargin = 16.0;
+
+  /// Đường kính của nút khi thanh thu lại = chiều cao của một ô icon (viên chọn của ô đang chọn cũng cao bằng).
+  static const button = height - pad * 2;
+
+  /// Bề rộng thanh khi mở, theo bề ngang màn hình.
+  static double fullWidth(double screenWidth) => screenWidth - sideMargin * 2;
 
   @override
   Widget build(BuildContext context) {
-    final full = pad * 2 + cell * items.length;
+    final full = fullWidth(MediaQuery.sizeOf(context).width);
+    // Các ô chia đều bề ngang còn lại; nút nằm giữa ô đầu tiên (hoặc ô cuối khi nút ở bên phải).
+    final cellW = (full - pad * 2) / items.length;
     final open = state.open;
-    // Khung ngoài luôn rộng bằng thanh mở (để căn giữa màn hình); viên kính bên trong là nút tròn đường kính
-    // [cell] đặt đúng chỗ ô đầu tiên (hoặc ô cuối khi nút ở bên phải), giãn dần ra thành cả thanh.
+    final onRight = state.onRight;
+    final inset = pad + (cellW - button) / 2;
     return SizedBox(
       width: full,
       height: height,
       child: Align(
-        alignment: state.onRight ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: onRight ? Alignment.centerRight : Alignment.centerLeft,
         child: AnimatedContainer(
           duration: AppDurations.normal,
           curve: Curves.easeOutCubic,
-          width: open ? full : cell,
-          height: open ? height : cell,
+          width: open ? full : button,
+          height: open ? height : button,
           margin: EdgeInsets.only(
-            left: !open && !state.onRight ? pad : 0,
-            right: !open && state.onRight ? pad : 0,
+            left: !open && !onRight ? inset : 0,
+            right: !open && onRight ? inset : 0,
           ),
           child: Glass(
             borderRadius: AppRadius.chip,
@@ -93,7 +104,7 @@ class ExpandingTabBar extends StatelessWidget {
               type: MaterialType.transparency,
               child: Stack(
                 children: [
-                  // Lúc thu: biểu tượng của mục đang đứng, nằm ở tâm viên tròn (cũng là tâm ô đầu tiên khi mở).
+                  // Lúc thu: biểu tượng của mục đang đứng, nằm ở tâm nút (cũng là tâm ô đầu tiên khi mở).
                   Positioned.fill(
                     child: IgnorePointer(
                       ignoring: open,
@@ -109,7 +120,7 @@ class ExpandingTabBar extends StatelessWidget {
                             child: Center(
                               child: Icon(
                                 state.icon,
-                                size: 24,
+                                size: 26,
                                 color: context.colors.onSurface,
                               ),
                             ),
@@ -118,7 +129,7 @@ class ExpandingTabBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Lúc mở: các ô tab; neo vào phía nút để thanh trông như giãn ra từ nút.
+                  // Lúc mở: các ô tab, neo vào phía nút để thanh trông như giãn ra từ nút.
                   Positioned.fill(
                     child: IgnorePointer(
                       ignoring: !open,
@@ -128,7 +139,7 @@ class ExpandingTabBar extends StatelessWidget {
                         child: OverflowBox(
                           minWidth: 0,
                           maxWidth: full,
-                          alignment: state.onRight
+                          alignment: onRight
                               ? Alignment.centerRight
                               : Alignment.centerLeft,
                           child: SizedBox(
@@ -139,7 +150,7 @@ class ExpandingTabBar extends StatelessWidget {
                                 children: [
                                   for (final item in items)
                                     SizedBox(
-                                      width: cell,
+                                      width: cellW,
                                       child: _Tab(
                                         item: item,
                                         solid: solidSelected,
@@ -212,7 +223,7 @@ class _Tab extends StatelessWidget {
                 isLabelVisible: item.badge > 0,
                 label: Text('${item.badge}'),
                 backgroundColor: c.live,
-                child: Icon(item.icon, size: 24, color: fg),
+                child: Icon(item.icon, size: 26, color: fg),
               ),
               const SizedBox(height: 3),
               Text(

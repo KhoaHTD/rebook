@@ -95,14 +95,14 @@ void main() {
       await tester.pumpWidget(_app());
       final collapsed = _pill(tester);
       // Nút tròn đường kính đúng bằng ô icon trên thanh.
-      expect(collapsed.width, ExpandingTabBar.cell);
-      expect(collapsed.height, ExpandingTabBar.cell);
+      expect(collapsed.width, ExpandingTabBar.button);
+      expect(collapsed.height, ExpandingTabBar.button);
       final fabCenter = tester.getCenter(_fabIcon);
 
       await tester.tap(_fabIcon);
       await tester.pumpAndSettle();
       final open = _pill(tester);
-      expect(open.width, ExpandingTabBar.pad * 2 + ExpandingTabBar.cell * 3);
+      expect(open.width, ExpandingTabBar.fullWidth(390));
       // Thanh mở cân giữa màn hình (không lệch trái).
       expect((open.center.dx - 390 / 2).abs(), lessThan(0.5));
       expect(find.text('Hai'), findsOneWidget);
@@ -111,6 +111,27 @@ void main() {
       expect((first.dx - fabCenter.dx).abs(), lessThan(1.5));
     },
   );
+
+  for (final width in [320.0, 390.0, 430.0, 560.0]) {
+    testWidgets('thanh phủ vừa đủ bề ngang ${width.toInt()}, hai lề đều nhau', (
+      tester,
+    ) async {
+      _size(tester, Size(width, 844));
+      await tester.pumpWidget(_app());
+      await tester.tap(_fabIcon);
+      await tester.pumpAndSettle();
+      final open = _pill(tester);
+      // Hai lề bằng nhau và bằng lề quy định; thanh rộng đúng bằng bề ngang trừ hai lề.
+      expect(open.left, closeTo(ExpandingTabBar.sideMargin, 0.5));
+      expect(width - open.right, closeTo(ExpandingTabBar.sideMargin, 0.5));
+      expect(open.width, closeTo(ExpandingTabBar.fullWidth(width), 0.5));
+      // Ba ô chia đều: khoảng cách giữa tâm các ô bằng nhau.
+      final a = tester.getCenter(find.text('Một')).dx;
+      final b = tester.getCenter(find.text('Hai')).dx;
+      final c = tester.getCenter(find.text('Ba')).dx;
+      expect(b - a, closeTo(c - b, 0.5));
+    });
+  }
 
   testWidgets('chọn một tab thì chạy hành động và thanh thu lại', (
     tester,
@@ -123,7 +144,7 @@ void main() {
     await tester.tap(find.text('Một'));
     await tester.pumpAndSettle();
     expect(_tapped, 1);
-    expect(_pill(tester).width, ExpandingTabBar.cell);
+    expect(_pill(tester).width, ExpandingTabBar.button);
   });
 
   testWidgets('bấm ra ngoài thì thanh thu lại', (tester) async {
@@ -134,7 +155,7 @@ void main() {
 
     await tester.tapAt(const Offset(300, 300));
     await tester.pumpAndSettle();
-    expect(_pill(tester).width, ExpandingTabBar.cell);
+    expect(_pill(tester).width, ExpandingTabBar.button);
   });
 
   testWidgets('máy tính bảng / desktop: nút mở sidebar, bấm mục thì đóng', (
