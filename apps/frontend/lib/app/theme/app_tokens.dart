@@ -312,6 +312,15 @@ abstract final class AmbientPalette {
   static const auction = <(Color, Alignment, double)>[];
 }
 
+/// Màu sơ đồ Việt Nam (tờ vị trí giao hàng).
+abstract final class MapPalette {
+  static const sea = Color(0xFFD9E8F4);
+  static const land = Color(0xFFF6F2E6);
+  static const border = Color(0xFFA9A08A);
+  static const label = Color(0xFF5A6877);
+  static const pin = Color(0xFFE5392F);
+}
+
 /// Màu thương hiệu của các phương thức thanh toán (ô icon ở màn thanh toán).
 abstract final class PayPalette {
   /// Tiền mặt khi nhận hàng.

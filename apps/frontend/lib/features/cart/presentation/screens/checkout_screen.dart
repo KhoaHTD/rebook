@@ -12,11 +12,13 @@ import 'package:book_marketplace/features/cart/presentation/widgets/cart_widgets
 import 'package:book_marketplace/features/cart/presentation/widgets/flat_commerce_widgets.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/data/vietnam_geo.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/money_summary.dart';
+import 'package:book_marketplace/shared/widgets/vietnam_map.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Xác nhận đặt hàng: chọn địa chỉ (đổi phí ship), chọn COD / ví / VNPay, đặt hàng.
@@ -93,6 +95,66 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
+  /// Tờ trượt lên: sơ đồ Việt Nam (có Hoàng Sa, Trường Sa) ghim ở tỉnh / thành của địa chỉ, kèm địa chỉ đầy đủ.
+  Future<void> _showMap(Address address, VoidCallback onChange) {
+    final l10n = context.l10n;
+    return showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder: (sheet) {
+        final text = sheet.textStyles;
+        final c = sheet.appColors;
+        final located = VietnamGeo.province(address.province) != null;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.addressMapTitle,
+                  style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 12),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(sheet).height * 0.5,
+                  ),
+                  child: Center(child: VietnamMap(province: address.province)),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '${address.receiver} · ${address.phone}',
+                  style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  address.oneLine,
+                  style: text.bodyMedium?.copyWith(color: c.secondaryText),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  located ? l10n.mapApprox : l10n.mapNoPin,
+                  style: text.bodySmall?.copyWith(color: c.tertiaryText),
+                ),
+                const SizedBox(height: 14),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(sheet);
+                    onChange();
+                  },
+                  child: Text(l10n.changeAddress),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   /// Điện thoại: thanh toán phẳng — thẻ địa chỉ, ba ô phương thức, thẻ đen giải thích, tóm tắt đơn,
   /// tổng thanh toán và nút đen "Xác nhận đặt hàng" ghim ở đáy.
   Widget _compact(
@@ -151,6 +213,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           FlatAddressCard(
             address: address,
             onChange: () => _pickAddress(addressList, address.id),
+            onOpenMap: () =>
+                _showMap(address, () => _pickAddress(addressList, address.id)),
           ),
         heading(l10n.paymentMethod),
         Row(

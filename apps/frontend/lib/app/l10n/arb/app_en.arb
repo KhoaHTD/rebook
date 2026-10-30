@@ -919,5 +919,11 @@
   "exploreViewBook": "View book",
   "exploreViewGrid": "Grid view",
   "exploreViewCarousel": "Carousel",
-  "exploreAddToCart": "Add to cart"
+  "exploreAddToCart": "Add to cart",
+  "addressMapTitle": "Delivery location",
+  "mapParacel": "Hoàng Sa Islands (Vietnam)",
+  "mapSpratly": "Trường Sa Islands (Vietnam)",
+  "mapEastSea": "East Sea",
+  "mapApprox": "Pin placed by the address's province",
+  "mapNoPin": "Could not place this address's province."
 }

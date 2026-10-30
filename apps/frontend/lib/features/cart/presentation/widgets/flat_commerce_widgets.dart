@@ -413,10 +413,14 @@ class FlatAddressCard extends StatelessWidget {
     super.key,
     required this.address,
     required this.onChange,
+    this.onOpenMap,
   });
 
   final Address address;
   final VoidCallback onChange;
+
+  /// Bấm vào thẻ thì mở sơ đồ vị trí giao hàng.
+  final VoidCallback? onOpenMap;
 
   @override
   Widget build(BuildContext context) {
@@ -424,6 +428,7 @@ class FlatAddressCard extends StatelessWidget {
     final c = context.appColors;
     final text = context.textStyles;
     return FlatCard(
+      onTap: onOpenMap,
       child: Row(
         children: [
           Container(
@@ -433,7 +438,7 @@ class FlatAddressCard extends StatelessWidget {
               color: c.fill,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(Icons.location_on_rounded, color: c.secondaryText),
+            child: const Icon(Icons.location_on_rounded, color: MapPalette.pin),
           ),
           const SizedBox(width: 14),
           Expanded(

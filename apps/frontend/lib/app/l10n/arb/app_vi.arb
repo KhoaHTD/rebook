@@ -1464,5 +1464,11 @@
   "exploreViewBook": "Xem sách",
   "exploreViewGrid": "Dạng lưới",
   "exploreViewCarousel": "Băng chuyền",
-  "exploreAddToCart": "Thêm vào giỏ"
+  "exploreAddToCart": "Thêm vào giỏ",
+  "addressMapTitle": "Vị trí giao hàng",
+  "mapParacel": "Quần đảo Hoàng Sa (Việt Nam)",
+  "mapSpratly": "Quần đảo Trường Sa (Việt Nam)",
+  "mapEastSea": "Biển Đông",
+  "mapApprox": "Ghim theo tỉnh/thành của địa chỉ",
+  "mapNoPin": "Chưa xác định được tỉnh/thành của địa chỉ này."
 }
