@@ -1458,5 +1458,11 @@
     }
   },
   "shelfPrev": "Kệ trước",
-  "shelfNext": "Kệ sau"
+  "shelfNext": "Kệ sau",
+  "exploreTabTrending": "Thịnh hành",
+  "exploreTabCategories": "Thể loại",
+  "exploreViewBook": "Xem sách",
+  "exploreViewGrid": "Dạng lưới",
+  "exploreViewCarousel": "Băng chuyền",
+  "exploreAddToCart": "Thêm vào giỏ"
 }

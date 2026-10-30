@@ -913,5 +913,11 @@
   "exploreKicker": "Books you may like",
   "shelfCount": "{count, plural, =1{1 book} other{{count} books}}",
   "shelfPrev": "Previous",
-  "shelfNext": "Next"
+  "shelfNext": "Next",
+  "exploreTabTrending": "Trending",
+  "exploreTabCategories": "Categories",
+  "exploreViewBook": "View book",
+  "exploreViewGrid": "Grid view",
+  "exploreViewCarousel": "Carousel",
+  "exploreAddToCart": "Add to cart"
 }

@@ -312,23 +312,6 @@ abstract final class AmbientPalette {
   static const auction = <(Color, Alignment, double)>[];
 }
 
-/// Màu ván kệ kính ở trang Khám phá (pastel đậm vừa): cam, xanh dương, tím, xanh lá, hồng, vàng.
-abstract final class ShelfPalette {
-  static const colors = <Color>[
-    Color(0xFFF2A33A),
-    Color(0xFF3FA0F5),
-    Color(0xFF9B7BEA),
-    Color(0xFF4DBB8A),
-    Color(0xFFEA6F9A),
-    Color(0xFFE8C53D),
-  ];
-
-  static Color at(int i) => colors[i % colors.length];
-
-  /// Bóng đổ dưới tấm ván.
-  static const shadow = Color(0x26000000);
-}
-
 /// Thẻ mời sang khu đấu giá đặt ở app mua sách (nền đen → xám đậm, chữ trắng): đối lập với khu mua sách sáng.
 abstract final class AuctionPalette {
   static const entry = <Color>[Color(0xFF000000), Color(0xFF2A2A2A)];

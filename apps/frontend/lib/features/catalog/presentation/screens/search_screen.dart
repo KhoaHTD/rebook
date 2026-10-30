@@ -159,11 +159,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             },
           ),
           const SizedBox(height: AppSpacing.xl),
-          ExploreShelves(
-            onOpen: (l) => context.go(Routes.listing(l.id)),
-            onCategory: (id) => notifier.update(query.copyWith(categoryId: id)),
-            onTrending: () => setState(() => _showAll = true),
-          ),
+          ExplorePosterFlow(onOpen: (l) => context.go(Routes.listing(l.id))),
           const SizedBox(height: 110),
         ] else
           AsyncValueView(
