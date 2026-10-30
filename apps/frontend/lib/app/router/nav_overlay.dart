@@ -99,6 +99,20 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
     }
   }
 
+  /// Kéo thanh (đang thu) sang phía bên kia thì đổi phía; kéo ngắn thì trả về chỗ cũ.
+  void _endBarDrag(double screenWidth, NavSide side) {
+    final far = screenWidth * 0.25;
+    final next = side == NavSide.left && _dx > far
+        ? NavSide.right
+        : side == NavSide.right && _dx < -far
+        ? NavSide.left
+        : side;
+    setState(() => _dx = 0);
+    if (next != side) {
+      ref.read(appSettingsControllerProvider.notifier).setNavSide(next);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final side = ref.watch(
@@ -163,30 +177,37 @@ class _NavOverlayState extends ConsumerState<NavOverlay> {
             if (widget.showButton && useBar)
               Positioned(
                 key: const ValueKey('nav-bar'),
-                // Thanh xổ ra từ nút: neo mép trái (hoặc phải) vào đúng chỗ nút.
-                left: onRight ? null : fabLeft,
-                right: onRight ? NavOverlay._margin - _dx : null,
+                // Thanh cân giữa màn hình khi mở; nút là đầu trái (hoặc phải) của thanh đó.
+                left: 0,
+                right: 0,
                 bottom: NavOverlay._margin + media.padding.bottom,
-                child: GestureDetector(
-                  onHorizontalDragUpdate: _open
-                      ? null
-                      : (d) => setState(
-                          () =>
-                              _dx = (_dx + d.delta.dx).clamp(-screenW, screenW),
+                child: Center(
+                  child: Transform.translate(
+                    offset: Offset(_dx, 0),
+                    child: GestureDetector(
+                      onHorizontalDragUpdate: _open
+                          ? null
+                          : (d) => setState(
+                              () => _dx = (_dx + d.delta.dx).clamp(
+                                -screenW,
+                                screenW,
+                              ),
+                            ),
+                      onHorizontalDragEnd: _open
+                          ? null
+                          : (_) => _endBarDrag(screenW, side),
+                      child: FlatScope(
+                        flat: false,
+                        child: widget.bar(
+                          context,
+                          NavBarState(
+                            open: _open,
+                            onRight: onRight,
+                            icon: widget.icon,
+                            toggle: _toggleBar,
+                            close: _close,
+                          ),
                         ),
-                  onHorizontalDragEnd: _open
-                      ? null
-                      : (_) => _endDrag(screenW, side, size),
-                  child: FlatScope(
-                    flat: false,
-                    child: widget.bar(
-                      context,
-                      NavBarState(
-                        open: _open,
-                        onRight: onRight,
-                        icon: widget.icon,
-                        toggle: _toggleBar,
-                        close: _close,
                       ),
                     ),
                   ),

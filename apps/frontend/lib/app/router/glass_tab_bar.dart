@@ -60,88 +60,103 @@ class ExpandingTabBar extends StatelessWidget {
   final bool solidSelected;
 
   static const height = 64.0;
-  static const _pad = 4.0;
-  static const _cell = 56.0;
+  static const pad = 4.0;
+
+  /// Đường kính của ô icon trên thanh, cũng là đường kính của nút khi thanh thu lại.
+  static const cell = 56.0;
 
   @override
   Widget build(BuildContext context) {
-    final full = _pad * 2 + _cell * items.length;
+    final full = pad * 2 + cell * items.length;
     final open = state.open;
-    return AnimatedContainer(
-      duration: AppDurations.normal,
-      curve: Curves.easeOutCubic,
-      width: open ? full : height,
+    // Khung ngoài luôn rộng bằng thanh mở (để căn giữa màn hình); viên kính bên trong là nút tròn đường kính
+    // [cell] đặt đúng chỗ ô đầu tiên (hoặc ô cuối khi nút ở bên phải), giãn dần ra thành cả thanh.
+    return SizedBox(
+      width: full,
       height: height,
-      child: Glass(
-        borderRadius: AppRadius.chip,
-        padding: EdgeInsets.zero,
-        // Material trong suốt nằm TRÊN nền kính, để viên tab đang chọn (Ink) vẽ lên trên lớp kính chứ không bị che.
-        child: Material(
-          type: MaterialType.transparency,
-          child: Stack(
-            children: [
-              // Lúc thu: biểu tượng của mục đang đứng, nằm ở tâm viên tròn (cũng là tâm ô đầu tiên khi mở).
-              Positioned.fill(
-                child: IgnorePointer(
-                  ignoring: open,
-                  child: AnimatedOpacity(
-                    duration: AppDurations.fast,
-                    opacity: open ? 0 : 1,
-                    child: Semantics(
-                      button: true,
-                      label: context.l10n.navMenu,
-                      child: InkWell(
-                        customBorder: const StadiumBorder(),
-                        onTap: state.toggle,
-                        child: Center(
-                          child: Icon(
-                            state.icon,
-                            size: 24,
-                            color: context.colors.onSurface,
+      child: Align(
+        alignment: state.onRight ? Alignment.centerRight : Alignment.centerLeft,
+        child: AnimatedContainer(
+          duration: AppDurations.normal,
+          curve: Curves.easeOutCubic,
+          width: open ? full : cell,
+          height: open ? height : cell,
+          margin: EdgeInsets.only(
+            left: !open && !state.onRight ? pad : 0,
+            right: !open && state.onRight ? pad : 0,
+          ),
+          child: Glass(
+            borderRadius: AppRadius.chip,
+            padding: EdgeInsets.zero,
+            // Material trong suốt nằm TRÊN nền kính, để viên tab đang chọn (Ink) vẽ lên trên lớp kính chứ không bị che.
+            child: Material(
+              type: MaterialType.transparency,
+              child: Stack(
+                children: [
+                  // Lúc thu: biểu tượng của mục đang đứng, nằm ở tâm viên tròn (cũng là tâm ô đầu tiên khi mở).
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      ignoring: open,
+                      child: AnimatedOpacity(
+                        duration: AppDurations.fast,
+                        opacity: open ? 0 : 1,
+                        child: Semantics(
+                          button: true,
+                          label: context.l10n.navMenu,
+                          child: InkWell(
+                            customBorder: const StadiumBorder(),
+                            onTap: state.toggle,
+                            child: Center(
+                              child: Icon(
+                                state.icon,
+                                size: 24,
+                                color: context.colors.onSurface,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              // Lúc mở: các ô tab; neo vào phía nút để thanh trông như giãn ra từ nút.
-              Positioned.fill(
-                child: IgnorePointer(
-                  ignoring: !open,
-                  child: AnimatedOpacity(
-                    duration: AppDurations.fast,
-                    opacity: open ? 1 : 0,
-                    child: OverflowBox(
-                      minWidth: 0,
-                      maxWidth: full,
-                      alignment: state.onRight
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: SizedBox(
-                        width: full,
-                        child: Padding(
-                          padding: const EdgeInsets.all(_pad),
-                          child: Row(
-                            children: [
-                              for (final item in items)
-                                SizedBox(
-                                  width: _cell,
-                                  child: _Tab(
-                                    item: item,
-                                    solid: solidSelected,
-                                    onClose: state.close,
-                                  ),
-                                ),
-                            ],
+                  // Lúc mở: các ô tab; neo vào phía nút để thanh trông như giãn ra từ nút.
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      ignoring: !open,
+                      child: AnimatedOpacity(
+                        duration: AppDurations.fast,
+                        opacity: open ? 1 : 0,
+                        child: OverflowBox(
+                          minWidth: 0,
+                          maxWidth: full,
+                          alignment: state.onRight
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: SizedBox(
+                            width: full,
+                            child: Padding(
+                              padding: const EdgeInsets.all(pad),
+                              child: Row(
+                                children: [
+                                  for (final item in items)
+                                    SizedBox(
+                                      width: cell,
+                                      child: _Tab(
+                                        item: item,
+                                        solid: solidSelected,
+                                        onClose: state.close,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

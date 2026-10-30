@@ -9,6 +9,7 @@ import 'package:book_marketplace/app/router/nav_overlay.dart';
 import 'package:book_marketplace/app/router/sidebar.dart';
 import 'package:book_marketplace/app/theme/app_theme.dart';
 import 'package:book_marketplace/core/settings/app_settings_controller.dart';
+import 'package:book_marketplace/shared/widgets/glass.dart';
 
 var _tapped = 0;
 
@@ -71,27 +72,39 @@ void _size(WidgetTester tester, Size size) {
 
 // Thanh luôn dựng hai biểu tượng Home: biểu tượng của nút (đầu tiên) và ô tab đầu (cuối cùng).
 Finder get _fabIcon => find.byIcon(Icons.home_rounded).first;
+
+/// Viên kính của thanh (nút khi thu, cả thanh khi mở).
+Rect _pill(WidgetTester t) => t.getRect(
+  find
+      .descendant(
+        of: find.byType(ExpandingTabBar),
+        matching: find.byType(Glass),
+      )
+      .first,
+);
+
 Finder get _firstCellIcon => find.byIcon(Icons.home_rounded).last;
 
 void main() {
   setUp(() => _tapped = 0);
 
   testWidgets(
-    'điện thoại: bấm nút thì thanh xổ ngang, ô đầu nằm đúng chỗ nút',
+    'điện thoại: nút bằng ô icon, xổ ra cân giữa màn hình, ô đầu đúng chỗ nút',
     (tester) async {
       _size(tester, const Size(390, 844));
       await tester.pumpWidget(_app());
-      final collapsed = tester.getRect(find.byType(ExpandingTabBar));
-      expect(collapsed.width, ExpandingTabBar.height);
+      final collapsed = _pill(tester);
+      // Nút tròn đường kính đúng bằng ô icon trên thanh.
+      expect(collapsed.width, ExpandingTabBar.cell);
+      expect(collapsed.height, ExpandingTabBar.cell);
       final fabCenter = tester.getCenter(_fabIcon);
 
       await tester.tap(_fabIcon);
       await tester.pumpAndSettle();
-      final open = tester.getRect(find.byType(ExpandingTabBar));
-      // Xổ ngang: cùng mép trái, cùng đáy, rộng hơn.
-      expect(open.left, collapsed.left);
-      expect(open.bottom, collapsed.bottom);
-      expect(open.width, greaterThan(collapsed.width * 2));
+      final open = _pill(tester);
+      expect(open.width, ExpandingTabBar.pad * 2 + ExpandingTabBar.cell * 3);
+      // Thanh mở cân giữa màn hình (không lệch trái).
+      expect((open.center.dx - 390 / 2).abs(), lessThan(0.5));
       expect(find.text('Hai'), findsOneWidget);
       // Ô đầu tiên nằm đúng tâm cũ của nút.
       final first = tester.getCenter(_firstCellIcon);
@@ -110,10 +123,7 @@ void main() {
     await tester.tap(find.text('Một'));
     await tester.pumpAndSettle();
     expect(_tapped, 1);
-    expect(
-      tester.getRect(find.byType(ExpandingTabBar)).width,
-      ExpandingTabBar.height,
-    );
+    expect(_pill(tester).width, ExpandingTabBar.cell);
   });
 
   testWidgets('bấm ra ngoài thì thanh thu lại', (tester) async {
@@ -124,10 +134,7 @@ void main() {
 
     await tester.tapAt(const Offset(300, 300));
     await tester.pumpAndSettle();
-    expect(
-      tester.getRect(find.byType(ExpandingTabBar)).width,
-      ExpandingTabBar.height,
-    );
+    expect(_pill(tester).width, ExpandingTabBar.cell);
   });
 
   testWidgets('máy tính bảng / desktop: nút mở sidebar, bấm mục thì đóng', (
