@@ -11,8 +11,8 @@ import 'package:book_marketplace/features/auction/presentation/providers/auction
 import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
-/// Tài khoản trong khu đấu giá: ví (khả dụng / đang giữ cọc), lối tắt tới đơn, thông báo, cài đặt, và quay về Mua sách.
-/// Những màn dùng chung với khu mua sách (ví, đơn, hồ sơ) vẫn nằm ở khu đó; bấm vào sẽ chuyển sang khung mua sách.
+/// Hồ sơ trong khu đấu giá: ví cọc (khả dụng / đang giữ), lô đã thắng, phiên đã đăng ký + số bài, lịch sử trả giá,
+/// lô đang theo dõi. Hồ sơ cá nhân, địa chỉ, thông báo, cài đặt dùng chung với khu mua sách (bấm vào sẽ sang khung đó).
 class AuctionAccountScreen extends ConsumerWidget {
   const AuctionAccountScreen({super.key});
 
@@ -102,13 +102,47 @@ class AuctionAccountScreen extends ConsumerWidget {
                   children: [
                     row(
                       Icons.account_balance_wallet_outlined,
-                      l10n.wallet,
-                      () => context.go(Routes.wallet),
+                      l10n.auctionWalletTitle,
+                      () => context.go(Routes.auctionWallet),
                     ),
                     row(
-                      Icons.receipt_long_outlined,
-                      l10n.auctionAccountOrders,
-                      () => context.go(Routes.orders),
+                      Icons.emoji_events_outlined,
+                      l10n.wonLots,
+                      () => context.go(Routes.auctionOrders),
+                    ),
+                    row(
+                      Icons.confirmation_number_outlined,
+                      l10n.auctionAccountRegistrations,
+                      () => context.go(Routes.myAuctions),
+                    ),
+                    row(
+                      Icons.gavel_rounded,
+                      l10n.myBids,
+                      () => context.go(Routes.auctionBids),
+                    ),
+                    row(
+                      Icons.bookmark_border_rounded,
+                      l10n.mineWatching,
+                      () => context.go(Routes.myAuctions),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Glass(
+                blur: false,
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    row(
+                      Icons.person_outline_rounded,
+                      l10n.profile,
+                      () => context.go(Routes.profile),
+                    ),
+                    row(
+                      Icons.location_on_outlined,
+                      l10n.addresses,
+                      () => context.go(Routes.addresses),
                     ),
                     row(
                       Icons.notifications_none_rounded,

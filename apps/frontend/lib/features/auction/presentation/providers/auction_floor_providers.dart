@@ -38,3 +38,35 @@ Future<List<Lot>> watchedLots(Ref ref) async {
   final lots = await ref.watch(activeLotsProvider.future);
   return lots.where((l) => l.watched).toList();
 }
+
+/// Một lần trả giá của tôi kèm lô tương ứng.
+class MyBid {
+  const MyBid(this.lot, this.bid);
+
+  final Lot lot;
+  final Bid bid;
+
+  /// Lần trả giá này đang là giá dẫn đầu của lô.
+  bool get leading => lot.leadingPaddle == bid.paddleNumber;
+}
+
+/// Các lần tôi đã trả giá (theo số bài của từng phiên đã đăng ký), mới nhất trước.
+@riverpod
+Future<List<MyBid>> myBids(Ref ref) async {
+  final regs = await ref.watch(myRegistrationsProvider.future);
+  final paddles = {for (final r in regs) r.sessionId: r.paddleNumber};
+  if (paddles.isEmpty) return const [];
+  final lots = await ref.watch(activeLotsProvider.future);
+  final out = <MyBid>[];
+  for (final lot in lots) {
+    final paddle = paddles[lot.sessionId];
+    if (paddle == null || lot.bidCount == 0) continue;
+    final bids = await ref.watch(lotBidsProvider(lot.id).future);
+    out.addAll([
+      for (final b in bids)
+        if (b.paddleNumber == paddle) MyBid(lot, b),
+    ]);
+  }
+  out.sort((a, b) => b.bid.createdAt.compareTo(a.bid.createdAt));
+  return out;
+}

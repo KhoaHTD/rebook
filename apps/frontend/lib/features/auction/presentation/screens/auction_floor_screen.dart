@@ -11,7 +11,6 @@ import 'package:book_marketplace/features/auction/presentation/providers/auction
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_home_widgets.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_stage_widgets.dart';
-import 'package:book_marketplace/features/auction/presentation/widgets/auto_shelf.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_widgets.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
@@ -268,7 +267,8 @@ class _FeaturedLots extends ConsumerWidget {
 }
 
 /// Điện thoại: ô tìm, hàng banner phiên (ghi tên phiên), kệ sách tự trôi từ trái sang phải, tab
-/// Khám phá / Sắp diễn ra / Yêu thích / Của tôi và danh sách thẻ lô lớn (đồng hồ + giá nằm trên ảnh).
+/// Khám phá / Sắp diễn ra / Yêu thích / Của tôi; bên dưới là các phiên từ trên xuống, mỗi phiên là một kệ các lô chạy
+/// từ trái sang phải.
 /// Desktop giữ bố cục thẻ ở trên.
 class _MobileFloor extends ConsumerStatefulWidget {
   const _MobileFloor();
@@ -311,38 +311,42 @@ class _MobileFloorState extends ConsumerState<_MobileFloor> {
           value: sessions,
           onRetry: () => ref.invalidate(auctionSessionsProvider),
           data: (all) {
-            final byId = {for (final s in all) s.id: s};
             final live = all
                 .where((s) => SessionTab.live.matches(s.status))
                 .toList();
             final upcoming =
                 all.where((s) => SessionTab.upcoming.matches(s.status)).toList()
                   ..sort((a, b) => a.startAt.compareTo(b.startAt));
-            final banners = [...live, ...upcoming].take(6).toList();
             final q = _search.text.trim().toLowerCase();
             final mineIds = {for (final r in mine) r.sessionId};
-            var lots = switch (_tab) {
-              0 => [
-                ...active.where((l) => byId[l.sessionId]?.isLive ?? false),
-                ...active.where((l) => !(byId[l.sessionId]?.isLive ?? false)),
-              ],
-              1 => active.where((l) {
-                final st = byId[l.sessionId]?.status;
-                return st != null && SessionTab.upcoming.matches(st);
-              }).toList(),
-              2 => watched,
-              _ => active.where((l) => mineIds.contains(l.sessionId)).toList(),
-            };
+            final watchedIds = {for (final l in watched) l.sessionId};
+            var shown = switch (_tab) {
+              0 => [...live, ...upcoming],
+              1 => live,
+              2 => upcoming,
+              3 => [
+                ...live,
+                ...upcoming,
+              ].where((s) => watchedIds.contains(s.id)),
+              _ => [...live, ...upcoming].where((s) => mineIds.contains(s.id)),
+            }.toList();
             if (q.isNotEmpty) {
-              lots = [
-                for (final l in lots)
-                  if (l.book.title.toLowerCase().contains(q) ||
-                      l.book.author.toLowerCase().contains(q))
-                    l,
+              // Khớp tên phiên hoặc tên sách / tác giả của một lô trong phiên.
+              shown = [
+                for (final s in shown)
+                  if (s.title.toLowerCase().contains(q) ||
+                      active.any(
+                        (l) =>
+                            l.sessionId == s.id &&
+                            (l.book.title.toLowerCase().contains(q) ||
+                                l.book.author.toLowerCase().contains(q)),
+                      ))
+                    s,
               ];
             }
             final tabs = [
               l10n.navExplore,
+              l10n.tabLive,
               l10n.floorShelfUpcoming,
               l10n.floorTabFavorite,
               l10n.auctionNavMine,
@@ -359,23 +363,6 @@ class _MobileFloorState extends ConsumerState<_MobileFloor> {
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                SessionBannerCarousel(sessions: banners),
-                if (active.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xl),
-                  AutoShelf(
-                    books: [
-                      for (final l in active)
-                        ShelfBook(
-                          id: l.id,
-                          title: l.book.title,
-                          author: l.book.author,
-                          coverUrl: l.book.coverUrl,
-                          onTap: () => context.go(Routes.lot(l.id)),
-                        ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.xl),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -402,7 +389,7 @@ class _MobileFloorState extends ConsumerState<_MobileFloor> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                if (lots.isEmpty)
+                if (shown.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: Text(
@@ -412,10 +399,10 @@ class _MobileFloorState extends ConsumerState<_MobileFloor> {
                     ),
                   )
                 else
-                  for (final l in lots)
+                  for (final s in shown)
                     Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      child: AuctionLotCard(lot: l, session: byId[l.sessionId]),
+                      child: SessionShelfCard(session: s),
                     ),
                 const SizedBox(height: 110),
               ],

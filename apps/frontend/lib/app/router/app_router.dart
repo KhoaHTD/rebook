@@ -23,6 +23,7 @@ import 'package:book_marketplace/features/auction/presentation/screens/auction_s
 import 'package:book_marketplace/features/auction/presentation/screens/live_room_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/lot_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/my_auctions_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/my_bids_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/register_session_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/results_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/session_screen.dart';
@@ -332,6 +333,27 @@ GoRouter appRouter(Ref ref) {
               GoRoute(
                 path: Routes.auctionAccount,
                 builder: (_, _) => const AuctionAccountScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'wallet',
+                    builder: (_, _) => const WalletScreen(auction: true),
+                  ),
+                  GoRoute(
+                    path: 'orders',
+                    builder: (_, _) => const OrdersScreen(auction: true),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, s) =>
+                            OrderDetailScreen(orderId: s.pathParameters['id']!),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'bids',
+                    builder: (_, _) => const MyBidsScreen(),
+                  ),
+                ],
               ),
             ],
           ),

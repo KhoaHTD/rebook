@@ -6,13 +6,17 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/orders/presentation/providers/orders_providers.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/order_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
-/// Đơn mua (gồm cả hóa đơn lô đấu giá đã thắng), lọc theo nhóm trạng thái.
+/// Đơn mua, lọc theo nhóm trạng thái. Khu mua sách chỉ hiện đơn giá cố định; khu đấu giá ([auction]) chỉ hiện hóa đơn
+/// các lô đã thắng.
 class OrdersScreen extends ConsumerStatefulWidget {
-  const OrdersScreen({super.key});
+  const OrdersScreen({super.key, this.auction = false});
+
+  final bool auction;
 
   @override
   ConsumerState<OrdersScreen> createState() => _OrdersScreenState();
@@ -35,7 +39,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     final l10n = context.l10n;
     final orders = ref.watch(myOrdersProvider);
     return AppPage(
-      title: l10n.myOrders,
+      title: widget.auction ? l10n.wonLots : l10n.myOrders,
       onRefresh: () => ref.refresh(myOrdersProvider.future),
       children: [
         SingleChildScrollView(
@@ -59,7 +63,10 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
           value: orders,
           onRetry: () => ref.invalidate(myOrdersProvider),
           data: (all) {
-            final list = all.where((o) => _filter.matches(o.status)).toList();
+            final type = widget.auction ? OrderType.auction : OrderType.normal;
+            final list = all
+                .where((o) => o.type == type && _filter.matches(o.status))
+                .toList();
             if (list.isEmpty) {
               return EmptyState(
                 icon: Icons.receipt_long_outlined,
@@ -74,7 +81,11 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                   for (final o in list)
                     OrderCard(
                       order: o,
-                      onTap: () => context.go(Routes.order(o.id)),
+                      onTap: () => context.go(
+                        widget.auction
+                            ? Routes.auctionOrder(o.id)
+                            : Routes.order(o.id),
+                      ),
                     ),
                 ],
               ),

@@ -925,5 +925,14 @@
   "mapSpratly": "Trường Sa Islands (Vietnam)",
   "mapEastSea": "East Sea",
   "mapApprox": "Pin placed by the address's province",
-  "mapNoPin": "Could not place this address's province."
+  "mapNoPin": "Could not place this address's province.",
+  "wonLots": "Won lots",
+  "auctionWalletTitle": "Auction wallet",
+  "depositHistory": "Deposit history",
+  "myBids": "Bid history",
+  "myBidsEmpty": "You have not placed any bids",
+  "myBidLine": "Paddle {paddle} · bid {amount}",
+  "bidLeading": "Leading",
+  "bidOutbid": "Outbid",
+  "auctionAccountRegistrations": "Registered sessions & paddles"
 }

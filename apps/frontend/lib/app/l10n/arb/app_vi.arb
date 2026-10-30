@@ -1470,5 +1470,24 @@
   "mapSpratly": "Quần đảo Trường Sa (Việt Nam)",
   "mapEastSea": "Biển Đông",
   "mapApprox": "Ghim theo tỉnh/thành của địa chỉ",
-  "mapNoPin": "Chưa xác định được tỉnh/thành của địa chỉ này."
+  "mapNoPin": "Chưa xác định được tỉnh/thành của địa chỉ này.",
+  "wonLots": "Lô đã thắng",
+  "auctionWalletTitle": "Ví đấu giá",
+  "depositHistory": "Lịch sử cọc",
+  "myBids": "Lịch sử trả giá",
+  "myBidsEmpty": "Bạn chưa trả giá lô nào",
+  "myBidLine": "Bài số {paddle} · trả {amount}",
+  "@myBidLine": {
+    "placeholders": {
+      "paddle": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bidLeading": "Đang dẫn đầu",
+  "bidOutbid": "Đã bị vượt giá",
+  "auctionAccountRegistrations": "Phiên đã đăng ký & số bài"
 }

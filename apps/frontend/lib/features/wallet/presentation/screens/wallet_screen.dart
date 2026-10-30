@@ -11,14 +11,24 @@ import 'package:book_marketplace/core/utils/external_link.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/wallet/presentation/providers/wallet_providers.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Ví ReBook: số dư dùng được / đang khóa, nạp tiền VNPay, rút tiền (người bán), sổ giao dịch (SRS 8.1).
+/// Khu mua sách chỉ hiện giao dịch mua bán; khu đấu giá ([auction]) chỉ hiện giao dịch cọc.
 class WalletScreen extends ConsumerWidget {
-  const WalletScreen({super.key});
+  const WalletScreen({super.key, this.auction = false});
+
+  final bool auction;
+
+  static const _depositTypes = {
+    WalletTxnType.depositHold,
+    WalletTxnType.depositRelease,
+    WalletTxnType.depositForfeit,
+  };
 
   Future<int?> _askAmount(
     BuildContext context,
@@ -94,7 +104,13 @@ class WalletScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final c = context.appColors;
     final wallet = ref.watch(myWalletProvider);
-    final txns = ref.watch(walletTransactionsProvider);
+    final txns = ref
+        .watch(walletTransactionsProvider)
+        .whenData(
+          (all) => all
+              .where((t) => _depositTypes.contains(t.type) == auction)
+              .toList(),
+        );
     final withdrawals =
         ref.watch(myWithdrawalsProvider).value ?? const <Withdrawal>[];
     final isSeller =
@@ -135,7 +151,7 @@ class WalletScreen extends ConsumerWidget {
     }
 
     return AppPage(
-      title: l10n.wallet,
+      title: auction ? l10n.auctionWalletTitle : l10n.wallet,
       onRefresh: () => ref.refresh(myWalletProvider.future),
       children: [
         ConstrainedBox(
@@ -171,7 +187,7 @@ class WalletScreen extends ConsumerWidget {
                             icon: const Icon(Icons.add_rounded, size: 18),
                             label: Text(l10n.topUp),
                           ),
-                          if (isSeller)
+                          if (isSeller && !auction)
                             OutlinedButton(
                               onPressed: busy
                                   ? null
@@ -184,7 +200,7 @@ class WalletScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (withdrawals.isNotEmpty) ...[
+              if (withdrawals.isNotEmpty && !auction) ...[
                 const SizedBox(height: AppSpacing.xl),
                 Text(l10n.withdrawals, style: context.textStyles.titleMedium),
                 for (final w in withdrawals)
@@ -199,7 +215,10 @@ class WalletScreen extends ConsumerWidget {
                   ),
               ],
               const SizedBox(height: AppSpacing.xl),
-              Text(l10n.transactions, style: context.textStyles.titleMedium),
+              Text(
+                auction ? l10n.depositHistory : l10n.transactions,
+                style: context.textStyles.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               AsyncValueView(
                 value: txns,

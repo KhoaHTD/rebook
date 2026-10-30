@@ -9,11 +9,11 @@ import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_widgets.dart';
+import 'package:book_marketplace/features/auction/presentation/widgets/auto_shelf.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
-import 'package:book_marketplace/shared/widgets/book_poster.dart';
 import 'package:book_marketplace/shared/widgets/poster_grid.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -40,7 +40,7 @@ class SessionScreen extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _Header(session: session),
+                _Header(session: session, lots: lots),
                 const SizedBox(height: 56),
                 SectionHeader(l10n.lotsInSession),
                 const SizedBox(height: AppSpacing.lg),
@@ -63,9 +63,10 @@ class SessionScreen extends ConsumerWidget {
 }
 
 class _Header extends ConsumerWidget {
-  const _Header({required this.session});
+  const _Header({required this.session, required this.lots});
 
   final AuctionSession session;
+  final List<Lot> lots;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,17 +127,26 @@ class _Header extends ConsumerWidget {
       ],
     );
 
-    final poster = BookPoster(
-      title: session.title,
-      author: l10n.lotsCount(session.lotCount),
-      coverUrl: session.coverImageUrl,
-      seed: session.id,
-      width: compact ? 180 : 240,
+    // Cả phiên là một kệ: các lô của phiên chạy liên tục từ trái sang phải (không có cuốn đại diện).
+    final shelf = AutoShelf(
+      bookWidth: compact ? 92 : 120,
+      height: compact ? 190 : 250,
+      books: [
+        for (final l in lots)
+          ShelfBook(
+            id: l.id,
+            title: l.book.title,
+            author: l.book.author,
+            coverUrl: l.book.coverUrl,
+            onTap: () => context.go(Routes.lot(l.id)),
+          ),
+      ],
     );
     if (compact) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          poster,
+          shelf,
           const SizedBox(height: AppSpacing.xl),
           info,
         ],
@@ -145,9 +155,9 @@ class _Header extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        poster,
+        Expanded(flex: 5, child: shelf),
         const SizedBox(width: 48),
-        Expanded(child: info),
+        Expanded(flex: 4, child: info),
       ],
     );
   }
