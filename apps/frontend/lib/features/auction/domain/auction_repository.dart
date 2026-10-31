@@ -22,6 +22,11 @@ abstract interface class AuctionRepository {
 
   Future<Lot> watch(String lotId, {required bool on});
 
+  /// Phiên tôi theo dõi (phiên yêu thích) và bật / tắt theo dõi cả phiên.
+  Future<List<AuctionSession>> watchedSessions();
+
+  Future<void> watchSession(String sessionId, {required bool on});
+
   /// Trả giá tự động tới [maxAmount].
   Future<void> setProxyBid(String lotId, int maxAmount);
 
@@ -39,4 +44,12 @@ abstract interface class AuctionRepository {
   Future<SessionResult> results(String sessionId);
 
   Future<Wallet> wallet();
+
+  /// Lời mời mua lần hai (SRS 6.6).
+  Future<List<SecondChanceOffer>> secondChanceOffers();
+
+  /// Nhận mua với giá đã trả → hoá đơn lô (đơn đấu giá).
+  Future<Order> acceptSecondChance(String id);
+
+  Future<SecondChanceOffer> declineSecondChance(String id);
 }

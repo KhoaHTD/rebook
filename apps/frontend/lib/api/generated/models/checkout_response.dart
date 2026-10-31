@@ -4,20 +4,20 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'order_summary.dart';
-import 'payment_response.dart';
+import 'order_dto.dart';
+import 'payment_dto.dart';
 
 part 'checkout_response.g.dart';
 
 @JsonSerializable()
 class CheckoutResponse {
-  const CheckoutResponse({this.orders, this.payment});
+  const CheckoutResponse({required this.orders, this.payment});
 
   factory CheckoutResponse.fromJson(Map<String, Object?> json) =>
       _$CheckoutResponseFromJson(json);
 
-  final List<OrderSummary>? orders;
-  final PaymentResponse? payment;
+  final List<OrderDto> orders;
+  final PaymentDto? payment;
 
   Map<String, Object?> toJson() => _$CheckoutResponseToJson(this);
 }

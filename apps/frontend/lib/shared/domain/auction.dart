@@ -126,6 +126,22 @@ abstract class SessionResult with _$SessionResult {
   }) = _SessionResult;
 }
 
+/// Lời mời mua lần hai gửi người trả giá cao thứ hai khi người thắng bỏ thanh toán (SRS 6.6): mua với giá họ đã trả,
+/// hạn 24h; chỉ mời khi giá ≥ giá sàn.
+@freezed
+abstract class SecondChanceOffer with _$SecondChanceOffer {
+  const factory SecondChanceOffer({
+    required String id,
+    required String lotId,
+    required int lotNumber,
+    required String bookTitle,
+    required int amount,
+    required DateTime expiresAt,
+    required SecondChanceStatus status,
+    String? coverUrl,
+  }) = _SecondChanceOffer;
+}
+
 /// Sự kiện realtime trên /topic/sessions/{id} (SRS 10.3).
 sealed class AuctionEvent {
   const AuctionEvent(this.serverTime);

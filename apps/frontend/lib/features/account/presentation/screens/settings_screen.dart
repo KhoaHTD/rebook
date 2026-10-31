@@ -39,6 +39,18 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => ctrl.setTheme(pref),
                 ),
               const SizedBox(height: AppSpacing.lg),
+              Text(l10n.settingsNavSide, style: context.textStyles.titleMedium),
+              const SizedBox(height: AppSpacing.sm),
+              for (final (side, label) in [
+                (NavSide.left, l10n.navSideLeft),
+                (NavSide.right, l10n.navSideRight),
+              ])
+                SelectTile(
+                  selected: settings.navSide == side,
+                  title: label,
+                  onTap: () => ctrl.setNavSide(side),
+                ),
+              const SizedBox(height: AppSpacing.lg),
               Text(
                 l10n.settingsLanguage,
                 style: context.textStyles.titleMedium,

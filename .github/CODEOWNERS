@@ -1,0 +1,27 @@
+# Người duyệt bắt buộc khi PR chạm file hạ tầng (bật "Require review from Code Owners" trong branch protection).
+# Giao diện (kể cả phần người mua) và vùng admin / staff KHÔNG liệt kê: ai cũng được sửa, review như PR thường.
+# Luật chung: apps/frontend/docs/TEAM_GUIDE.md
+
+/.github/                                        @damLay03
+/.githooks/                                      @damLay03
+/.claude/                                        @damLay03
+/CLAUDE.md                                       @damLay03
+
+/apps/frontend/lib/app/                          @damLay03
+/apps/frontend/lib/core/                         @damLay03
+/apps/frontend/lib/api/                          @damLay03
+/apps/frontend/tool/                             @damLay03
+/apps/frontend/openapi/                          @damLay03
+/apps/frontend/env/                              @damLay03
+/apps/frontend/android/                          @damLay03
+/apps/frontend/ios/                              @damLay03
+/apps/frontend/web/                              @damLay03
+/apps/frontend/pubspec.yaml                      @damLay03
+/apps/frontend/pubspec.lock                      @damLay03
+/apps/frontend/analysis_options.yaml             @damLay03
+/apps/frontend/CLAUDE.md                         @damLay03
+/apps/frontend/.claude/                          @damLay03
+
+# Backend là việc của người khác: thay @damLay03 bằng username người làm backend nếu muốn họ duyệt.
+# Riêng interface và nhánh con của nó thì backend bị CẤM hoàn toàn (xem .github/workflows/backend-guard.yml).
+/apps/backend/                                   @damLay03

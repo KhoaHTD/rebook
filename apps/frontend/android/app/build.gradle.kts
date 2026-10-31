@@ -5,6 +5,10 @@ plugins {
 }
 
 android {
+    buildFeatures {
+        resValues = true
+    }
+
     namespace = "vn.edu.fpt.book_marketplace"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
@@ -27,6 +31,14 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // Cài song song nhiều bản trên cùng một máy (vd. bản mock và bản nối backend thật để demo):
+        //   REBOOK_APP_ID_SUFFIX=.live REBOOK_APP_LABEL="ReBook Live" flutter build apk ...
+        // Không đặt biến môi trường → build như cũ (id gốc, tên "ReBook").
+        System.getenv("REBOOK_APP_ID_SUFFIX")?.takeIf { it.isNotBlank() }?.let {
+            applicationIdSuffix = it
+        }
+        resValue("string", "app_name", System.getenv("REBOOK_APP_LABEL")?.takeIf { it.isNotBlank() } ?: "ReBook")
     }
 
     buildTypes {

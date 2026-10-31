@@ -12,92 +12,68 @@ class ApiOrdersRepository implements OrdersRepository {
   final api.RestClient _client;
 
   @override
-  Future<List<Order>> myOrders() => guardApi(() async {
-    final res = await _client.order.getOrders(size: 100);
-    return [for (final o in res.items.orEmpty) o.toDomain()];
-  });
-
-  @override
-  Future<Order> order(String id) => guardApi(
-    () async => (await _client.order.getOrdersId(id: apiId(id))).toDomain(),
+  Future<List<Order>> myOrders() => guardApi(
+    () async => (await _client.orders.listMyOrders(size: 100)).toDomain().items,
   );
 
   @override
+  Future<Order> order(String id) =>
+      guardApi(() async => (await _client.orders.getOrder(id: id)).toDomain());
+
+  @override
   Future<Order> cancel(String id, String reason) => guardApi(
-    () async => (await _client.order.postOrdersIdCancel(
-      id: apiId(id),
+    () async => (await _client.orders.cancelOrder(
+      id: id,
       body: api.ReasonRequest(reason: reason),
     )).toDomain(),
   );
 
   @override
   Future<Order> confirmReceived(String id) => guardApi(
-    () async =>
-        (await _client.order.postOrdersIdConfirmReceived(id: apiId(id)))
-            .toDomain(),
+    () async => (await _client.orders.confirmReceived(id: id)).toDomain(),
   );
 
-  /// Lý do trả hàng của app là chữ tự do; backend nhận mã + mô tả nên gửi
-  /// mã chung "khác mô tả" kèm nguyên văn lý do.
   @override
   Future<Order> requestReturn(
     String id,
     String reason,
     List<String> imageUrls,
   ) => guardApi(
-    () async => (await _client.order.postOrdersIdReturn(
-      id: apiId(id),
-      body: api.ReturnCreateRequest(
-        reason: api.ReturnReason.otherNotAsDescribed,
-        description: reason,
-        images: imageUrls,
-      ),
+    () async => (await _client.orders.requestReturn(
+      id: id,
+      body: api.ReturnRequestInput(reason: reason, imageUrls: imageUrls),
     )).toDomain(),
   );
 
   @override
-  Future<Order> review(String id, int rating, String? comment) =>
-      guardApi(() async {
-        await _client.order.postOrdersIdReview(
-          id: apiId(id),
-          body: api.ReviewRequest(rating: rating, comment: comment),
-        );
-        return (await _client.order.getOrdersId(id: apiId(id))).toDomain();
-      });
+  Future<Order> review(String id, int rating, String? comment) => guardApi(
+    () async => (await _client.orders.reviewOrder(
+      id: id,
+      body: api.ReviewRequest(rating: rating, comment: comment),
+    )).toDomain(),
+  );
 
-  /// Đơn đấu giá: chọn nhận hàng (địa chỉ / lấy tại kho) rồi mới thanh toán.
   @override
   Future<CheckoutResult> pay(
     String id,
     PaymentMethod method, {
     String? addressId,
     bool pickupAtWarehouse = false,
-  }) => guardApi(() async {
-    final orderId = apiId(id);
-    if (pickupAtWarehouse || addressId != null) {
-      await _client.auction.postOrdersIdDeliveryOption(
-        id: orderId,
-        body: api.DeliveryOptionRequest(
-          addressId: pickupAtWarehouse ? null : int.tryParse(addressId ?? ''),
-          pickupAtWarehouse: pickupAtWarehouse,
-        ),
-      );
-    }
-    final res = await _client.order.postOrdersIdPay(
-      id: orderId,
-      body: api.PayRequest(method: paymentMethodToApi(method)),
-    );
-    return CheckoutResult(
-      orders: [if (res.order != null) res.order!.toDomain()],
-      payment: res.payment?.toDomain(),
-    );
-  });
+  }) => guardApi(
+    () async => (await _client.orders.payOrder(
+      id: id,
+      body: api.PayOrderRequest(
+        paymentMethod: toApiEnum(api.PaymentMethod.values, method),
+        addressId: addressId,
+        pickupAtWarehouse: pickupAtWarehouse,
+      ),
+    )).toDomain(),
+  );
 
   @override
   Future<List<Address>> addresses() => guardApi(
-    () async => [
-      for (final a in await _client.user.getMeAddresses()) a.toDomain(),
-    ],
+    () async =>
+        (await _client.users.listAddresses()).map((a) => a.toDomain()).toList(),
   );
 
   @override

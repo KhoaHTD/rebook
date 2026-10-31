@@ -196,11 +196,48 @@ extension FakeCommerce on FakeStore {
       .where((l) => status == null || l.status == status)
       .toList();
 
+  /// Ghi một dòng vào nhật ký hoạt động của Admin (SRS 8.1).
+  void _log(AdminAction action, {String? target, String? note}) {
+    activityLogs.insert(
+      0,
+      ActivityLog(
+        id: _id('log'),
+        adminName: currentUserId == null ? '—' : me.fullName,
+        action: action,
+        createdAt: DateTime.now(),
+        target: target,
+        note: note,
+      ),
+    );
+  }
+
+  List<ActivityLog> allActivityLogs() => List.of(activityLogs);
+
+  // ───────────────────────── yêu thích ─────────────────────────
+
+  List<Listing> favoriteListings() {
+    final ids = favorites[_uid] ?? const <String>[];
+    return [
+      for (final id in ids)
+        if (_listings[id] != null) _listings[id]!.listing,
+    ];
+  }
+
+  void setFavorite(String id, {required bool on}) {
+    if (_listings[id] == null) fail(ErrorCodes.notFound, 404);
+    final list = favorites.putIfAbsent(_uid, () => []);
+    list.remove(id);
+    if (on) list.insert(0, id);
+    _changed('favorites');
+  }
+
   Listing reviewListing(String id, {required bool approve, String? reason}) {
     final row = _listings[id] ?? fail(ErrorCodes.notFound, 404);
     row.listing = row.listing.copyWith(
       status: approve ? ListingStatus.active : ListingStatus.rejected,
       rejectReason: approve ? null : reason,
+      reviewedBy: me.fullName,
+      reviewedAt: DateTime.now(),
     );
     notify(
       row.shopOwnerId,
@@ -208,6 +245,11 @@ extension FakeCommerce on FakeStore {
       approve ? 'Tin đăng đã được duyệt' : 'Tin đăng bị từ chối',
       '"${row.listing.book.title}"${approve ? ' đang được bán.' : ': ${reason ?? ''}'}',
       '/account/seller/listings',
+    );
+    _log(
+      approve ? AdminAction.listingApproved : AdminAction.listingRejected,
+      target: row.listing.book.title,
+      note: approve ? null : reason,
     );
     _changed('listings');
     return row.listing;
@@ -253,8 +295,11 @@ extension FakeCommerce on FakeStore {
     return base + extra;
   }
 
-  Cart cart({String? addressId}) {
-    final items = _cart[_uid] ?? const [];
+  Cart cart({String? addressId, List<String>? itemIds}) {
+    final items = [
+      for (final it in _cart[_uid] ?? const <CartItem>[])
+        if (itemIds == null || itemIds.contains(it.id)) it,
+    ];
     final address = myAddresses()
         .where((a) => a.id == addressId || (addressId == null && a.isDefault))
         .firstOrNull;
@@ -640,7 +685,31 @@ extension FakeCommerce on FakeStore {
     return Paged(items: list, page: 0, size: list.length, total: list.length);
   }
 
-  Order order(String id) => orders[id] ?? fail(ErrorCodes.notFound, 404);
+  Order order(String id) {
+    _escalateOverdueReturns();
+    return orders[id] ?? fail(ErrorCodes.notFound, 404);
+  }
+
+  /// Quá hạn shop / kho chưa trả lời yêu cầu trả hàng → tự chuyển Admin phân xử, tiền vẫn do sàn giữ (SRS 4.4).
+  void _escalateOverdueReturns() {
+    final now = DateTime.now();
+    for (final o in List.of(orders.values)) {
+      final rr = o.returnRequest;
+      if (rr == null ||
+          rr.status != ReturnStatus.pending ||
+          rr.respondBy == null ||
+          now.isBefore(rr.respondBy!)) {
+        continue;
+      }
+      orders[o.id] = o.copyWith(
+        returnRequest: rr.copyWith(
+          status: ReturnStatus.escalated,
+          resolution: 'Quá hạn trả lời, chuyển Admin phân xử',
+        ),
+      );
+      _changed('orders');
+    }
+  }
 
   void _refundOrder(Order o, String note) {
     final buyer = _orderBuyer[o.id]!;
@@ -701,7 +770,25 @@ extension FakeCommerce on FakeStore {
 
   Order confirmReceived(String id) {
     final o = order(id);
-    _transition(id, OrderStatus.completed, note: 'Người mua đã nhận hàng');
+    final rr = o.returnRequest;
+    // Bấm "Đã nhận hàng" khi đang yêu cầu trả hàng = rút yêu cầu: đóng yêu cầu, đơn hoàn tất (SRS 4.4).
+    final withdrawing =
+        o.status == OrderStatus.returnRequested &&
+        rr != null &&
+        (rr.status == ReturnStatus.pending ||
+            rr.status == ReturnStatus.escalated);
+    _transition(
+      id,
+      OrderStatus.completed,
+      note: withdrawing
+          ? 'Người mua rút yêu cầu trả hàng và xác nhận đã nhận'
+          : 'Người mua đã nhận hàng',
+    );
+    if (withdrawing) {
+      orders[id] = orders[id]!.copyWith(
+        returnRequest: rr.copyWith(status: ReturnStatus.withdrawn),
+      );
+    }
     _releaseSale(o);
     return orders[id]!;
   }
@@ -759,6 +846,9 @@ extension FakeCommerce on FakeStore {
         reason: reason,
         imageUrls: images,
         status: ReturnStatus.pending,
+        respondBy: DateTime.now().add(
+          Duration(days: config.returnResponseDays),
+        ),
       ),
     );
     notify(
@@ -869,9 +959,12 @@ extension FakeCommerce on FakeStore {
     return orders[id]!;
   }
 
-  List<Order> disputes() => orders.values
-      .where((o) => o.returnRequest?.status == ReturnStatus.escalated)
-      .toList();
+  List<Order> disputes() {
+    _escalateOverdueReturns();
+    return orders.values
+        .where((o) => o.returnRequest?.status == ReturnStatus.escalated)
+        .toList();
+  }
 
   Order resolveDispute(String id, {required bool refund, String? note}) {
     final o = order(id);
@@ -896,43 +989,119 @@ extension FakeCommerce on FakeStore {
             ? ReturnStatus.resolvedRefund
             : ReturnStatus.resolvedNoRefund,
         resolution: note,
+        resolvedBy: me.fullName,
+        resolvedAt: DateTime.now(),
       ),
     );
     return orders[id]!;
   }
 
+  List<Order> resolvedDisputes() =>
+      orders.values.where((o) => o.returnRequest?.resolvedBy != null).toList();
+
   // ───────────────────────── wallet ─────────────────────────
 
   List<WalletTxn> myTxns() => List.of(txns[_uid] ?? const []);
 
-  Withdrawal requestWithdrawal(int amount) {
+  /// Tạo yêu cầu rút: chỉ kiểm tra số dư khả dụng đủ; ví bị trừ khi Admin duyệt (SRS 8.1).
+  Withdrawal requestWithdrawal(
+    int amount, {
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    String? note,
+  }) {
     if (walletOf(_uid).available < amount) fail(ErrorCodes.insufficientBalance);
-    _ledger(
-      _uid,
-      WalletTxnType.withdraw,
-      availableDelta: -amount,
-      note: 'Yêu cầu rút tiền',
-    );
     final w = Withdrawal(
       id: _id('wd'),
       amount: amount,
       status: WithdrawalStatus.pending,
       createdAt: DateTime.now(),
       userName: me.fullName,
+      bankName: bankName,
+      bankAccountNumber: accountNumber,
+      bankAccountName: accountName,
+      note: note,
     );
     withdrawals.insert(0, w);
     _withdrawalOwner[w.id] = _uid;
+    _rememberBankAccount(bankName, accountNumber, accountName);
     return w;
+  }
+
+  /// Tài khoản đã dùng: yêu thích đứng đầu, rồi lần dùng mới nhất.
+  List<BankAccount> myBankAccounts() =>
+      List.of(bankAccounts[_uid] ?? const <BankAccount>[])..sort((a, b) {
+        if (a.favorite != b.favorite) return a.favorite ? -1 : 1;
+        return b.lastUsedAt.compareTo(a.lastUsedAt);
+      });
+
+  BankAccount setBankAccountFavorite(String id, {required bool on}) {
+    final list = bankAccounts[_uid] ?? [];
+    final i = list.indexWhere((a) => a.id == id);
+    if (i < 0) fail(ErrorCodes.notFound, 404);
+    list[i] = list[i].copyWith(favorite: on);
+    _changed('wallet');
+    return list[i];
+  }
+
+  /// Backend tự lưu / cập nhật tài khoản mỗi lần tạo yêu cầu rút tiền.
+  void _rememberBankAccount(String bank, String number, String name) {
+    final list = bankAccounts.putIfAbsent(_uid, () => []);
+    final i = list.indexWhere(
+      (a) => a.bankName == bank && a.accountNumber == number,
+    );
+    final now = DateTime.now();
+    if (i >= 0) {
+      list[i] = list[i].copyWith(accountName: name, lastUsedAt: now);
+    } else {
+      list.add(
+        BankAccount(
+          id: _id('ba'),
+          bankName: bank,
+          accountNumber: number,
+          accountName: name,
+          favorite: false,
+          lastUsedAt: now,
+        ),
+      );
+    }
   }
 
   List<Withdrawal> myWithdrawals() =>
       withdrawals.where((w) => _withdrawalOwner[w.id] == _uid).toList();
 
-  Withdrawal completeWithdrawal(String id) {
+  /// Admin duyệt rút tiền: phải nhập biên lai, số tiền đúng số yêu cầu (SRS 8.1).
+  Withdrawal completeWithdrawal(String id, WithdrawalReceipt receipt) {
     final idx = withdrawals.indexWhere((w) => w.id == id);
     if (idx < 0) fail(ErrorCodes.notFound, 404);
+    if (withdrawals[idx].status != WithdrawalStatus.pending) {
+      fail(ErrorCodes.invalidTransition);
+    }
+    if (receipt.amount != withdrawals[idx].amount) {
+      fail(ErrorCodes.receiptMismatch, 422);
+    }
+    // Trừ ví lúc duyệt: kiểm tra lại số dư vì người bán có thể đã tiêu mất tiền trong lúc chờ.
+    final owner = _withdrawalOwner[id]!;
+    if (walletOf(owner).available < receipt.amount) {
+      fail(ErrorCodes.insufficientBalance);
+    }
+    _ledger(
+      owner,
+      WalletTxnType.withdraw,
+      availableDelta: -receipt.amount,
+      note: 'Rút tiền về ${withdrawals[idx].bankName ?? 'ngân hàng'}',
+    );
     withdrawals[idx] = withdrawals[idx].copyWith(
       status: WithdrawalStatus.completed,
+      receipt: receipt,
+      approvedBy: me.fullName,
+      approvedAt: DateTime.now(),
+    );
+    _log(
+      AdminAction.withdrawalCompleted,
+      target: withdrawals[idx].userName,
+      note: '${receipt.amount}',
     );
     notify(
       _withdrawalOwner[id]!,
@@ -986,6 +1155,7 @@ extension FakeCommerce on FakeStore {
       storageFeePerDay: c.storageFeePerDay,
       storageFreeDays: c.storageFreeDays,
     );
+    _log(AdminAction.configChanged);
     return config;
   }
 

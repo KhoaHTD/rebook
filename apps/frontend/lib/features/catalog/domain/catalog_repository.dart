@@ -35,6 +35,11 @@ abstract interface class CatalogRepository {
 
   Future<void> addToCart(String listingId, int quantity);
 
+  /// Sách yêu thích của tôi, mới nhất trước (SRS 3, mở rộng).
+  Future<List<Listing>> favorites();
+
+  Future<void> setFavorite(String listingId, {required bool on});
+
   /// Trạng thái phiên đang chạy (thẻ "Phiên bạn đang xem").
   Future<SessionState> liveState(String sessionId);
 

@@ -120,6 +120,9 @@ abstract class SystemConfig with _$SystemConfig {
     required int depositLimitMultiplier,
     required int auctionBanDays,
     required List<BidTier> bidTiers,
+
+    /// order.return_response_days: số ngày shop được trả lời yêu cầu trả hàng (SRS 4.4).
+    @Default(2) int returnResponseDays,
   }) = _SystemConfig;
 }
 

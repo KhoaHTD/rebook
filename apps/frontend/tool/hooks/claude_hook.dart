@@ -73,14 +73,17 @@ void _pre(Map<String, dynamic> input) {
   final toolInput =
       (input['tool_input'] as Map?)?.cast<String, dynamic>() ?? {};
 
-  if (tool == 'Bash') {
-    _checkPubAdd(toolInput['command'] as String? ?? '');
+  if (tool == 'Bash' || tool == 'PowerShell') {
+    final command = toolInput['command'] as String? ?? '';
+    _checkPubAdd(command);
+    _checkBashBackend(command);
     return;
   }
 
   final filePath = toolInput['file_path'] as String?;
   if (filePath == null) return;
   final rel = _rel(filePath);
+  _checkBackendFile(filePath);
 
   if (_isGenerated(rel)) {
     _block(
@@ -109,6 +112,155 @@ void _pre(Map<String, dynamic> input) {
     final deps = _parseDeps(newContent);
     final bad = deps.where((d) => !allowed.contains(d)).toList();
     if (bad.isNotEmpty) _blockPackages(bad);
+  }
+}
+
+// ------------------------------------------------------- Luật cứng: backend
+
+/// Gốc monorepo (hai cấp trên apps/frontend).
+final String _repoRoot = Directory(_root).parent.parent.path;
+
+/// Nhánh frontend: nhánh này VÀ mọi nhánh con cắt ra từ nó (nhánh có chứa commit của nó)
+/// tuyệt đối không có code `apps/backend` (backend nằm ở `main`, do người khác làm).
+/// Cùng luật có ở `.githooks/pre-push` và `.github/workflows/backend-guard.yml`.
+/// (Khi nhánh này đã merge hết vào `main`, gỡ luật ở cả ba nơi.)
+const _frontendBranch = 'interface';
+
+const _backendHelp =
+    'Nhánh interface và mọi nhánh con của nó chỉ chứa frontend: KHÔNG đưa code apps/backend lên. '
+    'Cần backend thì làm ở nhánh cắt từ main, hoặc báo người dùng để họ nhờ người làm backend.';
+
+String _git(List<String> args) {
+  try {
+    final r = Process.runSync('git', args, workingDirectory: _repoRoot);
+    return r.exitCode == 0 ? (r.stdout as String).trim() : '';
+  } catch (_) {
+    return '';
+  }
+}
+
+bool _gitOk(List<String> args) {
+  try {
+    return Process.runSync('git', args, workingDirectory: _repoRoot).exitCode ==
+        0;
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Mốc để đo "nhánh này đã thêm gì so với nhánh frontend". `null` nếu đây không phải nhánh frontend
+/// (vd. nhánh backend cắt từ main).
+String? _frontendBase() {
+  const remote = 'origin/$_frontendBranch';
+  final hasRemote = _gitOk(['rev-parse', '--verify', '--quiet', remote]);
+  if (_git(['rev-parse', '--abbrev-ref', 'HEAD']) == _frontendBranch) {
+    return hasRemote ? remote : 'origin/main';
+  }
+  for (final ref in [remote, _frontendBranch]) {
+    if (_gitOk(['merge-base', '--is-ancestor', ref, 'HEAD'])) return ref;
+  }
+  return null;
+}
+
+bool _onProtectedBranch() => _frontendBase() != null;
+
+/// Đường dẫn tính từ gốc monorepo, `null` nếu nằm ngoài repo.
+String? _repoRel(String path) {
+  if (!File(path).isAbsolute && !path.startsWith('/')) {
+    final projectDir =
+        Platform.environment['CLAUDE_PROJECT_DIR'] ?? Directory.current.path;
+    path = '$projectDir/$path';
+  }
+  final norm = path.replaceAll(r'\', '/');
+  final root = _repoRoot.replaceAll(r'\', '/');
+  final lower = norm.toLowerCase();
+  if (lower.startsWith('${root.toLowerCase()}/')) {
+    return norm.substring(root.length + 1);
+  }
+  // Git Bash có thể truyền dạng /d/... thay vì D:/...
+  final drive = RegExp(r'^([a-zA-Z]):/').firstMatch(root);
+  if (drive != null) {
+    final bashRoot = '/${drive[1]!.toLowerCase()}/${root.substring(3)}'
+        .toLowerCase();
+    if (lower.startsWith('$bashRoot/')) {
+      return norm.substring(bashRoot.length + 1);
+    }
+  }
+  return null;
+}
+
+/// Sửa / tạo file trong apps/backend khi đang ở nhánh bảo vệ → chặn.
+void _checkBackendFile(String filePath) {
+  final rel = _repoRel(filePath);
+  if (rel == null || !rel.startsWith('apps/backend/')) return;
+  if (_onProtectedBranch()) {
+    _block('BLOCKED: không sửa $rel trên nhánh bảo vệ. $_backendHelp');
+  }
+}
+
+final _bashDangerRe = RegExp(
+  r'--no-verify|push\s+.*--force|push\s+-f\b|reset\s+--hard',
+);
+
+/// Một dòng lệnh vừa có động từ ghi vừa trỏ vào apps/backend (xét từng dòng để không bắt nhầm
+/// văn bản heredoc chỉ nhắc tới backend).
+final _bashBackendWriteRe = RegExp(
+  r'(\bsed\s+-i|\btee\b|\bmv\b|\bcp\b|\brm\b|\bgit\s+(checkout|restore|stash|apply|am|cherry-pick|add)\b|>>?(?!&)|'
+  r'Set-Content|Add-Content|Out-File|Remove-Item|Copy-Item|Move-Item|New-Item|WriteAllText)'
+  r'[^\n]*apps[/\\]backend',
+);
+
+/// Lệnh shell: chặn --no-verify / force push / reset --hard; chặn ghi vào apps/backend và
+/// `git commit` / `git push` mang theo thay đổi apps/backend khi liên quan nhánh bảo vệ.
+void _checkBashBackend(String command) {
+  if (_bashDangerRe.hasMatch(command)) {
+    _block(
+      'BLOCKED: không dùng --no-verify / force push / reset --hard. '
+      'Hook push và CI là lưới an toàn của team; nếu bị chặn hãy đọc lý do và sửa gốc.',
+    );
+  }
+  final onProtected = _onProtectedBranch();
+  // Bỏ nội dung `-m "..."` (thông điệp commit chỉ nhắc tới backend) và xét từng lệnh con riêng.
+  final stripped = command.replaceAll(
+    RegExp(r'''(-m|--message)\s+("[^"]*"|'[^']*')'''),
+    '-m ""',
+  );
+  final writesBackend = stripped
+      .split(RegExp(r'&&|\|\||;|\||\n'))
+      .any(_bashBackendWriteRe.hasMatch);
+  if (onProtected && writesBackend) {
+    _block('BLOCKED: lệnh có vẻ ghi vào apps/backend. $_backendHelp');
+  }
+
+  if (RegExp(r'\bgit\s+commit\b').hasMatch(command) && onProtected) {
+    final files = _git(['diff', 'HEAD', '--name-only', '--', 'apps/backend']);
+    if (files.isNotEmpty) {
+      _block(
+        'BLOCKED: commit đang mang file apps/backend:\n$files\n$_backendHelp',
+      );
+    }
+  }
+  if (RegExp(r'\bgit\s+push\b').hasMatch(command)) {
+    // Đẩy từ nhánh frontend / nhánh con, hoặc đẩy một nhánh khác thẳng lên interface.
+    final base =
+        _frontendBase() ??
+        (command.contains(_frontendBranch) ? 'origin/main' : null);
+    if (base == null) return;
+    final mergeBase = _git(['merge-base', base, 'HEAD']);
+    if (mergeBase.isEmpty) return;
+    final files = _git([
+      'diff',
+      '--name-only',
+      mergeBase,
+      'HEAD',
+      '--',
+      'apps/backend',
+    ]);
+    if (files.isNotEmpty) {
+      _block(
+        'BLOCKED: push này mang code apps/backend:\n$files\n$_backendHelp',
+      );
+    }
   }
 }
 

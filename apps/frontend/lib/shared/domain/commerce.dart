@@ -79,6 +79,13 @@ abstract class ReturnRequest with _$ReturnRequest {
     required List<String> imageUrls,
     required ReturnStatus status,
     String? resolution,
+
+    /// Hạn shop / kho trả lời; quá hạn thì tự chuyển Admin phân xử (SRS 4.4).
+    DateTime? respondBy,
+
+    /// Admin phân xử và lúc nào (SRS 8.1: nhật ký).
+    String? resolvedBy,
+    DateTime? resolvedAt,
   }) = _ReturnRequest;
 }
 
@@ -175,7 +182,57 @@ abstract class Withdrawal with _$Withdrawal {
     required WithdrawalStatus status,
     required DateTime createdAt,
     String? userName,
+
+    /// Thông tin nhận tiền người bán nhập khi tạo yêu cầu.
+    String? bankName,
+    String? bankAccountNumber,
+    String? bankAccountName,
+    String? note,
+
+    /// Admin duyệt và lúc nào.
+    String? approvedBy,
+    DateTime? approvedAt,
+
+    /// Biên lai chuyển khoản Admin nhập khi duyệt (SRS 8.1).
+    WithdrawalReceipt? receipt,
   }) = _Withdrawal;
+}
+
+/// Tài khoản ngân hàng đã dùng để rút tiền (màn "Gần đây"); sao = yêu thích, đứng đầu danh sách.
+@freezed
+abstract class BankAccount with _$BankAccount {
+  const factory BankAccount({
+    required String id,
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    required bool favorite,
+    required DateTime lastUsedAt,
+  }) = _BankAccount;
+}
+
+/// Biên lai chuyển khoản: người chuyển, thời điểm, số tiền (đúng số yêu cầu), ảnh chứng từ.
+@freezed
+abstract class WithdrawalReceipt with _$WithdrawalReceipt {
+  const factory WithdrawalReceipt({
+    required String senderName,
+    required DateTime transferredAt,
+    required int amount,
+    required String proofImageUrl,
+  }) = _WithdrawalReceipt;
+}
+
+/// Một dòng nhật ký hoạt động của Admin (SRS 8.1).
+@freezed
+abstract class ActivityLog with _$ActivityLog {
+  const factory ActivityLog({
+    required String id,
+    required String adminName,
+    required AdminAction action,
+    required DateTime createdAt,
+    String? target,
+    String? note,
+  }) = _ActivityLog;
 }
 
 @freezed

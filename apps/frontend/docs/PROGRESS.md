@@ -1,7 +1,7 @@
 # Tiến độ triển khai frontend theo SRS
 
 Nhánh `design/apple-books` (commit local, **không push**). SRS: `docs/SRS.txt` + `docs/srs-*.png`.
-Quyết định tự đưa ra: `docs/DECISIONS.md`. Giao diện chuẩn: `../../design-preview/png/apple-desktop.png`, `apple-mobile.png`.
+Quyết định tự đưa ra: `docs/DECISIONS.md`. Giao diện chuẩn: `docs/design/lg-desktop.png`, `lg-mobile.png`.
 Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style Apple Books.
 
 ## Khi bị ngắt
@@ -13,7 +13,7 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 ## Giai đoạn 0 — Chuẩn bị
 - [x] SRS (`docs/SRS.txt`, 3 sơ đồ), `docs/DECISIONS.md` từ backup
 - [x] Allowlist + 5 package đã duyệt: stomp_dart_client, image_picker, url_launcher, firebase_core, firebase_messaging
-- [x] Font Newsreader (500–800) + Be Vietnam Pro (400–800) trong `assets/fonts`, khai báo pubspec
+- [x] Font Be Vietnam Pro (400–800) giữ trong `assets/fonts` chỉ để test bố cục (`test/layout/admin_staff_layout_test.dart`) vẽ chữ có dấu đúng bề rộng; app dùng font hệ thống, pubspec không khai báo. Các font khác (Playfair Display, Plus Jakarta Sans) đã xoá 2026-11-01.
 - [x] Luật mới trong CLAUDE.md (Firebase chỉ cho FCM, style Apple Books)
 
 ## Giai đoạn 1 — Tầng dữ liệu (từ backup)

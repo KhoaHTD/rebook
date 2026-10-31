@@ -1,0 +1,2 @@
+# Hook shell phải luôn là LF, nếu không sh báo lỗi trên Windows.
+.githooks/* text eol=lf

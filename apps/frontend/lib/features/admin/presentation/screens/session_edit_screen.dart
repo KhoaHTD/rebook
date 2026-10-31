@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
@@ -15,6 +16,7 @@ import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/glass_picker.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -164,20 +166,15 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
     super.dispose();
   }
 
-  Future<DateTime?> _pick(DateTime initial) async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+  Future<DateTime?> _pick(DateTime initial, String title) {
+    final now = DateTime.now();
+    return showGlassDateTimePicker(
+      context,
+      initial: initial,
+      min: now,
+      max: now.add(const Duration(days: 365)),
+      title: title,
     );
-    if (date == null || !mounted) return null;
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(initial),
-    );
-    if (time == null) return null;
-    return date.copyWith(hour: time.hour, minute: time.minute);
   }
 
   Future<void> _save() async {
@@ -213,18 +210,16 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final busy = ref.watch(adminActionsProvider).isLoading;
-    String? positive(String? v) =>
-        (int.tryParse(v ?? '') ?? 0) > 0 ? null : l10n.invalidNumber;
-    Widget number(TextEditingController c, String label) => Expanded(
-      child: TextFormField(
-        controller: c,
-        enabled: widget.enabled,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(labelText: label),
-        validator: positive,
-      ),
-    );
+    Widget number(TextEditingController c, String label, InputRule rule) =>
+        Expanded(
+          child: RuleField(
+            controller: c,
+            rule: rule,
+            label: label,
+            enabled: widget.enabled,
+            bottom: 0,
+          ),
+        );
     Widget when(String label, DateTime at, IconData icon, VoidCallback pick) =>
         ListTile(
           contentPadding: EdgeInsets.zero,
@@ -242,24 +237,22 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextFormField(
+            RuleField(
               controller: _title,
+              rule: Rules.sessionTitle,
+              label: l10n.sessionTitle,
               enabled: widget.enabled,
-              decoration: InputDecoration(labelText: l10n.sessionTitle),
-              validator: (v) =>
-                  (v ?? '').trim().isEmpty ? l10n.fieldRequired : null,
             ),
-            const SizedBox(height: AppSpacing.md),
-            TextFormField(
+            RuleField(
               controller: _desc,
+              rule: Rules.description,
+              label: l10n.description,
               enabled: widget.enabled,
               minLines: 2,
               maxLines: 4,
-              decoration: InputDecoration(labelText: l10n.description),
             ),
-            const SizedBox(height: AppSpacing.md),
             when(l10n.sessionStart, _start, Icons.event_outlined, () async {
-              final d = await _pick(_start);
+              final d = await _pick(_start, l10n.sessionStart);
               if (d != null) setState(() => _start = d);
             }),
             when(
@@ -267,24 +260,24 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
               _deadline,
               Icons.event_busy_outlined,
               () async {
-                final d = await _pick(_deadline);
+                final d = await _pick(_deadline, l10n.sessionDeadline);
                 if (d != null) setState(() => _deadline = d);
               },
             ),
             const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
-                number(_deposit, l10n.depositAmount),
+                number(_deposit, l10n.depositAmount, Rules.deposit),
                 const SizedBox(width: AppSpacing.sm),
-                number(_min, l10n.minParticipants),
+                number(_min, l10n.minParticipants, Rules.minParticipants),
               ],
             ),
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
-                number(_lot, l10n.lotDuration),
+                number(_lot, l10n.lotDuration, Rules.lotSeconds),
                 const SizedBox(width: AppSpacing.sm),
-                number(_soft, l10n.softClose),
+                number(_soft, l10n.softClose, Rules.softSeconds),
               ],
             ),
             if (widget.enabled) ...[

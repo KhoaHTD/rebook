@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
+import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
+import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
@@ -121,6 +123,62 @@ class DisputesScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        const _ResolvedDisputes(),
+      ],
+    );
+  }
+}
+
+/// Yêu cầu đã phân xử, kèm Admin phân xử và thời gian (SRS 8.1).
+class _ResolvedDisputes extends ConsumerWidget {
+  const _ResolvedDisputes();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final c = context.appColors;
+    final items =
+        ref.watch(adminResolvedDisputesProvider).value ?? const <Order>[];
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.admResolvedDisputesTitle,
+          style: context.textStyles.titleMedium,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: InfoPanel(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Column(
+              children: [
+                for (final (i, o) in items.indexed) ...[
+                  if (i > 0) Divider(height: 1, indent: 16, color: c.separator),
+                  ListTile(
+                    title: Text(
+                      '${l10n.orderCode(o.code)} · ${o.buyerName ?? ''}',
+                    ),
+                    subtitle: Text(
+                      l10n.admResolvedBy(
+                        o.returnRequest?.resolvedBy ?? '',
+                        formatDateTime(
+                          o.returnRequest?.resolvedAt ?? o.createdAt,
+                        ),
+                      ),
+                    ),
+                    trailing: StatusPill(
+                      o.returnRequest!.status.label(l10n),
+                      tone: StatusTone.neutral,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ],
     );

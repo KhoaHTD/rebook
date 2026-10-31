@@ -1009,6 +1009,7 @@ extension FakeAuction on FakeStore {
             unitPrice: r.lot.currentPrice,
             quantity: 1,
             lotId: r.lot.id,
+            imageUrl: r.lot.book.coverUrl,
           ),
       ],
       subtotal: subtotal,
@@ -1039,6 +1040,119 @@ extension FakeAuction on FakeStore {
       'Thanh toán trong 48 giờ để nhận sách.',
       '/account/orders',
     );
+  }
+
+  // ───────────────────────── theo dõi phiên ─────────────────────────
+
+  List<AuctionSession> watchedSessionList() {
+    final ids = watchedSessionIds[_uid] ?? const <String>[];
+    return [
+      for (final id in ids)
+        if (sessions[id] != null) sessions[id]!,
+    ];
+  }
+
+  void setSessionWatch(String id, {required bool on}) {
+    if (sessions[id] == null) fail(ErrorCodes.notFound, 404);
+    final list = watchedSessionIds.putIfAbsent(_uid, () => []);
+    list.remove(id);
+    if (on) list.insert(0, id);
+    _changed('auctions');
+  }
+
+  // ───────────────────────── mời mua lần hai (SRS 6.6) ─────────────────────────
+
+  /// Lời mời của tôi, mới nhất trước; lời mời quá hạn 24h tự thành "hết hạn".
+  List<SecondChanceOffer> mySecondChances() {
+    final now = DateTime.now();
+    final list = secondChances[_uid] ?? const <SecondChanceOffer>[];
+    return [
+      for (final o in list)
+        o.status == SecondChanceStatus.pending && now.isAfter(o.expiresAt)
+            ? o.copyWith(status: SecondChanceStatus.expired)
+            : o,
+    ];
+  }
+
+  void _setSecondChance(String id, SecondChanceStatus status) {
+    final list = secondChances[_uid] ?? [];
+    final i = list.indexWhere((o) => o.id == id);
+    if (i < 0) fail(ErrorCodes.notFound, 404);
+    list[i] = list[i].copyWith(status: status);
+    _changed('auctions');
+  }
+
+  SecondChanceOffer _pendingOffer(String id) {
+    final o = mySecondChances().firstWhere(
+      (x) => x.id == id,
+      orElse: () => fail(ErrorCodes.notFound, 404),
+    );
+    if (o.status != SecondChanceStatus.pending) {
+      fail(ErrorCodes.invalidTransition);
+    }
+    return o;
+  }
+
+  /// Nhận mua: tạo hoá đơn với giá đã trả (không có cọc để trừ, vì người mời chưa thắng lô nào).
+  Order acceptSecondChance(String id) {
+    final offer = _pendingOffer(id);
+    final r = _lots[offer.lotId] ?? fail(ErrorCodes.notFound, 404);
+    final s = sessions[r.lot.sessionId]!;
+    final issuedAt = DateTime.now();
+    final subtotal = offer.amount;
+    final premium = fees.buyerPremium(subtotal);
+    final code = 'AU${++_seq}';
+    final o = Order(
+      id: 'o$code',
+      code: code,
+      type: OrderType.auction,
+      status: OrderStatus.pendingPayment,
+      items: [
+        OrderItem(
+          id: _id('oi'),
+          title: 'Lô ${offer.lotNumber} · ${offer.bookTitle}',
+          unitPrice: subtotal,
+          quantity: 1,
+          lotId: offer.lotId,
+          imageUrl: offer.coverUrl,
+        ),
+      ],
+      subtotal: subtotal,
+      shippingFee: 0,
+      buyerPremium: premium,
+      depositApplied: 0,
+      total: subtotal + premium,
+      createdAt: issuedAt,
+      history: [
+        OrderStatusChange(
+          to: OrderStatus.pendingPayment,
+          at: issuedAt,
+          note: 'Mua lần hai, phiên "${s.title}"',
+        ),
+      ],
+      canReview: false,
+      buyerName: me.fullName,
+      paymentDeadline: issuedAt.add(
+        Duration(hours: config.auctionPaymentTimeoutHours),
+      ),
+    );
+    orders[o.id] = o;
+    _orderBuyer[o.id] = _uid;
+    _setSecondChance(id, SecondChanceStatus.accepted);
+    notify(
+      _uid,
+      NotificationType.auctionWon,
+      'Hoá đơn lô ${offer.lotNumber} ${o.code}',
+      'Thanh toán trong 48 giờ để nhận sách.',
+      '/auctions/account/orders',
+    );
+    return o;
+  }
+
+  SecondChanceOffer declineSecondChance(String id) {
+    _pendingOffer(id);
+    _setSecondChance(id, SecondChanceStatus.declined);
+    return mySecondChances().firstWhere((o) => o.id == id);
   }
 
   /// Cọc được trừ vào hoá đơn khi thanh toán (SRS 8.3).

@@ -4,30 +4,38 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'address_type.dart';
+
 part 'address_request.g.dart';
 
 @JsonSerializable()
 class AddressRequest {
   const AddressRequest({
-    required this.receiverName,
+    required this.receiver,
     required this.phone,
     required this.province,
     required this.district,
     required this.ward,
     required this.detail,
-    this.isDefault,
+    required this.isDefault,
+    this.latitude,
+    this.longitude,
+    this.addressType,
   });
 
   factory AddressRequest.fromJson(Map<String, Object?> json) =>
       _$AddressRequestFromJson(json);
 
-  final String receiverName;
+  final String receiver;
   final String phone;
   final String province;
   final String district;
   final String ward;
   final String detail;
-  final bool? isDefault;
+  final bool isDefault;
+  final double? latitude;
+  final double? longitude;
+  final AddressType? addressType;
 
   Map<String, Object?> toJson() => _$AddressRequestToJson(this);
 }

@@ -14,6 +14,7 @@ abstract final class DataArea {
   static const consignments = 'consignments';
   static const warehouse = 'warehouse';
   static const profile = 'profile';
+  static const favorites = 'favorites';
 }
 
 /// Bộ đếm phiên bản theo vùng. Provider đọc dữ liệu `watch` vùng của mình để tự tải lại:

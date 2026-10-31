@@ -27,6 +27,8 @@ class NotificationsScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final c = context.appColors;
     final list = ref.watch(notificationsProvider);
+    // watch giữ notifier sống suốt màn hình: chỉ `read` thì nó tự huỷ giữa lúc đang đánh dấu và danh sách không tải lại.
+    ref.watch(notificationActionsProvider);
     final actions = ref.read(notificationActionsProvider.notifier);
     final hasUnread = ref.watch(unreadCountProvider) > 0;
 

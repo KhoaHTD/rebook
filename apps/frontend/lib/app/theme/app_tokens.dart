@@ -1,7 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Design tokens — style Liquid Glass đã duyệt (`design-preview/png/lg-*.png`).
+/// Design tokens — style Liquid Glass đã duyệt (`docs/design/lg-*.png`).
 /// Widget KHÔNG hardcode số đo / màu — luôn lấy từ đây hoặc từ Theme.
 abstract final class AppSpacing {
   static const xxs = 2.0;
@@ -46,22 +45,16 @@ abstract final class AppDurations {
   static const normal = Duration(milliseconds: 250);
 }
 
-/// Chữ San Francisco: trên iPhone / Mac dùng SF có sẵn của hệ điều hành
-/// (giấy phép Apple không cho đóng gói SF vào app). Web và Android dùng Inter — gần SF nhất, OFL.
+/// Font chữ: font hệ thống (`null` = mặc định của nền tảng: SF trên iOS / macOS, Roboto trên Android,
+/// Segoe UI trên Windows). Không đóng gói font riêng. Giữ ba tên để chỗ nào cần đổi font chỉ sửa ở đây.
 abstract final class AppFonts {
-  static const inter = 'Inter';
+  static const String? sans = null;
 
-  /// Tiêu đề trang, tiêu đề kệ, dòng sự kiện: serif mềm (giống New York của Apple) cho chữ mềm mại hơn.
-  static const serif = 'Newsreader';
+  /// Tiêu đề trang, tiêu đề kệ, dòng sự kiện: cũng dùng font hệ thống.
+  static const String? serif = null;
 
-  /// null → để Flutter dùng chữ hệ thống (SF) trên iOS / macOS.
-  static String? get family {
-    if (kIsWeb) return inter;
-    return switch (defaultTargetPlatform) {
-      TargetPlatform.iOS || TargetPlatform.macOS => null,
-      _ => inter,
-    };
-  }
+  /// Chữ nội dung.
+  static const String? family = sans;
 }
 
 /// Màu riêng của style Liquid Glass, ngoài ColorScheme.
@@ -91,6 +84,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.glassBorder,
     required this.glassShadow,
     required this.background,
+    required this.ambient,
   });
 
   /// Nền khối thông tin trong trang (kính trong, không làm mờ).
@@ -137,6 +131,9 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Nền dưới lớp màu loang.
   final Color background;
 
+  /// Các vệt màu loang phía sau kính (xem [AmbientPalette]).
+  final List<(Color, Alignment, double)> ambient;
+
   static const light = AppColors(
     sidebar: Color(0x8CFFFFFF),
     selected: Color(0xFF0A6CFF),
@@ -159,7 +156,8 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBottom: Color(0x57FFFFFF),
     glassBorder: Color(0xB3FFFFFF),
     glassShadow: Color(0x2219233C),
-    background: Color(0xFFFFFFFF),
+    background: Color(0xFFEBEFF4),
+    ambient: AmbientPalette.light,
   );
 
   static const dark = AppColors(
@@ -185,6 +183,34 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBorder: Color(0x26FFFFFF),
     glassShadow: Color(0x66000000),
     background: Color(0xFF111114),
+    ambient: AmbientPalette.dark,
+  );
+
+  /// Khu đấu giá: nền tối ấm như phòng đấu giá, đỏ LIVE + vàng đồng. Luôn tối, không theo máy.
+  static const auction = AppColors(
+    sidebar: Color(0x4D2A2A2A),
+    selected: Color(0xFFFFFFFF),
+    onSelected: Color(0xFF000000),
+    shelfAlt: Color(0x14FFFFFF),
+    fill: Color(0x1FFFFFFF),
+    separator: Color(0x26FFFFFF),
+    secondaryText: Color(0xFFB3B3B3),
+    tertiaryText: Color(0xFF7A7A7A),
+    badgeNew: Color(0x66000000),
+    live: Color(0xFFFF4A3D),
+    success: Color(0xFF4CD27C),
+    warning: Color(0xFFE9A23B),
+    info: Color(0xFF8DB8FF),
+    tabBar: Color(0x33FFFFFF),
+    posterShadow: Color(0xB3000000),
+    tint: Color(0xFFF2F2F2),
+    tintSoft: Color(0x26FFFFFF),
+    glassTop: Color(0x6B3A3A3A),
+    glassBottom: Color(0x4D161616),
+    glassBorder: Color(0x33FFFFFF),
+    glassShadow: Color(0x99000000),
+    background: Color(0xFF000000),
+    ambient: AmbientPalette.auction,
   );
 
   @override
@@ -211,6 +237,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? glassBorder,
     Color? glassShadow,
     Color? background,
+    List<(Color, Alignment, double)>? ambient,
   }) => AppColors(
     sidebar: sidebar ?? this.sidebar,
     selected: selected ?? this.selected,
@@ -234,6 +261,7 @@ class AppColors extends ThemeExtension<AppColors> {
     glassBorder: glassBorder ?? this.glassBorder,
     glassShadow: glassShadow ?? this.glassShadow,
     background: background ?? this.background,
+    ambient: ambient ?? this.ambient,
   );
 
   @override
@@ -263,6 +291,7 @@ class AppColors extends ThemeExtension<AppColors> {
       glassBorder: l(glassBorder, other.glassBorder),
       glassShadow: l(glassShadow, other.glassShadow),
       background: l(background, other.background),
+      ambient: t < 0.5 ? ambient : other.ambient,
     );
   }
 }
@@ -278,6 +307,71 @@ abstract final class AmbientPalette {
     (Color(0x4D6E2620), Alignment(0.8, 0.55), 0.65),
     (Color(0x4D2D4A36), Alignment(-0.35, 0.85), 0.7),
   ];
+
+  /// Khu đấu giá: nền đen phẳng, không vệt màu loang.
+  static const auction = <(Color, Alignment, double)>[];
+}
+
+/// Màu thương hiệu từng ngân hàng, dùng cho ô chữ viết tắt ở màn rút tiền (không dùng logo thật).
+abstract final class BankPalette {
+  static const _byName = <String, (Color, String)>{
+    'Vietcombank': (Color(0xFF2E8B57), 'VCB'),
+    'VietinBank': (Color(0xFF1F4FA3), 'CTG'),
+    'BIDV': (Color(0xFF1B7F6B), 'BIDV'),
+    'Agribank': (Color(0xFFA6264B), 'AGR'),
+    'Techcombank': (Color(0xFFE0242B), 'TCB'),
+    'MB Bank': (Color(0xFF2B3A8C), 'MB'),
+    'ACB': (Color(0xFF1F5FA8), 'ACB'),
+    'VPBank': (Color(0xFF1E8A3E), 'VPB'),
+    'TPBank': (Color(0xFF6A2A8E), 'TPB'),
+    'Sacombank': (Color(0xFF1B6FC2), 'STB'),
+    'HDBank': (Color(0xFFD6232A), 'HDB'),
+    'VIB': (Color(0xFF1F6FB5), 'VIB'),
+    'SHB': (Color(0xFFE8731B), 'SHB'),
+    'OCB': (Color(0xFF2E9E57), 'OCB'),
+    'MSB': (Color(0xFFD7262E), 'MSB'),
+    'SeABank': (Color(0xFFC8242E), 'SEA'),
+    'Eximbank': (Color(0xFF1B5FA6), 'EIB'),
+    'LPBank': (Color(0xFF8A6A2A), 'LPB'),
+    'Nam A Bank': (Color(0xFF2B8A4E), 'NAB'),
+    'ABBank': (Color(0xFF2E8A5A), 'ABB'),
+  };
+
+  static const _fallback = (Color(0xFF6B7280), '?');
+
+  static Color colorOf(String bank) => (_byName[bank] ?? _fallback).$1;
+
+  /// Chữ viết tắt trong ô; ngân hàng lạ thì lấy chữ cái đầu.
+  static String codeOf(String bank) =>
+      _byName[bank]?.$2 ??
+      (bank.isEmpty ? '?' : bank.characters.first.toUpperCase());
+}
+
+/// Màu sơ đồ Việt Nam (tờ vị trí giao hàng).
+abstract final class MapPalette {
+  static const sea = Color(0xFFD9E8F4);
+  static const land = Color(0xFFF6F2E6);
+  static const border = Color(0xFFA9A08A);
+  static const label = Color(0xFF5A6877);
+  static const pin = Color(0xFFE5392F);
+}
+
+/// Màu thương hiệu của các phương thức thanh toán (ô icon ở màn thanh toán).
+abstract final class PayPalette {
+  /// Tiền mặt khi nhận hàng.
+  static const cod = Color(0xFF2EAD5A);
+
+  /// Ví ReBook.
+  static const wallet = Color(0xFFF2994A);
+
+  /// VNPay.
+  static const vnpay = Color(0xFF1E6FE8);
+}
+
+/// Thẻ mời sang khu đấu giá đặt ở app mua sách (nền đen → xám đậm, chữ trắng): đối lập với khu mua sách sáng.
+abstract final class AuctionPalette {
+  static const entry = <Color>[Color(0xFF000000), Color(0xFF2A2A2A)];
+  static const ink = Color(0xFFFFFFFF);
 }
 
 /// Bảng màu giao diện quản trị (Staff / Admin): dashboard sáng, phẳng, nút đen.
@@ -340,6 +434,16 @@ abstract final class CoverPalette {
 
   /// Lớp phủ tối dưới chữ trên ảnh bìa (badge, nhãn).
   static const scrim = Color(0x66000000);
+
+  /// Chữ và biểu tượng đặt trên nền màu chủ đạo của bìa (đầu trang chủ điện thoại).
+  static const onHero = Color(0xFFFFFFFF);
+
+  /// Thẻ đen giải thích phương thức thanh toán (màn thanh toán điện thoại).
+  static const cardTop = Color(0xFF2B2B30);
+  static const cardBottom = Color(0xFF0C0C0E);
+
+  /// Chữ tối đặt trên nền [onHero] (nấc đang chọn của công tắc khu).
+  static const onHeroInk = Color(0xFF1D1D1F);
 
   /// Màu phụ cho hình vẽ trên bìa.
   static const motif = <Color>[

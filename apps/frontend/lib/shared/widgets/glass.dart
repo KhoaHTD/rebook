@@ -20,6 +20,20 @@ bool get lightEffects =>
     (defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android);
 
+/// Đánh dấu vùng giao diện **phẳng, không kính** (khu đấu giá): `Glass` và thanh đầu trang vẽ thẻ đặc
+/// màu nền thẻ của theme. Thanh điều hướng đặt `FlatScope(flat: false)` để vẫn là kính.
+class FlatScope extends InheritedWidget {
+  const FlatScope({super.key, required this.flat, required super.child});
+
+  final bool flat;
+
+  static bool active(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<FlatScope>()?.flat ?? false;
+
+  @override
+  bool updateShouldNotify(FlatScope old) => flat != old.flat;
+}
+
 class Glass extends StatelessWidget {
   const Glass({
     super.key,
@@ -75,6 +89,7 @@ class Glass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (AdminScope.active(context)) return _flat(context);
+    if (FlatScope.active(context)) return _solid(context);
     final c = context.appColors;
     final (top, bottom) = switch ((tint, clear)) {
       (final t?, _) => (t.withValues(alpha: 0.78), t.withValues(alpha: 0.62)),
@@ -145,22 +160,49 @@ class Glass extends StatelessWidget {
 
 /// Khối phẳng của giao diện quản trị: nền trắng, viền xám nhạt, không bóng.
 extension on Glass {
-  Widget _flat(BuildContext context) {
-    Widget body = DecoratedBox(
-      decoration: BoxDecoration(
-        color: tint ?? AdminPalette.card,
+  /// Thẻ đặc của khu phẳng (đấu giá): nền thẻ của theme, viền mảnh, không làm mờ, không bóng.
+  Widget _solid(BuildContext context) {
+    final c = context.appColors;
+    final padded = padding == null
+        ? child
+        : Padding(padding: padding!, child: child);
+    return Material(
+      color: tint ?? context.colors.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
-        border: tint == null ? Border.all(color: AdminPalette.line) : null,
+        side: tint == null ? BorderSide(color: c.separator) : BorderSide.none,
       ),
-      child: padding == null ? child : Padding(padding: padding!, child: child),
+      child: onTap == null
+          ? padded
+          : InkWell(
+              customBorder: RoundedRectangleBorder(borderRadius: borderRadius),
+              onTap: onTap,
+              child: padded,
+            ),
     );
-    if (onTap != null) {
-      body = Material(
-        type: MaterialType.transparency,
-        child: InkWell(borderRadius: borderRadius, onTap: onTap, child: body),
-      );
-    }
-    return body;
+  }
+
+  Widget _flat(BuildContext context) {
+    // Material (không phải DecoratedBox) để ListTile / InkWell bên trong có chỗ vẽ hiệu ứng chạm.
+    final padded = padding == null
+        ? child
+        : Padding(padding: padding!, child: child);
+    return Material(
+      color: tint ?? AdminPalette.card,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius,
+        side: tint == null
+            ? const BorderSide(color: AdminPalette.line)
+            : BorderSide.none,
+      ),
+      child: onTap == null
+          ? padded
+          : InkWell(
+              customBorder: RoundedRectangleBorder(borderRadius: borderRadius),
+              onTap: onTap,
+              child: padded,
+            ),
+    );
   }
 }
 
@@ -175,11 +217,10 @@ class AmbientBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    final dark = Theme.of(context).brightness == Brightness.dark;
     return _Ambient(
       screen: MediaQuery.sizeOf(context),
       base: c.background,
-      blobs: dark ? AmbientPalette.dark : AmbientPalette.light,
+      blobs: c.ambient,
       child: child,
     );
   }

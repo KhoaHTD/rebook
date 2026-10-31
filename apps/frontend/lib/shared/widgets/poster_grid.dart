@@ -92,11 +92,27 @@ class PosterGrid extends StatelessWidget {
         final cols = columnsFor(box.maxWidth, maxColumns);
         final gapX = cols == 2 ? AppSpacing.md : AppSpacing.posterGapX;
         final tileW = (box.maxWidth - gapX * (cols - 1)) / cols;
-        return Wrap(
-          spacing: gapX,
-          runSpacing: AppSpacing.posterGapY,
+        // Bìa sách cao thấp theo ảnh thật, nhưng mỗi hàng canh ĐÁY: sách trong cùng một hàng đứng trên
+        // một đường kẻ như trên giá (tên + giá bên dưới cũng thẳng hàng), chỉ đỉnh bìa là lệch nhau.
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final c in children) SizedBox(width: tileW, child: c),
+            for (var start = 0; start < children.length; start += cols) ...[
+              if (start > 0) const SizedBox(height: AppSpacing.posterGapY),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (
+                    var i = start;
+                    i < start + cols && i < children.length;
+                    i++
+                  ) ...[
+                    if (i > start) SizedBox(width: gapX),
+                    SizedBox(width: tileW, child: children[i]),
+                  ],
+                ],
+              ),
+            ],
           ],
         );
       },
@@ -144,7 +160,8 @@ class Shelf extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               clipBehavior: Clip.none,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                // Canh đáy: sách cao thấp khác nhau cùng đứng trên một đường kẻ như trên giá.
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   for (var i = 0; i < children.length; i++) ...[
                     if (i > 0) const SizedBox(width: AppSpacing.md),

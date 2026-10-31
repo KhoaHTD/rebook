@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/staff/presentation/providers/staff_providers.dart';
@@ -196,13 +197,19 @@ class _InspectionFormState extends ConsumerState<_InspectionForm> {
 
   /// Giá sàn đề xuất không vượt mức thấp của ước tính (SRS 6.2).
   bool get _valid {
-    if (_report.text.trim().isEmpty || _photos.isEmpty) return false;
+    if (!Rules.conditionReport.isValid(_report.text) || _photos.isEmpty) {
+      return false;
+    }
     if (_result == InspectionResult.fail) return true;
     final low = int.tryParse(_low.text);
     final high = int.tryParse(_high.text);
     final start = int.tryParse(_start.text);
     final reserve = int.tryParse(_reserve.text);
-    return low != null &&
+    return Rules.estimate.isValid(_low.text) &&
+        Rules.estimate.isValid(_high.text) &&
+        Rules.startPrice.isValid(_start.text) &&
+        Rules.reserve.isValid(_reserve.text) &&
+        low != null &&
         high != null &&
         start != null &&
         reserve != null &&
@@ -214,15 +221,16 @@ class _InspectionFormState extends ConsumerState<_InspectionForm> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final busy = ref.watch(staffActionsProvider).isLoading;
-    Widget money(TextEditingController c, String label) => Expanded(
-      child: TextField(
-        controller: c,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        onChanged: (_) => setState(() {}),
-        decoration: InputDecoration(labelText: label),
-      ),
-    );
+    Widget money(TextEditingController c, String label, InputRule rule) =>
+        Expanded(
+          child: RuleField(
+            controller: c,
+            rule: rule,
+            label: label,
+            bottom: 0,
+            onChanged: (_) => setState(() {}),
+          ),
+        );
     Widget label(String t) => Padding(
       padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.sm),
       child: Text(t, style: context.textStyles.titleSmall),
@@ -304,12 +312,14 @@ class _InspectionFormState extends ConsumerState<_InspectionForm> {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          TextField(
+          RuleField(
             controller: _report,
+            rule: Rules.conditionReport,
+            label: l10n.conditionReport,
             minLines: 3,
             maxLines: 6,
+            showCounter: true,
             onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(labelText: l10n.conditionReport),
           ),
           label(l10n.staffPhotos),
           PhotoPickerField(
@@ -320,17 +330,17 @@ class _InspectionFormState extends ConsumerState<_InspectionForm> {
             const SizedBox(height: AppSpacing.lg),
             Row(
               children: [
-                money(_low, l10n.estimateLow),
+                money(_low, l10n.estimateLow, Rules.estimate),
                 const SizedBox(width: AppSpacing.sm),
-                money(_high, l10n.estimateHigh),
+                money(_high, l10n.estimateHigh, Rules.estimate),
               ],
             ),
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
-                money(_start, l10n.proposedStart),
+                money(_start, l10n.proposedStart, Rules.startPrice),
                 const SizedBox(width: AppSpacing.sm),
-                money(_reserve, l10n.proposedReserve),
+                money(_reserve, l10n.proposedReserve, Rules.reserve),
               ],
             ),
           ],

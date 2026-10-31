@@ -8,13 +8,13 @@ part 'otp_sent_response.g.dart';
 
 @JsonSerializable()
 class OtpSentResponse {
-  const OtpSentResponse({this.message, this.devOtp});
+  const OtpSentResponse({required this.email, required this.expiresInSec});
 
   factory OtpSentResponse.fromJson(Map<String, Object?> json) =>
       _$OtpSentResponseFromJson(json);
 
-  final String? message;
-  final String? devOtp;
+  final String email;
+  final int expiresInSec;
 
   Map<String, Object?> toJson() => _$OtpSentResponseToJson(this);
 }

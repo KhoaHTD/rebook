@@ -39,6 +39,52 @@ class CartController extends _$CartController {
   }
 }
 
+/// Các món giỏ đang BỎ chọn. Mặc định chọn hết; món mới thêm vào tự được chọn.
+@Riverpod(keepAlive: true)
+class CartExcluded extends _$CartExcluded {
+  @override
+  Set<String> build() => const {};
+
+  void toggle(String itemId) {
+    state = state.contains(itemId)
+        ? (Set.of(state)..remove(itemId))
+        : {...state, itemId};
+  }
+
+  /// Chọn / bỏ chọn một loạt món (cả shop hoặc cả giỏ).
+  void setSelected(Iterable<String> itemIds, {required bool selected}) {
+    state = selected
+        ? state.difference(itemIds.toSet())
+        : {...state, ...itemIds};
+  }
+}
+
+/// Id các món đang được chọn để thanh toán.
+@riverpod
+List<String> selectedCartItemIds(Ref ref) {
+  final cart = ref.watch(cartControllerProvider).value;
+  final excluded = ref.watch(cartExcludedProvider);
+  if (cart == null) return const [];
+  return [
+    for (final g in cart.groups)
+      for (final i in g.items)
+        if (!excluded.contains(i.id)) i.id,
+  ];
+}
+
+/// Giỏ chỉ gồm các món đã chọn: tạm tính + phí ship tính lại theo khối lượng các món này.
+@riverpod
+Future<Cart> selectedCart(Ref ref) async {
+  final all = await ref.watch(cartControllerProvider.future);
+  final ids = ref.watch(selectedCartItemIdsProvider);
+  final total = all.groups.fold(0, (n, g) => n + g.items.length);
+  if (ids.isEmpty) return Cart.empty;
+  if (ids.length == total) return all;
+  return ref
+      .read(cartRepositoryProvider)
+      .cart(addressId: ref.watch(selectedAddressProvider), itemIds: ids);
+}
+
 /// Số cuốn trong giỏ (chấm đỏ trên icon giỏ).
 @riverpod
 int cartCount(Ref ref) =>
@@ -65,12 +111,13 @@ class CheckoutController extends _$CheckoutController {
   Future<CheckoutResult?> placeOrder({
     required String addressId,
     required PaymentMethod method,
+    List<String>? itemIds,
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () => ref
           .read(cartRepositoryProvider)
-          .checkout(addressId: addressId, method: method),
+          .checkout(addressId: addressId, method: method, itemIds: itemIds),
     );
     final changes = ref.read(dataChangesProvider.notifier);
     for (final area in [DataArea.cart, DataArea.orders, DataArea.wallet]) {

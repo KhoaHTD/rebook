@@ -24,7 +24,7 @@ String _searchPath({String? category}) => category == null
 
 // ───────────────────── Duyệt theo danh mục (mosaic) ─────────────────────
 
-/// Tên tranh theo mã danh mục gốc (`assets/banners/<tên>.webp`); danh mục khác dùng nền bìa mờ.
+/// Tên tranh theo mã danh mục gốc (`assets/banners/<tên>.jpg`); danh mục khác dùng nền bìa mờ.
 const _categoryArt = <String, String>{
   'c1': 'cat-vn',
   'c2': 'cat-foreign',
@@ -340,7 +340,7 @@ class HomeRare extends ConsumerWidget {
       children: [
         BlockHeader(l10n.hsRareTitle, sub: l10n.hsRareSub),
         BlurPanel(
-          art: 'rare-spotlight',
+          art: 'rare',
           cover: coverOfBook(hero.book),
           radius: 32,
           padding: EdgeInsets.all(compact ? AppSpacing.md : AppSpacing.xl),
@@ -377,20 +377,26 @@ class HomeRare extends ConsumerWidget {
                     const SizedBox(width: AppSpacing.xxl),
                     Expanded(child: info),
                     const SizedBox(width: AppSpacing.xl),
-                    for (final l in rest)
-                      Padding(
-                        padding: const EdgeInsets.only(left: AppSpacing.md),
-                        child: GestureDetector(
-                          onTap: () => context.go(Routes.listing(l.id)),
-                          child: BookPoster(
-                            title: l.book.title,
-                            author: l.book.author,
-                            coverUrl: l.book.coverUrl,
-                            seed: l.book.id,
-                            width: 104,
+                    // Các cuốn nhỏ bên phải canh đáy với nhau (cao thấp theo bìa thật).
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        for (final l in rest)
+                          Padding(
+                            padding: const EdgeInsets.only(left: AppSpacing.md),
+                            child: GestureDetector(
+                              onTap: () => context.go(Routes.listing(l.id)),
+                              child: BookPoster(
+                                title: l.book.title,
+                                author: l.book.author,
+                                coverUrl: l.book.coverUrl,
+                                seed: l.book.id,
+                                width: 104,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
+                      ],
+                    ),
                   ],
                 ),
         ),
@@ -629,6 +635,7 @@ class HomeShops extends ConsumerWidget {
               ),
               const Spacer(),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   for (final cv in covers)
                     Padding(

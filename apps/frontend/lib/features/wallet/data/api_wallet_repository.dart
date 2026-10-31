@@ -1,4 +1,5 @@
 import 'package:book_marketplace/api/generated/export.dart' as api;
+import 'package:book_marketplace/app/env.dart';
 import 'package:book_marketplace/core/error/app_exception.dart';
 import 'package:book_marketplace/features/wallet/domain/wallet_repository.dart';
 import 'package:book_marketplace/shared/data/api_mappers.dart';
@@ -15,46 +16,56 @@ class ApiWalletRepository implements WalletRepository {
 
   @override
   Future<List<WalletTxn>> transactions() => guardApi(() async {
-    final res = await _client.wallet.getWalletTransactions(size: 100);
-    return [for (final t in res.items.orEmpty) t.toDomain()];
+    final page = await _client.wallet.listWalletTransactions(size: 100);
+    return page.items.map((e) => e.toDomain()).toList();
   });
 
   @override
   Future<Payment> topUp(int amount) => guardApi(
-    () async => (await _client.wallet.postWalletTopUp(
-      body: api.TopUpRequest(amount: amount),
+    () async => (await _client.wallet.topUp(
+      body: api.TopUpRequest(amount: amount, returnUrl: Env.paymentReturnUrl),
     )).toDomain(),
   );
 
   @override
   Future<List<Withdrawal>> withdrawals() => guardApi(
-    () async => [
-      for (final w in await _client.wallet.getWalletWithdrawals()) w.toDomain(),
-    ],
+    () async => (await _client.wallet.listWithdrawals())
+        .map((e) => e.toDomain())
+        .toList(),
   );
 
-  /// Backend cần tài khoản ngân hàng nhận tiền; app chỉ hỏi số tiền nên lấy
-  /// tài khoản đã khai khi mở shop.
   @override
-  Future<Withdrawal> requestWithdrawal(int amount) => guardApi(() async {
-    final api.ShopResponse shop;
-    try {
-      shop = await _client.user.getMeShop();
-    } on Object {
-      throw const ServerException(
-        400,
-        code: 'BANK_REQUIRED',
-        message: 'Cần mở shop và khai tài khoản ngân hàng trước khi rút tiền.',
+  Future<List<BankAccount>> bankAccounts() => guardApi(
+    () async => (await _client.wallet.listBankAccounts())
+        .map((e) => e.toDomain())
+        .toList(),
+  );
+
+  @override
+  Future<BankAccount> setBankAccountFavorite(String id, {required bool on}) =>
+      guardApi(
+        () async => (await _client.wallet.setBankAccountFavorite(
+          id: id,
+          body: api.FavoriteRequest(favorite: on),
+        )).toDomain(),
       );
-    }
-    final res = await _client.wallet.postWalletWithdrawals(
-      body: api.WithdrawCreateRequest(
+
+  @override
+  Future<Withdrawal> requestWithdrawal(
+    int amount, {
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    String? note,
+  }) => guardApi(
+    () async => (await _client.wallet.requestWithdrawal(
+      body: api.WithdrawalRequest(
         amount: amount,
-        bankName: shop.bankName ?? '',
-        accountNumber: shop.bankAccountNumber ?? '',
-        accountHolder: shop.bankAccountHolder ?? '',
+        bankName: bankName,
+        bankAccountNumber: accountNumber,
+        bankAccountName: accountName,
+        note: note,
       ),
-    );
-    return res.toDomain();
-  });
+    )).toDomain(),
+  );
 }

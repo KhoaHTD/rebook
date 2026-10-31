@@ -213,6 +213,7 @@ extension _Seed on FakeStore {
     // ── ký gửi + phiên đấu giá ──
     _seedConsignments(now);
     _seedAuctions(now);
+    _seedAdminData(now);
 
     // ── thông báo ──
     notify(
@@ -246,6 +247,140 @@ extension _Seed on FakeStore {
     ratingCount: s.ratingCount,
     avatarUrl: s.avatarUrl,
   );
+
+  /// Dữ liệu mẫu cho nhật ký Admin, rút tiền có biên lai và một lời mời mua lần hai.
+  void _seedAdminData(DateTime now) {
+    final done = Withdrawal(
+      id: 'wd-seed1',
+      amount: 500000,
+      status: WithdrawalStatus.completed,
+      createdAt: now.subtract(const Duration(days: 3)),
+      userName: 'Nguyễn Minh Anh',
+      bankName: 'Vietcombank',
+      bankAccountNumber: '0011004567890',
+      bankAccountName: 'NGUYEN MINH ANH',
+      approvedBy: 'Admin ReBook',
+      approvedAt: now.subtract(const Duration(days: 2, hours: 4)),
+      receipt: WithdrawalReceipt(
+        senderName: 'CTY TNHH REBOOK',
+        transferredAt: now.subtract(const Duration(days: 2, hours: 4)),
+        amount: 500000,
+        proofImageUrl: '',
+      ),
+    );
+    final pending = Withdrawal(
+      id: 'wd-seed2',
+      amount: 300000,
+      status: WithdrawalStatus.pending,
+      createdAt: now.subtract(const Duration(hours: 6)),
+      userName: 'Nguyễn Minh Anh',
+      bankName: 'Techcombank',
+      bankAccountNumber: '19036789012345',
+      bankAccountName: 'NGUYEN MINH ANH',
+      note: 'Rút tiền bán sách tháng 10',
+    );
+    bankAccounts['u1'] = [
+      BankAccount(
+        id: 'ba-seed1',
+        bankName: 'Vietcombank',
+        accountNumber: '0011004567890',
+        accountName: 'NGUYEN MINH ANH',
+        favorite: true,
+        lastUsedAt: now.subtract(const Duration(days: 3)),
+      ),
+      BankAccount(
+        id: 'ba-seed2',
+        bankName: 'Techcombank',
+        accountNumber: '19036789012345',
+        accountName: 'NGUYEN MINH ANH',
+        favorite: false,
+        lastUsedAt: now.subtract(const Duration(hours: 6)),
+      ),
+    ];
+    // Số dư mẫu đủ để duyệt yêu cầu đang chờ; yêu cầu đã duyệt đã bị trừ ví từ trước.
+    _ledger(
+      'u1',
+      WalletTxnType.topUp,
+      availableDelta: 1500000,
+      note: 'Số dư mẫu',
+    );
+    _ledger(
+      'u1',
+      WalletTxnType.withdraw,
+      availableDelta: -500000,
+      note: 'Rút tiền về Vietcombank',
+    );
+    withdrawals.addAll([pending, done]);
+    _withdrawalOwner['wd-seed1'] = 'u1';
+    _withdrawalOwner['wd-seed2'] = 'u1';
+
+    ActivityLog log(
+      AdminAction a,
+      Duration ago, {
+      String? target,
+      String? note,
+    }) => ActivityLog(
+      id: _id('log'),
+      adminName: 'Admin ReBook',
+      action: a,
+      createdAt: now.subtract(ago),
+      target: target,
+      note: note,
+    );
+    activityLogs.addAll([
+      log(
+        AdminAction.withdrawalCompleted,
+        const Duration(days: 2, hours: 4),
+        target: 'Nguyễn Minh Anh',
+        note: '500000',
+      ),
+      log(
+        AdminAction.userUnlocked,
+        const Duration(days: 4),
+        target: 'sachcuhn@rebook.vn',
+      ),
+      log(AdminAction.configChanged, const Duration(days: 6)),
+      log(
+        AdminAction.listingApproved,
+        const Duration(days: 7),
+        target: 'Dế Mèn Phiêu Lưu Ký',
+      ),
+    ]);
+
+    // Hai tin đã được Admin duyệt, để bảng "Đã xử lý gần đây" có dữ liệu.
+    var k = 0;
+    for (final r in _listings.values.take(2)) {
+      r.listing = r.listing.copyWith(
+        reviewedBy: 'Admin ReBook',
+        reviewedAt: now.subtract(Duration(days: 5 + k++)),
+      );
+    }
+
+    // Lời mời mua lần hai cho người dùng demo (u2): lô bị bỏ thanh toán, giá ≥ giá sàn, hạn 24h.
+    final row = _lots.values
+        .where((r) => r.lot.status != LotStatus.live)
+        .firstOrNull;
+    if (row != null) {
+      final offer = SecondChanceOffer(
+        id: 'so-seed1',
+        lotId: row.lot.id,
+        lotNumber: row.lot.lotNumber,
+        bookTitle: row.lot.book.title,
+        amount: row.reserve,
+        expiresAt: now.add(const Duration(hours: 20)),
+        status: SecondChanceStatus.pending,
+        coverUrl: row.lot.book.coverUrl,
+      );
+      secondChances['u2'] = [offer];
+      notify(
+        'u2',
+        NotificationType.auctionWon,
+        'Lời mời mua lần hai · Lô ${row.lot.lotNumber}',
+        'Người thắng đã bỏ thanh toán. Bạn có 24 giờ để mua với giá bạn đã trả.',
+        '/auctions/account/offers',
+      );
+    }
+  }
 
   void _seedOrders(DateTime now) {
     Order make({
@@ -293,6 +428,7 @@ extension _Seed on FakeStore {
             unitPrice: row.listing.price,
             quantity: 1,
             listingId: listingId,
+            imageUrl: book.coverUrl,
           ),
         ],
         subtotal: row.listing.price,

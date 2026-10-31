@@ -24,6 +24,13 @@ Future<List<Withdrawal>> myWithdrawals(Ref ref) {
   return ref.watch(walletRepositoryProvider).withdrawals();
 }
 
+/// Tài khoản ngân hàng đã dùng để rút tiền (màn "Gần đây"): yêu thích đứng đầu, rồi lần dùng mới nhất.
+@riverpod
+Future<List<BankAccount>> bankAccounts(Ref ref) {
+  ref.watchArea(DataArea.wallet);
+  return ref.watch(walletRepositoryProvider).bankAccounts();
+}
+
 /// Nạp / rút. Nạp trả về phiên thanh toán để mở VNPay.
 @riverpod
 class WalletController extends _$WalletController {
@@ -42,14 +49,35 @@ class WalletController extends _$WalletController {
     return payment;
   }
 
-  Future<bool> withdraw(int amount) async {
+  Future<Withdrawal?> withdraw(
+    int amount, {
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    String? note,
+  }) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(walletRepositoryProvider).requestWithdrawal(amount),
-    );
+    Withdrawal? created;
+    state = await AsyncValue.guard(() async {
+      created = await ref
+          .read(walletRepositoryProvider)
+          .requestWithdrawal(
+            amount,
+            bankName: bankName,
+            accountNumber: accountNumber,
+            accountName: accountName,
+            note: note,
+          );
+    });
     if (!state.hasError) {
       ref.read(dataChangesProvider.notifier).bump(DataArea.wallet);
     }
-    return !state.hasError;
+    return created;
+  }
+
+  /// Đánh dấu / bỏ yêu thích một tài khoản ngân hàng đã lưu.
+  Future<void> setBankFavorite(String id, {required bool on}) async {
+    await ref.read(walletRepositoryProvider).setBankAccountFavorite(id, on: on);
+    ref.read(dataChangesProvider.notifier).bump(DataArea.wallet);
   }
 }

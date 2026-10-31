@@ -92,6 +92,34 @@ Future<List<Withdrawal>> adminWithdrawals(Ref ref) {
   return ref.watch(adminRepositoryProvider).withdrawals();
 }
 
+/// Tin đã được Admin duyệt / từ chối, mới nhất trước (kèm người duyệt, thời gian).
+@riverpod
+Future<List<Listing>> reviewedListings(Ref ref) async {
+  ref.watchArea(DataArea.listings);
+  final all = await ref.watch(adminRepositoryProvider).listings();
+  return all.where((l) => l.reviewedBy != null).toList()..sort(
+    (a, b) =>
+        (b.reviewedAt ?? DateTime(0)).compareTo(a.reviewedAt ?? DateTime(0)),
+  );
+}
+
+/// Yêu cầu trả hàng đã phân xử (kèm Admin phân xử, thời gian).
+@riverpod
+Future<List<Order>> adminResolvedDisputes(Ref ref) {
+  ref.watchArea(DataArea.orders);
+  return ref.watch(adminRepositoryProvider).resolvedDisputes();
+}
+
+/// Nhật ký hoạt động của Admin (SRS 8.1). Tải lại mỗi khi có vùng dữ liệu liên quan đổi.
+@riverpod
+Future<List<ActivityLog>> adminActivityLogs(Ref ref) {
+  ref.watchArea(DataArea.wallet);
+  ref.watchArea(DataArea.listings);
+  ref.watchArea(DataArea.profile);
+  ref.watchArea(DataArea.warehouse);
+  return ref.watch(adminRepositoryProvider).activityLogs();
+}
+
 @riverpod
 Future<List<Order>> adminDisputes(Ref ref) {
   ref.watchArea(DataArea.orders);

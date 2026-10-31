@@ -27,6 +27,14 @@ abstract final class Routes {
   static String results(String id) => '/auctions/sessions/$id/results';
   static String lot(String id) => '/auctions/lots/$id';
   static const myAuctions = '/auctions/mine';
+  static const auctionSchedule = '/auctions/schedule';
+  static const auctionResults = '/auctions/results';
+  static const auctionAccount = '/auctions/account';
+  static const auctionWallet = '/auctions/account/wallet';
+  static const auctionOrders = '/auctions/account/orders';
+  static String auctionOrder(String id) => '/auctions/account/orders/$id';
+  static const auctionBids = '/auctions/account/bids';
+  static const auctionOffers = '/auctions/account/offers';
 
   // Nhánh 3 — Thông báo
   static const notifications = '/notifications';
@@ -35,10 +43,19 @@ abstract final class Routes {
   static const account = '/account';
   static const profile = '/account/profile';
   static const addresses = '/account/addresses';
+  static const addressNew = '/account/addresses/new';
+  static String addressEdit(String id) => '/account/addresses/$id';
+  static const favorites = '/account/favorites';
   static const settings = '/account/settings';
   static const orders = '/account/orders';
   static String order(String id) => '/account/orders/$id';
   static const wallet = '/account/wallet';
+
+  // Rút tiền: 3 bước + kết quả
+  static const withdrawBank = '/account/wallet/withdraw/bank';
+  static const withdrawAccount = '/account/wallet/withdraw/account';
+  static const withdrawAmount = '/account/wallet/withdraw/amount';
+  static const withdrawDone = '/account/wallet/withdraw/done';
 
   // Người bán (vẫn thuộc nhánh tài khoản)
   static const openShop = '/account/seller/open';
@@ -62,6 +79,7 @@ abstract final class Routes {
       location.startsWith(cart) ||
       location.startsWith('/home/payments') ||
       location == myAuctions ||
+      location.startsWith(auctionAccount) ||
       location.endsWith('/register');
   // Phòng `/live` mở cho khách xem (SRS 2: khách xem trực tiếp phiên, không được trả giá).
 }
@@ -85,4 +103,5 @@ abstract final class AdminRoutes {
   static const config = '/config';
   static const withdrawals = '/withdrawals';
   static const disputes = '/disputes';
+  static const activity = '/activity';
 }

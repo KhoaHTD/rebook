@@ -59,6 +59,3 @@ firebase-debug.log
 
 # Claude Code: cấu hình cá nhân
 .claude/settings.local.json
-
-# Env tro vao link Cloudflare, do demo\run-android.ps1 tao (link doi moi lan)
-env/android.tunnel.json

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/shared/widgets/book_poster.dart';
 
 /// Bìa sách dùng trên trang giới thiệu — ảnh đóng gói trong `assets/books/`, xếp theo độ rực rỡ để các quạt bìa nhìn vui mắt.
 const kLandingCovers = <String>[
@@ -166,8 +167,8 @@ TextStyle landingHeadline(double size, {Color color = LandingPalette.ink}) =>
       height: 1.05,
     );
 
-/// Bìa sách: tỉ lệ 2:3, gáy sáng-tối bên trái, bo góc nhỏ, bóng đổ — giống `BookPoster` ở trang chủ,
-/// KHÔNG phải thẻ vuông bo tròn. [ratio], [radius], [border] chỉ còn để tương thích chỗ gọi cũ; chiều cao luôn là 1,5 × rộng.
+/// Bìa sách: tỉ lệ theo ảnh thật, gáy sáng-tối bên trái, bo góc nhỏ, bóng đổ — giống `BookPoster` ở trang chủ,
+/// KHÔNG phải thẻ vuông bo tròn. [ratio], [radius], [border] chỉ còn để tương thích chỗ gọi cũ; chiều cao = rộng / tỉ lệ ảnh thật.
 class LandingCard extends StatelessWidget {
   const LandingCard({
     super.key,
@@ -188,46 +189,49 @@ class LandingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final h = width * 1.5;
     const corner = BorderRadius.only(
       topLeft: Radius.circular(2),
       bottomLeft: Radius.circular(2),
       topRight: Radius.circular(5),
       bottomRight: Radius.circular(5),
     );
-    return Container(
-      width: width,
-      height: h,
-      decoration: BoxDecoration(
-        borderRadius: corner,
-        boxShadow: shadow
-            ? [
-                BoxShadow(
-                  color: LandingPalette.shadow,
-                  blurRadius: width * 0.22,
-                  spreadRadius: -width * 0.06,
-                  offset: Offset(0, width * 0.12),
-                ),
-              ]
-            : null,
-      ),
-      child: ClipRRect(
-        borderRadius: corner,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(asset, fit: BoxFit.cover),
-            const IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: CoverPalette.spine,
-                    stops: CoverPalette.spineStops,
+    // Chiều cao theo tỉ lệ ảnh bìa thật (giống trang chủ), không ép 2:3.
+    return CoverAspectBuilder(
+      url: asset,
+      builder: (context, aspect) => Container(
+        width: width,
+        height: width / aspect,
+        decoration: BoxDecoration(
+          borderRadius: corner,
+          boxShadow: shadow
+              ? [
+                  BoxShadow(
+                    color: LandingPalette.shadow,
+                    blurRadius: width * 0.22,
+                    spreadRadius: -width * 0.06,
+                    offset: Offset(0, width * 0.12),
+                  ),
+                ]
+              : null,
+        ),
+        child: ClipRRect(
+          borderRadius: corner,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(asset, fit: BoxFit.cover),
+              const IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: CoverPalette.spine,
+                      stops: CoverPalette.spineStops,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

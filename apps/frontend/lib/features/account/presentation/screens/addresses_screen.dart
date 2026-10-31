@@ -1,47 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/account/presentation/providers/account_providers.dart';
-import 'package:book_marketplace/shared/domain/user.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
-import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
-/// Sổ địa chỉ giao hàng: thêm, sửa, xoá, đặt mặc định.
+/// Địa chỉ của tôi: danh sách (tên | số điện thoại, địa chỉ, nhãn Mặc định / Văn phòng), bấm một dòng để sửa,
+/// nút "Thêm địa chỉ mới" ghim ở đáy.
 class AddressesScreen extends ConsumerWidget {
   const AddressesScreen({super.key});
-
-  Future<void> _edit(BuildContext context, WidgetRef ref, [Address? a]) async {
-    final saved = await showModalBottomSheet<Address>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => _AddressSheet(address: a),
-    );
-    if (saved == null) return;
-    final ok = await ref
-        .read(accountControllerProvider.notifier)
-        .saveAddress(saved);
-    if (!ok && context.mounted) {
-      showErrorSnack(context, ref.read(accountControllerProvider).error!);
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final c = context.appColors;
+    final text = context.textStyles;
     final list = ref.watch(addressBookProvider);
     return AppPage(
       title: l10n.addresses,
       showBack: true,
-      actions: [
-        IconButton(
-          tooltip: l10n.addAddress,
-          icon: const Icon(Icons.add_rounded),
-          onPressed: () => _edit(context, ref),
+      bottomBar: PinnedBar(
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+            child: OutlinedButton.icon(
+              onPressed: () => context.push(Routes.addressNew),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l10n.addrAddNew),
+            ),
+          ),
         ),
-      ],
+      ),
       children: [
         AsyncValueView(
           value: list,
@@ -50,221 +46,88 @@ class AddressesScreen extends ConsumerWidget {
               ? EmptyState(
                   icon: Icons.location_off_outlined,
                   title: l10n.noAddresses,
-                  action: FilledButton(
-                    onPressed: () => _edit(context, ref),
-                    child: Text(l10n.addAddress),
-                  ),
                 )
               : ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
-                  child: Column(
-                    children: [
-                      for (final a in items)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          child: InfoPanel(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              '${a.receiver} · ${a.phone}',
-                                              style: context
-                                                  .textStyles
-                                                  .titleMedium,
-                                            ),
+                  child: InfoPanel(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        for (final (i, a) in items.indexed) ...[
+                          if (i > 0)
+                            Divider(height: 1, indent: 16, color: c.separator),
+                          InkWell(
+                            onTap: () => context.push(Routes.addressEdit(a.id)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(AppSpacing.lg),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text.rich(
+                                          TextSpan(
+                                            text: a.receiver,
+                                            style: text.titleMedium,
+                                            children: [
+                                              TextSpan(
+                                                text: '  |  ${a.phone}',
+                                                style: text.bodyMedium
+                                                    ?.copyWith(
+                                                      color: c.secondaryText,
+                                                    ),
+                                              ),
+                                            ],
                                           ),
-                                          if (a.isDefault) ...[
-                                            const SizedBox(
-                                              width: AppSpacing.sm,
-                                            ),
-                                            PillBadge(l10n.defaultBadge),
-                                          ],
-                                        ],
-                                      ),
-                                      Text(
-                                        a.oneLine,
-                                        style: context.textStyles.bodySmall,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                DotsButton(
-                                  compact: true,
-                                  items: [
-                                    PopupMenuItem(
-                                      value: 'edit',
-                                      child: Text(l10n.edit),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'delete',
-                                      child: Text(l10n.delete),
-                                    ),
-                                  ],
-                                  onSelected: (v) async {
-                                    if (v == 'edit') {
-                                      return _edit(context, ref, a);
-                                    }
-                                    final ok = await showDialog<bool>(
-                                      context: context,
-                                      builder: (d) => AlertDialog(
-                                        content: Text(
-                                          l10n.deleteAddressConfirm,
                                         ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(d, false),
-                                            child: Text(l10n.cancel),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          a.detail,
+                                          style: text.bodyMedium?.copyWith(
+                                            color: c.secondaryText,
                                           ),
-                                          FilledButton(
-                                            onPressed: () =>
-                                                Navigator.pop(d, true),
-                                            child: Text(l10n.delete),
+                                        ),
+                                        Text(
+                                          [a.ward, a.district, a.province]
+                                              .where((s) => s.isNotEmpty)
+                                              .join(', '),
+                                          style: text.bodyMedium?.copyWith(
+                                            color: c.secondaryText,
+                                          ),
+                                        ),
+                                        if (a.isDefault ||
+                                            a.type == AddressType.office) ...[
+                                          const SizedBox(height: 8),
+                                          Wrap(
+                                            spacing: AppSpacing.sm,
+                                            children: [
+                                              if (a.isDefault)
+                                                PillBadge(l10n.defaultBadge),
+                                              if (a.type == AddressType.office)
+                                                PillBadge(l10n.addrTypeOffice),
+                                            ],
                                           ),
                                         ],
-                                      ),
-                                    );
-                                    if (ok ?? false) {
-                                      await ref
-                                          .read(
-                                            accountControllerProvider.notifier,
-                                          )
-                                          .deleteAddress(a.id);
-                                    }
-                                  },
-                                ),
-                              ],
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: c.tertiaryText,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                    ],
+                        ],
+                      ],
+                    ),
                   ),
                 ),
         ),
       ],
-    );
-  }
-}
-
-class _AddressSheet extends StatefulWidget {
-  const _AddressSheet({this.address});
-
-  final Address? address;
-
-  @override
-  State<_AddressSheet> createState() => _AddressSheetState();
-}
-
-class _AddressSheetState extends State<_AddressSheet> {
-  final _form = GlobalKey<FormState>();
-  late final _fields = {
-    for (final k in [
-      'receiver',
-      'phone',
-      'province',
-      'district',
-      'ward',
-      'detail',
-    ])
-      k: TextEditingController(
-        text: switch (k) {
-          'receiver' => widget.address?.receiver,
-          'phone' => widget.address?.phone,
-          'province' => widget.address?.province,
-          'district' => widget.address?.district,
-          'ward' => widget.address?.ward,
-          _ => widget.address?.detail,
-        },
-      ),
-  };
-  late var _default = widget.address?.isDefault ?? false;
-
-  @override
-  void dispose() {
-    for (final c in _fields.values) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final labels = {
-      'receiver': l10n.addressReceiver,
-      'phone': l10n.phone,
-      'province': l10n.addressProvince,
-      'district': l10n.addressDistrict,
-      'ward': l10n.addressWard,
-      'detail': l10n.addressDetail,
-    };
-    String v(String k) => _fields[k]!.text.trim();
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        0,
-        20,
-        20 + MediaQuery.viewInsetsOf(context).bottom,
-      ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _form,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                widget.address == null ? l10n.newAddress : l10n.editAddress,
-                style: context.textStyles.titleLarge,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              for (final e in labels.entries) ...[
-                TextFormField(
-                  controller: _fields[e.key],
-                  decoration: InputDecoration(labelText: e.value),
-                  keyboardType: e.key == 'phone' ? TextInputType.phone : null,
-                  validator: (x) =>
-                      (x ?? '').trim().isEmpty ? l10n.fieldRequired : null,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-              ],
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.addressDefault),
-                value: _default,
-                onChanged: (x) => setState(() => _default = x),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FilledButton(
-                onPressed: () {
-                  if (!_form.currentState!.validate()) return;
-                  Navigator.pop(
-                    context,
-                    Address(
-                      id: widget.address?.id ?? '',
-                      receiver: v('receiver'),
-                      phone: v('phone'),
-                      province: v('province'),
-                      district: v('district'),
-                      ward: v('ward'),
-                      detail: v('detail'),
-                      isDefault: _default,
-                    ),
-                  );
-                },
-                child: Text(l10n.save),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

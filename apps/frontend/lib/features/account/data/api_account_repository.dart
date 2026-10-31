@@ -11,7 +11,7 @@ class ApiAccountRepository implements AccountRepository {
 
   @override
   Future<AppUser> me() =>
-      guardApi(() async => (await _client.user.getMe()).toDomain());
+      guardApi(() async => (await _client.users.getMe()).toDomain());
 
   @override
   Future<AppUser> updateProfile({
@@ -19,7 +19,7 @@ class ApiAccountRepository implements AccountRepository {
     String? phone,
     String? avatarUrl,
   }) => guardApi(
-    () async => (await _client.user.putMe(
+    () async => (await _client.users.updateMe(
       body: api.UpdateProfileRequest(
         fullName: fullName,
         phone: phone,
@@ -30,25 +30,20 @@ class ApiAccountRepository implements AccountRepository {
 
   @override
   Future<List<Address>> addresses() => guardApi(
-    () async => [
-      for (final a in await _client.user.getMeAddresses()) a.toDomain(),
-    ],
+    () async =>
+        (await _client.users.listAddresses()).map((a) => a.toDomain()).toList(),
   );
 
-  /// Địa chỉ mới do app tạo có id không phải số → POST; còn lại PUT.
   @override
   Future<Address> saveAddress(Address address) => guardApi(() async {
-    final id = int.tryParse(address.id);
-    final saved = id == null
-        ? await _client.user.postMeAddresses(body: address.toRequest())
-        : await _client.user.putMeAddressesId(
-            id: id,
-            body: address.toRequest(),
-          );
-    return saved.toDomain();
+    final body = address.toRequest();
+    final dto = address.id.isEmpty
+        ? await _client.users.createAddress(body: body)
+        : await _client.users.updateAddress(id: address.id, body: body);
+    return dto.toDomain();
   });
 
   @override
   Future<void> deleteAddress(String id) =>
-      guardApi(() => _client.user.deleteMeAddressesId(id: apiId(id)));
+      guardApi(() => _client.users.deleteAddress(id: id));
 }

@@ -11,10 +11,9 @@ class ShopRequest {
   const ShopRequest({
     required this.name,
     required this.pickupAddress,
-    required this.pickupProvince,
     required this.bankName,
-    required this.bankAccountNumber,
-    required this.bankAccountHolder,
+    required this.bankAccount,
+    required this.bankHolder,
     this.description,
   });
 
@@ -24,10 +23,9 @@ class ShopRequest {
   final String name;
   final String? description;
   final String pickupAddress;
-  final String pickupProvince;
   final String bankName;
-  final String bankAccountNumber;
-  final String bankAccountHolder;
+  final String bankAccount;
+  final String bankHolder;
 
   Map<String, Object?> toJson() => _$ShopRequestToJson(this);
 }

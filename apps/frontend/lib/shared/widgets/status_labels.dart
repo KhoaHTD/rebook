@@ -49,6 +49,7 @@ extension ReturnStatusL10n on ReturnStatus {
     ReturnStatus.escalated => l.rsEscalated,
     ReturnStatus.resolvedRefund => l.rsResolvedRefund,
     ReturnStatus.resolvedNoRefund => l.rsResolvedNoRefund,
+    ReturnStatus.withdrawn => l.rsWithdrawn,
   };
 }
 
@@ -64,6 +65,36 @@ extension WalletTxnTypeL10n on WalletTxnType {
     WalletTxnType.saleRelease => l.txSaleRelease,
     WalletTxnType.fee => l.txFee,
     WalletTxnType.withdraw => l.txWithdraw,
+  };
+}
+
+extension AdminActionL10n on AdminAction {
+  String label(AppLocalizations l) => switch (this) {
+    AdminAction.listingApproved => l.admActListingApproved,
+    AdminAction.listingRejected => l.admActListingRejected,
+    AdminAction.userLocked => l.admActUserLocked,
+    AdminAction.userUnlocked => l.admActUserUnlocked,
+    AdminAction.roleChanged => l.admActRoleChanged,
+    AdminAction.auctionBanLifted => l.admActAuctionBanLifted,
+    AdminAction.shopMarkedTrusted => l.admActShopMarkedTrusted,
+    AdminAction.withdrawalCompleted => l.admActWithdrawalCompleted,
+    AdminAction.configChanged => l.admActConfigChanged,
+  };
+}
+
+extension SecondChanceStatusL10n on SecondChanceStatus {
+  String label(AppLocalizations l) => switch (this) {
+    SecondChanceStatus.pending => l.offerStatusPending,
+    SecondChanceStatus.accepted => l.offerStatusAccepted,
+    SecondChanceStatus.declined => l.offerStatusDeclined,
+    SecondChanceStatus.expired => l.offerStatusExpired,
+  };
+
+  StatusTone get tone => switch (this) {
+    SecondChanceStatus.pending => StatusTone.warning,
+    SecondChanceStatus.accepted => StatusTone.success,
+    SecondChanceStatus.declined => StatusTone.neutral,
+    SecondChanceStatus.expired => StatusTone.danger,
   };
 }
 

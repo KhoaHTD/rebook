@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show max, min;
 import 'dart:ui' show PointerDeviceKind;
 
 import 'package:flutter/material.dart';
@@ -8,20 +9,15 @@ import 'package:go_router/go_router.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
-import 'package:book_marketplace/core/utils/clock.dart';
-import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/catalog/domain/catalog_repository.dart';
-import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
-import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/layout/shell_inset.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
-import 'package:book_marketplace/shared/widgets/glass.dart';
-import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Thông tin tối thiểu để vẽ một poster / nền mờ trong slide.
-/// Đường dẫn tranh banner: `assets/banners/<id>.webp` (xem docs/BANNERS.md).
-String _banner(String id) => 'assets/banners/$id.webp';
+/// Đường dẫn tranh banner: `assets/banners/<id>.jpg` (xem docs/BANNERS.md).
+String _banner(String id) => 'assets/banners/$id.jpg';
 
 /// Nền thiết kế riêng cho slide sự kiện (không dùng ảnh bìa): bảng màu + biểu tượng lớn.
 typedef _Theme = ({List<Color> colors, IconData icon});
@@ -53,6 +49,11 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
   Timer? _timer;
   bool _dragging = false;
 
+  /// Desktop: băng chuyền tràn ra dưới sidebar, dùng danh sách cuộn ngang tự bắt khớp từng thẻ.
+  final ScrollController _scroll = ScrollController();
+  double _extent = 1;
+  bool _bleed = false;
+
   @override
   void initState() {
     super.initState();
@@ -63,16 +64,32 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
   void dispose() {
     _timer?.cancel();
     _controller?.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
   void _advance() {
+    if (!mounted || _dragging) return;
+    if (_bleed) {
+      if (_scroll.hasClients) _goTo(_page + 1);
+      return;
+    }
     final c = _controller;
-    if (!mounted || _dragging || c == null || !c.hasClients) return;
+    if (c == null || !c.hasClients) return;
     _goTo(_page + 1);
   }
 
   void _goTo(int page, {int? count}) {
+    if (_bleed) {
+      if (!_scroll.hasClients) return;
+      final n = count ?? _slideCount;
+      _scroll.animateTo(
+        ((page % n + n) % n) * _extent,
+        duration: AppDurations.normal * 2,
+        curve: Curves.easeOutCubic,
+      );
+      return;
+    }
     final c = _controller;
     if (c == null || !c.hasClients) return;
     final n = count ?? _slideCount;
@@ -85,6 +102,111 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
 
   int _slideCount = 1;
 
+  /// Desktop: băng chuyền phủ từ mép trái màn hình tới mép phải, nằm dưới sidebar kính. Thẻ đầu tiên vẫn
+  /// bắt đầu ở lề nội dung; kéo sang phải thì các thẻ trượt xuống dưới sidebar và bị kính làm nhoè.
+  /// (Lề trái = sidebar + lề trang, lề phải = lề trang của `AppPage` mặc định.)
+  Widget _buildBleed(
+    BuildContext context,
+    List<Widget Function(BuildContext)> slides,
+  ) {
+    final c = context.appColors;
+    final left = ShellInset.of(context) + AppSpacing.pageX;
+    const right = AppSpacing.pageX + 12;
+    const height = 400.0;
+    final n = slides.length;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final total = box.maxWidth + left + right;
+        final card = min(600.0, box.maxWidth);
+        _extent = card + AppSpacing.md;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: height,
+              child: OverflowBox(
+                alignment: Alignment.centerLeft,
+                minWidth: total,
+                maxWidth: total,
+                child: Transform.translate(
+                  offset: Offset(-left, 0),
+                  child: Stack(
+                    children: [
+                      NotificationListener<ScrollNotification>(
+                        onNotification: (note) {
+                          if (note.depth != 0) return false;
+                          if (note is ScrollStartNotification &&
+                              note.dragDetails != null) {
+                            _dragging = true;
+                          } else if (note is ScrollEndNotification) {
+                            _dragging = false;
+                          }
+                          final p = (note.metrics.pixels / _extent)
+                              .round()
+                              .clamp(0, n - 1);
+                          if (p != _page) setState(() => _page = p);
+                          return false;
+                        },
+                        child: ScrollConfiguration(
+                          // Cho phép kéo bằng chuột trên web.
+                          behavior: ScrollConfiguration.of(context).copyWith(
+                            dragDevices: {
+                              PointerDeviceKind.touch,
+                              PointerDeviceKind.mouse,
+                              PointerDeviceKind.trackpad,
+                            },
+                          ),
+                          child: ListView.builder(
+                            controller: _scroll,
+                            scrollDirection: Axis.horizontal,
+                            physics: _SnapPhysics(extent: _extent),
+                            padding: EdgeInsets.only(
+                              left: left,
+                              // Đủ chỗ để thẻ cuối cũng dừng được ở lề nội dung.
+                              right: max(right, total - left - _extent),
+                            ),
+                            itemExtent: _extent,
+                            itemCount: n,
+                            itemBuilder: (context, i) => Padding(
+                              padding: const EdgeInsets.only(
+                                right: AppSpacing.md,
+                              ),
+                              child: slides[i](context),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < n; i++)
+                  GestureDetector(
+                    onTap: () => _goTo(i, count: n),
+                    child: AnimatedContainer(
+                      duration: AppDurations.fast,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: i == _page ? 20 : 7,
+                      height: 7,
+                      decoration: ShapeDecoration(
+                        shape: const StadiumBorder(),
+                        color: i == _page ? c.tint : c.tertiaryText,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   List<Widget Function(BuildContext)> _slides(BuildContext context) {
     final l10n = context.l10n;
     final f = widget.feed;
@@ -94,8 +216,16 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
       for (final l in f.newArrivals.reversed.take(2)) _coverOfBook(l.book),
     ];
     return [
-      for (final s in f.liveSessions.take(2))
-        (c) => _LiveSlide(session: s, onOpen: () => c.go(Routes.live(s.id))),
+      // Đấu giá là khu riêng: ở đây chỉ còn một thẻ mời sang sàn đấu giá.
+      (c) => _HeroCard(
+        eyebrow: l10n.heroLiveEyebrow,
+        headline: l10n.auctionAppTitle,
+        covers: picks.take(1).toList(),
+        image: _banner('live'),
+        body: l10n.modeToAuctionBody,
+        cta: l10n.modeToAuction,
+        onTap: () => c.go(Routes.auctions),
+      ),
       if (picks.isNotEmpty)
         (c) => _HeroCard(
           eyebrow: l10n.heroPicksEyebrow,
@@ -155,6 +285,8 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
     final slides = _slides(context);
     _slideCount = slides.length;
     final c = context.appColors;
+    _bleed = !compact;
+    if (_bleed) return _buildBleed(context, slides);
 
     return LayoutBuilder(
       builder: (context, box) {
@@ -215,24 +347,6 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
                       ),
                     ),
                   ),
-                  if (!compact) ...[
-                    Positioned(
-                      left: 10,
-                      top: height / 2 - 20,
-                      child: _Arrow(
-                        icon: Icons.chevron_left_rounded,
-                        onTap: () => _goTo(_page - 1, count: slides.length),
-                      ),
-                    ),
-                    Positioned(
-                      right: 10,
-                      top: height / 2 - 20,
-                      child: _Arrow(
-                        icon: Icons.chevron_right_rounded,
-                        onTap: () => _goTo(_page + 1, count: slides.length),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -263,20 +377,52 @@ class _HeroCarouselState extends ConsumerState<HeroCarousel> {
   }
 }
 
-class _Arrow extends StatelessWidget {
-  const _Arrow({required this.icon, required this.onTap});
+/// Cuộn ngang bắt khớp từng thẻ (mỗi thẻ rộng [extent]), như `PageScrollPhysics` nhưng theo bề rộng thẻ
+/// chứ không theo bề rộng khung nhìn.
+class _SnapPhysics extends ScrollPhysics {
+  const _SnapPhysics({required this.extent, super.parent});
 
-  final IconData icon;
-  final VoidCallback onTap;
+  final double extent;
 
   @override
-  Widget build(BuildContext context) => SizedBox.square(
-    dimension: 40,
-    child: Glass.circle(
-      onTap: onTap,
-      child: Center(child: Icon(icon, size: 26)),
-    ),
-  );
+  _SnapPhysics applyTo(ScrollPhysics? ancestor) =>
+      _SnapPhysics(extent: extent, parent: buildParent(ancestor));
+
+  double _target(ScrollMetrics position, double velocity) {
+    var page = position.pixels / extent;
+    if (velocity < -toleranceFor(position).velocity) {
+      page -= 0.5;
+    } else if (velocity > toleranceFor(position).velocity) {
+      page += 0.5;
+    }
+    return (page.roundToDouble() * extent).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+  }
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    if ((velocity <= 0 && position.pixels <= position.minScrollExtent) ||
+        (velocity >= 0 && position.pixels >= position.maxScrollExtent)) {
+      return super.createBallisticSimulation(position, velocity);
+    }
+    final target = _target(position, velocity);
+    if (target == position.pixels) return null;
+    return ScrollSpringSimulation(
+      spring,
+      position.pixels,
+      target,
+      velocity,
+      tolerance: toleranceFor(position),
+    );
+  }
+
+  @override
+  bool get allowImplicitScrolling => false;
 }
 
 /// Một thẻ: nhãn + tiêu đề serif phía trên, thẻ ảnh (nền bìa mờ + khung kính) phía dưới.
@@ -288,12 +434,11 @@ class _HeroCard extends StatelessWidget {
     this.body,
     this.cta,
     this.onTap,
-    this.panel,
     this.theme,
     this.image,
   });
 
-  /// Tranh banner do người dùng vẽ (`assets/banners/<tên>.webp`); thiếu file thì rơi về nền bên dưới.
+  /// Tranh banner do người dùng vẽ (`assets/banners/<tên>.jpg`); thiếu file thì rơi về nền bên dưới.
   final String? image;
 
   /// Khác null → nền thiết kế (gradient + họa tiết); null → ảnh bìa phóng to làm nền.
@@ -308,9 +453,6 @@ class _HeroCard extends StatelessWidget {
   final String? cta;
   final VoidCallback? onTap;
 
-  /// Thay cho [body] + [cta] (thẻ phiên live có giá / đồng hồ riêng).
-  final Widget? panel;
-
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
@@ -318,25 +460,23 @@ class _HeroCard extends StatelessWidget {
     final text = context.textStyles;
     final onDark = context.colors.onSurface;
 
-    final content =
-        panel ??
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (body != null)
-              Text(
-                body!,
-                maxLines: compact ? 3 : 4,
-                overflow: TextOverflow.ellipsis,
-                style: text.bodyMedium?.copyWith(color: onDark),
-              ),
-            if (cta != null) ...[
-              const SizedBox(height: AppSpacing.md),
-              _BlackButton(label: cta!, onPressed: onTap),
-            ],
-          ],
-        );
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (body != null)
+          Text(
+            body!,
+            maxLines: compact ? 3 : 4,
+            overflow: TextOverflow.ellipsis,
+            style: text.bodyMedium?.copyWith(color: onDark),
+          ),
+        if (cta != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          _BlackButton(label: cta!, onPressed: onTap),
+        ],
+      ],
+    );
 
     // Chỉ hiện khi rê chuột vào thẻ: thẻ trắng mờ, chữ đen, nút đen.
     final glassPanel = DecoratedBox(
@@ -382,24 +522,7 @@ class _HeroCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    _backdrop(c),
-                    AnimatedOpacity(
-                      opacity: hover ? 1 : 0,
-                      duration: AppDurations.normal,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: compact
-                                ? Alignment.bottomCenter
-                                : Alignment.centerLeft,
-                            end: compact
-                                ? Alignment.topCenter
-                                : Alignment.centerRight,
-                            colors: HeroPalette.scrim,
-                          ),
-                        ),
-                      ),
-                    ),
+                    _backdrop(c, compact),
                     Padding(
                       padding: EdgeInsets.all(
                         compact ? AppSpacing.sm + 4 : AppSpacing.md,
@@ -432,13 +555,22 @@ class _HeroCard extends StatelessWidget {
   }
 
   /// Ảnh bìa phóng to phủ kín thẻ, hoặc nền gradient + họa tiết của slide sự kiện.
-  Widget _backdrop(AppColors c) {
+  /// Điện thoại dùng bản `<tên>-m.jpg` (khung vuông); thiếu thì rơi về bản desktop, rồi về nền tạm.
+  Widget _backdrop(AppColors c, bool compact) {
     final img = image;
     if (img != null) {
-      return Image.asset(
+      final desktop = Image.asset(
         img,
         fit: BoxFit.cover,
+        // Vật thể thường nằm giữa-phải: khi bị cắt vuông trên điện thoại thì giữ phía phải.
+        alignment: compact ? const Alignment(0.55, 0) : Alignment.center,
         errorBuilder: (_, _, _) => _fallbackBackdrop(c),
+      );
+      if (!compact) return desktop;
+      return Image.asset(
+        img.replaceFirst('.jpg', '-m.jpg'),
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => desktop,
       );
     }
     return _fallbackBackdrop(c);
@@ -508,98 +640,6 @@ class _RingsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingsPainter old) => old.color != color;
-}
-
-/// Thẻ phiên đang diễn ra: lô hiện tại, giá, người đang dẫn, đồng hồ, nút vào phòng.
-/// Làm mới mỗi 2 giây qua [liveStateProvider].
-class _LiveSlide extends ConsumerWidget {
-  const _LiveSlide({required this.session, required this.onOpen});
-
-  final AuctionSession session;
-  final VoidCallback onOpen;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final c = context.appColors;
-    final text = context.textStyles;
-    final onDark = context.colors.onSurface;
-    final state = ref.watch(liveStateProvider(session.id)).value;
-    final lot = state?.currentLot;
-
-    final cover = lot != null
-        ? _coverOfBook(lot.book)
-        : (
-            title: session.title,
-            author: l10n.lotsCount(session.lotCount),
-            url: session.coverImageUrl,
-            seed: session.id,
-          );
-
-    Widget panel;
-    if (state == null || lot == null) {
-      panel = Text(
-        l10n.waitingNextLot,
-        style: text.bodyMedium?.copyWith(color: onDark),
-      );
-    } else {
-      final offset = state.serverTime.difference(DateTime.now());
-      final now = (ref.watch(clockProvider).value ?? DateTime.now()).add(
-        offset,
-      );
-      final left = lot.endsAt?.difference(now);
-      panel = Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              PillBadge(l10n.live, color: c.live),
-              const SizedBox(width: AppSpacing.sm),
-              Flexible(
-                child: Text(
-                  l10n.viewers(state.viewerCount),
-                  overflow: TextOverflow.ellipsis,
-                  style: text.bodySmall?.copyWith(
-                    color: onDark.withValues(alpha: 0.85),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            formatVnd(lot.currentPrice),
-            style: text.headlineSmall?.copyWith(color: onDark),
-          ),
-          Text(
-            [
-              if (lot.leadingPaddle != null)
-                l10n.leadingPaddle(lot.leadingPaddle!),
-              if (left != null)
-                l10n.timeLeft(
-                  formatCountdown(left.isNegative ? Duration.zero : left),
-                ),
-            ].join(' · '),
-            style: text.bodySmall?.copyWith(
-              color: onDark.withValues(alpha: 0.85),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _BlackButton(label: l10n.enterLiveRoom, onPressed: onOpen),
-        ],
-      );
-    }
-
-    return _HeroCard(
-      eyebrow: l10n.heroLiveEyebrow,
-      headline: lot?.book.title ?? session.title,
-      covers: [cover],
-      image: _banner('live'),
-      panel: panel,
-      onTap: onOpen,
-    );
-  }
 }
 
 /// Theo dõi chuột đang nằm trên thẻ hay không (điện thoại không có chuột → luôn false, chạm để mở).

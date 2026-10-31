@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/staff/presentation/providers/staff_providers.dart';
@@ -83,6 +85,9 @@ class _CheckInForm extends ConsumerStatefulWidget {
 }
 
 class _CheckInFormState extends ConsumerState<_CheckInForm> {
+  /// Mã kệ để trống được (nhập sau).
+  static final _shelfRule = Rules.shelfCode.copyWith(optional: true);
+
   final _code = TextEditingController();
   final _shelf = TextEditingController();
   var _receipts = <String>[];
@@ -99,9 +104,11 @@ class _CheckInFormState extends ConsumerState<_CheckInForm> {
     final c = await ref
         .read(staffActionsProvider.notifier)
         .checkIn(
-          _code.text.trim(),
+          Rules.appointmentCode.value(_code.text),
           receipts: _receipts,
-          shelf: _shelf.text.trim().isEmpty ? null : _shelf.text.trim(),
+          shelf: _shelf.text.trim().isEmpty
+              ? null
+              : Rules.shelfCode.value(_shelf.text),
         );
     if (!mounted) return;
     if (c == null) {
@@ -130,19 +137,18 @@ class _CheckInFormState extends ConsumerState<_CheckInForm> {
           Text(l10n.checkIn, style: context.textStyles.titleLarge),
           Text(l10n.checkInHint, style: context.textStyles.bodySmall),
           const SizedBox(height: AppSpacing.md),
-          TextField(
+          RuleField(
             controller: _code,
-            textCapitalization: TextCapitalization.characters,
+            rule: Rules.appointmentCode,
+            label: l10n.appointmentCode,
             onChanged: (_) => setState(() {}),
-            style: context.textStyles.headlineSmall?.copyWith(letterSpacing: 2),
-            decoration: InputDecoration(labelText: l10n.appointmentCode),
           ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
+          RuleField(
             controller: _shelf,
-            decoration: InputDecoration(labelText: l10n.shelfCode),
+            rule: _shelfRule,
+            label: l10n.shelfCode,
+            onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: AppSpacing.md),
           Text(l10n.receiptPhotos, style: context.textStyles.titleSmall),
           const SizedBox(height: AppSpacing.sm),
           PhotoPickerField(
@@ -152,7 +158,12 @@ class _CheckInFormState extends ConsumerState<_CheckInForm> {
           ),
           const SizedBox(height: AppSpacing.lg),
           FilledButton(
-            onPressed: busy || _code.text.trim().isEmpty ? null : _submit,
+            onPressed:
+                busy ||
+                    !Rules.appointmentCode.isValid(_code.text) ||
+                    !_shelfRule.isValid(_shelf.text)
+                ? null
+                : _submit,
             child: Text(l10n.checkIn),
           ),
         ],

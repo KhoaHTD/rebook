@@ -7,6 +7,7 @@ import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
+import 'package:book_marketplace/features/catalog/presentation/widgets/favorite_button.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
@@ -28,12 +29,14 @@ class ListingDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final listing = ref.watch(listingProvider(listingId));
     final compact = context.windowSize.isCompact;
+    if (compact) return _CompactBook(listingId: listingId);
+    final listing = ref.watch(listingProvider(listingId));
     final l = listing.value;
     return AppPage(
       title: l?.book.title ?? '',
       showBack: true,
+      actions: [if (l != null) FavoriteButton(listingId: l.id)],
       // Nền cả trang = chính bìa sách, phóng to + làm mờ; chữ nằm trong khung kính.
       background: l == null
           ? null
@@ -43,7 +46,6 @@ class ListingDetailScreen extends ConsumerWidget {
               coverUrl: l.book.coverUrl,
               seed: l.book.id,
             ),
-      bottomBar: compact && l != null ? _BuyBar(listing: l) : null,
       children: [
         AsyncValueView(
           value: listing,
@@ -309,9 +311,12 @@ class _Info extends ConsumerWidget {
 }
 
 class _OtherOffers extends ConsumerWidget {
-  const _OtherOffers({required this.listingId});
+  const _OtherOffers({required this.listingId, this.compactStyle = false});
 
   final String listingId;
+
+  /// Điện thoại: tiêu đề kiểu nhãn chữ hoa nhỏ + đường kẻ như các mục khác của trang.
+  final bool compactStyle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -322,10 +327,30 @@ class _OtherOffers extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(l10n.otherOffers),
-        const SizedBox(height: AppSpacing.xs),
-        Text(l10n.otherOffersHint, style: context.textStyles.bodySmall),
-        const SizedBox(height: AppSpacing.lg),
+        if (compactStyle) ...[
+          Text(
+            l10n.otherOffers.toUpperCase(),
+            style: context.textStyles.labelMedium?.copyWith(
+              letterSpacing: 1.2,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            l10n.otherOffersHint,
+            style: context.textStyles.bodySmall?.copyWith(
+              color: context.appColors.secondaryText,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Divider(height: 1, color: context.appColors.separator),
+          const SizedBox(height: AppSpacing.lg),
+        ] else ...[
+          SectionHeader(l10n.otherOffers),
+          const SizedBox(height: AppSpacing.xs),
+          Text(l10n.otherOffersHint, style: context.textStyles.bodySmall),
+          const SizedBox(height: AppSpacing.lg),
+        ],
         PosterGrid(
           children: [
             for (final o in offers)
@@ -341,8 +366,256 @@ class _OtherOffers extends ConsumerWidget {
   }
 }
 
-/// Thanh mua hàng nổi bằng kính (mobile): người bán + giá + "Thêm vào giỏ".
-/// Đặt phía trên tab bar nổi của khung app.
+/// Điện thoại: chi tiết sách kiểu phẳng — nền trắng, bìa giữa, tên + tác giả giữa, thẻ ba thông số, mô tả,
+/// dải ảnh thực tế, rồi người bán / thông tin / các bản khác; thanh đáy phẳng có Thêm vào giỏ, Mua ngay và giá.
+class _CompactBook extends ConsumerWidget {
+  const _CompactBook({required this.listingId});
+
+  final String listingId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final c = context.appColors;
+    final listing = ref.watch(listingProvider(listingId));
+    final l = listing.value;
+    return Scaffold(
+      backgroundColor: context.colors.surface,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 56,
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    onPressed: () => context.canPop()
+                        ? context.pop()
+                        : context.go(Routes.home),
+                  ),
+                  Expanded(
+                    child: Text(
+                      l10n.bookDetailTitle,
+                      textAlign: TextAlign.center,
+                      style: context.textStyles.titleSmall?.copyWith(
+                        color: c.secondaryText,
+                      ),
+                    ),
+                  ),
+                  if (l == null)
+                    const SizedBox(width: 48)
+                  else
+                    FavoriteButton(listingId: l.id),
+                ],
+              ),
+            ),
+            Expanded(
+              child: AsyncValueView(
+                value: listing,
+                onRetry: () => ref.invalidate(listingProvider(listingId)),
+                data: (l) => _CompactBookBody(listing: l),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: l == null ? null : _BuyBar(listing: l),
+    );
+  }
+}
+
+class _CompactBookBody extends ConsumerWidget {
+  const _CompactBookBody({required this.listing});
+
+  final Listing listing;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final c = context.appColors;
+    final text = context.textStyles;
+    final book = listing.book;
+    final photos = [for (final i in book.images) i.url];
+    final width = MediaQuery.sizeOf(context).width;
+
+    Widget stat(String label, String value) => Expanded(
+      child: Column(
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: text.bodySmall?.copyWith(color: c.secondaryText),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+    );
+
+    Widget heading(String title, {String? sub}) => Padding(
+      padding: const EdgeInsets.only(top: 28, bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: text.labelMedium?.copyWith(
+              letterSpacing: 1.2,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          if (sub != null) ...[
+            const SizedBox(height: 2),
+            Text(sub, style: text.bodySmall?.copyWith(color: c.secondaryText)),
+          ],
+          const SizedBox(height: 8),
+          Divider(height: 1, color: c.separator),
+        ],
+      ),
+    );
+
+    Widget fact(String label, String? value) => value == null || value.isEmpty
+        ? const SizedBox.shrink()
+        : Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 120,
+                  child: Text(
+                    label,
+                    style: text.bodyMedium?.copyWith(color: c.secondaryText),
+                  ),
+                ),
+                Expanded(child: Text(value, style: text.bodyMedium)),
+              ],
+            ),
+          );
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+      children: [
+        Center(
+          child: BookPoster(
+            square: true,
+            title: book.title,
+            author: book.author,
+            coverUrl: book.coverUrl,
+            seed: book.id,
+            width: width * 0.55,
+          ),
+        ),
+        const SizedBox(height: 28),
+        Text(
+          book.title,
+          textAlign: TextAlign.center,
+          style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.bookByAuthor(book.author),
+          textAlign: TextAlign.center,
+          style: text.bodyMedium?.copyWith(color: c.secondaryText),
+        ),
+        const SizedBox(height: 22),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          decoration: BoxDecoration(
+            color: c.fill,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            children: [
+              stat(l10n.condition, book.condition.label(l10n)),
+              stat(
+                l10n.pages,
+                book.pages == null ? '—' : l10n.statPages(book.pages!),
+              ),
+              stat(
+                l10n.language,
+                (book.language == null || book.language!.isEmpty)
+                    ? '—'
+                    : book.language!,
+              ),
+            ],
+          ),
+        ),
+        if (book.description != null) ...[
+          const SizedBox(height: 20),
+          Text(book.description!, style: text.bodyLarge),
+        ],
+        if (photos.isNotEmpty) ...[
+          heading(l10n.realPhotos, sub: l10n.realPhotosCount(photos.length)),
+          PhotoStrip(urls: photos, size: 120),
+        ],
+        heading(l10n.bookDetails),
+        fact(l10n.author, book.author),
+        fact(l10n.publisher, book.publisher),
+        fact(l10n.publishYear, book.publishYear?.toString()),
+        fact(l10n.category, book.categoryName),
+        fact(l10n.isbn, book.isbn),
+        heading(l10n.soldBy),
+        InkWell(
+          onTap: () => context.go(Routes.shop(listing.shop.id)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: c.fill,
+                  child: listing.shop.avatarUrl == null
+                      ? Icon(Icons.storefront_outlined, color: c.secondaryText)
+                      : ClipOval(
+                          child: SizedBox.square(
+                            dimension: 40,
+                            child: AppImage(listing.shop.avatarUrl!),
+                          ),
+                        ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(listing.shop.name, style: text.titleMedium),
+                      Text(
+                        listing.shop.ratingCount == 0
+                            ? l10n.noReviews
+                            : l10n.rating(
+                                listing.shop.ratingAvg.toStringAsFixed(1),
+                                listing.shop.ratingCount,
+                              ),
+                        style: text.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  l10n.visitShop,
+                  style: text.labelLarge?.copyWith(color: c.info),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
+        _OtherOffers(listingId: listing.id, compactStyle: true),
+      ],
+    );
+  }
+}
+
+/// Thanh đáy phẳng (điện thoại): Thêm vào giỏ + Mua ngay bên trái, giá bên phải.
 class _BuyBar extends ConsumerWidget {
   const _BuyBar({required this.listing});
 
@@ -350,46 +623,62 @@ class _BuyBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final busy = ref.watch(addToCartControllerProvider).isLoading;
-    return SafeArea(
-      top: false,
-      child: Padding(
-        // 64 (tab bar) + 12 (lề dưới tab bar) + 10 khoảng hở.
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 86),
-        child: Glass(
-          borderRadius: AppRadius.chip,
-          padding: const EdgeInsets.fromLTRB(22, 8, 8, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      listing.shop.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyles.bodySmall,
+    final enabled = listing.purchasable && !busy;
+    return Material(
+      color: context.colors.surface,
+      elevation: 0,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: context.appColors.separator)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      backgroundColor: context.colors.onSurface,
+                      foregroundColor: context.colors.surface,
                     ),
-                    PriceText(
-                      listing.price,
-                      style: context.textStyles.titleLarge,
+                    onPressed: enabled
+                        ? () =>
+                              _addToCart(context, ref, listing, goToCart: false)
+                        : null,
+                    child: Text(l10n.addToCart, maxLines: 1),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 4,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
-                  ],
+                    onPressed: enabled
+                        ? () =>
+                              _addToCart(context, ref, listing, goToCart: true)
+                        : null,
+                    child: Text(l10n.buyNow, maxLines: 1),
+                  ),
                 ),
-              ),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(0, 52),
-                  padding: const EdgeInsets.symmetric(horizontal: 22),
+                const SizedBox(width: 12),
+                PriceText(
+                  listing.price,
+                  style: context.textStyles.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-                onPressed: !listing.purchasable || busy
-                    ? null
-                    : () => _addToCart(context, ref, listing, goToCart: false),
-                child: Text(context.l10n.addToCart),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

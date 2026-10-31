@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+/// NEW: chưa đọc; LIKE_NEW: đã đọc, không dấu vết; VERY_GOOD: dùng nhẹ, không ghi chú; GOOD: ghi chú/gấp góc/ố nhẹ; ACCEPTABLE: hư hại rõ, vẫn đọc được
 @JsonEnum()
 enum ConditionGrade {
   /// The name has been replaced because it contains a keyword. Original name: `NEW`.

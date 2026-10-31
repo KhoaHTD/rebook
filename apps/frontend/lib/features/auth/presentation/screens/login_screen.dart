@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/auth/presentation/providers/auth_controller.dart';
@@ -57,24 +59,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
+                RuleField(
                   controller: _email,
-                  decoration: InputDecoration(labelText: l10n.email),
-                  keyboardType: TextInputType.emailAddress,
+                  rule: Rules.email,
+                  label: l10n.email,
                   autofillHints: const [AutofillHints.email],
-                  validator: (v) =>
-                      AuthValidators.email(v ?? '') ? null : l10n.emailInvalid,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
+                RuleField(
                   controller: _password,
-                  decoration: InputDecoration(labelText: l10n.password),
-                  obscureText: true,
+                  rule: Rules.password,
+                  label: l10n.password,
+                  obscure: true,
                   autofillHints: const [AutofillHints.password],
-                  validator: (v) => AuthValidators.password(v ?? '')
-                      ? null
-                      : l10n.passwordTooShort,
-                  onFieldSubmitted: (_) => _submit(),
+                  onSubmitted: (_) => _submit(),
+                  bottom: 0,
                 ),
               ],
             ),

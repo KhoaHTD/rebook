@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/orders/presentation/providers/orders_providers.dart';
@@ -16,35 +18,41 @@ import 'package:book_marketplace/shared/widgets/ui.dart';
 Future<(String, List<String>)?> showReturnSheet(BuildContext context) {
   final l10n = context.l10n;
   final reason = TextEditingController();
+  final formKey = GlobalKey<FormState>();
   var photos = <String>[];
   return showAppSheet<(String, List<String>)>(
     context,
     title: l10n.requestReturn,
-    body: (c, setState) => Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          controller: reason,
-          maxLines: 4,
-          decoration: InputDecoration(labelText: l10n.returnReason),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Text(l10n.returnPhotos, style: c.textStyles.titleSmall),
-        const SizedBox(height: AppSpacing.sm),
-        PhotoPickerField(
-          folder: 'returns',
-          max: 5,
-          onChanged: (urls) => photos = urls,
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        FilledButton(
-          onPressed: () {
-            if (reason.text.trim().isEmpty) return;
-            Navigator.pop(c, (reason.text.trim(), photos));
-          },
-          child: Text(l10n.submit),
-        ),
-      ],
+    body: (c, setState) => Form(
+      key: formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          RuleField(
+            controller: reason,
+            rule: Rules.reason,
+            label: l10n.returnReason,
+            minLines: 3,
+            maxLines: 4,
+            showCounter: true,
+          ),
+          Text(l10n.returnPhotos, style: c.textStyles.titleSmall),
+          const SizedBox(height: AppSpacing.sm),
+          PhotoPickerField(
+            folder: 'returns',
+            max: 5,
+            onChanged: (urls) => photos = urls,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          FilledButton(
+            onPressed: () {
+              if (!formKey.currentState!.validate()) return;
+              Navigator.pop(c, (Rules.reason.value(reason.text), photos));
+            },
+            child: Text(l10n.submit),
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -74,17 +82,24 @@ Future<(int, String?)?> showReviewSheet(BuildContext context) {
               ),
           ],
         ),
-        TextField(
+        RuleField(
           controller: comment,
+          rule: Rules.review,
+          label: l10n.reviewComment,
+          minLines: 2,
           maxLines: 3,
-          decoration: InputDecoration(labelText: l10n.reviewComment),
+          showCounter: true,
+          onChanged: (_) => setState(() {}),
         ),
-        const SizedBox(height: AppSpacing.lg),
         FilledButton(
-          onPressed: () => Navigator.pop(c, (
-            stars,
-            comment.text.trim().isEmpty ? null : comment.text.trim(),
-          )),
+          onPressed: !Rules.review.isValid(comment.text)
+              ? null
+              : () => Navigator.pop(c, (
+                  stars,
+                  comment.text.trim().isEmpty
+                      ? null
+                      : Rules.review.value(comment.text),
+                )),
           child: Text(l10n.submit),
         ),
       ],

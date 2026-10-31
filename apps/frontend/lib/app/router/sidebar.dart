@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 
+import 'package:book_marketplace/app/router/nav_overlay.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/settings/app_settings_controller.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 
 /// Sidebar kính tràn hết chiều cao màn hình, sát mép trái (như Apple Books / Music trên macOS),
 /// ngăn với nội dung bằng một đường kẻ sáng mảnh. Dùng chung cho app người dùng và web quản trị.
 class SidebarPanel extends StatelessWidget {
-  const SidebarPanel({super.key, required this.child});
+  const SidebarPanel({
+    super.key,
+    required this.child,
+    this.side = NavSide.left,
+  });
 
   final Widget child;
+
+  /// Cạnh màn hình sidebar bám vào (đường kẻ sáng nằm ở cạnh đối diện).
+  final NavSide side;
+
+  /// Bề rộng sidebar; nội dung trang chừa đúng bằng này ở mép trái (xem `ShellInset`).
+  static const width = 268.0;
 
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
     return SizedBox(
-      width: 268,
+      width: width,
       child: ClipRect(
         child: BackdropFilter(
           filter: Glass.filter,
@@ -29,9 +41,15 @@ class SidebarPanel extends StatelessWidget {
                   Color.alphaBlend(c.fill, c.glassBottom),
                 ],
               ),
-              border: Border(right: BorderSide(color: c.glassBorder)),
+              border: side == NavSide.left
+                  ? Border(right: BorderSide(color: c.glassBorder))
+                  : Border(left: BorderSide(color: c.glassBorder)),
             ),
-            child: SafeArea(right: false, child: child),
+            child: SafeArea(
+              left: side == NavSide.right,
+              right: side == NavSide.left,
+              child: child,
+            ),
           ),
         ),
       ),
@@ -108,7 +126,10 @@ class SidebarItem extends StatelessWidget {
         shape: const StadiumBorder(),
         child: InkWell(
           customBorder: const StadiumBorder(),
-          onTap: onTap,
+          onTap: () {
+            onTap();
+            NavPanelScope.closeOf(context);
+          },
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: 12,

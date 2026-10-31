@@ -10,8 +10,8 @@ class FakeCartRepository implements CartRepository {
   final FakeStore _store;
 
   @override
-  Future<Cart> cart({String? addressId}) =>
-      fakeCall(() => _store.cart(addressId: addressId));
+  Future<Cart> cart({String? addressId, List<String>? itemIds}) =>
+      fakeCall(() => _store.cart(addressId: addressId, itemIds: itemIds));
 
   @override
   Future<Cart> updateItem(String itemId, int quantity) =>

@@ -9,12 +9,13 @@ import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
-/// Vài cuốn kinh điển vẽ trên tấm giới thiệu (minh hoạ, bìa tự vẽ).
+/// Vài cuốn kinh điển trên tấm giới thiệu: dùng đúng ảnh bìa như trang chủ (ảnh đóng gói trong `assets/books/`),
+/// nên chiều cao mỗi cuốn theo tỉ lệ bìa thật và canh đáy.
 const _heroBooks = [
-  ('Số đỏ', 'Vũ Trọng Phụng'),
-  ('Truyện Kiều', 'Nguyễn Du'),
-  ('Chí Phèo', 'Nam Cao'),
-  ('Vang bóng một thời', 'Nguyễn Tuân'),
+  ('Số đỏ', 'Vũ Trọng Phụng', 'assets/books/so-do-0.jpg'),
+  ('Truyện Kiều', 'Nguyễn Du', 'assets/books/truyen-kieu-0.jpg'),
+  ('Tắt đèn', 'Ngô Tất Tố', 'assets/books/tat-den-0.jpg'),
+  ('Vang bóng một thời', 'Nguyễn Tuân', 'assets/books/vang-bong-0.jpg'),
 ];
 
 /// Khung các màn đăng nhập / đăng ký / OTP / quên mật khẩu.
@@ -118,18 +119,29 @@ class _Hero extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.md,
-            children: [
-              for (final (i, b) in _heroBooks.indexed)
-                BookPoster(
-                  title: b.$1,
-                  author: b.$2,
-                  seed: 'hero-$i',
-                  width: 104,
-                ),
-            ],
+          LayoutBuilder(
+            builder: (context, box) {
+              // Bề rộng mỗi cuốn co theo tấm giới thiệu (tối đa 104), một hàng, canh đáy.
+              final w =
+                  ((box.maxWidth - AppSpacing.md * (_heroBooks.length - 1)) /
+                          _heroBooks.length)
+                      .clamp(48.0, 104.0);
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  for (final (i, b) in _heroBooks.indexed) ...[
+                    if (i > 0) const SizedBox(width: AppSpacing.md),
+                    BookPoster(
+                      title: b.$1,
+                      author: b.$2,
+                      coverUrl: b.$3,
+                      seed: 'hero-$i',
+                      width: w,
+                    ),
+                  ],
+                ],
+              );
+            },
           ),
           const SizedBox(height: AppSpacing.xxl),
           Text(

@@ -19,33 +19,11 @@ abstract final class ErrorCodes {
   static const invalidOtp = 'INVALID_OTP';
   static const emailTaken = 'EMAIL_TAKEN';
   static const notFound = 'NOT_FOUND';
+  static const receiptMismatch = 'RECEIPT_AMOUNT_MISMATCH';
 }
 
 /// Lỗi chuẩn hoá của app. Tầng data bắt mọi exception và ném lại dạng này
 /// (qua [guardApi]); UI chỉ cần biết các case dưới đây.
-/// Mã lỗi backend → mã UI đã có chuỗi dịch ([ErrorCodes]). Mã lạ giữ nguyên.
-String? _normalizeCode(String? code, String? message) {
-  switch (code) {
-    case 'BID_LIMIT_EXCEEDED':
-      return ErrorCodes.limitExceeded;
-    case 'LOT_NOT_OPEN':
-    case 'SESSION_CLOSED':
-    case 'SESSION_NOT_LIVE':
-    case 'SESSION_NOT_ACTIVE':
-      return ErrorCodes.lotClosed;
-    case 'INVALID_STATUS_TRANSITION':
-      return ErrorCodes.invalidTransition;
-    case 'FORBIDDEN':
-      // Backend gộp các lý do cấm đấu giá vào FORBIDDEN, chỉ khác câu chữ.
-      final m = message ?? '';
-      if (m.contains('cấm tham gia đấu giá')) return ErrorCodes.auctionBanned;
-      if (m.contains('chưa đăng ký')) return ErrorCodes.notRegistered;
-      return code;
-    default:
-      return code;
-  }
-}
-
 sealed class AppException implements Exception {
   const AppException([this.message]);
 
@@ -68,11 +46,7 @@ sealed class AppException implements Exception {
           final data = error.response?.data;
           final code = data is Map ? data['code'] as String? : null;
           final msg = data is Map ? data['message'] as String? : null;
-          return ServerException(
-            status,
-            code: _normalizeCode(code, msg),
-            message: msg,
-          );
+          return ServerException(status, code: code, message: msg);
         case DioExceptionType.cancel:
         case DioExceptionType.badCertificate:
         case DioExceptionType.unknown:

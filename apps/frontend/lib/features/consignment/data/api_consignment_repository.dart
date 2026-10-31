@@ -13,74 +13,59 @@ class ApiConsignmentRepository implements ConsignmentRepository {
 
   @override
   Future<List<Consignment>> mine() => guardApi(
-    () async => [
-      for (final c in await _client.consignment.getConsignments()) c.toDomain(),
-    ],
+    () async => (await _client.consignments.listMyConsignments())
+        .map((e) => e.toDomain())
+        .toList(),
   );
 
   @override
   Future<Consignment> get(String id) => guardApi(
-    () async =>
-        (await _client.consignment.getConsignmentsId(id: apiId(id))).toDomain(),
+    () async => (await _client.consignments.getConsignment(id: id)).toDomain(),
   );
 
   @override
   Future<Consignment> create(BookDraft book, int expectedPrice, String story) =>
       guardApi(
-        () async => (await _client.consignment.postConsignments(
-          body: api.ConsignmentCreateRequest(
+        () async => (await _client.consignments.createConsignment(
+          body: api.ConsignmentRequest(
             book: book.toRequest(),
             expectedPrice: expectedPrice,
-            provenance: story,
+            story: story,
           ),
         )).toDomain(),
       );
 
-  /// Backend không có API "khung giờ trống": kho nhận sách 8:00–17:00, hẹn trong
-  /// 7 ngày kể từ lúc duyệt — app tự sinh khung giờ chẵn trong khoảng đó.
   @override
-  Future<List<AppointmentSlot>> slots(String id) async {
-    final today = DateTime.now();
-    final first = DateTime(today.year, today.month, today.day + 1);
-    return [
-      for (var d = 0; d < 6; d++)
-        for (var h = 8; h <= 16; h++)
-          AppointmentSlot(
-            startAt: DateTime(first.year, first.month, first.day + d, h),
-            available: true,
-          ),
-    ];
-  }
+  Future<List<AppointmentSlot>> slots(String id) => guardApi(
+    () async => [
+      for (final s in await _client.consignments.listAppointmentSlots(id: id))
+        AppointmentSlot(startAt: s.startAt, available: s.available),
+    ],
+  );
 
   @override
   Future<Consignment> bookAppointment(String id, DateTime at) => guardApi(
-    () async => (await _client.consignment.postConsignmentsIdAppointment(
-      id: apiId(id),
-      body: api.AppointmentRequest(appointmentAt: at.toUtc()),
+    () async => (await _client.consignments.bookAppointment(
+      id: id,
+      body: api.AppointmentRequest(startAt: at),
     )).toDomain(),
   );
 
-  /// `counter` = đồng ý nhưng đề xuất giá sàn khác (backend gộp vào cùng một lệnh accept).
   @override
   Future<Consignment> decide(
     String id,
     SellerDecision decision, {
     int? counterReserve,
-  }) => guardApi(() async {
-    final withdraw = decision == SellerDecision.withdraw;
-    return (await _client.consignment.postConsignmentsIdDecision(
-      id: apiId(id),
-      body: api.SellerDecisionRequest(
-        decision: withdraw
-            ? api.SellerDecisionAction.withdraw
-            : api.SellerDecisionAction.accept,
-        counterReserve: decision == SellerDecision.counter
-            ? counterReserve
-            : null,
-        agreeTerms: !withdraw,
+  }) => guardApi(
+    () async => (await _client.consignments.decideConsignment(
+      id: id,
+      body: api.ConsignmentDecisionRequest(
+        decision: toApiEnum(api.SellerDecision.values, decision),
+        counterReserve: counterReserve,
+        agreeTerms: decision != SellerDecision.withdraw,
       ),
-    )).toDomain();
-  });
+    )).toDomain(),
+  );
 
   @override
   Future<Consignment> afterUnsold(
@@ -89,18 +74,20 @@ class ApiConsignmentRepository implements ConsignmentRepository {
     int? newReserve,
     int? fixedPrice,
   }) => guardApi(
-    () async => (await _client.consignment.postConsignmentsIdUnsoldDecision(
-      id: apiId(id),
-      body: api.UnsoldDecisionRequest(
-        action: unsoldActionToApi(choice),
+    () async => (await _client.consignments.chooseAfterUnsold(
+      id: id,
+      body: api.UnsoldChoiceRequest(
+        choice: toApiEnum(api.UnsoldChoice.values, choice),
         newReserve: newReserve,
-        listingPrice: fixedPrice,
+        fixedPrice: fixedPrice,
       ),
     )).toDomain(),
   );
 
   @override
   Future<List<Category>> categories() => guardApi(
-    () async => flattenCategories(await _client.catalog.getCategories()),
+    () async => (await _client.categories.listCategories())
+        .map((e) => e.toDomain())
+        .toList(),
   );
 }

@@ -1,24 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/external_link.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/wallet/presentation/providers/wallet_providers.dart';
+import 'package:book_marketplace/features/wallet/presentation/providers/withdraw_draft.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
+import 'package:book_marketplace/shared/widgets/withdrawal_receipt_view.dart';
 
 /// Ví ReBook: số dư dùng được / đang khóa, nạp tiền VNPay, rút tiền (người bán), sổ giao dịch (SRS 8.1).
+/// Khu mua sách chỉ hiện giao dịch mua bán; khu đấu giá ([auction]) chỉ hiện giao dịch cọc.
 class WalletScreen extends ConsumerWidget {
-  const WalletScreen({super.key});
+  const WalletScreen({super.key, this.auction = false});
+
+  final bool auction;
+
+  static const _depositTypes = {
+    WalletTxnType.depositHold,
+    WalletTxnType.depositRelease,
+    WalletTxnType.depositForfeit,
+  };
 
   Future<int?> _askAmount(
     BuildContext context,
@@ -31,6 +43,7 @@ class WalletScreen extends ConsumerWidget {
     String? error;
     return showModalBottomSheet<int>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       builder: (c) => StatefulBuilder(
         builder: (c, setState) => Padding(
@@ -54,9 +67,12 @@ class WalletScreen extends ConsumerWidget {
                 controller: ctrl,
                 autofocus: true,
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: Rules.amount.formatters,
+                maxLength: Rules.amount.maxLength,
                 decoration: InputDecoration(
                   labelText: l10n.amount,
+                  hintText: Rules.amount.hint(l10n),
+                  counterText: '',
                   helperText: l10n.amountMin(
                     formatVnd(WalletController.minAmount),
                   ),
@@ -93,7 +109,13 @@ class WalletScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final c = context.appColors;
     final wallet = ref.watch(myWalletProvider);
-    final txns = ref.watch(walletTransactionsProvider);
+    final txns = ref
+        .watch(walletTransactionsProvider)
+        .whenData(
+          (all) => all
+              .where((t) => _depositTypes.contains(t.type) == auction)
+              .toList(),
+        );
     final withdrawals =
         ref.watch(myWithdrawalsProvider).value ?? const <Withdrawal>[];
     final isSeller =
@@ -116,25 +138,8 @@ class WalletScreen extends ConsumerWidget {
       }
     }
 
-    Future<void> withdraw(int available) async {
-      final amount = await _askAmount(
-        context,
-        l10n.withdraw,
-        hint: l10n.withdrawHint,
-        max: available,
-      );
-      if (amount == null) return;
-      final ok = await ref
-          .read(walletControllerProvider.notifier)
-          .withdraw(amount);
-      if (!context.mounted) return;
-      ok
-          ? showInfoSnack(context, l10n.withdrawSent)
-          : showErrorSnack(context, ref.read(walletControllerProvider).error!);
-    }
-
     return AppPage(
-      title: l10n.wallet,
+      title: auction ? l10n.auctionWalletTitle : l10n.wallet,
       onRefresh: () => ref.refresh(myWalletProvider.future),
       children: [
         ConstrainedBox(
@@ -170,11 +175,19 @@ class WalletScreen extends ConsumerWidget {
                             icon: const Icon(Icons.add_rounded, size: 18),
                             label: Text(l10n.topUp),
                           ),
-                          if (isSeller)
+                          if (isSeller && !auction)
                             OutlinedButton(
                               onPressed: busy
                                   ? null
-                                  : () => withdraw(w.available),
+                                  : () {
+                                      ref
+                                          .read(
+                                            withdrawDraftControllerProvider
+                                                .notifier,
+                                          )
+                                          .reset();
+                                      context.push(Routes.withdrawBank);
+                                    },
                               child: Text(l10n.withdraw),
                             ),
                         ],
@@ -183,14 +196,21 @@ class WalletScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              if (withdrawals.isNotEmpty) ...[
+              if (withdrawals.isNotEmpty && !auction) ...[
                 const SizedBox(height: AppSpacing.xl),
                 Text(l10n.withdrawals, style: context.textStyles.titleMedium),
                 for (final w in withdrawals)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(formatVnd(w.amount)),
-                    subtitle: Text(formatDateTime(w.createdAt)),
+                    subtitle: Text(
+                      w.receipt == null
+                          ? formatDateTime(w.createdAt)
+                          : '${formatDateTime(w.createdAt)} · ${l10n.receiptTitle}',
+                    ),
+                    onTap: w.receipt == null
+                        ? null
+                        : () => showReceiptSheet(context, w.receipt!),
                     trailing: StatusPill(
                       w.status.label(l10n),
                       tone: w.status.tone,
@@ -198,7 +218,10 @@ class WalletScreen extends ConsumerWidget {
                   ),
               ],
               const SizedBox(height: AppSpacing.xl),
-              Text(l10n.transactions, style: context.textStyles.titleMedium),
+              Text(
+                auction ? l10n.depositHistory : l10n.transactions,
+                style: context.textStyles.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               AsyncValueView(
                 value: txns,

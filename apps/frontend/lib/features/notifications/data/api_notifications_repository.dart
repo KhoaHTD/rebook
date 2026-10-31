@@ -11,15 +11,14 @@ class ApiNotificationsRepository implements NotificationsRepository {
 
   @override
   Future<List<AppNotification>> list() => guardApi(() async {
-    final res = await _client.notification.getNotifications(size: 50);
-    return [for (final n in res.items.orEmpty) n.toDomain()];
+    final page = await _client.notifications.listNotifications(size: 100);
+    return page.items.map((e) => e.toDomain()).toList();
   });
 
-  /// `id == null` = đánh dấu đã đọc tất cả.
   @override
   Future<void> markRead(String? id) => guardApi(
     () => id == null
-        ? _client.notification.postNotificationsReadAll()
-        : _client.notification.postNotificationsIdRead(id: apiId(id)),
+        ? _client.notifications.markAllNotificationsRead()
+        : _client.notifications.markNotificationRead(id: id),
   );
 }

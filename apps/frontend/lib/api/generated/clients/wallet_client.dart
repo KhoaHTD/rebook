@@ -5,12 +5,14 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
-import '../models/page_response_transaction_response.dart';
-import '../models/payment_response.dart';
+import '../models/bank_account_dto.dart';
+import '../models/favorite_request.dart';
+import '../models/payment_dto.dart';
 import '../models/top_up_request.dart';
-import '../models/wallet_response.dart';
-import '../models/withdraw_create_request.dart';
-import '../models/withdraw_response.dart';
+import '../models/wallet_dto.dart';
+import '../models/wallet_transaction_page.dart';
+import '../models/withdrawal_dto.dart';
+import '../models/withdrawal_request.dart';
 
 part 'wallet_client.g.dart';
 
@@ -18,49 +20,35 @@ part 'wallet_client.g.dart';
 abstract class WalletClient {
   factory WalletClient(Dio dio, {String? baseUrl}) = _WalletClient;
 
-  @GET('/wallet/withdrawals')
-  Future<List<WithdrawResponse>> getWalletWithdrawals();
-
-  /// Tạo yêu cầu rút tiền (Admin duyệt)
-  @POST('/wallet/withdrawals')
-  Future<WithdrawResponse> postWalletWithdrawals({
-    @Body() required WithdrawCreateRequest body,
-  });
-
-  /// Nạp tiền qua VNPay sandbox — trả về paymentUrl để mở trình duyệt
-  @POST('/wallet/top-up')
-  Future<PaymentResponse> postWalletTopUp({@Body() required TopUpRequest body});
-
-  /// [DEV] Giả lập VNPay trả về thành công (chỉ khi app.payment.simulate-enabled=true)
-  @POST('/payments/{code}/simulate')
-  Future<PaymentResponse> postPaymentsCodeSimulate({
-    @Path('code') required String code,
-  });
-
-  /// Số dư ví
   @GET('/wallet')
-  Future<WalletResponse> getWallet();
+  Future<WalletDto> getWallet();
 
-  /// Lịch sử giao dịch ví (sổ cái)
   @GET('/wallet/transactions')
-  Future<PageResponseTransactionResponse> getWalletTransactions({
+  Future<WalletTransactionPage> listWalletTransactions({
     @Query('page') int? page = 0,
     @Query('size') int? size = 20,
   });
 
-  /// Trạng thái một thanh toán
-  @GET('/payments/{code}')
-  Future<PaymentResponse> getPaymentsCode({@Path('code') required String code});
+  @POST('/wallet/top-up')
+  Future<PaymentDto> topUp({@Body() required TopUpRequest body});
 
-  /// Return URL của VNPay
-  @GET('/payments/vnpay/return')
-  Future<Map<String, String>> getPaymentsVnpayReturn({
-    @Query('params') required Map<String, String> params,
+  @GET('/wallet/withdrawals')
+  Future<List<WithdrawalDto>> listWithdrawals();
+
+  /// Tạo yêu cầu rút tiền. Backend kiểm tra thông tin ngân hàng và available_balance đủ số tiền; ví chỉ bị trừ khi Admin duyệt (SRS 8.1).
+  @POST('/wallet/withdrawals')
+  Future<WithdrawalDto> requestWithdrawal({
+    @Body() required WithdrawalRequest body,
   });
 
-  /// IPN VNPay gọi về (server-to-server)
-  @GET('/payments/vnpay/ipn')
-  Future<Map<String, String>> getPaymentsVnpayIpn({
-    @Query('params') required Map<String, String> params,
+  /// Tài khoản ngân hàng tôi đã dùng để rút tiền (màn "Gần đây"), yêu thích đứng đầu rồi tới lần dùng mới nhất. Backend tự lưu / cập nhật khi tạo yêu cầu rút tiền.
+  @GET('/wallet/bank-accounts')
+  Future<List<BankAccountDto>> listBankAccounts();
+
+  /// Đánh dấu / bỏ đánh dấu yêu thích một tài khoản ngân hàng đã lưu.
+  @POST('/wallet/bank-accounts/{id}/favorite')
+  Future<BankAccountDto> setBankAccountFavorite({
+    @Path('id') required String id,
+    @Body() required FavoriteRequest body,
   });
 }

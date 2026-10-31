@@ -12,10 +12,21 @@ abstract final class AppTheme {
   static ThemeData light() => _build(Brightness.light, AppColors.light);
   static ThemeData dark() => _build(Brightness.dark, AppColors.dark);
 
-  static ThemeData _build(Brightness brightness, AppColors c) {
+  /// Khu đấu giá: luôn tối, đỏ LIVE + vàng đồng (xem [AppColors.auction]).
+  static ThemeData auction() => _build(
+    Brightness.dark,
+    AppColors.auction,
+    darkSurface: const Color(0xFF121212),
+  );
+
+  static ThemeData _build(
+    Brightness brightness,
+    AppColors c, {
+    Color darkSurface = const Color(0xFF1C1C1E),
+  }) {
     final isLight = brightness == Brightness.light;
     final ink = isLight ? const Color(0xFF1D1D1F) : const Color(0xFFF5F5F7);
-    final surface = isLight ? Colors.white : const Color(0xFF1C1C1E);
+    final surface = isLight ? Colors.white : darkSurface;
 
     final scheme =
         ColorScheme.fromSeed(
@@ -38,7 +49,7 @@ abstract final class AppTheme {
           error: c.live,
         );
 
-    final family = AppFonts.family;
+    const family = AppFonts.family;
     TextStyle t(
       double size,
       FontWeight weight,
@@ -105,7 +116,7 @@ abstract final class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: c.tint,
-          foregroundColor: Colors.white,
+          foregroundColor: c.onSelected,
           minimumSize: const Size(64, 44),
           padding: const EdgeInsets.symmetric(horizontal: 20),
           shape: pill,

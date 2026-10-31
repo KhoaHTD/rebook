@@ -1,0 +1,23 @@
+/// Ngân hàng phổ biến để chọn khi rút tiền (danh sách cố định ở frontend).
+const vietnamBanks = <String>[
+  'Vietcombank',
+  'VietinBank',
+  'BIDV',
+  'Agribank',
+  'Techcombank',
+  'MB Bank',
+  'ACB',
+  'VPBank',
+  'TPBank',
+  'Sacombank',
+  'HDBank',
+  'VIB',
+  'SHB',
+  'OCB',
+  'MSB',
+  'SeABank',
+  'Eximbank',
+  'LPBank',
+  'Nam A Bank',
+  'ABBank',
+];

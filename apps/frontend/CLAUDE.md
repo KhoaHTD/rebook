@@ -5,11 +5,13 @@ Firebase chỉ dùng cho **hosting bản web** và **FCM (thông báo đẩy)**:
 
 Nghiệp vụ: [docs/SRS.txt](docs/SRS.txt) (đặc tả gốc, @Khoa 21/10/2026) + 3 sơ đồ `docs/srs-*.png`. Tiến độ: [docs/PROGRESS.md](docs/PROGRESS.md).
 
-**Giao diện: style Liquid Glass đã duyệt (2026-10-22)** — chuẩn là `../../design-preview/png/lg-desktop.png` và `lg-mobile.png`
+**Giao diện: style Liquid Glass đã duyệt (2026-10-22)** — chuẩn là `docs/design/lg-desktop.png` và `lg-mobile.png`
 (nền màu loang lấy tông từ bìa sách, sidebar / tab bar / thanh đầu trang / thanh mua hàng bằng kính mờ nổi, màu nhấn xanh,
-chữ nội dung San Francisco — SF hệ thống trên iPhone/Mac, Inter trên web/Android, không đóng gói SF —, tiêu đề trang / tiêu đề kệ / dòng sự kiện là serif mềm Newsreader (giống New York của Apple), sidebar kính tràn hết chiều cao sát mép trái, băng chuyền `HeroCarousel` ở trang chủ, chi tiết sách lấy bìa phóng to + làm mờ làm nền cả trang (`AppPage.background` + `BookBackdrop`) với chữ trong khung kính, poster sách lớn có gáy + bóng,
+chữ là font hệ thống (`AppFonts` trong `app_tokens.dart` trả `null`: SF / Roboto / Segoe UI; không đóng gói font riêng, tiêu đề cũng dùng font hệ thống), nền sáng xanh sương #EBEFF4 (không trắng toát), sidebar kính tràn hết chiều cao sát mép trái, băng chuyền `HeroCarousel` ở trang chủ, chi tiết sách lấy bìa phóng to + làm mờ làm nền cả trang (`AppPage.background` + `BookBackdrop`) với chữ trong khung kính, poster sách lớn có gáy + bóng,
 lưới 4 poster/hàng trên desktop, kệ cuộn ngang + tab bar kính nổi trên mobile). Mọi màn mới theo đúng style này:
 dùng `Glass`, `InfoPanel`, `AppPage`, `HeaderAction` trong `shared/widgets/` thay vì tự vẽ nền / viền.
+
+**Khu đấu giá tách riêng khỏi mua sách (2026-10-29):** đấu giá có khung, theme và trang chủ riêng — khung `app/router/auction_shell.dart` (sidebar + tab bar Sàn · Lịch · Của tôi · Kết quả · Tài khoản), theme luôn tối `AppTheme.auction()` (đỏ LIVE + vàng đồng, `AppColors.auction`), màn ở `features/auction/`. Công tắc `ModeSwitch` chuyển qua lại; app mua sách không bán / hiện đấu giá, chỉ còn thẻ mời sang (`AuctionEntryBanner`, slide banner). Màn đấu giá mới dùng màu từ theme (`context.appColors`) nên tự theo khu tối.
 
 Chi tiết kiến trúc, lý do và ví dụ: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Đọc file đó trước khi thêm feature mới.
 
@@ -30,7 +32,7 @@ flutter test
 ### Ghép với backend thật (`apps/backend`)
 
 Merge code không tự tắt mock: `USE_MOCK` chỉ do file `--dart-define-from-file` quyết định. **Không sửa `env/dev.json`** (giữ mock để code giao diện).
-Muốn nối backend thật thì chạy bằng `env/local.json` (`USE_MOCK=false`, API `http://localhost:8080` (không có `/api`), WS `ws://localhost:8080/ws` — WebSocket JSON thuần, không phải STOMP):
+Muốn nối backend thật thì chạy bằng `env/local.json` (`USE_MOCK=false`, API `http://localhost:8080/api`, WS `ws://localhost:8080/ws`):
 
 ```bash
 flutter run -d chrome --dart-define-from-file=env/local.json
@@ -105,9 +107,25 @@ lib/
 - Tạo thư mục cấp cao mới trong `lib/` ngoài `app/ core/ shared/ api/ features/`.
 - Gọi API bằng đường dẫn tự gõ khi spec chưa có endpoint: báo người dùng cập nhật `openapi/openapi.yaml` rồi chạy `/sync-api`.
 
+## Làm thêm ngoài SRS: báo cho backend
+
+Giao diện được phép nhiều hơn SRS (người dùng quyết). Mỗi thứ ngoài SRS cần dữ liệu / endpoint mới thì **trong cùng commit**: (1) thêm vào `openapi/openapi.yaml` và đánh dấu
+`x-origin: frontend` (endpoint / schema / field / tham số), `x-frontend-change: "..."` (endpoint đã có nhưng đổi hành vi) hoặc `x-frontend-added: [...]` (enum), (2) thêm một mục vào
+[docs/BACKEND_HANDOFF.md](docs/BACKEND_HANDOFF.md) (hành vi, endpoint, field, luật nghiệp vụ, bảng DB), (3) làm giao diện bằng dữ liệu giả. Backend chạy `dart run tool/api_gap.dart` để biết còn thiếu gì.
+
 ## Công cụ Claude Code trong repo
 
 - `/new-feature <tên>` — tạo khung feature đúng chuẩn.
 - `/sync-api` — sinh lại client từ OpenAPI.
 - Agent `frontend-architecture-reviewer` (ở `.claude/agents/` gốc repo) — review diff theo các luật trên trước khi tạo PR.
 - Hooks (`.claude/settings.json`): chặn package lạ + file sinh tự động, tự `dart format`, chạy `dart analyze` + arch check khi kết thúc lượt.
+
+## Làm việc nhóm: Admin & Staff (đọc [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md))
+
+- **Luật cứng: không đưa code `apps/backend` lên nhánh `interface` hay nhánh con của nó** (hook push, hook Claude và CI "Backend Guard" cùng chặn). Phần còn lại là luật nhẹ: PR + review, không tự đổi file hạ tầng / thêm package, giao diện sửa thoải mái.
+- Phần quản trị chia hai module: `features/admin/**` và `features/staff/**` (+ `test/features/<vai>/`), mỗi vai một file module nên ít đụng nhau.
+- **Router và sidebar quản trị do module quyết định**: thêm màn = sửa `features/<vai>/presentation/<vai>_module.dart` (route + mục sidebar + `smokePaths`) + file màn hình. Không sửa `app/router/admin_router.dart`, `admin_shell.dart`, `admin_modules.dart`.
+- **Bố cục màn Admin / Staff do người làm tự sáng tạo.** Gu chung (sáng, phẳng, nút đen, tiêu đề serif, dữ liệu là nhân vật chính) và đồ nghề có sẵn (`AppPage`, `AdminCard`, `AdminKpi`, `AdminPalette`) nằm ở [docs/ADMIN_VIBE.md](docs/ADMIN_VIBE.md): đọc để hiểu bối cảnh, không phải luật. Không có máy nào chặn kiểu dáng.
+- Chuỗi mới: `node tool/l10n_add.mjs <file.json> --zone adm|stf` (key bắt đầu `adm` / `stf`, không đổi key cũ).
+- Responsive: điểm gãy khung quản trị 900px (dưới đó sidebar là ngăn kéo). Mọi màn phải ổn ở 375 / 800 / 1400px. `test/layout/admin_staff_layout_test.dart` quét các route đã khai báo và chỉ hỏng khi có lỗi tràn / dựng hình; đừng sửa test này để "xanh".
+- Bị hook chặn (backend trên nhánh bảo vệ, package lạ, file sinh tự động) → dừng và báo người dùng; không lách.

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/glass_menu.dart';
 import 'package:book_marketplace/shared/widgets/sheets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -37,22 +40,21 @@ class CategoriesScreen extends ConsumerWidget {
       body: (sheet, setState) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
+          RuleField(
             controller: name,
-            autofocus: true,
-            decoration: InputDecoration(labelText: l10n.categoryName),
+            rule: Rules.categoryName,
+            label: l10n.categoryName,
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: AppSpacing.md),
-          DropdownButtonFormField<String?>(
-            initialValue: parent,
-            decoration: InputDecoration(labelText: l10n.parentCategory),
+          GlassDropdownField<String?>(
+            value: parent,
+            label: l10n.parentCategory,
             items: [
-              DropdownMenuItem(value: null, child: Text(l10n.noParent)),
+              GlassMenuItem<String?>(value: null, label: l10n.noParent),
               for (final p in all.where(
                 (x) => x.parentId == null && x.id != c?.id,
               ))
-                DropdownMenuItem(value: p.id, child: Text(p.name)),
+                GlassMenuItem<String?>(value: p.id, label: p.name),
             ],
             onChanged: (v) => setState(() => parent = v),
           ),

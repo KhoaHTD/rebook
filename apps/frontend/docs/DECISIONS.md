@@ -2,7 +2,7 @@
 
 > **2026-10-22 — làm lại UI theo style Apple Books.** File này lấy từ tag `backup/srs-frontend-2026-10-22`; các mục về nghiệp vụ
 > vẫn giữ. Các mục về giao diện cũ (kính, theme tối tự động trên mobile, trang giới thiệu web) **không còn áp dụng**:
-> giao diện chuẩn là `design-preview/png/apple-desktop.png` + `apple-mobile.png`, nền sáng, web mở thẳng trang chủ.
+> giao diện chuẩn là bản vẽ Apple Books cũ (đã xoá; nay thay bằng `docs/design/lg-*.png`), nền sáng, web mở thẳng trang chủ.
 > Nhánh làm việc hiện tại: `design/apple-books` (không phải `feat/srs-frontend`).
 
 Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, lý do, cách đổi nếu không đồng ý.
@@ -87,7 +87,7 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Màn hình con mở từ sidebar desktop (Đơn mua, Ví…) giữ sidebar; phòng đấu giá phủ toàn màn hình.
 
 ### Giao diện Liquid Glass + chữ SF (2026-10-22)
-- Người dùng duyệt bản vẽ `design-preview/png/lg-desktop.png`, `lg-mobile.png`, thay style Apple Books (nền trắng, serif Newsreader).
+- Người dùng duyệt bản vẽ `docs/design/lg-desktop.png`, `lg-mobile.png`, thay style Apple Books (nền trắng, serif Newsreader).
 - Chữ: người dùng muốn toàn bộ chữ là San Francisco. Giấy phép SF của Apple chỉ cho dùng trên nền tảng Apple, không cho đóng gói
   vào app web / Android → iPhone / Mac dùng SF có sẵn của hệ điều hành, web và Android dùng **Inter** (OFL, gần SF nhất). Người dùng đồng ý.
 - Thêm màu nhấn xanh (`AppColors.tint`) — trước đây chỉ đen trắng. Người dùng đồng ý.
@@ -108,8 +108,73 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Bảng màu theo video (nền trắng ngà, cam, băng vàng chanh, hồng, xanh dương) — khác với phần còn lại của app (Liquid Glass + xanh); trang này là trang giới thiệu riêng.
 - Web mở `/` là trang giới thiệu; người đã đăng nhập vào thẳng `/home`; app điện thoại không có trang này. Đổi lại bằng `initialLocation` trong `app_router.dart`.
 
-### Backend: sửa lỗi nghiệp vụ sau rà soát (2026-10-29)
-- Mời người trả giá cao thứ hai mua lại lô chỉ khi giá của họ **≥ giá sàn**. SRS chỉ nói "mời người trả cao thứ hai", không nói giá sàn; dưới giá sàn thì người bán chưa đồng ý bán nên lô quay về chờ xếp phiên.
-- Người bán (hoặc kho) phải trả lời yêu cầu trả hàng trong **2 ngày** (cấu hình `order.return_response_days`); quá hạn thì tự chuyển Admin phân xử như khi người bán từ chối, tiền vẫn giữ ở sàn. SRS không có hạn này.
-- Người mua bấm "Đã nhận hàng" khi đang yêu cầu trả hàng = rút yêu cầu: yêu cầu đóng lại (REJECTED).
-- Thanh toán VNPay về muộn mà đơn đã được trả bằng cách khác (ví / link mới): phần tiền thừa hoàn vào ví người mua.
+### Cập nhật SRS 31/10 (file `docs/Đặc-tả-ứng-dụng-mua-bán-đấu-giá-sách-cũ.docx`)
+Năm điểm mới trong SRS. SRS **không liệt kê endpoint** cho các điểm này (mục 10.4 chỉ rút gọn), nên tên field / endpoint dưới đây do frontend
+đặt tạm trong `openapi/openapi.yaml` — **backend đối chiếu và sửa nếu khác**, rồi chạy `/sync-api`:
+- **Hạn trả lời yêu cầu trả hàng (4.4):** `ReturnRequestDto.respondBy` (date-time); cấu hình `SystemConfigDto.returnResponseDays` (mặc định 2,
+  `order.return_response_days`); quá hạn thì backend tự đổi `status` sang `ESCALATED`. Frontend chỉ hiển thị hạn (người bán: còn bao nhiêu giờ;
+  người mua: hạn shop trả lời) và có ô cấu hình ở màn Cấu hình phí của Admin.
+- **Rút yêu cầu trả hàng (4.4):** không thêm endpoint — người mua gọi lại `/orders/{id}/confirm-received` khi đơn đang `RETURN_REQUESTED`;
+  backend đóng yêu cầu với trạng thái mới `ReturnStatus.WITHDRAWN` và hoàn tất đơn. Nút hiện là "Đã nhận hàng, rút yêu cầu trả" kèm hộp xác nhận.
+- **Mời mua lần hai (6.6):** `GET /me/offers` (`listSecondChanceOffers`), `POST /me/offers/{id}/accept` (trả `OrderDto`, đơn AUCTION),
+  `POST /me/offers/{id}/decline`; `SecondChanceOfferDto` {id, lotId, lotNumber, bookTitle, coverUrl, amount, expiresAt, status}. Chỉ mời khi giá ≥ giá sàn
+  và hạn 24h — **do backend quyết định**, frontend chỉ hiện lời mời có sẵn. Màn ở hồ sơ đấu giá (`/auctions/account/offers`), có số lời mời còn hiệu lực.
+- **Biên lai rút tiền (8.1):** `POST /admin/withdrawals/{id}/complete` nay nhận `WithdrawalReceiptDto` {senderName, transferredAt, amount, proofImageUrl};
+  `WithdrawalDto.receipt` trả lại cho người bán xem trong lịch sử rút tiền. Số tiền phải đúng số yêu cầu (mã lỗi `RECEIPT_AMOUNT_MISMATCH`, HTTP 422).
+  Ảnh chứng từ upload qua `PhotoPickerField` như các ảnh khác.
+- **Nhật ký hoạt động Admin (8.1):** `GET /admin/activity-logs` → `ActivityLogDto` {id, adminName, action, target, note, createdAt}; `AdminAction` gồm 9 loại
+  theo SRS (duyệt/từ chối tin, khóa/mở khóa, đổi vai trò, gỡ cấm đấu giá, shop uy tín, duyệt rút tiền, đổi cấu hình). Màn `/activity` (sidebar "Nhật ký").
+  Giao diện hiện chưa có chỗ nào gọi "đổi vai trò", "gỡ cấm đấu giá", "shop uy tín" nên frontend giả chỉ ghi 6 loại; 3 loại kia (đổi vai trò, gỡ cấm, shop uy tín) vẫn có nhãn để hiển thị khi backend gửi.
+- **Không làm (SRS không yêu cầu giao diện):** ví của sàn; hoàn tiền VNPay muộn vào ví (dòng "Hoàn tiền" trong lịch sử ví đã có sẵn).
+- **Ngoài SRS, chưa làm theo yêu cầu người dùng:** chọn sản phẩm trong giỏ; trường ngân hàng / số tài khoản / tên chủ tài khoản / ghi chú khi tạo yêu cầu rút tiền.
+
+### Bảy mục ngoài SRS (yêu cầu của người dùng 31/10) — tên field / endpoint tạm trong `openapi/openapi.yaml`
+SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
+- **Sách yêu thích:** `POST /listings/{id}/favorite` {favorite}, `GET /me/favorites` → `ListingDto[]`. Tim ở trang chi tiết sách (điện thoại + máy tính),
+  màn "Sách yêu thích" ở Tài khoản (`/account/favorites`, menu ba chấm trên mỗi ô để bỏ tim). Trạng thái tim lấy từ danh sách yêu thích (`favoriteIds`),
+  không thêm field vào `ListingDto`.
+- **Phiên yêu thích:** `POST /sessions/{id}/watch` {watch}, `GET /me/watched-sessions` → `AuctionSessionDto[]`. Tim trên thẻ phiên và trang phiên.
+  Tab "Yêu thích" ở trang chủ đấu giá = phiên đã theo dõi **hoặc** phiên có lô đang theo dõi.
+- **Toạ độ địa chỉ:** `AddressDto` / `AddressRequest` thêm `latitude`, `longitude` (tuỳ chọn). Form địa chỉ có nút "Ghim vị trí trên bản đồ": chạm vào
+  sơ đồ Việt Nam tự vẽ (mặc định ở tâm tỉnh); bản đồ ở bước thanh toán ghim đúng điểm đã chọn, chưa ghim thì dùng tâm tỉnh như trước.
+- **Chọn món trong giỏ:** `GET /cart?itemIds=…` chỉ tính các món đã chọn (ship tính lại theo khối lượng các món này); `POST /orders/checkout` đã có `itemIds`.
+  Trạng thái chọn nằm ở frontend (mặc định chọn hết, món mới thêm tự được chọn), không lưu ở backend. Có chọn từng món, từng shop, "Chọn tất cả / Bỏ chọn tất cả".
+- **Rút tiền có thông tin ngân hàng:** `WithdrawalRequest` {amount, bankName, bankAccountNumber, bankAccountName, note}; `WithdrawalDto` trả lại các trường này.
+  Ngân hàng chọn từ danh sách cố định ở frontend (`shared/data/vietnam_banks.dart`); tên chủ tài khoản tự đổi sang IN HOA không dấu khi gõ.
+  Số tài khoản 6–19 chữ số.
+- **Trừ ví khi Admin duyệt (khác bản trước, theo ghi chú của người dùng):** tạo yêu cầu chỉ kiểm tra số dư khả dụng đủ; ví bị trừ lúc duyệt và duyệt
+  kiểm tra lại số dư (`INSUFFICIENT_BALANCE` nếu người bán đã tiêu mất). Trong lúc chờ, tiền vẫn nằm ở số dư khả dụng — backend nên cân nhắc khoá tạm nếu muốn chặn rút trùng.
+- **Người duyệt / thời gian duyệt:** `WithdrawalDto.approvedBy/approvedAt`, `ListingDto.reviewedBy/reviewedAt`, `ReturnRequestDto.resolvedBy/resolvedAt`;
+  `GET /admin/returns?resolved=true` trả các yêu cầu đã phân xử. Hiện ở bảng rút tiền, mục "Đã xử lý gần đây" của duyệt tin, mục "Đã phân xử" của khiếu nại; nhật ký hoạt động vẫn giữ.
+- **Rút tiền chia theo luồng (người dùng yêu cầu, theo ảnh ShopeePay):** `/account/wallet/withdraw/bank` (chọn ngân hàng, có ô tìm kiếm) →
+  `/account/wallet/withdraw/account` (số tài khoản + tên chủ tài khoản tự IN HOA không dấu; khối "Gần đây" chỉ hiện tài khoản của ngân hàng đang chọn) →
+  `/account/wallet/withdraw/amount` (số tiền, gợi ý 100k/500k/1tr + "Rút hết", nguồn tiền Ví ReBook, ghi chú 140 ký tự, tổng + nút Tiếp, ngôi sao yêu thích) →
+  `/account/wallet/withdraw/done` (kết quả, chờ duyệt). Không có màn xác nhận riêng. Nháp nhập liệu giữ trong `WithdrawDraftController`.
+  Logo ngân hàng là ô chữ viết tắt tự vẽ (`BankPalette`, `BankBadge`), không dùng logo thật; tên chủ tài khoản do người dùng nhập (chưa có cổng tra cứu ngân hàng).
+  Endpoint tạm: `GET /wallet/bank-accounts` (yêu thích đứng đầu, rồi lần dùng mới nhất; backend tự lưu / cập nhật khi tạo yêu cầu rút),
+  `POST /wallet/bank-accounts/{id}/favorite` {favorite}. Form rút tiền gộp một tờ trượt trước đó đã bỏ.
+
+## 2026-11-01 — Luật nhập liệu và chữ mờ gợi ý cho mọi ô nhập
+
+- Mọi ô nhập đi qua `Rules` (`lib/core/utils/input_rules.dart`) và `RuleField` (`shared/widgets/form_widgets.dart`): bàn phím, bộ lọc ký tự, độ dài, regex / khoảng số, chữ mờ gợi ý (`hintText`, tự mất khi gõ). Giá trị lưu đã chuẩn hoá bằng `rule.value(...)`.
+- Căn cứ SRS chỉ có: ngưỡng ký gửi ≥ 300.000đ (6.1) và ISBN tuỳ chọn. Mọi luật còn lại (email, SĐT VN `0` + 9 số, mật khẩu ≥ 6, OTP 6 số, STK 6–19 số, ISBN-10/13 có số kiểm tra, tiền tối thiểu 10.000đ, bội số 1.000đ...) là frontend đề xuất theo thông lệ; bảng đầy đủ ở `BACKEND_HANDOFF.md` mục B9.
+- Do frontend đề xuất, SRS không nêu (backend nên đối chiếu): mã kệ `^[A-Z]\d{1,2}-\d{1,3}$`, mã vận đơn `^[A-Z0-9]{8,20}$`, các cận số (năm, số trang, cân nặng, thời lượng lô 30–600 giây, soft-close 5–60 giây, cấu hình phí 0–100%), độ dài tên / mô tả / lý do.
+- Không dùng dấu phân cách hàng nghìn trong ô tiền.
+
+## 2026-11-01 — Bản đồ thật + tự định vị trong màn sửa địa chỉ
+
+- Người dùng chốt thêm `flutter_map` + `latlong2` (allowlist cập nhật) và bỏ qua luật "package phải duyệt" cho lần này; luật không đưa code backend lên nhánh `interface` vẫn giữ.
+- `OsmMap` (tile OSM) thay `VietnamMap` ở màn sửa địa chỉ; Hoàng Sa, Trường Sa luôn ghi tên "(Việt Nam)" phủ lên bản đồ. Màn thanh toán vẫn dùng sơ đồ tự vẽ.
+- `Geocoder` (`core/network/geocoder.dart`): Nominatim khi chạy thật, tâm tỉnh khi mock. Tự định vị sau khi ngừng gõ 1,5 giây; chạm bản đồ thì khoá tự định vị cho tới khi bấm nút "Định vị theo địa chỉ".
+
+## 2026-11-01 — Quận / huyện, phường / xã chọn từ danh sách (không gõ)
+
+- Màn sửa địa chỉ: tỉnh → quận / huyện → phường / xã là ba ô chọn xổ ra; chỉ "số nhà, tên đường" là gõ tay (lý do: gõ tiếng Việt có dấu trên máy ảo / bàn phím không ổn, và gõ tay dễ sai chính tả).
+- Danh sách lấy từ provinces.open-api.vn (miễn phí, không khoá, gọi thẳng từ app, có cache trong bộ nhớ): `core/network/admin_units.dart`. Đổi tỉnh thì xoá quận và phường, đổi quận thì xoá phường.
+- API không tải được thì sheet cho nhập tên thủ công (vẫn qua `Rules.district`). Dữ liệu nguồn là bản 63 tỉnh; nếu sau này SRS chuyển sang địa giới 2 cấp thì đổi nguồn ở đây.
+
+## 2026-11-01 — Chọn vị trí bằng cách kéo bản đồ (ghim cố định giữa khung)
+
+- `OsmMap`: ghim luôn ở giữa khung, người dùng kéo / chụm bản đồ cho tâm trúng chỗ cần chọn; toạ độ lưu là toạ độ ở tâm khi kéo xong. Không còn chạm để đặt ghim.
+- Định vị tự động chỉ di chuyển bản đồ tới điểm tìm được; không làm gì nếu điểm đó đã là tâm hiện tại (tránh giật khi chính cú kéo báo toạ độ lên). Kéo tay thì tự định vị dừng cho tới khi bấm "Định vị theo địa chỉ".
+- Địa chỉ chưa kéo lần nào thì lưu toạ độ tâm tỉnh / điểm tự định vị.

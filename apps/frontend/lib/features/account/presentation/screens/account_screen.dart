@@ -58,6 +58,7 @@ class AccountScreen extends ConsumerWidget {
 
     return AppPage(
       title: l10n.accountTitle,
+      showBack: false,
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
@@ -104,14 +105,14 @@ class AccountScreen extends ConsumerWidget {
                   () => context.go(Routes.orders),
                 ),
                 row(
-                  Icons.timer_outlined,
-                  l10n.myAuctions,
-                  () => context.go(Routes.myAuctions),
-                ),
-                row(
                   Icons.account_balance_wallet_outlined,
                   l10n.wallet,
                   () => context.go(Routes.wallet),
+                ),
+                row(
+                  Icons.favorite_border_rounded,
+                  l10n.favTitle,
+                  () => context.go(Routes.favorites),
                 ),
                 row(
                   Icons.location_on_outlined,

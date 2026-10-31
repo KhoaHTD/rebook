@@ -3,118 +3,89 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import 'package:book_marketplace/app/env.dart';
 import 'package:book_marketplace/core/auth/token_storage.dart';
 
 part 'realtime_client.g.dart';
 
-/// WebSocket JSON thuần của backend: mỗi kênh một kết nối (`/ws/sessions/{id}`,
-/// `/ws/notifications`), mỗi tin là một object JSON. Tự nối lại khi rớt mạng.
+/// Kết nối WebSocket STOMP tới backend (SRS 10.3).
+///
+/// - Nghe: `subscribe('/topic/sessions/{id}')`, lỗi riêng: `subscribe('/user/queue/errors')`.
+/// - Gửi: `send('/app/lots/{lotId}/bid', {'amount': ...})`.
+///
+/// Một kết nối dùng chung cho cả app; tự kết nối lại (reconnectDelay). Khi kết nối lại,
+/// repository phải gọi `GET /sessions/{id}/state` rồi mới nghe tiếp (xem auction feature).
 class RealtimeClient {
   RealtimeClient({required this.url, required this.accessToken});
 
-  /// Gốc WebSocket, ví dụ `ws://localhost:8080/ws`.
   final String url;
   final Future<String?> Function() accessToken;
 
-  static const _retryDelay = Duration(seconds: 3);
-
+  StompClient? _client;
+  Completer<void>? _connected;
   final _reconnects = StreamController<void>.broadcast();
-  var _disposed = false;
 
-  /// Phát mỗi lần nối lại thành công sau khi mất kết nối — nơi nghe nên
-  /// tải lại ảnh chụp trạng thái vì có thể đã lỡ sự kiện.
+  /// Phát mỗi lần kết nối (lại) thành công — dùng để tải lại ảnh chụp trạng thái.
   Stream<void> get onReconnect => _reconnects.stream;
 
-  /// Nghe một kênh, ví dụ `sessions/12`. Huỷ subscription thì đóng kết nối.
-  Stream<Map<String, dynamic>> subscribe(String channel) {
-    late StreamController<Map<String, dynamic>> controller;
-    WebSocketChannel? socket;
-    StreamSubscription<dynamic>? sub;
-    var active = false;
-    var connectedBefore = false;
-
-    Future<void> connect() async {
-      if (!active || _disposed) return;
-      try {
-        final token = await accessToken();
-        final uri = _endpoint(channel, token);
-        final ch = WebSocketChannel.connect(uri);
-        socket = ch;
-        await ch.ready;
-        if (connectedBefore && !_reconnects.isClosed) _reconnects.add(null);
-        connectedBefore = true;
-        sub = ch.stream.listen(
-          (raw) {
-            if (raw is! String) return;
-            try {
-              final decoded = jsonDecode(raw);
-              if (decoded is Map<String, dynamic>) controller.add(decoded);
-            } on FormatException {
-              // Tin không phải JSON (ping…): bỏ qua.
-            }
-          },
-          onDone: () => unawaited(_retry(connect, () => active)),
-          onError: (Object e) {
-            debugPrint('WebSocket $channel: $e');
-            unawaited(_retry(connect, () => active));
-          },
-          cancelOnError: true,
-        );
-      } on Object catch (e) {
-        debugPrint('WebSocket $channel: $e');
-        await _retry(connect, () => active);
-      }
+  Future<StompClient> _ensureConnected() async {
+    if (_client != null && _connected != null) {
+      await _connected!.future;
+      return _client!;
     }
+    final token = await accessToken();
+    _connected = Completer<void>();
+    final client = StompClient(
+      config: StompConfig(
+        url: url,
+        reconnectDelay: const Duration(seconds: 3),
+        stompConnectHeaders: {
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        onConnect: (_) {
+          if (!(_connected?.isCompleted ?? true)) _connected!.complete();
+          _reconnects.add(null);
+        },
+        onWebSocketError: (dynamic e) => debugPrint('STOMP error: $e'),
+        onStompError: (frame) => debugPrint('STOMP frame error: ${frame.body}'),
+      ),
+    );
+    _client = client..activate();
+    await _connected!.future;
+    return client;
+  }
 
+  /// Nghe một destination; mỗi message là JSON đã decode.
+  Stream<Map<String, dynamic>> subscribe(String destination) {
+    late StreamController<Map<String, dynamic>> controller;
+    void Function({Map<String, String>? unsubscribeHeaders})? unsubscribe;
     controller = StreamController<Map<String, dynamic>>(
-      onListen: () {
-        active = true;
-        unawaited(connect());
+      onListen: () async {
+        final client = await _ensureConnected();
+        unsubscribe = client.subscribe(
+          destination: destination,
+          callback: (frame) {
+            final body = frame.body;
+            if (body == null) return;
+            final decoded = jsonDecode(body);
+            if (decoded is Map<String, dynamic>) controller.add(decoded);
+          },
+        );
       },
-      onCancel: () async {
-        active = false;
-        await sub?.cancel();
-        await socket?.sink.close();
-      },
+      onCancel: () => unsubscribe?.call(),
     );
     return controller.stream;
   }
 
-  /// `url` có thể là đường dẫn tương đối (`/ws`) khi web và backend chung một origin
-  /// (chạy sau proxy / tunnel): khi đó lấy máy chủ từ địa chỉ trang đang mở.
-  Uri _endpoint(String channel, String? token) {
-    final base = Uri.parse(url);
-    final page = Uri.base;
-    final root = base.hasScheme
-        ? base
-        : Uri(
-            scheme: page.scheme == 'https' ? 'wss' : 'ws',
-            host: page.host,
-            port: page.hasPort ? page.port : null,
-            path: base.path,
-          );
-    return Uri(
-      scheme: root.scheme,
-      host: root.host,
-      port: root.hasPort ? root.port : null,
-      path: '${root.path}/$channel',
-      queryParameters: token == null ? null : {'token': token},
-    );
-  }
-
-  Future<void> _retry(
-    Future<void> Function() connect,
-    bool Function() stillActive,
-  ) async {
-    await Future<void>.delayed(_retryDelay);
-    if (stillActive() && !_disposed) await connect();
+  Future<void> send(String destination, Map<String, Object?> body) async {
+    final client = await _ensureConnected();
+    client.send(destination: destination, body: jsonEncode(body));
   }
 
   void dispose() {
-    _disposed = true;
+    _client?.deactivate();
     _reconnects.close();
   }
 }

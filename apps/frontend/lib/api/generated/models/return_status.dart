@@ -8,12 +8,18 @@ import 'package:json_annotation/json_annotation.dart';
 enum ReturnStatus {
   @JsonValue('PENDING')
   pending('PENDING'),
-  @JsonValue('APPROVED')
-  approved('APPROVED'),
-  @JsonValue('DISPUTED')
-  disputed('DISPUTED'),
+  @JsonValue('ACCEPTED')
+  accepted('ACCEPTED'),
   @JsonValue('REJECTED')
   rejected('REJECTED'),
+  @JsonValue('ESCALATED')
+  escalated('ESCALATED'),
+  @JsonValue('RESOLVED_REFUND')
+  resolvedRefund('RESOLVED_REFUND'),
+  @JsonValue('RESOLVED_NO_REFUND')
+  resolvedNoRefund('RESOLVED_NO_REFUND'),
+  @JsonValue('WITHDRAWN')
+  withdrawn('WITHDRAWN'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

@@ -805,7 +805,7 @@
   "listingSaved": "Đã lưu tin đăng",
   "invalidNumber": "Số không hợp lệ",
   "buyer": "Người mua",
-  "confirmOrder": "Xác nhận đơn",
+  "confirmOrder": "Xác nhận đặt hàng",
   "handToShipper": "Giao cho shipper",
   "trackingCodeLabel": "Mã vận đơn (không bắt buộc)",
   "markDeliveredDemo": "Giả lập: đã giao thành công",
@@ -1312,5 +1312,522 @@
     }
   },
   "adminBidFeed": "Lượt trả giá trực tiếp",
-  "adminLotQueue": "Hàng đợi lô"
+  "adminLotQueue": "Hàng đợi lô",
+  "admReceiptTitle": "Biên lai chuyển khoản",
+  "admReceiptSender": "Người chuyển (tên tài khoản của sàn)",
+  "admReceiptTime": "Thời điểm chuyển",
+  "admReceiptAmount": "Số tiền thực chuyển",
+  "admReceiptProof": "Ảnh biên lai / chứng từ",
+  "admReceiptProofRequired": "Cần đính kèm ảnh chứng từ",
+  "admReceiptSenderRequired": "Nhập tên người chuyển",
+  "admReceiptConfirm": "Xác nhận đã chuyển",
+  "admReceiptSeeLink": "Xem biên lai",
+  "admNavActivity": "Nhật ký",
+  "admActivityTitle": "Nhật ký hoạt động",
+  "admActivityEmpty": "Chưa có thao tác nào",
+  "admActListingApproved": "Duyệt tin đăng",
+  "admActListingRejected": "Từ chối tin đăng",
+  "admActUserLocked": "Khóa tài khoản",
+  "admActUserUnlocked": "Mở khóa tài khoản",
+  "admActRoleChanged": "Đổi vai trò",
+  "admActAuctionBanLifted": "Gỡ cấm đấu giá",
+  "admActShopMarkedTrusted": "Đánh dấu shop uy tín",
+  "admActWithdrawalCompleted": "Duyệt rút tiền",
+  "admActConfigChanged": "Đổi cấu hình",
+  "admReturnResponseDays": "Hạn shop trả lời yêu cầu trả hàng (ngày)",
+  "admWdPayTo": "Chuyển tới {bank} · {number} · {name}",
+  "@admWdPayTo": {
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "admWdNote": "Ghi chú: {note}",
+  "@admWdNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "admApprovedBy": "Duyệt bởi {name} · {time}",
+  "@admApprovedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "admRejectedBy": "Từ chối bởi {name} · {time}",
+  "@admRejectedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "admResolvedBy": "Phân xử bởi {name} · {time}",
+  "@admResolvedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "admReviewedListingsTitle": "Đã xử lý gần đây",
+  "admResolvedDisputesTitle": "Đã phân xử",
+  "modeBooks": "Mua sách",
+  "modeAuction": "Đấu giá",
+  "modeBackToBooks": "Về Mua sách",
+  "modeToAuction": "Sang sàn đấu giá",
+  "modeToAuctionBody": "Sách hiếm, phiên trực tiếp, mỗi lô 60 giây. Một khu riêng dành cho đấu giá.",
+  "auctionAppTitle": "Sàn đấu giá",
+  "auctionNavFloor": "Sàn",
+  "auctionNavSchedule": "Lịch",
+  "auctionNavMine": "Của tôi",
+  "auctionNavResults": "Kết quả",
+  "floorNoLive": "Chưa có phiên nào đang diễn ra",
+  "floorNextIn": "Phiên tiếp theo sau {time}",
+  "@floorNextIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "floorNowOnBlock": "Đang trên bục",
+  "floorCurrentPrice": "Giá hiện tại",
+  "floorFeaturedLots": "Lô nổi bật",
+  "floorFeaturedSub": "Những lô đáng chú ý trong các phiên sắp tới.",
+  "floorUpcomingSub": "Đăng ký và đặt cọc trước giờ mở.",
+  "floorMySummary": "Bạn đã đăng ký {count} phiên",
+  "@floorMySummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "floorMySummaryNone": "Bạn chưa đăng ký phiên nào",
+  "scheduleTitle": "Lịch đấu giá",
+  "scheduleSub": "Mọi phiên theo ngày, đăng ký ngay khi còn mở.",
+  "scheduleToday": "Hôm nay",
+  "scheduleTomorrow": "Ngày mai",
+  "scheduleRegOpen": "Đang mở đăng ký",
+  "scheduleRegClosed": "Đã đóng đăng ký",
+  "scheduleEmpty": "Chưa có phiên nào được lên lịch",
+  "historyTitle": "Kết quả & lịch sử",
+  "historySub": "Các phiên đã kết thúc và lô bạn đã thắng.",
+  "historyEmpty": "Chưa có phiên nào kết thúc",
+  "historyViewResults": "Xem kết quả",
+  "historyWonHint": "Lô thắng cần thanh toán nằm ở Đơn mua",
+  "auctionAccountTitle": "Tài khoản đấu giá",
+  "auctionAccountAvailable": "Khả dụng",
+  "auctionAccountHeld": "Đang giữ cọc",
+  "auctionAccountOrders": "Đơn thắng cần thanh toán",
+  "countdownDays": "{days} ngày {hours} giờ",
+  "@countdownDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "mineRegistrations": "Phiên đã đăng ký",
+  "mineWatching": "Lô đang theo dõi",
+  "mineWatchingEmpty": "Chưa theo dõi lô nào. Bấm theo dõi ở trang lô để nhận nhắc khi lô sắp lên bục.",
+  "floorEventsAt": "{time}",
+  "@floorEventsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "navMenu": "Menu điều hướng",
+  "settingsNavSide": "Vị trí nút điều hướng",
+  "navSideLeft": "Bên trái",
+  "navSideRight": "Bên phải",
+  "homeExploreTitle": "Khám phá",
+  "homeShelfCheap": "Giá tốt",
+  "homeShelfEmpty": "Chưa có sách trong mục này.",
+  "floorShelfLive": "Đang LIVE",
+  "floorShelfUpcoming": "Sắp diễn ra",
+  "floorShelfLots": "Lô nổi bật",
+  "floorShelfWatched": "Đang theo dõi",
+  "floorShelfEmpty": "Chưa có gì ở mục này.",
+  "navExplore": "Khám phá",
+  "exploreRecent": "Tìm gần đây",
+  "exploreClearAll": "Xóa tất cả",
+  "exploreTrending": "Thịnh hành tuần này",
+  "exploreCategories": "Khám phá theo danh mục",
+  "auctionSearchHint": "Tìm lô, sách, tác giả…",
+  "floorTabFavorite": "Yêu thích",
+  "lotEndsIn": "Kết thúc sau",
+  "lotBidNow": "Vào phòng trả giá",
+  "lotBidders": "Người trả giá",
+  "bookDetailTitle": "Chi tiết sách",
+  "bookByAuthor": "của {author}",
+  "@bookByAuthor": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "realPhotos": "Ảnh thực tế",
+  "realPhotosCount": "{count} ảnh do người bán chụp",
+  "@realPhotosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statPages": "{count} trang",
+  "@statPages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartToCheckout": "Tiến hành thanh toán",
+  "bagTotal": "Tổng giỏ ({count} sản phẩm)",
+  "@bagTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "checkoutShippingTo": "Giao đến",
+  "payShortCod": "Tiền mặt",
+  "payShortWallet": "Ví",
+  "payShortVnpay": "VNPay",
+  "totalPayment": "Tổng thanh toán",
+  "orderSummary": "Đơn hàng",
+  "walletAvailable": "Số dư khả dụng",
+  "exploreKicker": "Sách bạn có thể thích",
+  "shelfCount": "{count, plural, =1{1 cuốn} other{{count} cuốn}}",
+  "@shelfCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shelfPrev": "Kệ trước",
+  "shelfNext": "Kệ sau",
+  "exploreTabTrending": "Thịnh hành",
+  "exploreTabCategories": "Thể loại",
+  "exploreViewBook": "Xem sách",
+  "exploreViewGrid": "Dạng lưới",
+  "exploreViewCarousel": "Băng chuyền",
+  "exploreAddToCart": "Thêm vào giỏ",
+  "addressMapTitle": "Vị trí giao hàng",
+  "mapParacel": "Quần đảo Hoàng Sa (Việt Nam)",
+  "mapSpratly": "Quần đảo Trường Sa (Việt Nam)",
+  "mapEastSea": "Biển Đông",
+  "mapApprox": "Ghim theo tỉnh/thành của địa chỉ",
+  "mapNoPin": "Chưa xác định được tỉnh/thành của địa chỉ này.",
+  "wonLots": "Lô đã thắng",
+  "auctionWalletTitle": "Ví đấu giá",
+  "depositHistory": "Lịch sử cọc",
+  "myBids": "Lịch sử trả giá",
+  "myBidsEmpty": "Bạn chưa trả giá lô nào",
+  "myBidLine": "Bài số {paddle} · trả {amount}",
+  "@myBidLine": {
+    "placeholders": {
+      "paddle": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bidLeading": "Đang dẫn đầu",
+  "bidOutbid": "Đã bị vượt giá",
+  "auctionAccountRegistrations": "Phiên đã đăng ký & số bài",
+  "rsWithdrawn": "Đã rút yêu cầu",
+  "errReceiptMismatch": "Số tiền trên biên lai phải đúng số tiền yêu cầu rút",
+  "returnRespondBy": "Shop có tới {time} để trả lời. Quá hạn, yêu cầu tự chuyển Admin phân xử.",
+  "@returnRespondBy": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "returnRespondBySeller": "Hạn trả lời: {time} (còn {hours} giờ). Quá hạn, yêu cầu tự chuyển Admin phân xử.",
+  "@returnRespondBySeller": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "returnOverdue": "Đã quá hạn trả lời, yêu cầu được chuyển Admin phân xử.",
+  "withdrawReturnAndConfirm": "Đã nhận hàng, rút yêu cầu trả",
+  "withdrawReturnQuestion": "Xác nhận đã nhận hàng? Yêu cầu trả hàng sẽ được rút và đơn hoàn tất.",
+  "receiptTitle": "Biên lai chuyển khoản",
+  "receiptSender": "Người chuyển",
+  "receiptTime": "Thời điểm chuyển",
+  "receiptAmount": "Số tiền chuyển",
+  "receiptNoImage": "Không có ảnh chứng từ",
+  "offersTitle": "Lời mời mua lần hai",
+  "offersEmpty": "Chưa có lời mời nào",
+  "offersHint": "Khi người thắng bỏ thanh toán, bạn (người trả giá cao thứ hai, giá từ giá sàn trở lên) được mời mua với giá đã trả trong 24 giờ.",
+  "offerLotLine": "Lô {n} · {price}",
+  "@offerLotLine": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "offerExpires": "Hết hạn {time}",
+  "@offerExpires": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "offerAccept": "Mua với giá này",
+  "offerDecline": "Từ chối",
+  "offerDeclineQuestion": "Từ chối lời mời này? Lô sẽ quay lại chờ xếp phiên sau.",
+  "offerAccepted": "Đã tạo hoá đơn, thanh toán trong 48 giờ",
+  "offerStatusPending": "Đang chờ bạn",
+  "offerStatusAccepted": "Đã mua",
+  "offerStatusDeclined": "Đã từ chối",
+  "offerStatusExpired": "Hết hạn",
+  "auctionAccountOffers": "Lời mời mua lần hai",
+  "wdBank": "Ngân hàng",
+  "wdBankHint": "Chọn ngân hàng nhận tiền",
+  "wdAccountNumber": "Số tài khoản nhận",
+  "wdAccountName": "Tên chủ tài khoản (IN HOA, không dấu)",
+  "wdNote": "Ghi chú (nếu có)",
+  "wdNeedBank": "Chọn ngân hàng",
+  "wdNeedNumber": "Nhập số tài khoản (6–19 chữ số)",
+  "wdNeedName": "Nhập tên chủ tài khoản",
+  "wdDeductHint": "Tiền chỉ bị trừ khỏi ví khi Admin duyệt và chuyển khoản.",
+  "favTitle": "Sách yêu thích",
+  "favEmpty": "Chưa có sách yêu thích",
+  "favEmptyHint": "Bấm biểu tượng trái tim trên trang sách để lưu lại.",
+  "favAdd": "Thêm vào yêu thích",
+  "favRemove": "Bỏ yêu thích",
+  "sessWatch": "Theo dõi phiên",
+  "sessUnwatch": "Bỏ theo dõi phiên",
+  "addrPin": "Ghim vị trí trên bản đồ",
+  "addrPinned": "Đã ghim vị trí",
+  "addrPinTitle": "Chọn vị trí giao hàng",
+  "addrPinHint": "Chạm vào bản đồ để đặt ghim. Mặc định ghim ở tâm tỉnh / thành.",
+  "addrPinUse": "Dùng vị trí này",
+  "addrPinClear": "Bỏ ghim",
+  "cartSelectAll": "Chọn tất cả",
+  "cartDeselectAll": "Bỏ chọn tất cả",
+  "cartSelectedN": "Đã chọn {n} cuốn",
+  "@cartSelectedN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "cartNothingSelected": "Chọn ít nhất một cuốn để thanh toán",
+  "wdSelectBank": "Chọn ngân hàng",
+  "wdSearchBank": "Tìm theo tên ngân hàng",
+  "wdTransferTitle": "Rút tiền về ngân hàng",
+  "wdChange": "Đổi",
+  "wdRecent": "Gần đây",
+  "wdContinue": "Tiếp tục",
+  "wdNext": "Tiếp",
+  "wdAmountLabel": "Số tiền rút",
+  "wdSource": "Rút từ",
+  "wdSourceWallet": "Ví ReBook",
+  "wdAvailable": "Có thể dùng: {amount}",
+  "@wdAvailable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wdWithdrawAll": "Rút hết",
+  "wdDescription": "Ghi chú",
+  "wdDefaultNote": "{name} rut tien tu ReBook",
+  "@wdDefaultNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wdTotal": "Tổng tiền rút",
+  "wdDoneTitle": "Đã gửi yêu cầu rút tiền",
+  "wdDoneHint": "Admin sẽ duyệt và chuyển khoản. Tiền chỉ bị trừ khỏi ví khi yêu cầu được duyệt.",
+  "wdBackToWallet": "Về ví",
+  "wdFavorite": "Tài khoản yêu thích",
+  "wdAccountHolder": "Chủ tài khoản",
+  "addrSectionAddress": "Địa chỉ",
+  "addrPickProvince": "Chọn tỉnh / thành phố",
+  "addrSearchProvince": "Tìm tỉnh / thành phố",
+  "addrContact": "Thông tin liên hệ",
+  "addrType": "Loại địa chỉ",
+  "addrTypeOffice": "Văn phòng",
+  "addrTypeHome": "Nhà riêng",
+  "addrDelete": "Xóa địa chỉ",
+  "addrDone": "Hoàn thành",
+  "addrAddNew": "Thêm địa chỉ mới",
+  "addrMapHint": "Kéo bản đồ cho ghim ở giữa trúng chỗ muốn chọn.",
+  "coverTitle": "Ảnh bìa đại diện",
+  "coverHint": "Chụp hoặc chọn ảnh mặt bìa trước, rồi kéo 4 chấm về 4 góc để app làm phẳng và cắt gọn. Ảnh này làm bìa hiển thị trên shop; các ảnh thật bên dưới vẫn giữ nguyên để người mua xem tình trạng.",
+  "coverCamera": "Chụp",
+  "coverPick": "Chọn ảnh bìa",
+  "coverRedo": "Chọn lại",
+  "coverRemove": "Bỏ ảnh bìa",
+  "coverScanTitle": "Chỉnh bìa sách",
+  "coverScanHint": "Kéo 4 chấm về đúng 4 góc của bìa trước. Bìa chụp nghiêng sẽ được làm phẳng.",
+  "coverReset": "Đặt lại",
+  "coverUse": "Dùng ảnh này",
+  "ruleLen": "Nhập từ {min} đến {max} ký tự",
+  "@ruleLen": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleRange": "Nhập số từ {min} đến {max}",
+  "@ruleRange": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleMinAmount": "Tối thiểu {min}",
+  "@ruleMinAmount": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleStep": "Phải là bội số của {step}",
+  "@ruleStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "rulePasswordWeak": "Tối thiểu 6 ký tự",
+  "ruleName": "Chỉ gồm chữ cái và dấu cách, 2–60 ký tự",
+  "ruleBankNumber": "Số tài khoản gồm 6–19 chữ số",
+  "ruleBankHolder": "Viết IN HOA, không dấu, 2–50 chữ cái",
+  "ruleIsbn": "ISBN gồm đúng 10 hoặc 13 chữ số hợp lệ",
+  "ruleCode": "Gồm chữ in hoa, số và dấu gạch, {min}–{max} ký tự",
+  "@ruleCode": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleShelf": "Dạng A3-12 (chữ cái, số, gạch, số)",
+  "ruleBelowHigh": "Phải nhỏ hơn hoặc bằng giá ước tính cao",
+  "hintEmail": "ten@example.com",
+  "hintPhone": "0901234567",
+  "hintPassword": "Ít nhất 6 ký tự",
+  "hintConfirmPassword": "Nhập lại mật khẩu",
+  "hintOtp": "6 chữ số",
+  "hintFullName": "Nguyễn Văn A",
+  "hintDistrict": "Quận 10",
+  "hintWard": "Phường 12",
+  "hintStreet": "268 Lý Thường Kiệt",
+  "hintBankNumber": "6–19 chữ số",
+  "hintBankHolder": "NGUYEN VAN A",
+  "hintBankName": "Vietcombank",
+  "hintShopName": "Minh Anh Books",
+  "hintPickup": "Số nhà, đường, phường, quận, tỉnh",
+  "hintBookTitle": "Dế Mèn Phiêu Lưu Ký",
+  "hintAuthor": "Tô Hoài",
+  "hintPublisher": "NXB Kim Đồng",
+  "hintLanguage": "Tiếng Việt",
+  "hintYear": "1941",
+  "hintIsbn": "978-604-2-12345-6",
+  "hintPages": "280",
+  "hintWeight": "350",
+  "hintPrice": "60.000 (bội số 1.000)",
+  "hintStock": "1",
+  "hintExpectedPrice": "Từ 300.000 đ",
+  "hintStory": "Bản in lần đầu 1965, có chữ ký tác giả…",
+  "hintDescription": "Tình trạng, ghi chú, điểm đáng chú ý…",
+  "hintAmount": "Tối thiểu 10.000 đ",
+  "hintProxy": "Cao hơn giá hiện tại",
+  "hintEstimate": "500.000",
+  "hintStartPrice": "Khoảng 50–70% giá thấp",
+  "hintReserve": "Không vượt mức thấp ước tính",
+  "hintApptCode": "APT-1042",
+  "hintShelf": "A3-12",
+  "hintTracking": "VN123456789",
+  "hintSessionTitle": "Sách cổ Nam Bộ trước 1975",
+  "hintMinParticipants": "3",
+  "hintDeposit": "500.000",
+  "hintLotSeconds": "60",
+  "hintSoftSeconds": "15",
+  "hintCategoryName": "Văn học Việt Nam",
+  "hintPercent": "5",
+  "hintReason": "Mô tả ngắn gọn lý do…",
+  "hintReview": "Chia sẻ trải nghiệm của bạn (không bắt buộc)",
+  "hintSearch": "Tìm sách, tác giả…",
+  "hintConditionReport": "Bìa, gáy, ruột, ố vàng, ghi chú, chữ ký…",
+  "mapAttribution": "OpenStreetMap",
+  "addrLocate": "Định vị theo địa chỉ",
+  "addrLocating": "Đang định vị…",
+  "addrNotFound": "Không tìm thấy địa chỉ này. Thử bớt chi tiết hoặc chạm bản đồ để đặt ghim.",
+  "addrPickDistrict": "Chọn quận / huyện",
+  "addrPickWard": "Chọn phường / xã",
+  "addrPickProvinceFirst": "Chọn tỉnh / thành phố trước",
+  "addrPickDistrictFirst": "Chọn quận / huyện trước",
+  "addrSearchUnit": "Tìm theo tên",
+  "addrUnitsFailed": "Không tải được danh sách. Nhập tên thủ công:",
+  "addrUnitsEmpty": "Không có kết quả"
 }

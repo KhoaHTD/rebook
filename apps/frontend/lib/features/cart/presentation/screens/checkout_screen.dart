@@ -9,12 +9,16 @@ import 'package:book_marketplace/core/utils/external_link.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/cart/presentation/providers/cart_providers.dart';
 import 'package:book_marketplace/features/cart/presentation/widgets/cart_widgets.dart';
+import 'package:book_marketplace/features/cart/presentation/widgets/flat_commerce_widgets.dart';
+import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/data/vietnam_geo.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/money_summary.dart';
+import 'package:book_marketplace/shared/widgets/vietnam_map.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Xác nhận đặt hàng: chọn địa chỉ (đổi phí ship), chọn COD / ví / VNPay, đặt hàng.
@@ -32,7 +36,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Future<void> _place(String addressId) async {
     final result = await ref
         .read(checkoutControllerProvider.notifier)
-        .placeOrder(addressId: addressId, method: _method);
+        .placeOrder(
+          addressId: addressId,
+          method: _method,
+          itemIds: ref.read(selectedCartItemIdsProvider),
+        );
     if (!mounted) return;
     final error = ref.read(checkoutControllerProvider).error;
     if (error != null || result == null) {
@@ -52,10 +60,265 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     context.go(Routes.orders);
   }
 
+  /// Chọn địa chỉ khác (hoặc thêm địa chỉ) trong một tờ.
+  Future<void> _pickAddress(List<Address> list, String? currentId) {
+    final l10n = context.l10n;
+    return showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: true,
+      builder: (sheet) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.deliveryAddress, style: sheet.textStyles.titleLarge),
+              const SizedBox(height: AppSpacing.md),
+              for (final a in list)
+                SelectTile(
+                  selected: a.id == currentId,
+                  title: '${a.receiver} · ${a.phone}',
+                  subtitle: a.oneLine,
+                  onTap: () {
+                    ref.read(selectedAddressProvider.notifier).select(a.id);
+                    Navigator.pop(sheet);
+                  },
+                ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(sheet);
+                  context.push(Routes.addresses);
+                },
+                child: Text(l10n.addAddress),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Tờ trượt lên: sơ đồ Việt Nam (có Hoàng Sa, Trường Sa) ghim ở tỉnh / thành của địa chỉ, kèm địa chỉ đầy đủ.
+  Future<void> _showMap(Address address, VoidCallback onChange) {
+    final l10n = context.l10n;
+    return showModalBottomSheet<void>(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder: (sheet) {
+        final text = sheet.textStyles;
+        final c = sheet.appColors;
+        final pin = address.hasPin
+            ? (address.latitude!, address.longitude!)
+            : null;
+        final located =
+            pin != null || VietnamGeo.province(address.province) != null;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.addressMapTitle,
+                  style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 12),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(sheet).height * 0.5,
+                  ),
+                  child: Center(
+                    child: VietnamMap(province: address.province, point: pin),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '${address.receiver} · ${address.phone}',
+                  style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  address.oneLine,
+                  style: text.bodyMedium?.copyWith(color: c.secondaryText),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  pin != null
+                      ? l10n.addrPinned
+                      : located
+                      ? l10n.mapApprox
+                      : l10n.mapNoPin,
+                  style: text.bodySmall?.copyWith(color: c.tertiaryText),
+                ),
+                const SizedBox(height: 14),
+                OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(sheet);
+                    onChange();
+                  },
+                  child: Text(l10n.changeAddress),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Điện thoại: thanh toán phẳng — thẻ địa chỉ, ba ô phương thức, thẻ đen giải thích, tóm tắt đơn,
+  /// tổng thanh toán và nút đen "Xác nhận đặt hàng" ghim ở đáy.
+  Widget _compact(
+    BuildContext context, {
+    required Cart? cartValue,
+    required List<Address> addressList,
+    required Address? address,
+    required Wallet? wallet,
+    required bool walletEnough,
+    required bool busy,
+  }) {
+    final l10n = context.l10n;
+    final c = context.appColors;
+    final text = context.textStyles;
+    final total = cartValue?.total ?? 0;
+    final (cardTitle, cardHint) = switch (_method) {
+      PaymentMethod.cod => (l10n.payCod, l10n.payCodHint),
+      PaymentMethod.wallet => (
+        l10n.payWallet,
+        l10n.payWalletHint(formatVnd(wallet?.available ?? 0)),
+      ),
+      PaymentMethod.vnpay => (l10n.payVnpay, l10n.payVnpayHint),
+    };
+    Widget heading(String t, {double top = 22}) => Padding(
+      padding: EdgeInsets.only(top: top, bottom: 10),
+      child: Text(
+        t,
+        style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+      ),
+    );
+
+    return FlatCommercePage(
+      title: l10n.checkoutTitle,
+      bottom: FlatBlackButton(
+        label: l10n.confirmOrder,
+        busy: busy,
+        onPressed: address == null || (cartValue?.groups.isEmpty ?? true)
+            ? null
+            : () => _place(address.id),
+      ),
+      children: [
+        heading(l10n.checkoutShippingTo, top: 0),
+        if (address == null)
+          FlatCard(
+            child: Row(
+              children: [
+                Expanded(child: Text(l10n.noAddress)),
+                TextButton(
+                  onPressed: () => context.push(Routes.addresses),
+                  child: Text(l10n.addAddress),
+                ),
+              ],
+            ),
+          )
+        else
+          FlatAddressCard(
+            address: address,
+            onChange: () => _pickAddress(addressList, address.id),
+            onOpenMap: () =>
+                _showMap(address, () => _pickAddress(addressList, address.id)),
+          ),
+        heading(l10n.paymentMethod),
+        Row(
+          children: [
+            FlatPayTile(
+              icon: Icons.payments_rounded,
+              color: PayPalette.cod,
+              label: l10n.payShortCod,
+              selected: _method == PaymentMethod.cod,
+              onTap: () => setState(() => _method = PaymentMethod.cod),
+            ),
+            const SizedBox(width: 12),
+            FlatPayTile(
+              icon: Icons.account_balance_wallet_rounded,
+              color: PayPalette.wallet,
+              label: l10n.payShortWallet,
+              selected: _method == PaymentMethod.wallet,
+              onTap: walletEnough
+                  ? () => setState(() => _method = PaymentMethod.wallet)
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            FlatPayTile(
+              icon: Icons.qr_code_2_rounded,
+              color: PayPalette.vnpay,
+              label: l10n.payShortVnpay,
+              selected: _method == PaymentMethod.vnpay,
+              onTap: () => setState(() => _method = PaymentMethod.vnpay),
+            ),
+          ],
+        ),
+        if (!walletEnough && wallet != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '${l10n.insufficientWallet} · ${l10n.payWalletHint(formatVnd(wallet.available))}',
+              style: text.bodySmall?.copyWith(color: c.secondaryText),
+            ),
+          ),
+        const SizedBox(height: 16),
+        FlatPayCard(
+          method: _method,
+          title: cardTitle,
+          hint: cardHint,
+          balance: _method == PaymentMethod.wallet && wallet != null
+              ? formatVnd(wallet.available)
+              : null,
+        ),
+        heading(l10n.orderSummary),
+        FlatCard(
+          child: Column(
+            children: [
+              if (cartValue != null)
+                for (final g in cartValue.groups) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${g.shop.name} · ${l10n.items(g.items.fold<int>(0, (a, i) => a + i.quantity))}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.bodyMedium,
+                        ),
+                      ),
+                      Text(
+                        formatVnd(g.subtotal + g.shippingFee),
+                        style: text.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              Divider(color: c.separator),
+              FlatMoneyRow(l10n.subtotal, cartValue?.subtotal ?? 0),
+              FlatMoneyRow(l10n.shippingFee, cartValue?.shippingTotal ?? 0),
+              Divider(color: c.separator),
+              FlatMoneyRow(l10n.totalPayment, total, strong: true),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final cart = ref.watch(cartControllerProvider);
+    final cart = ref.watch(selectedCartProvider);
     final addresses = ref.watch(checkoutAddressesProvider);
     final wallet = ref.watch(checkoutWalletProvider).value;
     final selectedId = ref.watch(selectedAddressProvider);
@@ -75,6 +338,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     final total = cart.value?.total ?? 0;
     final walletEnough = wallet != null && wallet.available >= total;
+
+    if (compact) {
+      return _compact(
+        context,
+        cartValue: cart.value,
+        addressList: addressList,
+        address: address,
+        wallet: wallet,
+        walletEnough: walletEnough,
+        busy: busy,
+      );
+    }
 
     final form = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -148,7 +423,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         const SizedBox(height: AppSpacing.lg),
         AsyncValueView(
           value: cart,
-          onRetry: () => ref.invalidate(cartControllerProvider),
+          onRetry: () => ref.invalidate(selectedCartProvider),
           data: (c) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

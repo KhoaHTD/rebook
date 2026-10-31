@@ -36,7 +36,14 @@ abstract class Address with _$Address {
     required String ward,
     required String detail,
     required bool isDefault,
+
+    /// Vị trí người dùng ghim trên bản đồ (null = chưa ghim, dùng tâm tỉnh / thành).
+    double? latitude,
+    double? longitude,
+    @Default(AddressType.home) AddressType type,
   }) = _Address;
+
+  bool get hasPin => latitude != null && longitude != null;
 
   String get oneLine => '$detail, $ward, $district, $province';
 }

@@ -42,11 +42,20 @@ void main() {
   });
 
   group('wallet', () {
-    test('rút tiền trừ số dư khả dụng', () async {
+    test('tạo yêu cầu rút lưu thông tin ngân hàng, chưa trừ ví (trừ khi Admin duyệt)', () async {
       final repo = FakeWalletRepository(store);
       final before = (await repo.wallet()).available;
-      await repo.requestWithdrawal(100000);
-      expect((await repo.wallet()).available, before - 100000);
+      final w = await repo.requestWithdrawal(
+        100000,
+        bankName: 'Vietcombank',
+        accountNumber: '0011004567890',
+        accountName: 'NGUYEN VAN A',
+        note: 'Rút thử',
+      );
+      expect(w.bankName, 'Vietcombank');
+      expect(w.bankAccountName, 'NGUYEN VAN A');
+      expect(w.note, 'Rút thử');
+      expect((await repo.wallet()).available, before);
       expect(await repo.withdrawals(), isNotEmpty);
     });
 
@@ -54,7 +63,12 @@ void main() {
       final repo = FakeWalletRepository(store);
       final w = await repo.wallet();
       await expectLater(
-        repo.requestWithdrawal(w.available + 1),
+        repo.requestWithdrawal(
+          w.available + 1,
+          bankName: 'ACB',
+          accountNumber: '123456',
+          accountName: 'A',
+        ),
         throwsA(
           isA<ServerException>().having(
             (e) => e.code,

@@ -1,11 +1,116 @@
 import 'dart:ui' show ImageFilter, TileMode;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/network/upload_service.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
 
-/// Poster sách: tỉ lệ 2:3, gáy sáng bên trái, bóng đổ mềm. [badge] là chip kính đặt ở góc dưới trái bìa.
+/// Tỉ lệ rộng/cao thật của từng ảnh bìa (đọc từ chính ảnh), nhớ lại để lần sau dựng ngay không giật.
+/// Bìa tự vẽ (chưa có ảnh) không có tỉ lệ thật nên giữ 2:3.
+abstract final class CoverAspect {
+  static const fallback = 2 / 3;
+
+  /// Chặn các ảnh quá dẹt / quá cao (bìa chụp ngang) để lưới không méo.
+  static const min = 0.5;
+  static const max = 1.0;
+
+  static final _cache = <String, double>{};
+
+  static double? cached(String url) => _cache[url];
+
+  static ImageProvider? providerFor(String url) {
+    if (MemoryImages.isMemory(url)) {
+      final bytes = MemoryImages.get(url);
+      return bytes == null ? null : MemoryImage(bytes);
+    }
+    if (url.startsWith('assets/')) return AssetImage(url);
+    return CachedNetworkImageProvider(url);
+  }
+
+  static double normalize(double ratio) => ratio.clamp(min, max);
+}
+
+/// Cấp cho [builder] tỉ lệ rộng/cao thật của ảnh bìa [url] (xem [CoverAspect]). Chưa biết (ảnh đang tải,
+/// hoặc [url] null) thì dùng 2:3 rồi tự dựng lại khi đọc được kích thước ảnh. Dùng chung cho mọi nơi
+/// vẽ bìa sách để chiều cao các cuốn khác nhau giống nhau ở mọi trang (trang chủ, giới thiệu, đăng nhập…).
+class CoverAspectBuilder extends StatefulWidget {
+  const CoverAspectBuilder({
+    super.key,
+    required this.url,
+    required this.builder,
+  });
+
+  final String? url;
+  final Widget Function(BuildContext context, double ratio) builder;
+
+  @override
+  State<CoverAspectBuilder> createState() => _CoverAspectBuilderState();
+}
+
+class _CoverAspectBuilderState extends State<CoverAspectBuilder> {
+  double _ratio = CoverAspect.fallback;
+  ImageStream? _stream;
+  ImageStreamListener? _listener;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolve();
+  }
+
+  @override
+  void didUpdateWidget(CoverAspectBuilder old) {
+    super.didUpdateWidget(old);
+    if (old.url != widget.url) _resolve();
+  }
+
+  @override
+  void dispose() {
+    _unlisten();
+    super.dispose();
+  }
+
+  void _unlisten() {
+    final l = _listener;
+    if (l != null) _stream?.removeListener(l);
+    _stream = null;
+    _listener = null;
+  }
+
+  void _resolve() {
+    _unlisten();
+    final url = widget.url;
+    if (url == null) {
+      _ratio = CoverAspect.fallback;
+      return;
+    }
+    final known = CoverAspect.cached(url);
+    if (known != null) {
+      _ratio = known;
+      return;
+    }
+    _ratio = CoverAspect.fallback;
+    final provider = CoverAspect.providerFor(url);
+    if (provider == null) return;
+    final stream = provider.resolve(ImageConfiguration.empty);
+    final listener = ImageStreamListener((info, _) {
+      final r = CoverAspect.normalize(info.image.width / info.image.height);
+      CoverAspect._cache[url] = r;
+      if (mounted && widget.url == url) setState(() => _ratio = r);
+    }, onError: (_, _) {});
+    _stream = stream..addListener(listener);
+    _listener = listener;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _ratio);
+}
+
+/// Poster sách: gáy sáng bên trái, bóng đổ mềm. Chiều cao theo **tỉ lệ ảnh bìa thật** (xem [CoverAspect]),
+/// nên các cuốn sách cao thấp khác nhau như ngoài đời; bìa tự vẽ giữ 2:3.
+/// [badge] là chip kính đặt ở góc dưới trái bìa.
 /// Có ảnh bìa ([coverUrl]) thì hiện ảnh; chưa có thì tự vẽ bìa từ tên sách.
 class BookPoster extends StatelessWidget {
   const BookPoster({
@@ -17,11 +122,15 @@ class BookPoster extends StatelessWidget {
     this.width,
     this.shadow = true,
     this.badge,
+    this.square = false,
   });
 
   final String title;
   final String author;
   final String? coverUrl;
+
+  /// Bìa vuông góc (không bo), dùng ở trang chủ điện thoại.
+  final bool square;
 
   /// Giữ màu/hình bìa tự vẽ ổn định cho cùng một cuốn (thường là id sách).
   final String? seed;
@@ -38,54 +147,57 @@ class BookPoster extends StatelessWidget {
       author: author,
       seed: seed ?? title,
     );
-    final cover = coverUrl == null
-        ? fallback
-        : AppImage(coverUrl!, fallback: fallback);
+    final url = coverUrl;
+    final cover = url == null ? fallback : AppImage(url, fallback: fallback);
 
-    return SizedBox(
-      width: width,
-      child: AspectRatio(
-        aspectRatio: 2 / 3,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: AppRadius.poster,
-            boxShadow: shadow
-                ? [
-                    BoxShadow(
-                      color: context.appColors.posterShadow,
-                      blurRadius: 28,
-                      spreadRadius: -10,
-                      offset: const Offset(0, 18),
-                    ),
-                    BoxShadow(
-                      color: context.appColors.posterShadow.withValues(
-                        alpha: 0.12,
+    final radius = square ? BorderRadius.zero : AppRadius.poster;
+    return CoverAspectBuilder(
+      url: url,
+      builder: (context, ratio) => SizedBox(
+        width: width,
+        child: AspectRatio(
+          aspectRatio: ratio,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              boxShadow: shadow
+                  ? [
+                      BoxShadow(
+                        color: context.appColors.posterShadow,
+                        blurRadius: 28,
+                        spreadRadius: -10,
+                        offset: const Offset(0, 18),
                       ),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: ClipRRect(
-            borderRadius: AppRadius.poster,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                cover,
-                const IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: CoverPalette.spine,
-                        stops: CoverPalette.spineStops,
+                      BoxShadow(
+                        color: context.appColors.posterShadow.withValues(
+                          alpha: 0.12,
+                        ),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: ClipRRect(
+              borderRadius: radius,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  cover,
+                  const IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: CoverPalette.spine,
+                          stops: CoverPalette.spineStops,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (badge != null)
-                  Positioned(left: 7, bottom: 7, child: badge!),
-              ],
+                  if (badge != null)
+                    Positioned(left: 7, bottom: 7, child: badge!),
+                ],
+              ),
             ),
           ),
         ),

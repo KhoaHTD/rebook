@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/seller/presentation/providers/seller_providers.dart';
@@ -73,12 +74,14 @@ class _ShopFormState extends ConsumerState<_ShopForm> {
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     final draft = ShopDraft(
-      name: _name.text.trim(),
-      description: _desc.text.trim().isEmpty ? null : _desc.text.trim(),
-      pickupAddress: _pickup.text.trim(),
-      bankName: _bank.text.trim(),
-      bankAccount: _account.text.trim(),
-      bankHolder: _holder.text.trim(),
+      name: Rules.shopName.value(_name.text),
+      description: Rules.description.value(_desc.text).isEmpty
+          ? null
+          : Rules.description.value(_desc.text),
+      pickupAddress: Rules.pickupAddress.value(_pickup.text),
+      bankName: Rules.bankName.value(_bank.text),
+      bankAccount: Rules.bankNumber.value(_account.text),
+      bankHolder: Rules.bankHolder.value(_holder.text),
     );
     final actions = ref.read(sellerActionsProvider.notifier);
     final shop = widget.initial == null
@@ -102,46 +105,49 @@ class _ShopFormState extends ConsumerState<_ShopForm> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final busy = ref.watch(sellerActionsProvider).isLoading;
-    String? required(String? v) =>
-        (v ?? '').trim().isEmpty ? l10n.fieldRequired : null;
     // Sửa shop không bắt buộc nhập lại tài khoản ngân hàng.
-    String? bankRule(String? v) => widget.initial == null ? required(v) : null;
-
-    Widget field(
-      TextEditingController c,
-      String label, {
-      String? Function(String?)? validator,
-      int lines = 1,
-      bool digits = false,
-    }) => Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: TextFormField(
-        controller: c,
-        minLines: lines,
-        maxLines: lines == 1 ? 1 : lines + 2,
-        keyboardType: digits ? TextInputType.number : null,
-        inputFormatters: digits
-            ? [FilteringTextInputFormatter.digitsOnly]
-            : null,
-        decoration: InputDecoration(labelText: label),
-        validator: validator,
-      ),
-    );
+    final editing = widget.initial != null;
+    InputRule bank(InputRule r) => r.copyWith(optional: editing);
 
     return Form(
       key: _form,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          field(_name, l10n.shopName, validator: required),
-          field(_desc, l10n.shopDescription, lines: 2),
-          field(_pickup, l10n.pickupAddress, validator: required),
-          const SizedBox(height: AppSpacing.md),
+          RuleField(
+            controller: _name,
+            rule: Rules.shopName,
+            label: l10n.shopName,
+          ),
+          RuleField(
+            controller: _desc,
+            rule: Rules.description,
+            label: l10n.shopDescription,
+            minLines: 2,
+            maxLines: 4,
+          ),
+          RuleField(
+            controller: _pickup,
+            rule: Rules.pickupAddress,
+            label: l10n.pickupAddress,
+          ),
           Text(l10n.payoutInfo, style: context.textStyles.titleMedium),
           const SizedBox(height: AppSpacing.md),
-          field(_bank, l10n.bankName, validator: bankRule),
-          field(_account, l10n.bankAccount, validator: bankRule, digits: true),
-          field(_holder, l10n.bankHolder, validator: bankRule),
+          RuleField(
+            controller: _bank,
+            rule: bank(Rules.bankName),
+            label: l10n.bankName,
+          ),
+          RuleField(
+            controller: _account,
+            rule: bank(Rules.bankNumber),
+            label: l10n.bankAccount,
+          ),
+          RuleField(
+            controller: _holder,
+            rule: bank(Rules.bankHolder),
+            label: l10n.bankHolder,
+          ),
           const SizedBox(height: AppSpacing.md),
           Align(
             alignment: Alignment.centerLeft,

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/account/presentation/providers/account_providers.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/photo_picker.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Hồ sơ cá nhân: ảnh đại diện, họ tên, số điện thoại (email không đổi được).
@@ -47,6 +49,7 @@ class _FormState extends ConsumerState<_Form> {
   late final _name = TextEditingController(text: widget.user.fullName);
   late final _phone = TextEditingController(text: widget.user.phone);
   late String? _avatar = widget.user.avatarUrl;
+  final _form = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -56,12 +59,12 @@ class _FormState extends ConsumerState<_Form> {
   }
 
   Future<void> _save() async {
-    if (_name.text.trim().isEmpty) return;
+    if (!_form.currentState!.validate()) return;
     final ok = await ref
         .read(accountControllerProvider.notifier)
         .updateProfile(
-          fullName: _name.text.trim(),
-          phone: _phone.text.trim(),
+          fullName: Rules.fullName.value(_name.text),
+          phone: Rules.phone.value(_phone.text),
           avatarUrl: _avatar,
         );
     if (!mounted) return;
@@ -74,37 +77,45 @@ class _FormState extends ConsumerState<_Form> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final busy = ref.watch(accountControllerProvider).isLoading;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(l10n.avatar, style: context.textStyles.titleSmall),
-        const SizedBox(height: AppSpacing.sm),
-        PhotoPickerField(
-          folder: 'avatars',
-          max: 1,
-          initial: [?_avatar],
-          onChanged: (urls) => _avatar = urls.firstOrNull,
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        TextField(
-          enabled: false,
-          controller: TextEditingController(text: widget.user.email),
-          decoration: InputDecoration(labelText: l10n.email),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        TextField(
-          controller: _name,
-          decoration: InputDecoration(labelText: l10n.fullName),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        TextField(
-          controller: _phone,
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(labelText: l10n.phone),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        FilledButton(onPressed: busy ? null : _save, child: Text(l10n.save)),
-      ],
+    return Form(
+      key: _form,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.avatar, style: context.textStyles.titleSmall),
+          const SizedBox(height: AppSpacing.sm),
+          PhotoPickerField(
+            folder: 'avatars',
+            max: 1,
+            initial: [?_avatar],
+            onChanged: (urls) => _avatar = urls.firstOrNull,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          LabeledField(
+            label: l10n.email,
+            bottom: 0,
+            child: TextField(
+              enabled: false,
+              controller: TextEditingController(text: widget.user.email),
+              decoration: const InputDecoration(),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          RuleField(
+            controller: _name,
+            rule: Rules.fullName,
+            label: l10n.fullName,
+          ),
+          RuleField(
+            controller: _phone,
+            rule: Rules.phone,
+            label: l10n.phone,
+            bottom: 0,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          FilledButton(onPressed: busy ? null : _save, child: Text(l10n.save)),
+        ],
+      ),
     );
   }
 }

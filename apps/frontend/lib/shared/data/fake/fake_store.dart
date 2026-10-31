@@ -108,6 +108,14 @@ class FakeStore {
   final wallets = <String, Wallet>{};
   final txns = <String, List<WalletTxn>>{};
   final withdrawals = <Withdrawal>[];
+  final activityLogs = <ActivityLog>[];
+  final bankAccounts =
+      <String, List<BankAccount>>{}; // userId -> tài khoản đã dùng
+  final favorites =
+      <String, List<String>>{}; // userId -> listingId, mới nhất trước
+  final watchedSessionIds = <String, List<String>>{}; // userId -> sessionId
+  final secondChances =
+      <String, List<SecondChanceOffer>>{}; // userId -> lời mời
   final _withdrawalOwner = <String, String>{};
   final notifications = <String, List<AppNotification>>{};
   final payments = <String, Payment>{};
@@ -222,6 +230,10 @@ class FakeStore {
   AppUser setLocked(String userId, {required bool locked}) {
     final acc = _accountById(userId);
     acc.user = acc.user.copyWith(locked: locked);
+    _log(
+      locked ? AdminAction.userLocked : AdminAction.userUnlocked,
+      target: acc.user.email,
+    );
     return acc.user;
   }
 

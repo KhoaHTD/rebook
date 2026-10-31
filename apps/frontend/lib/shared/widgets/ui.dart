@@ -7,8 +7,10 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/layout/shell_inset.dart';
 import 'package:book_marketplace/shared/widgets/admin_scope.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
+import 'package:book_marketplace/shared/widgets/glass_menu.dart';
 
 /// Khung một trang theo style Liquid Glass (trang tự vẽ nền màu loang nên luôn đặc khi chuyển trang).
 /// - Desktop: tiêu đề serif lớn trên cùng bên trái, hành động góc phải.
@@ -58,7 +60,7 @@ class AppPage extends StatelessWidget {
                 20,
                 AppSpacing.md,
                 20,
-                bottomBar == null ? 120 : 260,
+                bottomBar == null ? 120 : 104,
               )
             : const EdgeInsets.fromLTRB(
                 AppSpacing.pageX,
@@ -107,7 +109,20 @@ class AppPage extends StatelessWidget {
         ),
     ];
 
-    Widget scroll = CustomScrollView(slivers: body);
+    // Desktop: trang phủ hết bề rộng, sidebar kính đè lên mép trái → chừa lề trái đúng bằng sidebar
+    // để nội dung thường nằm bên phải sidebar (chỉ khối cố ý tràn như băng chuyền mới chạy xuống dưới).
+    final inset = compact ? 0.0 : ShellInset.of(context);
+    Widget scroll = CustomScrollView(
+      slivers: inset == 0
+          ? body
+          : [
+              for (final s in body)
+                SliverPadding(
+                  padding: EdgeInsets.only(left: inset),
+                  sliver: s,
+                ),
+            ],
+    );
     if (onRefresh != null) {
       scroll = RefreshIndicator(onRefresh: onRefresh!, child: scroll);
     }
@@ -121,7 +136,12 @@ class AppPage extends StatelessWidget {
           ? _MobileHeader(title: title, actions: actions, canBack: canBack)
           : null,
       body: scroll,
-      bottomNavigationBar: bottomBar,
+      bottomNavigationBar: bottomBar == null || inset == 0
+          ? bottomBar
+          : Padding(
+              padding: EdgeInsets.only(left: inset),
+              child: bottomBar,
+            ),
     );
     // Trang tự vẽ nền (màu loang khớp toạ độ với nền khung app, hoặc [background]) nên luôn đặc khi chuyển trang.
     return AmbientBackground(
@@ -305,17 +325,23 @@ class _MobileHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.appColors;
-    // Thanh đầu bằng kính: làm mờ nội dung cuộn phía dưới, kẻ sáng mảnh ở đáy.
+    // Thanh đầu bằng kính: làm mờ nội dung cuộn phía dưới, kẻ sáng mảnh ở đáy (khu phẳng: nền đặc).
+    final flat = FlatScope.active(context);
     return ClipRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        filter: flat
+            ? ImageFilter.blur(sigmaX: 0.001, sigmaY: 0.001)
+            : ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [c.glassTop, c.glassBottom],
-            ),
+            color: flat ? c.background : null,
+            gradient: flat
+                ? null
+                : LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [c.glassTop, c.glassBottom],
+                  ),
             border: Border(bottom: BorderSide(color: c.separator, width: 0.5)),
           ),
           child: SafeArea(
@@ -453,11 +479,19 @@ class DotsButton extends StatelessWidget {
       size: compact ? 20 : 22,
       color: compact ? context.appColors.secondaryText : null,
     );
-    return PopupMenuButton<String>(
+    return GlassMenuButton<String>(
       tooltip: context.l10n.moreActions,
-      itemBuilder: (_) => items,
-      onSelected: onSelected,
-      padding: EdgeInsets.zero,
+      // Giữ nhận `PopupMenuItem` từ nơi gọi; hiển thị bằng menu kính bo góc.
+      items: [
+        for (final e in items)
+          if (e is PopupMenuItem<String> && e.value != null)
+            GlassMenuItem<String>(
+              value: e.value!,
+              child: e.child,
+              enabled: e.enabled,
+            ),
+      ],
+      onSelected: (v) => onSelected?.call(v),
       child: compact
           ? Padding(padding: const EdgeInsets.all(2), child: icon)
           : SizedBox.square(
