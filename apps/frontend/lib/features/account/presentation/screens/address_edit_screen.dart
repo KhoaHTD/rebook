@@ -105,27 +105,23 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
     _debounce = Timer(const Duration(milliseconds: 1500), _locate);
   }
 
+  /// Số thứ tự lần định vị mới nhất: kết quả của lần cũ (đã đổi địa chỉ giữa chừng) bị bỏ.
+  var _locateTicket = 0;
+
   Future<void> _locate() async {
     if (_province.isEmpty || !mounted) return;
-    String join(List<String> parts) => [
-      ...parts.map((e) => e.trim()).where((e) => e.isNotEmpty),
-      'Việt Nam',
-    ].join(', ');
-    final street = _detail.text.split(',').first;
-    final queries = <String>{
-      join([_detail.text, _ward.text, _district.text, _province]),
-      join([street, _ward.text, _district.text, _province]),
-      join([street, _district.text, _province]),
-      join([_ward.text, _district.text, _province]),
-      join([_district.text, _province]),
-      join([_province]),
-    }.toList();
+    final ticket = ++_locateTicket;
     setState(() {
       _locating = true;
       _notFound = false;
     });
-    final hit = await ref.read(geocoderProvider).locate(queries);
-    if (!mounted) return;
+    final hit = await ref.read(geocoderProvider).locate((
+      street: _detail.text,
+      ward: _ward.text,
+      district: _district.text,
+      province: _province,
+    ));
+    if (!mounted || ticket != _locateTicket) return;
     setState(() {
       _locating = false;
       _notFound = hit == null;
