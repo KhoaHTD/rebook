@@ -66,9 +66,17 @@ Frontend: **mỗi lần thêm thứ ngoài SRS đều phải đánh dấu như t
   Tab "Yêu thích" ở trang chủ đấu giá = phiên đã theo dõi hoặc phiên có lô đang theo dõi (frontend tự ghép).
 
 ### B3. Toạ độ và loại địa chỉ
-- `AddressDto` / `AddressRequest` thêm `latitude`, `longitude` (double, tuỳ chọn); cột `addresses.latitude/longitude`. Ghim trên bản đồ OpenStreetMap: app tự định vị từ địa chỉ gõ tay (Nominatim, gọi thẳng từ app, 1 yêu cầu/giây) hoặc người dùng chạm bản đồ; không ghim thì null. Khi chạy thật nhiều người nên để backend gọi geocoder và cache, và dùng nhà cung cấp tile riêng (máy chủ tile công cộng của OSM cấm dùng nặng).
+- `AddressDto` / `AddressRequest` thêm `latitude`, `longitude` (double, tuỳ chọn); cột `addresses.latitude/longitude`.
+  Đây là **toạ độ tâm bản đồ** người dùng chọn: màn sửa địa chỉ có bản đồ OpenStreetMap, ghim cố định giữa khung, người dùng kéo bản đồ cho tâm trúng chỗ.
+  App tự định vị lần đầu từ địa chỉ gõ tay (Nominatim, gọi **thẳng từ app**, ~1 yêu cầu/giây, dò từ số nhà xuống phường / quận); kéo tay thì app ngừng tự định vị.
+  Chưa kéo lần nào thì lưu điểm tự định vị hoặc tâm tỉnh. Backend chỉ **lưu** hai số này, không cần geocode.
+  Chạy thật nhiều người: nên để backend gọi geocoder và cache, và dùng nhà cung cấp tile riêng (máy chủ tile công cộng của OSM cấm dùng nặng).
 - Thêm `addressType` (`HOME` | `OFFICE`, mặc định `HOME`) cho nhãn Nhà riêng / Văn phòng; cột `addresses.address_type`.
-- `province` là một trong 63 tên tỉnh / thành frontend cho chọn (`VietnamGeo.provinceNames`, vd "TP. Hồ Chí Minh"); `district`, `ward` là chữ người dùng tự gõ.
+- `province`: một trong 63 tên frontend cho chọn (`VietnamGeo.provinceNames`, vd "TP. Hồ Chí Minh").
+  `district`, `ward`: **không còn gõ tay**, người dùng chọn từ danh sách tải về từ provinces.open-api.vn (63 tỉnh, địa giới trước 2025), nên giá trị là tên đầy đủ của API đó
+  ("Quận 1", "Thành phố Thủ Đức", "Phường Nguyễn Thái Bình"). Lưu dạng chuỗi như nhận; **đừng đối chiếu với danh sách riêng** vì tên có thể khác kiểu viết (dữ liệu cũ vẫn có "P.", "Q.", "TP.").
+  Nếu không tải được danh sách, người dùng nhập tay tên quận / phường (2–50 ký tự).
+  Muốn đổi sang địa giới 2 cấp sau 2025 thì đổi nguồn ở `core/network/admin_units.dart`; backend nên cho phép `district` rỗng trong tương lai.
 
 ### B4. Chọn món trong giỏ
 - `GET /cart?itemIds=a&itemIds=b`: chỉ tính các món đã chọn, **phí ship tính lại theo khối lượng các món này**; bỏ tham số = cả giỏ.
@@ -102,6 +110,44 @@ Frontend: **mỗi lần thêm thứ ngoài SRS đều phải đánh dấu như t
 - Đề xuất (chưa làm, chờ backend): `POST /uploads/cover-check` nhận ảnh, dùng model đọc ảnh trả `{type: FRONT_COVER|BACK_COVER|SPINE|OTHER|NOT_A_BOOK, issues: [BLURRY, GLARE, TOO_DARK, CROPPED], corners}`;
   frontend dùng để chặn ảnh rác (ảnh chụp màn hình…) và gợi ý sẵn 4 góc. Khoá API model chỉ để ở backend.
 
+### B9. Luật nhập liệu (backend nên kiểm tra lại cùng luật)
+Frontend chặn ký tự và kiểm tra ở `lib/core/utils/input_rules.dart`; backend **phải kiểm tra lại** (không tin client) và trả lỗi 400 cùng luật. Cột "Nguồn": **SRS** = có trong SRS, **FE** = frontend tự đề xuất theo thông lệ (backend góp ý được; đổi thì sửa spec rồi báo frontend). Chỉ ngưỡng ký gửi ≥ 300.000đ (SRS 6.1) và việc ISBN là tuỳ chọn là có trong SRS; mọi con số khác là đề xuất.
+
+| Trường | Luật | Nguồn |
+|---|---|---|
+| email | `^[^@\s]+@[^@\s]+\.[^@\s]+$`, ≤ 100 | FE |
+| phone | `^(0\|\+84)\d{9,10}$` | FE |
+| password | ≥ 6 ký tự, ≤ 64 (giữ 6 để tài khoản mẫu `123456` còn dùng) | FE |
+| otp | đúng 6 chữ số | FE |
+| fullName | chữ cái (có dấu), dấu cách, `. ' -`; 2–60 | FE |
+| district, ward | 2–50 (chọn từ danh sách, xem B3) | FE |
+| street (số nhà, tên đường) | 5–120 | FE |
+| bankNumber | `^\d{6,19}$` | FE |
+| bankHolder | `^[A-Z ]{2,50}$` (IN HOA không dấu) | FE |
+| bankName | 2–40 | FE |
+| shopName | 3–40; pickupAddress 8–150 | FE |
+| bookTitle | 2–120; author, publisher 2–80; language 2–30 | FE |
+| year | số nguyên 1450 → năm hiện tại | FE |
+| isbn | bỏ gạch / cách, ISBN-10 hoặc ISBN-13 đúng số kiểm tra | FE |
+| pages | 1–5000; weightGram 20–5000; stock 0–999 | FE |
+| price (giá bán) | 1.000–100.000.000, **bội số 1.000** | FE |
+| expectedPrice (ký gửi) | ≥ 300.000 | SRS |
+| story, conditionReport | 20–1000; description 5–2000 | FE |
+| amount (nạp / rút) | ≥ 10.000 | FE |
+| proxyMax (trả giá tự động) | ≥ 1.000, bội số 1.000 | FE |
+| estimate / proposedStart | 1.000–1.000.000.000; reserve 0–1.000.000.000; ước tính thấp ≤ cao, giá sàn ≤ thấp | FE |
+| appointmentCode | `^[A-Z0-9-]+$` | FE |
+| **shelfCode** | `^[A-Z]\d{1,2}-\d{1,3}$` (vd "A3-12") | **FE** |
+| **trackingCode** | `^[A-Z0-9]{8,20}$` | **FE** |
+| returnReason | 10–500; review 2–500 (tuỳ chọn) | FE |
+| sessionTitle | 5–80; categoryName 2–40 | FE |
+| minParticipants | 1–500; deposit 10.000–100.000.000 | FE |
+| lotSeconds | 30–600; softCloseSeconds 5–60 | FE |
+| phí % (cố định, người mua, người bán) | 0–100, tối đa 1 chữ số thập phân | FE |
+| cấu hình số nguyên | phí lưu kho 0–1.000.000; ngày lưu kho miễn phí 0–365; hạn thanh toán đơn 5–1440 phút; hạn thanh toán đấu giá 1–168 giờ; hệ số cọc 1–100; ngày cấm đấu giá 0–365; hạn trả lời trả hàng 1–30 ngày; bậc giá 1.000–1.000.000.000 | FE |
+
+Chuẩn hoá trước khi lưu: cắt khoảng trắng hai đầu, gộp khoảng trắng liên tiếp (tên, địa chỉ), ISBN bỏ gạch / cách và viết hoa. Backend nên làm tương tự để dữ liệu không lệch.
+
 ## C. Frontend suy ra từ dữ liệu có sẵn (không cần endpoint mới, có thể tối ưu)
 - **Khu mua sách / khu đấu giá tách hồ sơ:** đơn lọc theo `Order.type` (`NORMAL` / `AUCTION`); ví lọc theo loại giao dịch (`DEPOSIT_*` là của đấu giá).
   Đề xuất: `GET /orders?type=` và `GET /wallet/transactions?group=` để khỏi tải rồi lọc.
@@ -118,11 +164,12 @@ Frontend: **mỗi lần thêm thứ ngoài SRS đều phải đánh dấu như t
 | A4 Nhật ký Admin | chưa |
 | B1 Sách yêu thích | chưa |
 | B2 Phiên yêu thích | chưa |
-| B3 Toạ độ địa chỉ | chưa |
+| B3 Toạ độ địa chỉ + chọn quận / phường từ danh sách | chưa (chỉ lưu thêm 3 cột: lat, lon, address_type) |
 | B4 Chọn món trong giỏ | chưa |
 | B5 Rút tiền + ngân hàng | chưa |
 | B6 Tài khoản ngân hàng đã dùng | chưa |
 | B7 Người duyệt | chưa |
+| B9 Luật nhập liệu (bảng ở B9) | chưa kiểm tra lại phía server |
 | B8 Ảnh bìa đại diện | giữ thứ tự ảnh (chưa); AI kiểm tra loại ảnh (đề xuất) |
 
 Backend cập nhật cột này khi làm xong từng mục (và chạy lại `api_gap`).
