@@ -11,30 +11,34 @@ import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 import 'package:book_marketplace/shared/widgets/vietnam_map.dart';
 
+/// Thêm / sửa một địa chỉ bằng tờ trượt rồi lưu.
+Future<void> editAddress(
+  BuildContext context,
+  WidgetRef ref, [
+  Address? a,
+]) async {
+  final saved = await showModalBottomSheet<Address>(
+    context: context,
+    useRootNavigator: true,
+    isScrollControlled: true,
+    builder: (_) => _AddressSheet(address: a),
+  );
+  if (saved == null) return;
+  final ok = await ref
+      .read(accountControllerProvider.notifier)
+      .saveAddress(saved);
+  if (!ok && context.mounted) {
+    showErrorSnack(context, ref.read(accountControllerProvider).error!);
+  }
+}
+
 /// Sổ địa chỉ giao hàng: thêm, sửa, xoá, đặt mặc định.
 class AddressesScreen extends ConsumerWidget {
   const AddressesScreen({super.key});
 
-  Future<void> _edit(BuildContext context, WidgetRef ref, [Address? a]) async {
-    final saved = await showModalBottomSheet<Address>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (_) => _AddressSheet(address: a),
-    );
-    if (saved == null) return;
-    final ok = await ref
-        .read(accountControllerProvider.notifier)
-        .saveAddress(saved);
-    if (!ok && context.mounted) {
-      showErrorSnack(context, ref.read(accountControllerProvider).error!);
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final list = ref.watch(addressBookProvider);
     return AppPage(
       title: l10n.addresses,
       showBack: true,
@@ -42,116 +46,116 @@ class AddressesScreen extends ConsumerWidget {
         IconButton(
           tooltip: l10n.addAddress,
           icon: const Icon(Icons.add_rounded),
-          onPressed: () => _edit(context, ref),
+          onPressed: () => editAddress(context, ref),
         ),
       ],
-      children: [
-        AsyncValueView(
-          value: list,
-          onRetry: () => ref.invalidate(addressBookProvider),
-          data: (items) => items.isEmpty
-              ? EmptyState(
-                  icon: Icons.location_off_outlined,
-                  title: l10n.noAddresses,
-                  action: FilledButton(
-                    onPressed: () => _edit(context, ref),
-                    child: Text(l10n.addAddress),
-                  ),
-                )
-              : ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 640),
-                  child: Column(
-                    children: [
-                      for (final a in items)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          child: InfoPanel(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+      children: const [AddressBookView()],
+    );
+  }
+}
+
+/// Danh sách địa chỉ giao hàng (không kèm khung trang): dùng ở Sổ địa chỉ và ở Hồ sơ.
+class AddressBookView extends ConsumerWidget {
+  const AddressBookView({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final list = ref.watch(addressBookProvider);
+    return AsyncValueView(
+      value: list,
+      onRetry: () => ref.invalidate(addressBookProvider),
+      data: (items) => items.isEmpty
+          ? EmptyState(
+              icon: Icons.location_off_outlined,
+              title: l10n.noAddresses,
+              action: FilledButton(
+                onPressed: () => editAddress(context, ref),
+                child: Text(l10n.addAddress),
+              ),
+            )
+          : ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: Column(
+                children: [
+                  for (final a in items)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: InfoPanel(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              '${a.receiver} · ${a.phone}',
-                                              style: context
-                                                  .textStyles
-                                                  .titleMedium,
-                                            ),
-                                          ),
-                                          if (a.isDefault) ...[
-                                            const SizedBox(
-                                              width: AppSpacing.sm,
-                                            ),
-                                            PillBadge(l10n.defaultBadge),
-                                          ],
-                                        ],
+                                      Flexible(
+                                        child: Text(
+                                          '${a.receiver} · ${a.phone}',
+                                          style: context.textStyles.titleMedium,
+                                        ),
                                       ),
-                                      Text(
-                                        a.oneLine,
-                                        style: context.textStyles.bodySmall,
+                                      if (a.isDefault) ...[
+                                        const SizedBox(width: AppSpacing.sm),
+                                        PillBadge(l10n.defaultBadge),
+                                      ],
+                                    ],
+                                  ),
+                                  Text(
+                                    a.oneLine,
+                                    style: context.textStyles.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            DotsButton(
+                              compact: true,
+                              items: [
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text(l10n.edit),
+                                ),
+                                PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text(l10n.delete),
+                                ),
+                              ],
+                              onSelected: (v) async {
+                                if (v == 'edit') {
+                                  return editAddress(context, ref, a);
+                                }
+                                final ok = await showDialog<bool>(
+                                  context: context,
+                                  builder: (d) => AlertDialog(
+                                    content: Text(l10n.deleteAddressConfirm),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(d, false),
+                                        child: Text(l10n.cancel),
+                                      ),
+                                      FilledButton(
+                                        onPressed: () => Navigator.pop(d, true),
+                                        child: Text(l10n.delete),
                                       ),
                                     ],
                                   ),
-                                ),
-                                DotsButton(
-                                  compact: true,
-                                  items: [
-                                    PopupMenuItem(
-                                      value: 'edit',
-                                      child: Text(l10n.edit),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'delete',
-                                      child: Text(l10n.delete),
-                                    ),
-                                  ],
-                                  onSelected: (v) async {
-                                    if (v == 'edit') {
-                                      return _edit(context, ref, a);
-                                    }
-                                    final ok = await showDialog<bool>(
-                                      context: context,
-                                      builder: (d) => AlertDialog(
-                                        content: Text(
-                                          l10n.deleteAddressConfirm,
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(d, false),
-                                            child: Text(l10n.cancel),
-                                          ),
-                                          FilledButton(
-                                            onPressed: () =>
-                                                Navigator.pop(d, true),
-                                            child: Text(l10n.delete),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                    if (ok ?? false) {
-                                      await ref
-                                          .read(
-                                            accountControllerProvider.notifier,
-                                          )
-                                          .deleteAddress(a.id);
-                                    }
-                                  },
-                                ),
-                              ],
+                                );
+                                if (ok ?? false) {
+                                  await ref
+                                      .read(accountControllerProvider.notifier)
+                                      .deleteAddress(a.id);
+                                }
+                              },
                             ),
-                          ),
+                          ],
                         ),
-                    ],
-                  ),
-                ),
-        ),
-      ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
     );
   }
 }
