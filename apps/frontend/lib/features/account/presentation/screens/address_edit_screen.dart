@@ -110,8 +110,11 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       ...parts.map((e) => e.trim()).where((e) => e.isNotEmpty),
       'Việt Nam',
     ].join(', ');
+    final street = _detail.text.split(',').first;
     final queries = <String>{
       join([_detail.text, _ward.text, _district.text, _province]),
+      join([street, _ward.text, _district.text, _province]),
+      join([street, _district.text, _province]),
       join([_ward.text, _district.text, _province]),
       join([_district.text, _province]),
       join([_province]),
@@ -130,6 +133,13 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
         _lon = hit.$2;
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Địa chỉ chưa có ghim thì tự định vị một lần khi mở.
+    if (widget.address != null && _point == null) _scheduleLocate();
   }
 
   GeoPoint? get _point => _lat == null || _lon == null ? null : (_lat!, _lon!);

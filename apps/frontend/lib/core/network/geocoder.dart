@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:book_marketplace/app/env.dart';
 import 'package:book_marketplace/shared/data/vietnam_geo.dart';
 
 part 'geocoder.g.dart';
@@ -39,7 +39,12 @@ class NominatimGeocoder implements Geocoder {
               baseUrl: 'https://nominatim.openstreetmap.org',
               connectTimeout: const Duration(seconds: 8),
               receiveTimeout: const Duration(seconds: 8),
-              headers: {'Accept-Language': 'vi'},
+              headers: {
+                'Accept-Language': 'vi',
+                // Nominatim chặn User-Agent mặc định của Dart; phải định danh ứng dụng.
+                'User-Agent':
+                    'rebook-book-marketplace/1.0 (PRM393 FPT University)',
+              },
             ),
           );
 
@@ -66,7 +71,8 @@ class NominatimGeocoder implements Geocoder {
           final lon = double.tryParse('${m['lon']}');
           if (lat != null && lon != null) return (lat, lon);
         }
-      } on DioException {
+      } on DioException catch (e) {
+        debugPrint('Nominatim: ${e.response?.statusCode ?? e.type}');
         return null;
       }
     }
@@ -74,6 +80,19 @@ class NominatimGeocoder implements Geocoder {
   }
 }
 
+/// Thử [primary] trước; không ra kết quả (mất mạng, địa chỉ lạ) thì lấy [fallback].
+class FallbackGeocoder implements Geocoder {
+  FallbackGeocoder(this.primary, this.fallback);
+
+  final Geocoder primary;
+  final Geocoder fallback;
+
+  @override
+  Future<GeoPoint?> locate(List<String> queries) async =>
+      await primary.locate(queries) ?? await fallback.locate(queries);
+}
+
+/// Mock cũng định vị thật bằng Nominatim (cần mạng); không có mạng thì ghim ở tâm tỉnh.
 @Riverpod(keepAlive: true)
 Geocoder geocoder(Ref ref) =>
-    Env.useMock ? FakeGeocoder() : NominatimGeocoder();
+    FallbackGeocoder(NominatimGeocoder(), FakeGeocoder());
