@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -101,6 +102,9 @@ Future<String?> showTextSheet(
 }) {
   final l10n = context.l10n;
   final controller = TextEditingController();
+  final rule = (lines > 1 ? Rules.reason : Rules.description).copyWith(
+    optional: optional,
+  );
   return showAppSheet<String>(
     context,
     title: title,
@@ -111,19 +115,19 @@ Future<String?> showTextSheet(
           Text(hint, style: c.textStyles.bodyMedium),
           const SizedBox(height: AppSpacing.md),
         ],
-        TextField(
+        RuleField(
           controller: controller,
-          autofocus: true,
+          rule: rule,
+          label: label,
           minLines: lines,
           maxLines: lines == 1 ? 1 : lines + 2,
-          decoration: InputDecoration(labelText: label),
+          showCounter: lines > 1,
           onChanged: (_) => setState(() {}),
         ),
-        const SizedBox(height: AppSpacing.md),
         FilledButton(
-          onPressed: !optional && controller.text.trim().isEmpty
+          onPressed: !rule.isValid(controller.text)
               ? null
-              : () => Navigator.pop(c, controller.text.trim()),
+              : () => Navigator.pop(c, rule.value(controller.text)),
           child: Text(l10n.confirm),
         ),
       ],
@@ -156,15 +160,12 @@ Future<int?> showAmountSheet(
             Text(hint, style: c.textStyles.bodyMedium),
             const SizedBox(height: AppSpacing.md),
           ],
-          TextField(
+          RuleField(
             controller: controller,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(labelText: label),
+            rule: Rules.amount,
+            label: label,
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: AppSpacing.md),
           FilledButton(
             onPressed: ok ? () => Navigator.pop(c, v) : null,
             child: Text(l10n.confirm),

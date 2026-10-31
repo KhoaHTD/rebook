@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
@@ -67,9 +67,12 @@ class WalletScreen extends ConsumerWidget {
                 controller: ctrl,
                 autofocus: true,
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: Rules.amount.formatters,
+                maxLength: Rules.amount.maxLength,
                 decoration: InputDecoration(
                   labelText: l10n.amount,
+                  hintText: Rules.amount.hint(l10n),
+                  counterText: '',
                   helperText: l10n.amountMin(
                     formatVnd(WalletController.minAmount),
                   ),

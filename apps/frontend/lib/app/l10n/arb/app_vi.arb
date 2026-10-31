@@ -1716,5 +1716,107 @@
   "coverScanTitle": "Chỉnh bìa sách",
   "coverScanHint": "Kéo 4 chấm về đúng 4 góc của bìa trước. Bìa chụp nghiêng sẽ được làm phẳng.",
   "coverReset": "Đặt lại",
-  "coverUse": "Dùng ảnh này"
+  "coverUse": "Dùng ảnh này",
+  "ruleLen": "Nhập từ {min} đến {max} ký tự",
+  "@ruleLen": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleRange": "Nhập số từ {min} đến {max}",
+  "@ruleRange": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleMinAmount": "Tối thiểu {min}",
+  "@ruleMinAmount": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "ruleStep": "Phải là bội số của {step}",
+  "@ruleStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "rulePasswordWeak": "Tối thiểu 6 ký tự",
+  "ruleName": "Chỉ gồm chữ cái và dấu cách, 2–60 ký tự",
+  "ruleBankNumber": "Số tài khoản gồm 6–19 chữ số",
+  "ruleBankHolder": "Viết IN HOA, không dấu, 2–50 chữ cái",
+  "ruleIsbn": "ISBN gồm đúng 10 hoặc 13 chữ số hợp lệ",
+  "ruleCode": "Gồm chữ in hoa, số và dấu gạch, {min}–{max} ký tự",
+  "@ruleCode": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleShelf": "Dạng A3-12 (chữ cái, số, gạch, số)",
+  "ruleBelowHigh": "Phải nhỏ hơn hoặc bằng giá ước tính cao",
+  "hintEmail": "ten@example.com",
+  "hintPhone": "0901234567",
+  "hintPassword": "Ít nhất 6 ký tự",
+  "hintConfirmPassword": "Nhập lại mật khẩu",
+  "hintOtp": "6 chữ số",
+  "hintFullName": "Nguyễn Văn A",
+  "hintDistrict": "Quận 10",
+  "hintWard": "Phường 12",
+  "hintStreet": "268 Lý Thường Kiệt",
+  "hintBankNumber": "6–19 chữ số",
+  "hintBankHolder": "NGUYEN VAN A",
+  "hintBankName": "Vietcombank",
+  "hintShopName": "Minh Anh Books",
+  "hintPickup": "Số nhà, đường, phường, quận, tỉnh",
+  "hintBookTitle": "Dế Mèn Phiêu Lưu Ký",
+  "hintAuthor": "Tô Hoài",
+  "hintPublisher": "NXB Kim Đồng",
+  "hintLanguage": "Tiếng Việt",
+  "hintYear": "1941",
+  "hintIsbn": "978-604-2-12345-6",
+  "hintPages": "280",
+  "hintWeight": "350",
+  "hintPrice": "60.000 (bội số 1.000)",
+  "hintStock": "1",
+  "hintExpectedPrice": "Từ 300.000 đ",
+  "hintStory": "Bản in lần đầu 1965, có chữ ký tác giả…",
+  "hintDescription": "Tình trạng, ghi chú, điểm đáng chú ý…",
+  "hintAmount": "Tối thiểu 10.000 đ",
+  "hintProxy": "Cao hơn giá hiện tại",
+  "hintEstimate": "500.000",
+  "hintStartPrice": "Khoảng 50–70% giá thấp",
+  "hintReserve": "Không vượt mức thấp ước tính",
+  "hintApptCode": "APT-1042",
+  "hintShelf": "A3-12",
+  "hintTracking": "VN123456789",
+  "hintSessionTitle": "Sách cổ Nam Bộ trước 1975",
+  "hintMinParticipants": "3",
+  "hintDeposit": "500.000",
+  "hintLotSeconds": "60",
+  "hintSoftSeconds": "15",
+  "hintCategoryName": "Văn học Việt Nam",
+  "hintPercent": "5",
+  "hintReason": "Mô tả ngắn gọn lý do…",
+  "hintReview": "Chia sẻ trải nghiệm của bạn (không bắt buộc)",
+  "hintSearch": "Tìm sách, tác giả…",
+  "hintConditionReport": "Bìa, gáy, ruột, ố vàng, ghi chú, chữ ký…"
 }

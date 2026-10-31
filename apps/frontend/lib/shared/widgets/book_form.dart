@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/network/upload_service.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
 import 'package:book_marketplace/shared/widgets/cover_scanner.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/glass_menu.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -124,20 +125,20 @@ class BookFormState extends ConsumerState<BookForm> {
   }
 
   BookDraft draft() {
-    String? text(TextEditingController c) =>
-        c.text.trim().isEmpty ? null : c.text.trim();
+    String? text(InputRule r, TextEditingController c) =>
+        r.value(c.text).isEmpty ? null : r.value(c.text);
     return BookDraft(
-      title: _title.text.trim(),
-      author: _author.text.trim(),
+      title: Rules.bookTitle.value(_title.text),
+      author: Rules.author.value(_author.text),
       condition: _condition!,
       imageUrls: [?_cover, ..._photos],
-      publisher: text(_publisher),
+      publisher: text(Rules.publisher, _publisher),
       publishYear: int.tryParse(_year.text),
-      isbn: text(_isbn),
-      language: text(_language),
+      isbn: text(Rules.isbn, _isbn),
+      language: text(Rules.language, _language),
       pages: int.tryParse(_pages.text),
       categoryId: _categoryId,
-      description: text(_description),
+      description: text(Rules.description, _description),
       weightGram: int.tryParse(_weight.text),
     );
   }
@@ -145,22 +146,19 @@ class BookFormState extends ConsumerState<BookForm> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    String? required(String? v) =>
-        (v ?? '').trim().isEmpty ? l10n.fieldRequired : null;
     Widget field(
       TextEditingController c,
-      String label, {
-      bool number = false,
-      bool needed = false,
+      String label,
+      InputRule rule, {
       int lines = 1,
-    }) => TextFormField(
+    }) => RuleField(
       controller: c,
+      label: label,
+      rule: rule,
+      bottom: 0,
       minLines: lines,
       maxLines: lines == 1 ? 1 : lines + 3,
-      keyboardType: number ? TextInputType.number : null,
-      inputFormatters: number ? [FilteringTextInputFormatter.digitsOnly] : null,
-      decoration: InputDecoration(labelText: label),
-      validator: needed ? required : null,
+      showCounter: lines > 1,
     );
     Widget pair(Widget a, Widget b) => Row(
       children: [
@@ -281,9 +279,9 @@ class BookFormState extends ConsumerState<BookForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                field(_title, l10n.bookTitle, needed: true),
+                field(_title, l10n.bookTitle, Rules.bookTitle),
                 gap,
-                field(_author, l10n.author, needed: true),
+                field(_author, l10n.author, Rules.author),
                 gap,
                 GlassDropdownField<String>(
                   value: _categoryId,
@@ -336,18 +334,26 @@ class BookFormState extends ConsumerState<BookForm> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 pair(
-                  field(_publisher, l10n.publisher),
-                  field(_year, l10n.publishYear, number: true),
+                  field(_publisher, l10n.publisher, Rules.publisher),
+                  field(_year, l10n.publishYear, Rules.year),
                 ),
-                gap,
-                pair(field(_isbn, l10n.isbn), field(_language, l10n.language)),
                 gap,
                 pair(
-                  field(_pages, l10n.pages, number: true),
-                  field(_weight, l10n.weight, number: true),
+                  field(_isbn, l10n.isbn, Rules.isbn),
+                  field(_language, l10n.language, Rules.language),
                 ),
                 gap,
-                field(_description, l10n.description, lines: 3),
+                pair(
+                  field(_pages, l10n.pages, Rules.pages),
+                  field(_weight, l10n.weight, Rules.weightGram),
+                ),
+                gap,
+                field(
+                  _description,
+                  l10n.description,
+                  Rules.description,
+                  lines: 3,
+                ),
               ],
             ),
           ),

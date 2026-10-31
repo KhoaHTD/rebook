@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/auth/presentation/providers/auth_controller.dart';
 import 'package:book_marketplace/features/auth/presentation/widgets/auth_layout.dart';
@@ -81,7 +82,12 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
           maxLength: 6,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           style: context.textStyles.headlineMedium?.copyWith(letterSpacing: 12),
-          decoration: InputDecoration(labelText: l10n.otpCode, counterText: ''),
+          decoration: InputDecoration(
+            labelText: l10n.otpCode,
+            hintText: Rules.otp.hint(l10n),
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            counterText: '',
+          ),
           onChanged: (v) {
             if (v.length == 6) _submit();
           },

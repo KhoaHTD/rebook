@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
@@ -38,13 +40,12 @@ class CategoriesScreen extends ConsumerWidget {
       body: (sheet, setState) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
+          RuleField(
             controller: name,
-            autofocus: true,
-            decoration: InputDecoration(labelText: l10n.categoryName),
+            rule: Rules.categoryName,
+            label: l10n.categoryName,
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: AppSpacing.md),
           GlassDropdownField<String?>(
             value: parent,
             label: l10n.parentCategory,

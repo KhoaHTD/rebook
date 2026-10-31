@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/auth/presentation/providers/auth_controller.dart';
@@ -68,32 +70,25 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
+              RuleField(
                 controller: _email,
                 enabled: !_codeSent,
-                decoration: InputDecoration(labelText: l10n.email),
-                keyboardType: TextInputType.emailAddress,
-                validator: (v) =>
-                    AuthValidators.email(v ?? '') ? null : l10n.emailInvalid,
+                rule: Rules.email,
+                label: l10n.email,
+                bottom: _codeSent ? AppSpacing.lg : 0,
               ),
               if (_codeSent) ...[
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
+                RuleField(
                   controller: _code,
-                  decoration: InputDecoration(labelText: l10n.otpCode),
-                  keyboardType: TextInputType.number,
-                  validator: (v) => AuthValidators.otp(v ?? '')
-                      ? null
-                      : l10n.otpInvalidLength,
+                  rule: Rules.otp,
+                  label: l10n.otpCode,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
+                RuleField(
                   controller: _password,
-                  decoration: InputDecoration(labelText: l10n.newPassword),
-                  obscureText: true,
-                  validator: (v) => AuthValidators.password(v ?? '')
-                      ? null
-                      : l10n.passwordTooShort,
+                  rule: Rules.password,
+                  label: l10n.newPassword,
+                  obscure: true,
+                  bottom: 0,
                 ),
               ],
             ],

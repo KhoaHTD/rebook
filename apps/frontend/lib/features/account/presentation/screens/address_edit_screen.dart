@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/vietnamese.dart';
 import 'package:book_marketplace/features/account/presentation/providers/account_providers.dart';
@@ -75,6 +76,7 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
   late double? _lat = widget.address?.latitude;
   late double? _lon = widget.address?.longitude;
   var _submitted = false;
+  final _form = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -88,13 +90,11 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
 
   bool get _valid =>
       _province.isNotEmpty &&
-      [
-        _receiver,
-        _phone,
-        _district,
-        _ward,
-        _detail,
-      ].every((c) => c.text.trim().isNotEmpty);
+      Rules.fullName.isValid(_receiver.text) &&
+      Rules.phone.isValid(_phone.text) &&
+      Rules.district.isValid(_district.text) &&
+      Rules.ward.isValid(_ward.text) &&
+      Rules.street.isValid(_detail.text);
 
   Future<void> _pickProvince() async {
     final picked = await showModalBottomSheet<String>(
@@ -108,15 +108,16 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
 
   Future<void> _save() async {
     setState(() => _submitted = true);
-    if (!_valid) return;
+    final formOk = _form.currentState?.validate() ?? false;
+    if (!formOk || !_valid) return;
     final saved = Address(
       id: widget.address?.id ?? '',
-      receiver: _receiver.text.trim(),
-      phone: _phone.text.trim(),
+      receiver: Rules.fullName.value(_receiver.text),
+      phone: Rules.phone.value(_phone.text),
       province: _province,
-      district: _district.text.trim(),
-      ward: _ward.text.trim(),
-      detail: _detail.text.trim(),
+      district: Rules.district.value(_district.text),
+      ward: Rules.ward.value(_ward.text),
+      detail: Rules.street.value(_detail.text),
       isDefault: _default,
       latitude: _lat,
       longitude: _lon,
@@ -172,24 +173,6 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
     final centre = _province.isEmpty ? null : VietnamGeo.province(_province);
     final pin = _point ?? centre;
 
-    Widget field(
-      TextEditingController ctl,
-      String label, {
-      TextInputType? type,
-    }) => LabeledField(
-      label: label,
-      child: TextField(
-        controller: ctl,
-        keyboardType: type,
-        decoration: InputDecoration(
-          errorText: _submitted && ctl.text.trim().isEmpty
-              ? l10n.fieldRequired
-              : null,
-        ),
-        onChanged: (_) => setState(() {}),
-      ),
-    );
-
     Widget section(String title, List<Widget> children) => Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: InfoPanel(
@@ -239,91 +222,117 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              section(l10n.addrSectionAddress, [
-                LabeledField(
-                  label: l10n.addressProvince,
-                  child: InkWell(
-                    borderRadius: AppRadius.card,
-                    onTap: _pickProvince,
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        errorText: _submitted && _province.isEmpty
-                            ? l10n.addrPickProvince
-                            : null,
-                        suffixIcon: const Icon(Icons.chevron_right_rounded),
-                      ),
-                      child: Text(
-                        _province.isEmpty ? l10n.addrPickProvince : _province,
-                        style: text.bodyLarge?.copyWith(
-                          color: _province.isEmpty ? c.tertiaryText : null,
+          child: Form(
+            key: _form,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                section(l10n.addrSectionAddress, [
+                  LabeledField(
+                    label: l10n.addressProvince,
+                    child: InkWell(
+                      borderRadius: AppRadius.card,
+                      onTap: _pickProvince,
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          errorText: _submitted && _province.isEmpty
+                              ? l10n.addrPickProvince
+                              : null,
+                          suffixIcon: const Icon(Icons.chevron_right_rounded),
+                        ),
+                        child: Text(
+                          _province.isEmpty ? l10n.addrPickProvince : _province,
+                          style: text.bodyLarge?.copyWith(
+                            color: _province.isEmpty ? c.tertiaryText : null,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                field(_district, l10n.addressDistrict),
-                field(_ward, l10n.addressWard),
-                field(_detail, l10n.addressDetail),
-                const SizedBox(height: AppSpacing.xs),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 360),
-                  child: Center(
-                    child: VietnamMap(
-                      point: pin,
-                      onPick: (p) => setState(() {
-                        _lat = p.$1;
-                        _lon = p.$2;
-                      }),
+                  RuleField(
+                    controller: _district,
+                    rule: Rules.district,
+                    label: l10n.addressDistrict,
+                  ),
+                  RuleField(
+                    controller: _ward,
+                    rule: Rules.ward,
+                    label: l10n.addressWard,
+                  ),
+                  RuleField(
+                    controller: _detail,
+                    rule: Rules.street,
+                    label: l10n.addressDetail,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 360),
+                    child: Center(
+                      child: VietnamMap(
+                        point: pin,
+                        onPick: (p) => setState(() {
+                          _lat = p.$1;
+                          _lon = p.$2;
+                        }),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  _point != null ? l10n.addrPinned : l10n.addrMapHint,
-                  style: text.bodySmall?.copyWith(color: c.secondaryText),
-                ),
-              ]),
-              section(l10n.addrContact, [
-                field(_receiver, l10n.addressReceiver),
-                field(_phone, l10n.phone, type: TextInputType.phone),
-              ]),
-              InfoPanel(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Column(
-                  children: [
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(l10n.addressDefault),
-                      value: _default,
-                      onChanged: (v) => setState(() => _default = v),
-                    ),
-                    Row(
-                      children: [
-                        Text('${l10n.addrType}:', style: text.bodyMedium),
-                        const Spacer(),
-                        for (final t in AddressType.values)
-                          Padding(
-                            padding: const EdgeInsets.only(left: AppSpacing.sm),
-                            child: ChoiceChip(
-                              label: Text(
-                                t == AddressType.office
-                                    ? l10n.addrTypeOffice
-                                    : l10n.addrTypeHome,
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    _point != null ? l10n.addrPinned : l10n.addrMapHint,
+                    style: text.bodySmall?.copyWith(color: c.secondaryText),
+                  ),
+                ]),
+                section(l10n.addrContact, [
+                  RuleField(
+                    controller: _receiver,
+                    rule: Rules.fullName,
+                    label: l10n.addressReceiver,
+                  ),
+                  RuleField(
+                    controller: _phone,
+                    rule: Rules.phone,
+                    label: l10n.phone,
+                    bottom: 0,
+                  ),
+                ]),
+                InfoPanel(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(l10n.addressDefault),
+                        value: _default,
+                        onChanged: (v) => setState(() => _default = v),
+                      ),
+                      Row(
+                        children: [
+                          Text('${l10n.addrType}:', style: text.bodyMedium),
+                          const Spacer(),
+                          for (final t in AddressType.values)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: AppSpacing.sm,
                               ),
-                              selected: _type == t,
-                              onSelected: (_) => setState(() => _type = t),
+                              child: ChoiceChip(
+                                label: Text(
+                                  t == AddressType.office
+                                      ? l10n.addrTypeOffice
+                                      : l10n.addrTypeHome,
+                                ),
+                                selected: _type == t,
+                                onSelected: (_) => setState(() => _type = t),
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 110),
-            ],
+                const SizedBox(height: 110),
+              ],
+            ),
           ),
         ),
       ],

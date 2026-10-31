@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/seller/presentation/providers/seller_providers.dart';
@@ -110,11 +111,6 @@ class _FormState extends ConsumerState<_Form> {
     final l10n = context.l10n;
     final busy = ref.watch(sellerActionsProvider).isLoading;
     final initial = widget.initial;
-    String? number(String? v, {int min = 1}) {
-      final n = int.tryParse(v ?? '');
-      return n == null || n < min ? l10n.invalidNumber : null;
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -152,23 +148,21 @@ class _FormState extends ConsumerState<_Form> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: TextFormField(
+                  child: RuleField(
                     controller: _price,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.price),
-                    validator: (v) => number(v, min: 1000),
+                    rule: Rules.price,
+                    label: l10n.price,
+                    bottom: 0,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 SizedBox(
                   width: 120,
-                  child: TextFormField(
+                  child: RuleField(
                     controller: _stock,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.stock),
-                    validator: (v) => number(v, min: 0),
+                    rule: Rules.stock,
+                    label: l10n.stock,
+                    bottom: 0,
                   ),
                 ),
               ],

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
@@ -98,7 +99,17 @@ class _ConfigFormState extends ConsumerState<_ConfigForm> {
     super.dispose();
   }
 
+  static final _fee = Rules.integer(0, 1000000);
+  static final _days = Rules.integer(0, 365);
+  static final _payMin = Rules.integer(5, 1440);
+  static final _payHours = Rules.integer(1, 168);
+  static final _multiplier = Rules.integer(1, 100);
+  static final _returnDays = Rules.integer(1, 30);
+  static final _tierRule = Rules.integer(1000, 1000000000);
+  final _form = GlobalKey<FormState>();
+
   Future<void> _save() async {
+    if (!_form.currentState!.validate()) return;
     double d(String k) => double.tryParse(_fields[k]!.text) ?? 0;
     int i(String k) => int.tryParse(_fields[k]!.text) ?? 0;
     final config = SystemConfig(
@@ -133,76 +144,75 @@ class _ConfigFormState extends ConsumerState<_ConfigForm> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final busy = ref.watch(adminActionsProvider).isLoading;
-    Widget field(String key, String label) => SizedBox(
+    Widget field(String key, String label, InputRule rule) => SizedBox(
       width: 220,
-      child: TextField(
-        controller: _fields[key],
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(labelText: label),
+      child: RuleField(
+        controller: _fields[key]!,
+        rule: rule,
+        label: label,
+        bottom: 0,
       ),
     );
     Widget number(TextEditingController c, String label) => Expanded(
-      child: TextField(
-        controller: c,
-        keyboardType: TextInputType.number,
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(labelText: label),
-      ),
+      child: RuleField(controller: c, rule: _tierRule, label: label, bottom: 0),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        InfoPanel(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Wrap(
-            spacing: AppSpacing.md,
-            runSpacing: AppSpacing.md,
-            children: [
-              field('fixed', l10n.fixedPriceFee),
-              field('premium', l10n.buyerPremiumPct),
-              field('commission', l10n.sellerCommissionPct),
-              field('storage', l10n.storageFee),
-              field('free', l10n.storageFreeDays),
-              field('payMin', l10n.paymentTimeoutMin),
-              field('payHours', l10n.auctionPaymentHours),
-              field('multiplier', l10n.depositMultiplier),
-              field('ban', l10n.banDays),
-              field('returnDays', l10n.admReturnResponseDays),
-            ],
+    return Form(
+      key: _form,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InfoPanel(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Wrap(
+              spacing: AppSpacing.md,
+              runSpacing: AppSpacing.md,
+              children: [
+                field('fixed', l10n.fixedPriceFee, Rules.percent),
+                field('premium', l10n.buyerPremiumPct, Rules.percent),
+                field('commission', l10n.sellerCommissionPct, Rules.percent),
+                field('storage', l10n.storageFee, _fee),
+                field('free', l10n.storageFreeDays, _days),
+                field('payMin', l10n.paymentTimeoutMin, _payMin),
+                field('payHours', l10n.auctionPaymentHours, _payHours),
+                field('multiplier', l10n.depositMultiplier, _multiplier),
+                field('ban', l10n.banDays, _days),
+                field('returnDays', l10n.admReturnResponseDays, _returnDays),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        InfoPanel(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(l10n.bidTiers, style: context.textStyles.titleMedium),
-              const SizedBox(height: AppSpacing.md),
-              for (final (a, b) in _tiers)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: Row(
-                    children: [
-                      number(a, l10n.fromPrice),
-                      const SizedBox(width: AppSpacing.sm),
-                      number(b, l10n.increment),
-                    ],
+          const SizedBox(height: AppSpacing.lg),
+          InfoPanel(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l10n.bidTiers, style: context.textStyles.titleMedium),
+                const SizedBox(height: AppSpacing.md),
+                for (final (a, b) in _tiers)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: Row(
+                      children: [
+                        number(a, l10n.fromPrice),
+                        const SizedBox(width: AppSpacing.sm),
+                        number(b, l10n.increment),
+                      ],
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: FilledButton(
-            onPressed: busy ? null : _save,
-            child: Text(l10n.save),
+          const SizedBox(height: AppSpacing.lg),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FilledButton(
+              onPressed: busy ? null : _save,
+              child: Text(l10n.save),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

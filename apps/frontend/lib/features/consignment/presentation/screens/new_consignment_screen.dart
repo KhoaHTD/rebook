@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
-import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/consignment/presentation/providers/consignment_providers.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
-import 'package:book_marketplace/shared/domain/rules.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/book_form.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
@@ -104,30 +103,19 @@ class _FormState extends ConsumerState<_Form> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
+                RuleField(
                   controller: _price,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: l10n.expectedPrice,
-                    helperText: l10n.expectedPriceHint(
-                      formatVnd(consignmentMinExpectedPrice),
-                    ),
-                  ),
-                  validator: (v) =>
-                      int.tryParse(v ?? '') == null ? l10n.invalidNumber : null,
+                  rule: Rules.expectedPrice,
+                  label: l10n.expectedPrice,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
+                RuleField(
                   controller: _story,
+                  rule: Rules.story,
+                  label: l10n.bookStory,
                   minLines: 3,
                   maxLines: 6,
-                  decoration: InputDecoration(
-                    labelText: l10n.bookStory,
-                    hintText: l10n.bookStoryHint,
-                  ),
-                  validator: (v) =>
-                      (v ?? '').trim().isEmpty ? l10n.fieldRequired : null,
+                  showCounter: true,
+                  bottom: 0,
                 ),
               ],
             ),

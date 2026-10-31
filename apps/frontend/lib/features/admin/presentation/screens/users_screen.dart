@@ -46,7 +46,9 @@ class UsersScreen extends ConsumerWidget {
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480),
           child: TextField(
+            maxLength: 100,
             decoration: InputDecoration(
+              counterText: '',
               hintText: l10n.searchUsers,
               prefixIcon: const Icon(Icons.search_rounded),
             ),

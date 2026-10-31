@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
@@ -109,8 +110,8 @@ class _WithdrawAccountScreenState extends ConsumerState<WithdrawAccountScreen> {
   }
 
   bool get _valid =>
-      RegExp(r'^\d{6,19}$').hasMatch(_number.text) &&
-      _name.text.trim().isNotEmpty;
+      Rules.bankNumber.isValid(_number.text) &&
+      Rules.bankHolder.isValid(_name.text);
 
   void _save() => ref
       .read(withdrawDraftControllerProvider.notifier)
@@ -168,46 +169,24 @@ class _WithdrawAccountScreenState extends ConsumerState<WithdrawAccountScreen> {
                       ],
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    LabeledField(
+                    RuleField(
+                      controller: _number,
+                      rule: Rules.bankNumber,
                       label: l10n.wdAccountNumber,
-                      bottom: 0,
-                      child: TextField(
-                        controller: _number,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(19),
-                        ],
-                        decoration: const InputDecoration(),
-                        onChanged: (_) {
-                          _save();
-                          setState(() {});
-                        },
-                      ),
+                      onChanged: (_) {
+                        _save();
+                        setState(() {});
+                      },
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    LabeledField(
+                    RuleField(
+                      controller: _name,
+                      rule: Rules.bankHolder,
                       label: l10n.wdAccountName,
                       bottom: 0,
-                      child: TextField(
-                        controller: _name,
-                        textCapitalization: TextCapitalization.characters,
-                        decoration: const InputDecoration(),
-                        // Gõ có dấu / chữ thường thì tự đổi thành IN HOA không dấu.
-                        onChanged: (v) {
-                          final fixed = bankAccountName(v);
-                          if (fixed != v) {
-                            _name.value = TextEditingValue(
-                              text: fixed,
-                              selection: TextSelection.collapsed(
-                                offset: fixed.length,
-                              ),
-                            );
-                          }
-                          _save();
-                          setState(() {});
-                        },
-                      ),
+                      onChanged: (_) {
+                        _save();
+                        setState(() {});
+                      },
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     FilledButton(
@@ -463,7 +442,7 @@ class _WithdrawAmountScreenState extends ConsumerState<WithdrawAmountScreen> {
                         fontWeight: FontWeight.w800,
                       ),
                       decoration: InputDecoration(
-                        hintText: '0',
+                        hintText: Rules.amount.hint(l10n),
                         suffixText: 'đ',
                         errorText: error,
                       ),

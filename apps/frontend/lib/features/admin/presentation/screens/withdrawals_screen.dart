@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
@@ -244,8 +244,11 @@ class _ReceiptFormState extends State<_ReceiptForm> {
             TextField(
               controller: _sender,
               textCapitalization: TextCapitalization.characters,
+              maxLength: 40,
               decoration: InputDecoration(
                 labelText: l10n.admReceiptSender,
+                hintText: Rules.bankHolder.hint(l10n),
+                counterText: '',
                 errorText: _submitted && _sender.text.trim().isEmpty
                     ? l10n.admReceiptSenderRequired
                     : null,
@@ -262,9 +265,12 @@ class _ReceiptFormState extends State<_ReceiptForm> {
             TextField(
               controller: _amount,
               keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: Rules.amount.formatters,
+              maxLength: Rules.amount.maxLength,
               decoration: InputDecoration(
                 labelText: l10n.admReceiptAmount,
+                hintText: Rules.amount.hint(l10n),
+                counterText: '',
                 errorText: _submitted && amount != widget.withdrawal.amount
                     ? l10n.errReceiptMismatch
                     : null,

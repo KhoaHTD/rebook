@@ -360,7 +360,9 @@ class _MobileFloorState extends ConsumerState<_MobileFloor> {
               children: [
                 TextField(
                   controller: _search,
+                  maxLength: 100,
                   decoration: InputDecoration(
+                    counterText: '',
                     hintText: l10n.auctionSearchHint,
                     prefixIcon: const Icon(Icons.search_rounded),
                   ),
