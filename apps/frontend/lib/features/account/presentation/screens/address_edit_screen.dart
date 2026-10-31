@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/network/admin_units.dart';
 import 'package:book_marketplace/core/network/geocoder.dart';
 import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
@@ -159,10 +160,69 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       isScrollControlled: true,
       builder: (_) => _ProvincePicker(selected: _province),
     );
-    if (picked != null) {
-      setState(() => _province = picked);
+    if (picked != null && picked != _province) {
+      setState(() {
+        _province = picked;
+        _district.clear();
+        _ward.clear();
+        _districtCode = null;
+      });
       _scheduleLocate();
     }
+  }
+
+  /// Mã quận đang chọn (để tra phường / xã). Null khi quận nhập tay hoặc mở địa chỉ cũ: dò lại theo tên.
+  int? _districtCode;
+
+  Future<({String name, int? code})?> _openUnitPicker(
+    String title,
+    String selected,
+    Future<List<AdminUnit>> Function() load,
+  ) => showModalBottomSheet<({String name, int? code})>(
+    context: context,
+    useRootNavigator: true,
+    isScrollControlled: true,
+    builder: (_) => _UnitPicker(title: title, selected: selected, load: load),
+  );
+
+  Future<void> _pickDistrict() async {
+    if (_province.isEmpty) return;
+    final units = ref.read(adminUnitsProvider);
+    final picked = await _openUnitPicker(
+      context.l10n.addrPickDistrict,
+      _district.text,
+      () => units.districts(_province),
+    );
+    if (picked == null) return;
+    setState(() {
+      _district.text = picked.name;
+      _districtCode = picked.code;
+      _ward.clear();
+    });
+    _scheduleLocate();
+  }
+
+  Future<void> _pickWard() async {
+    if (_district.text.isEmpty) return;
+    final units = ref.read(adminUnitsProvider);
+    final picked = await _openUnitPicker(
+      context.l10n.addrPickWard,
+      _ward.text,
+      () async {
+        var code = _districtCode;
+        if (code == null) {
+          final key = unitKey(_district.text);
+          final all = await units.districts(_province);
+          code = all.where((d) => unitKey(d.name) == key).firstOrNull?.code;
+          if (code == null) throw StateError('district not found');
+          _districtCode = code;
+        }
+        return units.wards(code);
+      },
+    );
+    if (picked == null) return;
+    setState(() => _ward.text = picked.name);
+    _scheduleLocate();
   }
 
   Future<void> _save() async {
@@ -247,6 +307,29 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       ),
     );
 
+    Widget selectBox(
+      String value,
+      String placeholder,
+      VoidCallback? onTap,
+      bool showError,
+    ) => InkWell(
+      borderRadius: AppRadius.card,
+      onTap: onTap,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          enabled: onTap != null,
+          errorText: showError ? placeholder : null,
+          suffixIcon: const Icon(Icons.chevron_right_rounded),
+        ),
+        child: Text(
+          value.isEmpty ? placeholder : value,
+          style: text.bodyLarge?.copyWith(
+            color: value.isEmpty ? c.tertiaryText : null,
+          ),
+        ),
+      ),
+    );
+
     return AppPage(
       title: widget.title,
       showBack: true,
@@ -308,17 +391,27 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
                       ),
                     ),
                   ),
-                  RuleField(
-                    controller: _district,
-                    rule: Rules.district,
+                  LabeledField(
                     label: l10n.addressDistrict,
-                    onChanged: (_) => _scheduleLocate(),
+                    child: selectBox(
+                      _district.text,
+                      _province.isEmpty
+                          ? l10n.addrPickProvinceFirst
+                          : l10n.addrPickDistrict,
+                      _province.isEmpty ? null : _pickDistrict,
+                      _submitted && _district.text.isEmpty,
+                    ),
                   ),
-                  RuleField(
-                    controller: _ward,
-                    rule: Rules.ward,
+                  LabeledField(
                     label: l10n.addressWard,
-                    onChanged: (_) => _scheduleLocate(),
+                    child: selectBox(
+                      _ward.text,
+                      _district.text.isEmpty
+                          ? l10n.addrPickDistrictFirst
+                          : l10n.addrPickWard,
+                      _district.text.isEmpty ? null : _pickWard,
+                      _submitted && _ward.text.isEmpty,
+                    ),
                   ),
                   RuleField(
                     controller: _detail,
@@ -492,6 +585,141 @@ class _ProvincePickerState extends State<_ProvincePicker> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Chọn quận / huyện hoặc phường / xã từ danh sách tải về, có ô tìm. Tải lỗi thì cho nhập tên thủ công.
+class _UnitPicker extends StatefulWidget {
+  const _UnitPicker({
+    required this.title,
+    required this.selected,
+    required this.load,
+  });
+
+  final String title;
+  final String selected;
+  final Future<List<AdminUnit>> Function() load;
+
+  @override
+  State<_UnitPicker> createState() => _UnitPickerState();
+}
+
+class _UnitPickerState extends State<_UnitPicker> {
+  final _search = TextEditingController();
+  final _manual = TextEditingController();
+  late final Future<List<AdminUnit>> _units = widget.load();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    _manual.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final q = removeDiacritics(_search.text).toLowerCase().trim();
+    return SizedBox(
+      height: MediaQuery.sizeOf(context).height * 0.8,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          0,
+          20,
+          MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: FutureBuilder<List<AdminUnit>>(
+          future: _units,
+          builder: (context, snap) {
+            final header = Text(
+              widget.title,
+              style: context.textStyles.titleLarge,
+            );
+            if (snap.connectionState != ConnectionState.done) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  header,
+                  const Expanded(
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ],
+              );
+            }
+            if (snap.hasError || (snap.data ?? const []).isEmpty) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  header,
+                  const SizedBox(height: AppSpacing.md),
+                  Text(l10n.addrUnitsFailed),
+                  const SizedBox(height: AppSpacing.md),
+                  TextField(
+                    controller: _manual,
+                    maxLength: 50,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(counterText: ''),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  FilledButton(
+                    onPressed: Rules.district.isValid(_manual.text)
+                        ? () => Navigator.pop(context, (
+                            name: Rules.district.value(_manual.text),
+                            code: null,
+                          ))
+                        : null,
+                    child: Text(l10n.confirm),
+                  ),
+                ],
+              );
+            }
+            final units = [
+              for (final u in snap.data!)
+                if (q.isEmpty ||
+                    removeDiacritics(u.name).toLowerCase().contains(q))
+                  u,
+            ];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                header,
+                const SizedBox(height: AppSpacing.md),
+                TextField(
+                  controller: _search,
+                  decoration: InputDecoration(
+                    hintText: l10n.addrSearchUnit,
+                    prefixIcon: const Icon(Icons.search_rounded),
+                  ),
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Expanded(
+                  child: units.isEmpty
+                      ? Center(child: Text(l10n.addrUnitsEmpty))
+                      : ListView(
+                          children: [
+                            for (final u in units)
+                              ListTile(
+                                title: Text(u.name),
+                                trailing: u.name == widget.selected
+                                    ? const Icon(Icons.check_rounded)
+                                    : null,
+                                onTap: () => Navigator.pop(context, (
+                                  name: u.name,
+                                  code: u.code,
+                                )),
+                              ),
+                          ],
+                        ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

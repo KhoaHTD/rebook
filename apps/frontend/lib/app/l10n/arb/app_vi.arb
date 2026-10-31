@@ -1822,5 +1822,12 @@
   "mapAttribution": "OpenStreetMap",
   "addrLocate": "Định vị theo địa chỉ",
   "addrLocating": "Đang định vị…",
-  "addrNotFound": "Không tìm thấy địa chỉ này. Thử bớt chi tiết hoặc chạm bản đồ để đặt ghim."
+  "addrNotFound": "Không tìm thấy địa chỉ này. Thử bớt chi tiết hoặc chạm bản đồ để đặt ghim.",
+  "addrPickDistrict": "Chọn quận / huyện",
+  "addrPickWard": "Chọn phường / xã",
+  "addrPickProvinceFirst": "Chọn tỉnh / thành phố trước",
+  "addrPickDistrictFirst": "Chọn quận / huyện trước",
+  "addrSearchUnit": "Tìm theo tên",
+  "addrUnitsFailed": "Không tải được danh sách. Nhập tên thủ công:",
+  "addrUnitsEmpty": "Không có kết quả"
 }

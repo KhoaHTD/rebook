@@ -1118,5 +1118,12 @@
   "mapAttribution": "OpenStreetMap",
   "addrLocate": "Locate from address",
   "addrLocating": "Locating…",
-  "addrNotFound": "Address not found. Try less detail or tap the map to place the pin."
+  "addrNotFound": "Address not found. Try less detail or tap the map to place the pin.",
+  "addrPickDistrict": "Select district",
+  "addrPickWard": "Select ward",
+  "addrPickProvinceFirst": "Select a province first",
+  "addrPickDistrictFirst": "Select a district first",
+  "addrSearchUnit": "Search by name",
+  "addrUnitsFailed": "Could not load the list. Type the name:",
+  "addrUnitsEmpty": "No results"
 }

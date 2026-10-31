@@ -166,3 +166,9 @@ SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
 - Người dùng chốt thêm `flutter_map` + `latlong2` (allowlist cập nhật) và bỏ qua luật "package phải duyệt" cho lần này; luật không đưa code backend lên nhánh `interface` vẫn giữ.
 - `OsmMap` (tile OSM) thay `VietnamMap` ở màn sửa địa chỉ; Hoàng Sa, Trường Sa luôn ghi tên "(Việt Nam)" phủ lên bản đồ. Màn thanh toán vẫn dùng sơ đồ tự vẽ.
 - `Geocoder` (`core/network/geocoder.dart`): Nominatim khi chạy thật, tâm tỉnh khi mock. Tự định vị sau khi ngừng gõ 1,5 giây; chạm bản đồ thì khoá tự định vị cho tới khi bấm nút "Định vị theo địa chỉ".
+
+## 2026-11-01 — Quận / huyện, phường / xã chọn từ danh sách (không gõ)
+
+- Màn sửa địa chỉ: tỉnh → quận / huyện → phường / xã là ba ô chọn xổ ra; chỉ "số nhà, tên đường" là gõ tay (lý do: gõ tiếng Việt có dấu trên máy ảo / bàn phím không ổn, và gõ tay dễ sai chính tả).
+- Danh sách lấy từ provinces.open-api.vn (miễn phí, không khoá, gọi thẳng từ app, có cache trong bộ nhớ): `core/network/admin_units.dart`. Đổi tỉnh thì xoá quận và phường, đổi quận thì xoá phường.
+- API không tải được thì sheet cho nhập tên thủ công (vẫn qua `Rules.district`). Dữ liệu nguồn là bản 63 tỉnh; nếu sau này SRS chuyển sang địa giới 2 cấp thì đổi nguồn ở đây.
