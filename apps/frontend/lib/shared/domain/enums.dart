@@ -13,6 +13,9 @@ enum ListingSort { newest, priceAsc, priceDesc, relevance }
 /// NORMAL: shop giao. AUCTION: kho của sàn giao, sàn nhận tiền (SRS 7.3).
 enum OrderType { normal, auction }
 
+/// Loại địa chỉ giao hàng.
+enum AddressType { home, office }
+
 /// Trạng thái đơn hàng (SRS 7.3).
 enum OrderStatus {
   pendingPayment,

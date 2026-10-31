@@ -1035,5 +1035,16 @@
   "wdDoneHint": "An Admin will review and transfer the money. It leaves your wallet only once approved.",
   "wdBackToWallet": "Back to wallet",
   "wdFavorite": "Favourite account",
-  "wdAccountHolder": "Account holder"
+  "wdAccountHolder": "Account holder",
+  "addrSectionAddress": "Address",
+  "addrPickProvince": "Choose a province / city",
+  "addrSearchProvince": "Search provinces / cities",
+  "addrContact": "Contact details",
+  "addrType": "Address type",
+  "addrTypeOffice": "Office",
+  "addrTypeHome": "Home",
+  "addrDelete": "Delete address",
+  "addrDone": "Done",
+  "addrAddNew": "Add a new address",
+  "addrMapHint": "Tap the map to place the pin. Until you do, it sits at the province centre."
 }

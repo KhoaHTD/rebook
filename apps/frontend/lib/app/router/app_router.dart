@@ -11,6 +11,7 @@ import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/account/presentation/screens/account_screen.dart';
+import 'package:book_marketplace/features/account/presentation/screens/address_edit_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/addresses_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/favorites_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/profile_screen.dart';
@@ -179,6 +180,18 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'addresses',
                     builder: (_, _) => const AddressesScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (_, _) => const AddressEditScreen(),
+                      ),
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, s) => AddressEditScreen(
+                          addressId: s.pathParameters['id'],
+                        ),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'favorites',

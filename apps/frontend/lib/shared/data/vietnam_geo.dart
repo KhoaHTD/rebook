@@ -13,6 +13,73 @@ abstract final class VietnamGeo {
   static const minLon = 101.8;
   static const maxLon = 117.6;
 
+  /// 63 tỉnh / thành (tên hiển thị) cho ô chọn ở form địa chỉ; mỗi tên đều tra được toạ độ bằng [province].
+  static const provinceNames = <String>[
+    'Hà Nội',
+    'TP. Hồ Chí Minh',
+    'Hải Phòng',
+    'Đà Nẵng',
+    'Cần Thơ',
+    'An Giang',
+    'Bà Rịa - Vũng Tàu',
+    'Bạc Liêu',
+    'Bắc Giang',
+    'Bắc Kạn',
+    'Bắc Ninh',
+    'Bến Tre',
+    'Bình Dương',
+    'Bình Định',
+    'Bình Phước',
+    'Bình Thuận',
+    'Cà Mau',
+    'Cao Bằng',
+    'Đắk Lắk',
+    'Đắk Nông',
+    'Điện Biên',
+    'Đồng Nai',
+    'Đồng Tháp',
+    'Gia Lai',
+    'Hà Giang',
+    'Hà Nam',
+    'Hà Tĩnh',
+    'Hải Dương',
+    'Hậu Giang',
+    'Hòa Bình',
+    'Hưng Yên',
+    'Khánh Hòa',
+    'Kiên Giang',
+    'Kon Tum',
+    'Lai Châu',
+    'Lâm Đồng',
+    'Lạng Sơn',
+    'Lào Cai',
+    'Long An',
+    'Nam Định',
+    'Nghệ An',
+    'Ninh Bình',
+    'Ninh Thuận',
+    'Phú Thọ',
+    'Phú Yên',
+    'Quảng Bình',
+    'Quảng Nam',
+    'Quảng Ngãi',
+    'Quảng Ninh',
+    'Quảng Trị',
+    'Sóc Trăng',
+    'Sơn La',
+    'Tây Ninh',
+    'Thái Bình',
+    'Thái Nguyên',
+    'Thanh Hóa',
+    'Thừa Thiên Huế',
+    'Tiền Giang',
+    'Trà Vinh',
+    'Tuyên Quang',
+    'Vĩnh Long',
+    'Vĩnh Phúc',
+    'Yên Bái',
+  ];
+
   /// Đường bờ biển + biên giới đất liền, đi ngược chiều kim đồng hồ từ biên giới phía bắc (Hà Giang).
   static const mainland = <GeoPoint>[
     (23.35, 105.30), // Hà Giang
@@ -238,7 +305,7 @@ abstract final class VietnamGeo {
       b.write(i < 0 ? ch : to[i]);
     }
     var out = b.toString().replaceAll(RegExp(r'[^a-z0-9 ]'), ' ');
-    out = out.replaceAll(RegExp(r'\b(tp|thanh pho|tinh)\b'), ' ');
+    out = out.replaceAll(RegExp(r'^\s*(tp|thanh pho|tinh)\b'), ' ');
     return out.replaceAll(RegExp(r'\s+'), ' ').trim();
   }
 

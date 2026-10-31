@@ -1695,5 +1695,16 @@
   "wdDoneHint": "Admin sẽ duyệt và chuyển khoản. Tiền chỉ bị trừ khỏi ví khi yêu cầu được duyệt.",
   "wdBackToWallet": "Về ví",
   "wdFavorite": "Tài khoản yêu thích",
-  "wdAccountHolder": "Chủ tài khoản"
+  "wdAccountHolder": "Chủ tài khoản",
+  "addrSectionAddress": "Địa chỉ",
+  "addrPickProvince": "Chọn tỉnh / thành phố",
+  "addrSearchProvince": "Tìm tỉnh / thành phố",
+  "addrContact": "Thông tin liên hệ",
+  "addrType": "Loại địa chỉ",
+  "addrTypeOffice": "Văn phòng",
+  "addrTypeHome": "Nhà riêng",
+  "addrDelete": "Xóa địa chỉ",
+  "addrDone": "Hoàn thành",
+  "addrAddNew": "Thêm địa chỉ mới",
+  "addrMapHint": "Chạm vào bản đồ để đặt ghim. Chưa chạm thì ghim ở giữa tỉnh / thành."
 }

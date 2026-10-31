@@ -43,6 +43,8 @@ abstract final class Routes {
   static const account = '/account';
   static const profile = '/account/profile';
   static const addresses = '/account/addresses';
+  static const addressNew = '/account/addresses/new';
+  static String addressEdit(String id) => '/account/addresses/$id';
   static const favorites = '/account/favorites';
   static const settings = '/account/settings';
   static const orders = '/account/orders';

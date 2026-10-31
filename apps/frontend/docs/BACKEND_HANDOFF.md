@@ -65,8 +65,10 @@ Frontend: **mỗi lần thêm thứ ngoài SRS đều phải đánh dấu như t
 - `POST /sessions/{id}/watch` {watch: bool} → `AuctionSessionDto`; `GET /me/watched-sessions` → `AuctionSessionDto[]`. Khác với theo dõi từng lô (`lot_watchers`).
   Tab "Yêu thích" ở trang chủ đấu giá = phiên đã theo dõi hoặc phiên có lô đang theo dõi (frontend tự ghép).
 
-### B3. Toạ độ địa chỉ
+### B3. Toạ độ và loại địa chỉ
 - `AddressDto` / `AddressRequest` thêm `latitude`, `longitude` (double, tuỳ chọn); cột `addresses.latitude/longitude`. Người dùng ghim trên bản đồ tự vẽ; không ghim thì null.
+- Thêm `addressType` (`HOME` | `OFFICE`, mặc định `HOME`) cho nhãn Nhà riêng / Văn phòng; cột `addresses.address_type`.
+- `province` là một trong 63 tên tỉnh / thành frontend cho chọn (`VietnamGeo.provinceNames`, vd "TP. Hồ Chí Minh"); `district`, `ward` là chữ người dùng tự gõ.
 
 ### B4. Chọn món trong giỏ
 - `GET /cart?itemIds=a&itemIds=b`: chỉ tính các món đã chọn, **phí ship tính lại theo khối lượng các món này**; bỏ tham số = cả giỏ.

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/account/presentation/providers/account_providers.dart';
-import 'package:book_marketplace/features/account/presentation/screens/addresses_screen.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
@@ -28,32 +27,6 @@ class ProfileScreen extends ConsumerWidget {
           data: (u) => ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 480),
             child: _Form(user: u),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      context.l10n.addresses,
-                      style: context.textStyles.titleMedium,
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => editAddress(context, ref),
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: Text(context.l10n.addAddress),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              const AddressBookView(),
-            ],
           ),
         ),
       ],

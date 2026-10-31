@@ -4,6 +4,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'address_type.dart';
+
 part 'address_dto.g.dart';
 
 @JsonSerializable()
@@ -19,6 +21,7 @@ class AddressDto {
     required this.isDefault,
     this.latitude,
     this.longitude,
+    this.addressType,
   });
 
   factory AddressDto.fromJson(Map<String, Object?> json) =>
@@ -36,6 +39,7 @@ class AddressDto {
   /// Vị trí người dùng ghim trên bản đồ (SRS 9 — addresses).
   final double? latitude;
   final double? longitude;
+  final AddressType? addressType;
 
   Map<String, Object?> toJson() => _$AddressDtoToJson(this);
 }

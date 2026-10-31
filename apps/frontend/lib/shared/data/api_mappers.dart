@@ -84,6 +84,11 @@ extension AddressDtoMapper on api.AddressDto {
     isDefault: isDefault,
     latitude: latitude,
     longitude: longitude,
+    type: _enum(
+      AddressType.values,
+      addressType ?? api.AddressType.home,
+      AddressType.home,
+    ),
   );
 }
 
@@ -98,6 +103,7 @@ extension AddressToApi on Address {
     isDefault: isDefault,
     latitude: latitude,
     longitude: longitude,
+    addressType: toApiEnum(api.AddressType.values, type),
   );
 }
 

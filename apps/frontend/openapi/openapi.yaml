@@ -1002,6 +1002,7 @@ components:
         isDefault: { type: boolean }
         latitude: { x-origin: frontend, type: number, format: double, description: Vị trí người dùng ghim trên bản đồ (SRS 9 — addresses). }
         longitude: { x-origin: frontend, type: number, format: double }
+        addressType: { x-origin: frontend, $ref: '#/components/schemas/AddressType' }
     AddressRequest:
       type: object
       required: [receiver, phone, province, district, ward, detail, isDefault]
@@ -1015,6 +1016,7 @@ components:
         isDefault: { type: boolean }
         latitude: { x-origin: frontend, type: number, format: double }
         longitude: { x-origin: frontend, type: number, format: double }
+        addressType: { x-origin: frontend, $ref: '#/components/schemas/AddressType' }
     RegisterDeviceRequest:
       type: object
       required: [fcmToken, platform]
@@ -1428,6 +1430,7 @@ components:
         accountName: { type: string }
         favorite: { type: boolean }
         lastUsedAt: { type: string, format: date-time }
+    AddressType: { x-origin: frontend, type: string, enum: [HOME, OFFICE], description: 'Loại địa chỉ: nhà riêng / văn phòng (màn sửa địa chỉ).' }
     FavoriteRequest: { x-origin: frontend, type: object, required: [favorite], properties: { favorite: { type: boolean } } }
     UploadSignatureRequest: { type: object, required: [folder], properties: { folder: { type: string } } }
     UploadSignatureDto:

@@ -40,6 +40,7 @@ abstract class Address with _$Address {
     /// Vị trí người dùng ghim trên bản đồ (null = chưa ghim, dùng tâm tỉnh / thành).
     double? latitude,
     double? longitude,
+    @Default(AddressType.home) AddressType type,
   }) = _Address;
 
   bool get hasPin => latitude != null && longitude != null;

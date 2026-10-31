@@ -8,6 +8,7 @@ import 'package:book_marketplace/features/cart/data/fake_cart_repository.dart';
 import 'package:book_marketplace/features/catalog/data/fake_catalog_repository.dart';
 import 'package:book_marketplace/features/wallet/data/fake_wallet_repository.dart';
 import 'package:book_marketplace/shared/data/fake/fake_store.dart';
+import 'package:book_marketplace/shared/data/vietnam_geo.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
@@ -161,6 +162,24 @@ void main() {
   });
 
   group('địa chỉ', () {
+    test('63 tỉnh / thành đều tra được toạ độ tâm tỉnh', () {
+      expect(VietnamGeo.provinceNames, hasLength(63));
+      for (final n in VietnamGeo.provinceNames) {
+        expect(VietnamGeo.province(n), isNotNull, reason: n);
+      }
+    });
+
+    test('lưu và đọc lại loại địa chỉ', () {
+      store = FakeStore()..login('khoa@rebook.vn', '123456');
+      final base = store.myAddresses().first;
+      expect(base.type, AddressType.home);
+      final saved = store.saveAddress(base.copyWith(type: AddressType.office));
+      expect(
+        store.myAddresses().firstWhere((a) => a.id == saved.id).type,
+        AddressType.office,
+      );
+    });
+
     test('lưu và đọc lại toạ độ đã ghim', () {
       store = FakeStore()..login('khoa@rebook.vn', '123456');
       final base = store.myAddresses().first;
