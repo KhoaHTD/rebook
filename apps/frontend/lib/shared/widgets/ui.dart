@@ -60,7 +60,7 @@ class AppPage extends StatelessWidget {
                 20,
                 AppSpacing.md,
                 20,
-                bottomBar == null ? 120 : 260,
+                bottomBar == null ? 120 : 104,
               )
             : const EdgeInsets.fromLTRB(
                 AppSpacing.pageX,
