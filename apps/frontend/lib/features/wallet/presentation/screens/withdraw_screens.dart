@@ -15,6 +15,7 @@ import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/widgets/bank_badge.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Bước 1: chọn ngân hàng nhận tiền (có ô tìm kiếm).
@@ -167,42 +168,46 @@ class _WithdrawAccountScreenState extends ConsumerState<WithdrawAccountScreen> {
                       ],
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      controller: _number,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(19),
-                      ],
-                      decoration: InputDecoration(
-                        labelText: l10n.wdAccountNumber,
+                    LabeledField(
+                      label: l10n.wdAccountNumber,
+                      bottom: 0,
+                      child: TextField(
+                        controller: _number,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(19),
+                        ],
+                        decoration: const InputDecoration(),
+                        onChanged: (_) {
+                          _save();
+                          setState(() {});
+                        },
                       ),
-                      onChanged: (_) {
-                        _save();
-                        setState(() {});
-                      },
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      controller: _name,
-                      textCapitalization: TextCapitalization.characters,
-                      decoration: InputDecoration(
-                        labelText: l10n.wdAccountName,
+                    const SizedBox(height: AppSpacing.lg),
+                    LabeledField(
+                      label: l10n.wdAccountName,
+                      bottom: 0,
+                      child: TextField(
+                        controller: _name,
+                        textCapitalization: TextCapitalization.characters,
+                        decoration: const InputDecoration(),
+                        // Gõ có dấu / chữ thường thì tự đổi thành IN HOA không dấu.
+                        onChanged: (v) {
+                          final fixed = bankAccountName(v);
+                          if (fixed != v) {
+                            _name.value = TextEditingValue(
+                              text: fixed,
+                              selection: TextSelection.collapsed(
+                                offset: fixed.length,
+                              ),
+                            );
+                          }
+                          _save();
+                          setState(() {});
+                        },
                       ),
-                      // Gõ có dấu / chữ thường thì tự đổi thành IN HOA không dấu.
-                      onChanged: (v) {
-                        final fixed = bankAccountName(v);
-                        if (fixed != v) {
-                          _name.value = TextEditingValue(
-                            text: fixed,
-                            selection: TextSelection.collapsed(
-                              offset: fixed.length,
-                            ),
-                          );
-                        }
-                        _save();
-                        setState(() {});
-                      },
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     FilledButton(
@@ -360,33 +365,35 @@ class _WithdrawAmountScreenState extends ConsumerState<WithdrawAmountScreen> {
     return AppPage(
       title: l10n.withdraw,
       showBack: true,
-      bottomBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(l10n.wdTotal, style: text.bodySmall),
-                    Text(
-                      formatVnd(_value),
-                      style: text.headlineSmall?.copyWith(
-                        color: c.live,
-                        fontWeight: FontWeight.w800,
+      bottomBar: PinnedBar(
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(l10n.wdTotal, style: text.bodySmall),
+                      Text(
+                        formatVnd(_value),
+                        style: text.headlineSmall?.copyWith(
+                          color: c.live,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              FilledButton(
-                onPressed: busy || !ok ? null : () => _submit(available),
-                child: Text(l10n.wdNext),
-              ),
-            ],
+                FilledButton(
+                  onPressed: busy || !ok ? null : () => _submit(available),
+                  child: Text(l10n.wdNext),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -518,21 +525,24 @@ class _WithdrawAmountScreenState extends ConsumerState<WithdrawAmountScreen> {
               const SizedBox(height: AppSpacing.md),
               InfoPanel(
                 padding: const EdgeInsets.all(AppSpacing.lg),
-                child: TextField(
-                  controller: _note,
-                  maxLength: 140,
-                  maxLines: 2,
-                  minLines: 1,
-                  decoration: InputDecoration(
-                    labelText: l10n.wdDescription,
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.cancel_rounded),
-                      onPressed: () => setState(_note.clear),
+                child: LabeledField(
+                  label: l10n.wdDescription,
+                  bottom: 0,
+                  child: TextField(
+                    controller: _note,
+                    maxLength: 140,
+                    maxLines: 2,
+                    minLines: 1,
+                    decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.cancel_rounded),
+                        onPressed: () => setState(_note.clear),
+                      ),
                     ),
+                    onChanged: (v) => ref
+                        .read(withdrawDraftControllerProvider.notifier)
+                        .setNote(v),
                   ),
-                  onChanged: (v) => ref
-                      .read(withdrawDraftControllerProvider.notifier)
-                      .setNote(v),
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),

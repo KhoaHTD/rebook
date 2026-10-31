@@ -11,6 +11,7 @@ import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 import 'package:book_marketplace/shared/widgets/vietnam_map.dart';
 
@@ -175,13 +176,12 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       TextEditingController ctl,
       String label, {
       TextInputType? type,
-    }) => Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+    }) => LabeledField(
+      label: label,
       child: TextField(
         controller: ctl,
         keyboardType: type,
         decoration: InputDecoration(
-          labelText: label,
           errorText: _submitted && ctl.text.trim().isEmpty
               ? l10n.fieldRequired
               : null,
@@ -208,29 +208,31 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
     return AppPage(
       title: widget.title,
       showBack: true,
-      bottomBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: Row(
-            children: [
-              if (widget.address != null) ...[
+      bottomBar: PinnedBar(
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+            child: Row(
+              children: [
+                if (widget.address != null) ...[
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: busy ? null : _delete,
+                      child: Text(l10n.addrDelete),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                ],
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: busy ? null : _delete,
-                    child: Text(l10n.addrDelete),
+                  flex: widget.address == null ? 1 : 2,
+                  child: FilledButton(
+                    onPressed: busy ? null : _save,
+                    child: Text(l10n.addrDone),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
               ],
-              Expanded(
-                flex: widget.address == null ? 1 : 2,
-                child: FilledButton(
-                  onPressed: busy ? null : _save,
-                  child: Text(l10n.addrDone),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -241,26 +243,27 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               section(l10n.addrSectionAddress, [
-                InkWell(
-                  borderRadius: AppRadius.card,
-                  onTap: _pickProvince,
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: l10n.addressProvince,
-                      errorText: _submitted && _province.isEmpty
-                          ? l10n.addrPickProvince
-                          : null,
-                      suffixIcon: const Icon(Icons.chevron_right_rounded),
-                    ),
-                    child: Text(
-                      _province.isEmpty ? l10n.addrPickProvince : _province,
-                      style: text.bodyLarge?.copyWith(
-                        color: _province.isEmpty ? c.tertiaryText : null,
+                LabeledField(
+                  label: l10n.addressProvince,
+                  child: InkWell(
+                    borderRadius: AppRadius.card,
+                    onTap: _pickProvince,
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        errorText: _submitted && _province.isEmpty
+                            ? l10n.addrPickProvince
+                            : null,
+                        suffixIcon: const Icon(Icons.chevron_right_rounded),
+                      ),
+                      child: Text(
+                        _province.isEmpty ? l10n.addrPickProvince : _province,
+                        style: text.bodyLarge?.copyWith(
+                          color: _province.isEmpty ? c.tertiaryText : null,
+                        ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
                 field(_district, l10n.addressDistrict),
                 field(_ward, l10n.addressWard),
                 field(_detail, l10n.addressDetail),

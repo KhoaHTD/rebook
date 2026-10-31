@@ -8,6 +8,7 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/account/presentation/providers/account_providers.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Địa chỉ của tôi: danh sách (tên | số điện thoại, địa chỉ, nhãn Mặc định / Văn phòng), bấm một dòng để sửa,
@@ -24,14 +25,16 @@ class AddressesScreen extends ConsumerWidget {
     return AppPage(
       title: l10n.addresses,
       showBack: true,
-      bottomBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: OutlinedButton.icon(
-            onPressed: () => context.push(Routes.addressNew),
-            icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.addrAddNew),
+      bottomBar: PinnedBar(
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+            child: OutlinedButton.icon(
+              onPressed: () => context.push(Routes.addressNew),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l10n.addrAddNew),
+            ),
           ),
         ),
       ),

@@ -8,6 +8,7 @@ import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/photo_picker.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Hồ sơ cá nhân: ảnh đại diện, họ tên, số điện thoại (email không đổi được).
@@ -86,21 +87,33 @@ class _FormState extends ConsumerState<_Form> {
           onChanged: (urls) => _avatar = urls.firstOrNull,
         ),
         const SizedBox(height: AppSpacing.lg),
-        TextField(
-          enabled: false,
-          controller: TextEditingController(text: widget.user.email),
-          decoration: InputDecoration(labelText: l10n.email),
+        LabeledField(
+          label: l10n.email,
+          bottom: 0,
+          child: TextField(
+            enabled: false,
+            controller: TextEditingController(text: widget.user.email),
+            decoration: const InputDecoration(),
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
-        TextField(
-          controller: _name,
-          decoration: InputDecoration(labelText: l10n.fullName),
+        const SizedBox(height: AppSpacing.lg),
+        LabeledField(
+          label: l10n.fullName,
+          bottom: 0,
+          child: TextField(
+            controller: _name,
+            decoration: const InputDecoration(),
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
-        TextField(
-          controller: _phone,
-          keyboardType: TextInputType.phone,
-          decoration: InputDecoration(labelText: l10n.phone),
+        const SizedBox(height: AppSpacing.lg),
+        LabeledField(
+          label: l10n.phone,
+          bottom: 0,
+          child: TextField(
+            controller: _phone,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(),
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
         FilledButton(onPressed: busy ? null : _save, child: Text(l10n.save)),
