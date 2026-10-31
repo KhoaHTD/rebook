@@ -1046,7 +1046,7 @@
   "addrDelete": "Delete address",
   "addrDone": "Done",
   "addrAddNew": "Add a new address",
-  "addrMapHint": "Tap the map to place the pin. Until you do, it sits at the province centre.",
+  "addrMapHint": "Drag the map so the centre pin sits on the spot you want.",
   "coverTitle": "Cover image",
   "coverHint": "Take or pick a photo of the front cover, then drag the 4 dots to its corners so the app flattens and trims it. This becomes the cover shown in the shop; the real photos below stay untouched so buyers can judge the condition.",
   "coverCamera": "Camera",

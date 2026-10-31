@@ -172,3 +172,9 @@ SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
 - Màn sửa địa chỉ: tỉnh → quận / huyện → phường / xã là ba ô chọn xổ ra; chỉ "số nhà, tên đường" là gõ tay (lý do: gõ tiếng Việt có dấu trên máy ảo / bàn phím không ổn, và gõ tay dễ sai chính tả).
 - Danh sách lấy từ provinces.open-api.vn (miễn phí, không khoá, gọi thẳng từ app, có cache trong bộ nhớ): `core/network/admin_units.dart`. Đổi tỉnh thì xoá quận và phường, đổi quận thì xoá phường.
 - API không tải được thì sheet cho nhập tên thủ công (vẫn qua `Rules.district`). Dữ liệu nguồn là bản 63 tỉnh; nếu sau này SRS chuyển sang địa giới 2 cấp thì đổi nguồn ở đây.
+
+## 2026-11-01 — Chọn vị trí bằng cách kéo bản đồ (ghim cố định giữa khung)
+
+- `OsmMap`: ghim luôn ở giữa khung, người dùng kéo / chụm bản đồ cho tâm trúng chỗ cần chọn; toạ độ lưu là toạ độ ở tâm khi kéo xong. Không còn chạm để đặt ghim.
+- Định vị tự động chỉ di chuyển bản đồ tới điểm tìm được; không làm gì nếu điểm đó đã là tâm hiện tại (tránh giật khi chính cú kéo báo toạ độ lên). Kéo tay thì tự định vị dừng cho tới khi bấm "Định vị theo địa chỉ".
+- Địa chỉ chưa kéo lần nào thì lưu toạ độ tâm tỉnh / điểm tự định vị.

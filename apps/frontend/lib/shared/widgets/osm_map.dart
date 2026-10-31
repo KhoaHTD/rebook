@@ -6,22 +6,24 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/shared/data/vietnam_geo.dart';
 
-/// Bản đồ OpenStreetMap (tile raster, tải theo vùng đang xem). Chạm để đặt ghim, kéo / chụm để di chuyển.
+/// Bản đồ OpenStreetMap (tile raster, tải theo vùng đang xem). Ghim luôn nằm giữa khung: kéo / chụm bản đồ
+/// cho tâm trúng chỗ cần chọn, vị trí là toạ độ ở tâm.
 /// Hoàng Sa và Trường Sa luôn được ghi tên "(Việt Nam)" phủ lên trên nền bản đồ.
 class OsmMap extends StatefulWidget {
   const OsmMap({
     super.key,
     this.point,
-    this.onPick,
+    this.onCenter,
     this.height = 320,
     this.zoom = 15,
   });
 
-  /// Vị trí ghim (vĩ độ, kinh độ); null thì hiện cả nước.
+  /// Vị trí đặt tâm bản đồ (vĩ độ, kinh độ); null thì hiện cả nước. Đổi từ bên ngoài (định vị tự động) thì
+  /// bản đồ chạy tới đó.
   final GeoPoint? point;
 
-  /// Có hàm này thì chạm vào bản đồ để chọn vị trí ghim.
-  final ValueChanged<GeoPoint>? onPick;
+  /// Gọi khi người dùng kéo xong: toạ độ ở tâm bản đồ.
+  final ValueChanged<GeoPoint>? onCenter;
 
   final double height;
 
@@ -46,9 +48,14 @@ class _OsmMapState extends State<OsmMap> {
   void didUpdateWidget(OsmMap old) {
     super.didUpdateWidget(old);
     final pin = _pin;
-    if (pin != null && widget.point != old.point) {
-      _controller.move(pin, widget.zoom);
+    if (pin == null || widget.point == old.point) return;
+    // Điểm vừa do chính cú kéo báo lên thì đã nằm ở tâm, không di chuyển lại.
+    final c = _controller.camera.center;
+    if ((c.latitude - pin.latitude).abs() < 1e-7 &&
+        (c.longitude - pin.longitude).abs() < 1e-7) {
+      return;
     }
+    _controller.move(pin, widget.zoom);
   }
 
   @override
@@ -90,9 +97,23 @@ class _OsmMapState extends State<OsmMap> {
             initialZoom: pin == null ? 4.6 : widget.zoom,
             minZoom: 3,
             maxZoom: 19,
-            onTap: widget.onPick == null
-                ? null
-                : (_, p) => widget.onPick!((p.latitude, p.longitude)),
+            onMapEvent: (e) {
+              // Chỉ báo khi người dùng kéo xong (không báo cho chuyển động do mã gọi).
+              final byUser =
+                  e.source != MapEventSource.mapController &&
+                  e.source != MapEventSource.nonRotatedSizeChange;
+              final done =
+                  e is MapEventMoveEnd ||
+                  e is MapEventFlingAnimationEnd ||
+                  e is MapEventDoubleTapZoomEnd ||
+                  e is MapEventScrollWheelZoom;
+              if (byUser && done && widget.onCenter != null) {
+                widget.onCenter!((
+                  e.camera.center.latitude,
+                  e.camera.center.longitude,
+                ));
+              }
+            },
           ),
           children: [
             TileLayer(
@@ -105,23 +126,19 @@ class _OsmMapState extends State<OsmMap> {
                 islands(_spratly, l10n.mapSpratly),
               ],
             ),
-            if (pin != null)
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: pin,
-                    width: 40,
-                    height: 40,
-                    // Mũi ghim chạm đúng điểm: icon cao 40, mũi ở đáy giữa.
-                    alignment: Alignment.topCenter,
-                    child: const Icon(
-                      Icons.location_on_rounded,
-                      size: 40,
-                      color: MapPalette.pin,
-                    ),
+            // Ghim cố định giữa khung: mũi ghim chạm đúng tâm bản đồ.
+            IgnorePointer(
+              child: Center(
+                child: Transform.translate(
+                  offset: const Offset(0, -20),
+                  child: const Icon(
+                    Icons.location_on_rounded,
+                    size: 40,
+                    color: MapPalette.pin,
                   ),
-                ],
+                ),
               ),
+            ),
             RichAttributionWidget(
               showFlutterMapAttribution: false,
               alignment: AttributionAlignment.bottomRight,

@@ -222,6 +222,7 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
   }
 
   Future<void> _save() async {
+    final pin = _point ?? VietnamGeo.province(_province);
     setState(() => _submitted = true);
     final formOk = _form.currentState?.validate() ?? false;
     if (!formOk || !_valid) return;
@@ -234,8 +235,8 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       ward: Rules.ward.value(_ward.text),
       detail: Rules.street.value(_detail.text),
       isDefault: _default,
-      latitude: _lat,
-      longitude: _lon,
+      latitude: _lat ?? pin?.$1,
+      longitude: _lon ?? pin?.$2,
       type: _type,
     );
     final ok = await ref
@@ -419,7 +420,7 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
                   OsmMap(
                     point: pin,
                     zoom: _point == null ? 8 : 16,
-                    onPick: (p) => setState(() {
+                    onCenter: (p) => setState(() {
                       _manualPin = true;
                       _notFound = false;
                       _lat = p.$1;
