@@ -13,7 +13,7 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 ## Giai đoạn 0 — Chuẩn bị
 - [x] SRS (`docs/SRS.txt`, 3 sơ đồ), `docs/DECISIONS.md` từ backup
 - [x] Allowlist + 5 package đã duyệt: stomp_dart_client, image_picker, url_launcher, firebase_core, firebase_messaging
-- [x] (đã bỏ 2026-11-01) Font Newsreader + Be Vietnam Pro trong `assets/fonts`: nay dùng font hệ thống, thư mục font đã xoá
+- [x] Font Be Vietnam Pro (400–800) giữ trong `assets/fonts` chỉ để test bố cục (`test/layout/admin_staff_layout_test.dart`) vẽ chữ có dấu đúng bề rộng; app dùng font hệ thống, pubspec không khai báo. Các font khác (Playfair Display, Plus Jakarta Sans) đã xoá 2026-11-01.
 - [x] Luật mới trong CLAUDE.md (Firebase chỉ cho FCM, style Apple Books)
 
 ## Giai đoạn 1 — Tầng dữ liệu (từ backup)
