@@ -109,6 +109,11 @@ class AccountScreen extends ConsumerWidget {
                   () => context.go(Routes.wallet),
                 ),
                 row(
+                  Icons.favorite_border_rounded,
+                  l10n.favTitle,
+                  () => context.go(Routes.favorites),
+                ),
+                row(
                   Icons.location_on_outlined,
                   l10n.addresses,
                   () => context.go(Routes.addresses),

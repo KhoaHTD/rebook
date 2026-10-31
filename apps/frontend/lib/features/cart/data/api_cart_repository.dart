@@ -12,8 +12,11 @@ class ApiCartRepository implements CartRepository {
   final api.RestClient _client;
 
   @override
-  Future<Cart> cart({String? addressId}) => guardApi(
-    () async => (await _client.cart.getCart(addressId: addressId)).toDomain(),
+  Future<Cart> cart({String? addressId, List<String>? itemIds}) => guardApi(
+    () async => (await _client.cart.getCart(
+      addressId: addressId,
+      itemIds: itemIds,
+    )).toDomain(),
   );
 
   @override

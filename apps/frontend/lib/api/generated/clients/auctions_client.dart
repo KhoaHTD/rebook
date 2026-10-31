@@ -92,6 +92,17 @@ abstract class AuctionsClient {
     @Path('id') required String id,
   });
 
+  /// Các phiên đấu giá tôi theo dõi (phiên yêu thích).
+  @GET('/me/watched-sessions')
+  Future<List<AuctionSessionDto>> listWatchedSessions();
+
+  /// Theo dõi / bỏ theo dõi cả phiên (khác với theo dõi từng lô).
+  @POST('/sessions/{id}/watch')
+  Future<AuctionSessionDto> watchSession({
+    @Path('id') required String id,
+    @Body() required WatchRequest body,
+  });
+
   @GET('/me/registrations')
   Future<List<RegistrationDto>> listMyRegistrations();
 }

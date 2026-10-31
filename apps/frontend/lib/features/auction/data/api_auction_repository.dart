@@ -80,6 +80,21 @@ class ApiAuctionRepository implements AuctionRepository {
   );
 
   @override
+  Future<List<AuctionSession>> watchedSessions() => guardApi(
+    () async => (await _client.auctions.listWatchedSessions())
+        .map((e) => e.toDomain())
+        .toList(),
+  );
+
+  @override
+  Future<void> watchSession(String sessionId, {required bool on}) => guardApi(
+    () async => _client.auctions.watchSession(
+      id: sessionId,
+      body: api.WatchRequest(watch: on),
+    ),
+  );
+
+  @override
   Future<Lot> watch(String lotId, {required bool on}) => guardApi(
     () async => (await _client.auctions.watchLot(
       id: lotId,

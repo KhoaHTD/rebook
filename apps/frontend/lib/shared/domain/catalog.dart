@@ -81,6 +81,10 @@ abstract class Listing with _$Listing {
     required ListingStatus status,
     required DateTime createdAt,
     String? rejectReason,
+
+    /// Admin duyệt / từ chối tin này và lúc nào (SRS 8.1: nhật ký).
+    String? reviewedBy,
+    DateTime? reviewedAt,
   }) = _Listing;
 
   bool get purchasable => status == ListingStatus.active && stock > 0;

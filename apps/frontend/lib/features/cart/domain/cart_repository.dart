@@ -4,8 +4,9 @@ import 'package:book_marketplace/shared/domain/user.dart';
 
 /// Giỏ hàng nhiều shop, đặt hàng và kết quả thanh toán (SRS 4.2, 8.1).
 abstract interface class CartRepository {
-  /// Phí ship tính theo [addressId] (mặc định: địa chỉ mặc định).
-  Future<Cart> cart({String? addressId});
+  /// Phí ship tính theo [addressId] (mặc định: địa chỉ mặc định). [itemIds] null = cả giỏ; có danh sách thì chỉ
+  /// tính các món đã chọn (tạm tính + ship theo khối lượng các món này).
+  Future<Cart> cart({String? addressId, List<String>? itemIds});
 
   Future<Cart> updateItem(String itemId, int quantity);
 

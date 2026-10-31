@@ -103,6 +103,32 @@ class WithdrawalsScreen extends ConsumerWidget {
                                   formatDateTime(w.createdAt),
                                   style: context.textStyles.bodySmall,
                                 ),
+                                if (w.bankName != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      l10n.admWdPayTo(
+                                        w.bankName!,
+                                        w.bankAccountNumber ?? '',
+                                        w.bankAccountName ?? '',
+                                      ),
+                                      style: context.textStyles.bodyMedium,
+                                    ),
+                                  ),
+                                if (w.note != null)
+                                  Text(
+                                    l10n.admWdNote(w.note!),
+                                    style: context.textStyles.bodySmall,
+                                  ),
+                                if (w.approvedBy != null &&
+                                    w.approvedAt != null)
+                                  Text(
+                                    l10n.admApprovedBy(
+                                      w.approvedBy!,
+                                      formatDateTime(w.approvedAt!),
+                                    ),
+                                    style: context.textStyles.bodySmall,
+                                  ),
                                 if (w.receipt != null)
                                   TextButton(
                                     style: TextButton.styleFrom(

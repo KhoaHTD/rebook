@@ -204,9 +204,21 @@ class FlatMoneyRow extends StatelessWidget {
 
 /// Nhóm một shop trong giỏ: tên shop, các dòng sách, phí ship của shop.
 class FlatCartGroup extends StatelessWidget {
-  const FlatCartGroup({super.key, required this.group, this.onQuantity});
+  const FlatCartGroup({
+    super.key,
+    required this.group,
+    this.onQuantity,
+    this.excluded = const {},
+    this.onToggleItem,
+    this.onToggleShop,
+  });
 
   final CartGroup group;
+
+  /// Các món đang bỏ chọn; [onToggleItem] / [onToggleShop] null = không hiện ô chọn (bước xác nhận).
+  final Set<String> excluded;
+  final ValueChanged<CartItem>? onToggleItem;
+  final ValueChanged<bool>? onToggleShop;
 
   /// null = chỉ xem.
   final void Function(CartItem item, int quantity)? onQuantity;
@@ -225,6 +237,14 @@ class FlatCartGroup extends StatelessWidget {
             onTap: () => context.go(Routes.shop(group.shop.id)),
             child: Row(
               children: [
+                if (onToggleShop != null) ...[
+                  _TickBox(
+                    value: _shopState(group, excluded),
+                    onChanged: () =>
+                        onToggleShop!(_shopState(group, excluded) != true),
+                  ),
+                  const SizedBox(width: 6),
+                ],
                 Icon(
                   Icons.storefront_outlined,
                   size: 18,
@@ -251,7 +271,14 @@ class FlatCartGroup extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           for (final item in group.items)
-            _FlatItemRow(item: item, onQuantity: onQuantity),
+            _FlatItemRow(
+              item: item,
+              onQuantity: onQuantity,
+              selected: onToggleItem == null
+                  ? null
+                  : !excluded.contains(item.id),
+              onToggle: onToggleItem,
+            ),
           Divider(height: 1, color: c.separator),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -276,11 +303,89 @@ class FlatCartGroup extends StatelessWidget {
   }
 }
 
+/// true = chọn hết, false = không chọn món nào, null = chọn một phần.
+bool? _shopState(CartGroup g, Set<String> excluded) {
+  final selected = g.items.where((i) => !excluded.contains(i.id)).length;
+  if (selected == g.items.length) return true;
+  return selected == 0 ? false : null;
+}
+
+/// Ô chọn nhỏ gọn cho giỏ hàng.
+class _TickBox extends StatelessWidget {
+  const _TickBox({required this.value, required this.onChanged});
+
+  final bool? value;
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: 28,
+    child: Checkbox(
+      value: value,
+      tristate: true,
+      shape: const CircleBorder(),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      onChanged: (_) => onChanged(),
+    ),
+  );
+}
+
+/// Dòng "Chọn tất cả" ở đầu giỏ.
+class CartSelectAllBar extends StatelessWidget {
+  const CartSelectAllBar({
+    super.key,
+    required this.selectedCount,
+    required this.totalCount,
+    required this.onChanged,
+  });
+
+  final int selectedCount;
+  final int totalCount;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final all = selectedCount == totalCount;
+    return Row(
+      children: [
+        _TickBox(
+          value: all ? true : (selectedCount == 0 ? false : null),
+          onChanged: () => onChanged(!all),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            all ? l10n.cartDeselectAll : l10n.cartSelectAll,
+            style: context.textStyles.titleSmall,
+          ),
+        ),
+        Text(
+          l10n.cartSelectedN(selectedCount),
+          style: context.textStyles.bodySmall?.copyWith(
+            color: context.appColors.secondaryText,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _FlatItemRow extends StatelessWidget {
-  const _FlatItemRow({required this.item, this.onQuantity});
+  const _FlatItemRow({
+    required this.item,
+    this.onQuantity,
+    this.selected,
+    this.onToggle,
+  });
 
   final CartItem item;
   final void Function(CartItem item, int quantity)? onQuantity;
+
+  /// null = không hiện ô chọn.
+  final bool? selected;
+  final ValueChanged<CartItem>? onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -316,6 +421,16 @@ class _FlatItemRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (selected != null) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: _TickBox(
+                value: selected,
+                onChanged: () => onToggle?.call(item),
+              ),
+            ),
+            const SizedBox(width: 6),
+          ],
           GestureDetector(
             onTap: () => context.go(Routes.listing(item.listing.id)),
             child: Container(

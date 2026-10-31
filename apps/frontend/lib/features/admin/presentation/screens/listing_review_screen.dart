@@ -7,6 +7,7 @@ import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/admin_kit.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
@@ -112,6 +113,67 @@ class _ListingReviewScreenState extends ConsumerState<ListingReviewScreen> {
               },
             );
           },
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        const _ReviewedListings(),
+      ],
+    );
+  }
+}
+
+/// Tin đã xử lý gần đây kèm người duyệt và thời gian duyệt (SRS 8.1).
+class _ReviewedListings extends ConsumerWidget {
+  const _ReviewedListings();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final c = context.appColors;
+    final items =
+        ref.watch(reviewedListingsProvider).value ?? const <Listing>[];
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.admReviewedListingsTitle,
+          style: context.textStyles.titleMedium,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 820),
+          child: InfoPanel(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Column(
+              children: [
+                for (final (i, l) in items.take(10).indexed) ...[
+                  if (i > 0) Divider(height: 1, indent: 16, color: c.separator),
+                  ListTile(
+                    title: Text(
+                      l.book.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      l.status == ListingStatus.rejected
+                          ? l10n.admRejectedBy(
+                              l.reviewedBy ?? '',
+                              formatDateTime(l.reviewedAt ?? l.createdAt),
+                            )
+                          : l10n.admApprovedBy(
+                              l.reviewedBy ?? '',
+                              formatDateTime(l.reviewedAt ?? l.createdAt),
+                            ),
+                    ),
+                    trailing: StatusPill(
+                      l.status.label(l10n),
+                      tone: l.status.tone,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ],
     );

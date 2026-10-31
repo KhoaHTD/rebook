@@ -9,6 +9,7 @@ import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_stage_widgets.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auto_shelf.dart';
+import 'package:book_marketplace/features/auction/presentation/widgets/session_watch_button.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 
 /// Một phiên đấu giá trên trang chủ: tên phiên, trạng thái (LIVE hoặc giờ mở), số lô, số người đăng ký, bên dưới là
@@ -32,67 +33,78 @@ class SessionShelfCard extends ConsumerWidget {
       onTap: () => context.go(
         session.isLive ? Routes.live(session.id) : Routes.session(session.id),
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: c.fill,
-          borderRadius: BorderRadius.circular(26),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (session.isLive)
-                    const LiveBadge()
-                  else
-                    Text(
-                      formatShortDateTime(session.startAt),
-                      style: text.labelLarge?.copyWith(
-                        color: c.tint,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  const SizedBox(height: 6),
-                  Text(
-                    session.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: text.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${l10n.lotsCount(session.lotCount)} · ${l10n.registeredCount(session.registeredCount)}',
-                    style: text.bodySmall?.copyWith(color: c.secondaryText),
-                  ),
-                ],
-              ),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+            decoration: BoxDecoration(
+              color: c.fill,
+              borderRadius: BorderRadius.circular(26),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            if (lots.isEmpty)
-              const SizedBox(height: 116)
-            else
-              AutoShelf(
-                bookWidth: 70,
-                height: 116,
-                books: [
-                  for (final l in lots)
-                    ShelfBook(
-                      id: l.id,
-                      title: l.book.title,
-                      author: l.book.author,
-                      coverUrl: l.book.coverUrl,
-                      onTap: () => context.go(Routes.lot(l.id)),
-                    ),
-                ],
-              ),
-          ],
-        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (session.isLive)
+                        const LiveBadge()
+                      else
+                        Text(
+                          formatShortDateTime(session.startAt),
+                          style: text.labelLarge?.copyWith(
+                            color: c.tint,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      const SizedBox(height: 6),
+                      Text(
+                        session.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${l10n.lotsCount(session.lotCount)} · ${l10n.registeredCount(session.registeredCount)}',
+                        style: text.bodySmall?.copyWith(color: c.secondaryText),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                if (lots.isEmpty)
+                  const SizedBox(height: 116)
+                else
+                  AutoShelf(
+                    bookWidth: 70,
+                    height: 116,
+                    books: [
+                      for (final l in lots)
+                        ShelfBook(
+                          id: l.id,
+                          title: l.book.title,
+                          author: l.book.author,
+                          coverUrl: l.book.coverUrl,
+                          onTap: () => context.go(Routes.lot(l.id)),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: SessionWatchButton(sessionId: session.id),
+          ),
+        ],
       ),
     );
   }

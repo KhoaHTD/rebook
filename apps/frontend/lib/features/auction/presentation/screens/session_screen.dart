@@ -10,6 +10,7 @@ import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_widgets.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auto_shelf.dart';
+import 'package:book_marketplace/features/auction/presentation/widgets/session_watch_button.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
@@ -30,6 +31,7 @@ class SessionScreen extends ConsumerWidget {
     return AppPage(
       title: data.value?.$1.title ?? l10n.auctionsTitle,
       showBack: true,
+      actions: [SessionWatchButton(sessionId: sessionId)],
       onRefresh: () => ref.refresh(sessionCatalogueProvider(sessionId).future),
       children: [
         AsyncValueView(

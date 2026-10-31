@@ -194,6 +194,14 @@ paths:
       security: []
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ListingDto' } } } } }
+  /listings/{id}/favorite:
+    post:
+      tags: [Listings]
+      operationId: setFavoriteListing
+      description: Thêm / bỏ một tin bán khỏi danh sách yêu thích (SRS 3, mở rộng).
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FavoriteRequest' } } } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ListingDto' } } } } }
   /home/feed:
     get:
       tags: [Listings]
@@ -241,7 +249,9 @@ paths:
     get:
       tags: [Cart]
       operationId: getCart
-      parameters: [ { name: addressId, in: query, description: Địa chỉ để tính phí ship, schema: { type: string } } ]
+      parameters:
+        - { name: addressId, in: query, description: Địa chỉ để tính phí ship, schema: { type: string } }
+        - { name: itemIds, in: query, description: 'Chỉ tính các món giỏ đã chọn (mặc định cả giỏ). Phí ship tính lại theo khối lượng các món này.', schema: { type: array, items: { type: string } } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/CartDto' } } } } }
     post:
       tags: [Cart]
@@ -395,7 +405,8 @@ paths:
     post:
       tags: [Wallet]
       operationId: requestWithdrawal
-      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AmountRequest' } } } }
+      description: Tạo yêu cầu rút tiền. Backend kiểm tra thông tin ngân hàng và available_balance đủ số tiền; ví chỉ bị trừ khi Admin duyệt (SRS 8.1).
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalRequest' } } } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalDto' } } } } }
   /payments/{id}:
     get:
@@ -623,6 +634,26 @@ paths:
       operationId: declineSecondChanceOffer
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/SecondChanceOfferDto' } } } } }
+  /me/favorites:
+    get:
+      tags: [Listings]
+      operationId: listFavoriteListings
+      description: Sách tôi đã thả tim, mới nhất trước.
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ListingDto' } } } } } }
+  /me/watched-sessions:
+    get:
+      tags: [Auctions]
+      operationId: listWatchedSessions
+      description: Các phiên đấu giá tôi theo dõi (phiên yêu thích).
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/AuctionSessionDto' } } } } } }
+  /sessions/{id}/watch:
+    post:
+      tags: [Auctions]
+      operationId: watchSession
+      description: Theo dõi / bỏ theo dõi cả phiên (khác với theo dõi từng lô).
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WatchRequest' } } } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/AuctionSessionDto' } } } } }
   /me/registrations:
     get:
       tags: [Auctions]
@@ -787,7 +818,8 @@ paths:
     get:
       tags: [Admin]
       operationId: adminListDisputes
-      description: Yêu cầu trả hàng bị shop từ chối, chờ Admin phân xử.
+      description: Yêu cầu trả hàng bị shop từ chối, chờ Admin phân xử; resolved=true thì trả các yêu cầu đã phân xử (kèm resolvedBy / resolvedAt).
+      parameters: [ { name: resolved, in: query, schema: { type: boolean } } ]
       responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/OrderDto' } } } } } }
   /admin/returns/{id}/resolve:
     post:
@@ -940,6 +972,8 @@ components:
         ward: { type: string }
         detail: { type: string }
         isDefault: { type: boolean }
+        latitude: { type: number, format: double, description: Vị trí người dùng ghim trên bản đồ (SRS 9 — addresses). }
+        longitude: { type: number, format: double }
     AddressRequest:
       type: object
       required: [receiver, phone, province, district, ward, detail, isDefault]
@@ -951,6 +985,8 @@ components:
         ward: { type: string }
         detail: { type: string }
         isDefault: { type: boolean }
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
     RegisterDeviceRequest:
       type: object
       required: [fcmToken, platform]
@@ -1070,6 +1106,8 @@ components:
         status: { $ref: '#/components/schemas/ListingStatus' }
         rejectReason: { type: string }
         createdAt: { type: string, format: date-time }
+        reviewedBy: { type: string, description: Tên Admin duyệt / từ chối. }
+        reviewedAt: { type: string, format: date-time }
     ListingPage:
       type: object
       required: [items, page, size, total]
@@ -1199,6 +1237,8 @@ components:
         imageUrls: { type: array, items: { type: string } }
         status: { $ref: '#/components/schemas/ReturnStatus' }
         resolution: { type: string }
+        resolvedBy: { type: string, description: Tên Admin phân xử. }
+        resolvedAt: { type: string, format: date-time }
         respondBy: { type: string, format: date-time, description: 'Hạn shop / kho trả lời (SRS 4.4). Quá hạn thì yêu cầu tự chuyển Admin phân xử (status ESCALATED).' }
     ReturnDecisionRequest:
       type: object
@@ -1293,6 +1333,12 @@ components:
         amount: { type: integer, format: int64 }
         status: { $ref: '#/components/schemas/WithdrawalStatus' }
         createdAt: { type: string, format: date-time }
+        bankName: { type: string }
+        bankAccountNumber: { type: string }
+        bankAccountName: { type: string }
+        note: { type: string }
+        approvedBy: { type: string, description: Tên Admin duyệt. }
+        approvedAt: { type: string, format: date-time }
         receipt: { $ref: '#/components/schemas/WithdrawalReceiptDto' }
     WithdrawalReceiptDto:
       type: object
@@ -1329,6 +1375,16 @@ components:
         amount: { type: integer, format: int64, description: Giá người nhận lời mời đã trả (giá mua). }
         expiresAt: { type: string, format: date-time, description: Hạn 24h. }
         status: { $ref: '#/components/schemas/SecondChanceOfferStatus' }
+    WithdrawalRequest:
+      type: object
+      required: [amount, bankName, bankAccountNumber, bankAccountName]
+      properties:
+        amount: { type: integer, format: int64 }
+        bankName: { type: string }
+        bankAccountNumber: { type: string }
+        bankAccountName: { type: string, description: IN HOA, không dấu. }
+        note: { type: string }
+    FavoriteRequest: { type: object, required: [favorite], properties: { favorite: { type: boolean } } }
     UploadSignatureRequest: { type: object, required: [folder], properties: { folder: { type: string } } }
     UploadSignatureDto:
       type: object

@@ -1042,6 +1042,24 @@ extension FakeAuction on FakeStore {
     );
   }
 
+  // ───────────────────────── theo dõi phiên ─────────────────────────
+
+  List<AuctionSession> watchedSessionList() {
+    final ids = watchedSessionIds[_uid] ?? const <String>[];
+    return [
+      for (final id in ids)
+        if (sessions[id] != null) sessions[id]!,
+    ];
+  }
+
+  void setSessionWatch(String id, {required bool on}) {
+    if (sessions[id] == null) fail(ErrorCodes.notFound, 404);
+    final list = watchedSessionIds.putIfAbsent(_uid, () => []);
+    list.remove(id);
+    if (on) list.insert(0, id);
+    _changed('auctions');
+  }
+
   // ───────────────────────── mời mua lần hai (SRS 6.6) ─────────────────────────
 
   /// Lời mời của tôi, mới nhất trước; lời mời quá hạn 24h tự thành "hết hạn".

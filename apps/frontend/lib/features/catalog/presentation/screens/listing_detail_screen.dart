@@ -7,6 +7,7 @@ import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
+import 'package:book_marketplace/features/catalog/presentation/widgets/favorite_button.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
@@ -35,6 +36,7 @@ class ListingDetailScreen extends ConsumerWidget {
     return AppPage(
       title: l?.book.title ?? '',
       showBack: true,
+      actions: [if (l != null) FavoriteButton(listingId: l.id)],
       // Nền cả trang = chính bìa sách, phóng to + làm mờ; chữ nằm trong khung kính.
       background: l == null
           ? null
@@ -402,7 +404,10 @@ class _CompactBook extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 48),
+                  if (l == null)
+                    const SizedBox(width: 48)
+                  else
+                    FavoriteButton(listingId: l.id),
                 ],
               ),
             ),

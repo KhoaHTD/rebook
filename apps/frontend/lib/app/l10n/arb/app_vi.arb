@@ -1335,6 +1335,63 @@
   "admActWithdrawalCompleted": "Duyệt rút tiền",
   "admActConfigChanged": "Đổi cấu hình",
   "admReturnResponseDays": "Hạn shop trả lời yêu cầu trả hàng (ngày)",
+  "admWdPayTo": "Chuyển tới {bank} · {number} · {name}",
+  "@admWdPayTo": {
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "admWdNote": "Ghi chú: {note}",
+  "@admWdNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "admApprovedBy": "Duyệt bởi {name} · {time}",
+  "@admApprovedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "admRejectedBy": "Từ chối bởi {name} · {time}",
+  "@admRejectedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "admResolvedBy": "Phân xử bởi {name} · {time}",
+  "@admResolvedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "admReviewedListingsTitle": "Đã xử lý gần đây",
+  "admResolvedDisputesTitle": "Đã phân xử",
   "modeBooks": "Mua sách",
   "modeAuction": "Đấu giá",
   "modeBackToBooks": "Về Mua sách",
@@ -1571,5 +1628,38 @@
   "offerStatusAccepted": "Đã mua",
   "offerStatusDeclined": "Đã từ chối",
   "offerStatusExpired": "Hết hạn",
-  "auctionAccountOffers": "Lời mời mua lần hai"
+  "auctionAccountOffers": "Lời mời mua lần hai",
+  "wdBank": "Ngân hàng",
+  "wdBankHint": "Chọn ngân hàng nhận tiền",
+  "wdAccountNumber": "Số tài khoản nhận",
+  "wdAccountName": "Tên chủ tài khoản (IN HOA, không dấu)",
+  "wdNote": "Ghi chú (nếu có)",
+  "wdNeedBank": "Chọn ngân hàng",
+  "wdNeedNumber": "Nhập số tài khoản (6–19 chữ số)",
+  "wdNeedName": "Nhập tên chủ tài khoản",
+  "wdDeductHint": "Tiền chỉ bị trừ khỏi ví khi Admin duyệt và chuyển khoản.",
+  "favTitle": "Sách yêu thích",
+  "favEmpty": "Chưa có sách yêu thích",
+  "favEmptyHint": "Bấm biểu tượng trái tim trên trang sách để lưu lại.",
+  "favAdd": "Thêm vào yêu thích",
+  "favRemove": "Bỏ yêu thích",
+  "sessWatch": "Theo dõi phiên",
+  "sessUnwatch": "Bỏ theo dõi phiên",
+  "addrPin": "Ghim vị trí trên bản đồ",
+  "addrPinned": "Đã ghim vị trí",
+  "addrPinTitle": "Chọn vị trí giao hàng",
+  "addrPinHint": "Chạm vào bản đồ để đặt ghim. Mặc định ghim ở tâm tỉnh / thành.",
+  "addrPinUse": "Dùng vị trí này",
+  "addrPinClear": "Bỏ ghim",
+  "cartSelectAll": "Chọn tất cả",
+  "cartDeselectAll": "Bỏ chọn tất cả",
+  "cartSelectedN": "Đã chọn {n} cuốn",
+  "@cartSelectedN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "cartNothingSelected": "Chọn ít nhất một cuốn để thanh toán"
 }

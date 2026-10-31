@@ -36,7 +36,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Future<void> _place(String addressId) async {
     final result = await ref
         .read(checkoutControllerProvider.notifier)
-        .placeOrder(addressId: addressId, method: _method);
+        .placeOrder(
+          addressId: addressId,
+          method: _method,
+          itemIds: ref.read(selectedCartItemIdsProvider),
+        );
     if (!mounted) return;
     final error = ref.read(checkoutControllerProvider).error;
     if (error != null || result == null) {
@@ -105,7 +109,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       builder: (sheet) {
         final text = sheet.textStyles;
         final c = sheet.appColors;
-        final located = VietnamGeo.province(address.province) != null;
+        final pin = address.hasPin
+            ? (address.latitude!, address.longitude!)
+            : null;
+        final located =
+            pin != null || VietnamGeo.province(address.province) != null;
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -122,7 +130,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   constraints: BoxConstraints(
                     maxHeight: MediaQuery.sizeOf(sheet).height * 0.5,
                   ),
-                  child: Center(child: VietnamMap(province: address.province)),
+                  child: Center(
+                    child: VietnamMap(province: address.province, point: pin),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -136,7 +146,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  located ? l10n.mapApprox : l10n.mapNoPin,
+                  pin != null
+                      ? l10n.addrPinned
+                      : located
+                      ? l10n.mapApprox
+                      : l10n.mapNoPin,
                   style: text.bodySmall?.copyWith(color: c.tertiaryText),
                 ),
                 const SizedBox(height: 14),
@@ -304,7 +318,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final cart = ref.watch(cartControllerProvider);
+    final cart = ref.watch(selectedCartProvider);
     final addresses = ref.watch(checkoutAddressesProvider);
     final wallet = ref.watch(checkoutWalletProvider).value;
     final selectedId = ref.watch(selectedAddressProvider);
@@ -409,7 +423,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         const SizedBox(height: AppSpacing.lg),
         AsyncValueView(
           value: cart,
-          onRetry: () => ref.invalidate(cartControllerProvider),
+          onRetry: () => ref.invalidate(selectedCartProvider),
           data: (c) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

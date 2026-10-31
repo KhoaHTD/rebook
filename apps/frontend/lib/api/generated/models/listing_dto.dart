@@ -21,6 +21,8 @@ class ListingDto {
     required this.status,
     required this.createdAt,
     this.rejectReason,
+    this.reviewedBy,
+    this.reviewedAt,
   });
 
   factory ListingDto.fromJson(Map<String, Object?> json) =>
@@ -34,6 +36,10 @@ class ListingDto {
   final ListingStatus status;
   final String? rejectReason;
   final DateTime createdAt;
+
+  /// Tên Admin duyệt / từ chối.
+  final String? reviewedBy;
+  final DateTime? reviewedAt;
 
   Map<String, Object?> toJson() => _$ListingDtoToJson(this);
 }

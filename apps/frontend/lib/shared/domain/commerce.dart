@@ -82,6 +82,10 @@ abstract class ReturnRequest with _$ReturnRequest {
 
     /// Hạn shop / kho trả lời; quá hạn thì tự chuyển Admin phân xử (SRS 4.4).
     DateTime? respondBy,
+
+    /// Admin phân xử và lúc nào (SRS 8.1: nhật ký).
+    String? resolvedBy,
+    DateTime? resolvedAt,
   }) = _ReturnRequest;
 }
 
@@ -178,6 +182,16 @@ abstract class Withdrawal with _$Withdrawal {
     required WithdrawalStatus status,
     required DateTime createdAt,
     String? userName,
+
+    /// Thông tin nhận tiền người bán nhập khi tạo yêu cầu.
+    String? bankName,
+    String? bankAccountNumber,
+    String? bankAccountName,
+    String? note,
+
+    /// Admin duyệt và lúc nào.
+    String? approvedBy,
+    DateTime? approvedAt,
 
     /// Biên lai chuyển khoản Admin nhập khi duyệt (SRS 8.1).
     WithdrawalReceipt? receipt,

@@ -185,6 +185,14 @@ class ApiAdminRepository implements AdminRepository {
   );
 
   @override
+  Future<List<Order>> resolvedDisputes() => guardApi(
+    () async =>
+        (await _admin.adminListDisputes(resolved: true))
+            .map((e) => e.toDomain())
+            .toList(),
+  );
+
+  @override
   Future<List<Order>> disputes() => guardApi(
     () async =>
         (await _admin.adminListDisputes()).map((e) => e.toDomain()).toList(),

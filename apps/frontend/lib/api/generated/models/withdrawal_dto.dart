@@ -17,6 +17,12 @@ class WithdrawalDto {
     required this.status,
     required this.createdAt,
     this.userName,
+    this.bankName,
+    this.bankAccountNumber,
+    this.bankAccountName,
+    this.note,
+    this.approvedBy,
+    this.approvedAt,
     this.receipt,
   });
 
@@ -28,6 +34,14 @@ class WithdrawalDto {
   final int amount;
   final WithdrawalStatus status;
   final DateTime createdAt;
+  final String? bankName;
+  final String? bankAccountNumber;
+  final String? bankAccountName;
+  final String? note;
+
+  /// Tên Admin duyệt.
+  final String? approvedBy;
+  final DateTime? approvedAt;
   final WithdrawalReceiptDto? receipt;
 
   Map<String, Object?> toJson() => _$WithdrawalDtoToJson(this);

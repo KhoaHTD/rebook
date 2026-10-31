@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/account/presentation/providers/account_providers.dart';
+import 'package:book_marketplace/shared/data/vietnam_geo.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
+import 'package:book_marketplace/shared/widgets/vietnam_map.dart';
 
 /// Sổ địa chỉ giao hàng: thêm, sửa, xoá, đặt mặc định.
 class AddressesScreen extends ConsumerWidget {
@@ -186,6 +188,8 @@ class _AddressSheetState extends State<_AddressSheet> {
       ),
   };
   late var _default = widget.address?.isDefault ?? false;
+  late double? _lat = widget.address?.latitude;
+  late double? _lon = widget.address?.longitude;
 
   @override
   void dispose() {
@@ -236,6 +240,34 @@ class _AddressSheetState extends State<_AddressSheet> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
               ],
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final r = await showModalBottomSheet<_PinResult>(
+                    context: context,
+                    useRootNavigator: true,
+                    isScrollControlled: true,
+                    builder: (_) => _PinSheet(
+                      province: v('province'),
+                      point: _lat == null || _lon == null
+                          ? null
+                          : (_lat!, _lon!),
+                    ),
+                  );
+                  if (r == null) return;
+                  setState(() {
+                    _lat = r.point?.$1;
+                    _lon = r.point?.$2;
+                  });
+                },
+                icon: Icon(
+                  _lat == null
+                      ? Icons.add_location_alt_outlined
+                      : Icons.location_on_rounded,
+                  size: 18,
+                  color: _lat == null ? null : MapPalette.pin,
+                ),
+                label: Text(_lat == null ? l10n.addrPin : l10n.addrPinned),
+              ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(l10n.addressDefault),
@@ -257,6 +289,8 @@ class _AddressSheetState extends State<_AddressSheet> {
                       ward: v('ward'),
                       detail: v('detail'),
                       isDefault: _default,
+                      latitude: _lat,
+                      longitude: _lon,
                     ),
                   );
                 },
@@ -264,6 +298,70 @@ class _AddressSheetState extends State<_AddressSheet> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Kết quả tờ chọn vị trí: [point] null = bỏ ghim.
+class _PinResult {
+  const _PinResult(this.point);
+
+  final GeoPoint? point;
+}
+
+/// Chạm vào sơ đồ Việt Nam để đặt ghim; mặc định ghim ở tâm tỉnh / thành của địa chỉ (SRS 9: toạ độ địa chỉ).
+class _PinSheet extends StatefulWidget {
+  const _PinSheet({required this.province, this.point});
+
+  final String province;
+  final GeoPoint? point;
+
+  @override
+  State<_PinSheet> createState() => _PinSheetState();
+}
+
+class _PinSheetState extends State<_PinSheet> {
+  late GeoPoint? _point = widget.point ?? VietnamGeo.province(widget.province);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.addrPinTitle, style: context.textStyles.titleLarge),
+            const SizedBox(height: AppSpacing.xs),
+            Text(l10n.addrPinHint, style: context.textStyles.bodySmall),
+            const SizedBox(height: AppSpacing.md),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+              ),
+              child: Center(
+                child: VietnamMap(
+                  point: _point,
+                  onPick: (p) => setState(() => _point = p),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            FilledButton(
+              onPressed: _point == null
+                  ? null
+                  : () => Navigator.pop(context, _PinResult(_point)),
+              child: Text(l10n.addrPinUse),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, const _PinResult(null)),
+              child: Text(l10n.addrPinClear),
+            ),
+          ],
         ),
       ),
     );

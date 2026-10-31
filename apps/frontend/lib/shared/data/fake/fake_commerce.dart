@@ -213,11 +213,31 @@ extension FakeCommerce on FakeStore {
 
   List<ActivityLog> allActivityLogs() => List.of(activityLogs);
 
+  // ───────────────────────── yêu thích ─────────────────────────
+
+  List<Listing> favoriteListings() {
+    final ids = favorites[_uid] ?? const <String>[];
+    return [
+      for (final id in ids)
+        if (_listings[id] != null) _listings[id]!.listing,
+    ];
+  }
+
+  void setFavorite(String id, {required bool on}) {
+    if (_listings[id] == null) fail(ErrorCodes.notFound, 404);
+    final list = favorites.putIfAbsent(_uid, () => []);
+    list.remove(id);
+    if (on) list.insert(0, id);
+    _changed('favorites');
+  }
+
   Listing reviewListing(String id, {required bool approve, String? reason}) {
     final row = _listings[id] ?? fail(ErrorCodes.notFound, 404);
     row.listing = row.listing.copyWith(
       status: approve ? ListingStatus.active : ListingStatus.rejected,
       rejectReason: approve ? null : reason,
+      reviewedBy: me.fullName,
+      reviewedAt: DateTime.now(),
     );
     notify(
       row.shopOwnerId,
@@ -275,8 +295,11 @@ extension FakeCommerce on FakeStore {
     return base + extra;
   }
 
-  Cart cart({String? addressId}) {
-    final items = _cart[_uid] ?? const [];
+  Cart cart({String? addressId, List<String>? itemIds}) {
+    final items = [
+      for (final it in _cart[_uid] ?? const <CartItem>[])
+        if (itemIds == null || itemIds.contains(it.id)) it,
+    ];
     final address = myAddresses()
         .where((a) => a.id == addressId || (addressId == null && a.isDefault))
         .firstOrNull;
@@ -966,29 +989,39 @@ extension FakeCommerce on FakeStore {
             ? ReturnStatus.resolvedRefund
             : ReturnStatus.resolvedNoRefund,
         resolution: note,
+        resolvedBy: me.fullName,
+        resolvedAt: DateTime.now(),
       ),
     );
     return orders[id]!;
   }
 
+  List<Order> resolvedDisputes() =>
+      orders.values.where((o) => o.returnRequest?.resolvedBy != null).toList();
+
   // ───────────────────────── wallet ─────────────────────────
 
   List<WalletTxn> myTxns() => List.of(txns[_uid] ?? const []);
 
-  Withdrawal requestWithdrawal(int amount) {
+  /// Tạo yêu cầu rút: chỉ kiểm tra số dư khả dụng đủ; ví bị trừ khi Admin duyệt (SRS 8.1).
+  Withdrawal requestWithdrawal(
+    int amount, {
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    String? note,
+  }) {
     if (walletOf(_uid).available < amount) fail(ErrorCodes.insufficientBalance);
-    _ledger(
-      _uid,
-      WalletTxnType.withdraw,
-      availableDelta: -amount,
-      note: 'Yêu cầu rút tiền',
-    );
     final w = Withdrawal(
       id: _id('wd'),
       amount: amount,
       status: WithdrawalStatus.pending,
       createdAt: DateTime.now(),
       userName: me.fullName,
+      bankName: bankName,
+      bankAccountNumber: accountNumber,
+      bankAccountName: accountName,
+      note: note,
     );
     withdrawals.insert(0, w);
     _withdrawalOwner[w.id] = _uid;
@@ -1008,9 +1041,22 @@ extension FakeCommerce on FakeStore {
     if (receipt.amount != withdrawals[idx].amount) {
       fail(ErrorCodes.receiptMismatch, 422);
     }
+    // Trừ ví lúc duyệt: kiểm tra lại số dư vì người bán có thể đã tiêu mất tiền trong lúc chờ.
+    final owner = _withdrawalOwner[id]!;
+    if (walletOf(owner).available < receipt.amount) {
+      fail(ErrorCodes.insufficientBalance);
+    }
+    _ledger(
+      owner,
+      WalletTxnType.withdraw,
+      availableDelta: -receipt.amount,
+      note: 'Rút tiền về ${withdrawals[idx].bankName ?? 'ngân hàng'}',
+    );
     withdrawals[idx] = withdrawals[idx].copyWith(
       status: WithdrawalStatus.completed,
       receipt: receipt,
+      approvedBy: me.fullName,
+      approvedAt: DateTime.now(),
     );
     _log(
       AdminAction.withdrawalCompleted,

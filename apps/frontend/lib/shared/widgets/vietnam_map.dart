@@ -8,10 +8,22 @@ import 'package:book_marketplace/shared/data/vietnam_geo.dart';
 /// đảo Trường Sa của Việt Nam** (có ghi tên), kèm ghim ở tỉnh / thành [province]. Không cần mạng, khoá API hay
 /// package bản đồ. Ghim chỉ chính xác tới cấp tỉnh / thành.
 class VietnamMap extends StatelessWidget {
-  const VietnamMap({super.key, this.province, this.aspectRatio = 0.86});
+  const VietnamMap({
+    super.key,
+    this.province,
+    this.point,
+    this.onPick,
+    this.aspectRatio = 0.86,
+  });
 
   /// Tên tỉnh / thành của địa chỉ cần ghim (không nhận ra thì không ghim).
   final String? province;
+
+  /// Vị trí người dùng đã ghim (vĩ độ, kinh độ); ưu tiên hơn tâm tỉnh.
+  final GeoPoint? point;
+
+  /// Có hàm này thì chạm vào bản đồ để chọn vị trí ghim.
+  final ValueChanged<GeoPoint>? onPick;
 
   /// Rộng / cao của khung vẽ.
   final double aspectRatio;
@@ -19,7 +31,8 @@ class VietnamMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final pin = province == null ? null : VietnamGeo.province(province!);
+    final pin =
+        point ?? (province == null ? null : VietnamGeo.province(province!));
     return AspectRatio(
       aspectRatio: aspectRatio,
       child: LayoutBuilder(
@@ -28,31 +41,37 @@ class VietnamMap extends StatelessWidget {
           final at = pin == null ? null : proj.offset(pin);
           return ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _MapPainter(
-                      proj: proj,
-                      textStyle: context.textStyles.labelSmall!,
-                      paracel: l10n.mapParacel,
-                      spratly: l10n.mapSpratly,
-                      eastSea: l10n.mapEastSea,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: onPick == null
+                  ? null
+                  : (d) => onPick!(proj.inverse(d.localPosition)),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: _MapPainter(
+                        proj: proj,
+                        textStyle: context.textStyles.labelSmall!,
+                        paracel: l10n.mapParacel,
+                        spratly: l10n.mapSpratly,
+                        eastSea: l10n.mapEastSea,
+                      ),
                     ),
                   ),
-                ),
-                if (at != null)
-                  Positioned(
-                    // Mũi ghim chạm đúng điểm: icon cao 40, mũi ở đáy giữa.
-                    left: at.dx - 20,
-                    top: at.dy - 38,
-                    child: const Icon(
-                      Icons.location_on_rounded,
-                      size: 40,
-                      color: MapPalette.pin,
+                  if (at != null)
+                    Positioned(
+                      // Mũi ghim chạm đúng điểm: icon cao 40, mũi ở đáy giữa.
+                      left: at.dx - 20,
+                      top: at.dy - 38,
+                      child: const Icon(
+                        Icons.location_on_rounded,
+                        size: 40,
+                        color: MapPalette.pin,
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -87,6 +106,16 @@ class _Projection {
     final x = deg * 3.141592653589793 / 180;
     final x2 = x * x;
     return 1 - x2 / 2 + x2 * x2 / 24;
+  }
+
+  /// Ngược lại của [offset]: điểm chạm trên khung → (vĩ độ, kinh độ), giữ trong khung nhìn của sơ đồ.
+  GeoPoint inverse(Offset o) {
+    final lon = VietnamGeo.minLon + (o.dx - _ox) / (_lonK * scale);
+    final lat = VietnamGeo.maxLat - (o.dy - _oy) / scale;
+    return (
+      lat.clamp(VietnamGeo.minLat, VietnamGeo.maxLat).toDouble(),
+      lon.clamp(VietnamGeo.minLon, VietnamGeo.maxLon).toDouble(),
+    );
   }
 
   Offset offset(GeoPoint p) => Offset(

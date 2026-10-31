@@ -45,12 +45,34 @@ class CartScreen extends ConsumerWidget {
                 ),
               );
             }
+            final excluded = ref.watch(cartExcludedProvider);
+            final allIds = [
+              for (final g in c.groups) ...g.items.map((i) => i.id),
+            ];
+            final selectedCart = ref.watch(selectedCartProvider).value ?? c;
+            final nothing = allIds.every(excluded.contains);
             final groups = Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                CartSelectAllBar(
+                  selectedCount: allIds
+                      .where((i) => !excluded.contains(i))
+                      .length,
+                  totalCount: allIds.length,
+                  onChanged: (on) => ref
+                      .read(cartExcludedProvider.notifier)
+                      .setSelected(allIds, selected: on),
+                ),
+                const SizedBox(height: AppSpacing.lg),
                 for (final g in c.groups) ...[
                   CartGroupView(
                     group: g,
+                    excluded: excluded,
+                    onToggleItem: (i) =>
+                        ref.read(cartExcludedProvider.notifier).toggle(i.id),
+                    onToggleShop: (on) => ref
+                        .read(cartExcludedProvider.notifier)
+                        .setSelected(g.items.map((i) => i.id), selected: on),
                     onQuantity: (item, q) => ref
                         .read(cartControllerProvider.notifier)
                         .setQuantity(item.id, q),
@@ -69,12 +91,16 @@ class CartScreen extends ConsumerWidget {
                 SizedBox(
                   width: 340,
                   child: SummaryPanel(
-                    subtotal: c.subtotal,
-                    shipping: c.shippingTotal,
-                    total: c.total,
+                    subtotal: selectedCart.subtotal,
+                    shipping: selectedCart.shippingTotal,
+                    total: selectedCart.total,
                     action: FilledButton(
-                      onPressed: () => context.go(Routes.checkout),
-                      child: Text(l10n.checkout),
+                      onPressed: nothing
+                          ? null
+                          : () => context.go(Routes.checkout),
+                      child: Text(
+                        nothing ? l10n.cartNothingSelected : l10n.checkout,
+                      ),
                     ),
                   ),
                 ),
@@ -110,8 +136,12 @@ class _CompactCart extends ConsumerWidget {
       bottom: empty
           ? null
           : FlatBlackButton(
-              label: l10n.cartToCheckout,
-              onPressed: () => context.go(Routes.checkout),
+              label: ref.watch(selectedCartItemIdsProvider).isEmpty
+                  ? l10n.cartNothingSelected
+                  : l10n.cartToCheckout,
+              onPressed: ref.watch(selectedCartItemIdsProvider).isEmpty
+                  ? null
+                  : () => context.go(Routes.checkout),
             ),
       children: [
         AsyncValueView(
@@ -129,12 +159,33 @@ class _CompactCart extends ConsumerWidget {
                 ),
               );
             }
+            final excluded = ref.watch(cartExcludedProvider);
+            final allIds = [
+              for (final g in c.groups) ...g.items.map((i) => i.id),
+            ];
+            final sel = ref.watch(selectedCartProvider).value ?? c;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                CartSelectAllBar(
+                  selectedCount: allIds
+                      .where((i) => !excluded.contains(i))
+                      .length,
+                  totalCount: allIds.length,
+                  onChanged: (on) => ref
+                      .read(cartExcludedProvider.notifier)
+                      .setSelected(allIds, selected: on),
+                ),
+                const SizedBox(height: 12),
                 for (final g in c.groups) ...[
                   FlatCartGroup(
                     group: g,
+                    excluded: excluded,
+                    onToggleItem: (i) =>
+                        ref.read(cartExcludedProvider.notifier).toggle(i.id),
+                    onToggleShop: (on) => ref
+                        .read(cartExcludedProvider.notifier)
+                        .setSelected(g.items.map((i) => i.id), selected: on),
                     onQuantity: (item, q) => ref
                         .read(cartControllerProvider.notifier)
                         .setQuantity(item.id, q),
@@ -144,12 +195,12 @@ class _CompactCart extends ConsumerWidget {
                 FlatCard(
                   child: Column(
                     children: [
-                      FlatMoneyRow(l10n.subtotal, c.subtotal),
-                      FlatMoneyRow(l10n.shippingFee, c.shippingTotal),
+                      FlatMoneyRow(l10n.subtotal, sel.subtotal),
+                      FlatMoneyRow(l10n.shippingFee, sel.shippingTotal),
                       Divider(color: context.appColors.separator),
                       FlatMoneyRow(
-                        l10n.bagTotal(c.itemCount),
-                        c.total,
+                        l10n.bagTotal(sel.itemCount),
+                        sel.total,
                         strong: true,
                       ),
                     ],

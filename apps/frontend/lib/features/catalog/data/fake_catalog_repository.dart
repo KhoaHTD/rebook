@@ -44,6 +44,14 @@ class FakeCatalogRepository implements CatalogRepository {
       fakeCall(() => _store.addToCart(listingId, quantity));
 
   @override
+  Future<List<Listing>> favorites() =>
+      fakeCall(_store.favoriteListings, ms: 80);
+
+  @override
+  Future<void> setFavorite(String listingId, {required bool on}) =>
+      fakeCall(() => _store.setFavorite(listingId, on: on), ms: 60);
+
+  @override
   Future<SessionState> liveState(String sessionId) =>
       fakeCall(() => _store.sessionState(sessionId), ms: 60);
 

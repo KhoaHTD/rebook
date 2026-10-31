@@ -15,9 +15,14 @@ part 'cart_client.g.dart';
 abstract class CartClient {
   factory CartClient(Dio dio, {String? baseUrl}) = _CartClient;
 
-  /// [addressId] - Địa chỉ để tính phí ship
+  /// [addressId] - Địa chỉ để tính phí ship.
+  ///
+  /// [itemIds] - Chỉ tính các món giỏ đã chọn (mặc định cả giỏ). Phí ship tính lại theo khối lượng các món này.
   @GET('/cart')
-  Future<CartDto> getCart({@Query('addressId') String? addressId});
+  Future<CartDto> getCart({
+    @Query('addressId') String? addressId,
+    @Query('itemIds') List<String>? itemIds,
+  });
 
   @POST('/cart')
   Future<CartDto> addCartItem({@Body() required AddCartItemRequest body});

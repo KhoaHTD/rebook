@@ -12,9 +12,21 @@ import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Một nhóm trong giỏ: tên shop, các cuốn (poster nhỏ, tình trạng, giá, số lượng), tạm tính + ship.
 class CartGroupView extends StatelessWidget {
-  const CartGroupView({super.key, required this.group, this.onQuantity});
+  const CartGroupView({
+    super.key,
+    required this.group,
+    this.onQuantity,
+    this.excluded = const {},
+    this.onToggleItem,
+    this.onToggleShop,
+  });
 
   final CartGroup group;
+
+  /// Các món đang bỏ chọn; [onToggleItem] / [onToggleShop] null = không hiện ô chọn.
+  final Set<String> excluded;
+  final ValueChanged<CartItem>? onToggleItem;
+  final ValueChanged<bool>? onToggleShop;
 
   /// null = chỉ xem (bước xác nhận đặt hàng).
   final void Function(CartItem item, int quantity)? onQuantity;
@@ -30,6 +42,18 @@ class CartGroupView extends StatelessWidget {
           onTap: () => context.go(Routes.shop(group.shop.id)),
           child: Row(
             children: [
+              if (onToggleShop != null)
+                Checkbox(
+                  value: group.items.every((i) => !excluded.contains(i.id))
+                      ? true
+                      : (group.items.every((i) => excluded.contains(i.id))
+                            ? false
+                            : null),
+                  tristate: true,
+                  onChanged: (_) => onToggleShop!(
+                    !group.items.every((i) => !excluded.contains(i.id)),
+                  ),
+                ),
               Icon(Icons.storefront_outlined, size: 18, color: c.secondaryText),
               const SizedBox(width: AppSpacing.sm),
               Text(group.shop.name, style: context.textStyles.titleMedium),
@@ -43,7 +67,12 @@ class CartGroupView extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.md),
         for (final item in group.items)
-          _ItemRow(item: item, onQuantity: onQuantity),
+          _ItemRow(
+            item: item,
+            onQuantity: onQuantity,
+            selected: onToggleItem == null ? null : !excluded.contains(item.id),
+            onToggle: onToggleItem,
+          ),
         Divider(color: c.separator),
         MoneyLine(l10n.subtotal, group.subtotal),
         MoneyLine(l10n.shippingFee, group.shippingFee),
@@ -53,10 +82,17 @@ class CartGroupView extends StatelessWidget {
 }
 
 class _ItemRow extends StatelessWidget {
-  const _ItemRow({required this.item, this.onQuantity});
+  const _ItemRow({
+    required this.item,
+    this.onQuantity,
+    this.selected,
+    this.onToggle,
+  });
 
   final CartItem item;
   final void Function(CartItem item, int quantity)? onQuantity;
+  final bool? selected;
+  final ValueChanged<CartItem>? onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +103,8 @@ class _ItemRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (selected != null)
+            Checkbox(value: selected, onChanged: (_) => onToggle?.call(item)),
           GestureDetector(
             onTap: () => context.go(Routes.listing(item.listing.id)),
             child: BookPoster(

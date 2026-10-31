@@ -35,9 +35,21 @@ class ApiWalletRepository implements WalletRepository {
   );
 
   @override
-  Future<Withdrawal> requestWithdrawal(int amount) => guardApi(
+  Future<Withdrawal> requestWithdrawal(
+    int amount, {
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    String? note,
+  }) => guardApi(
     () async => (await _client.wallet.requestWithdrawal(
-      body: api.AmountRequest(amount: amount),
+      body: api.WithdrawalRequest(
+        amount: amount,
+        bankName: bankName,
+        bankAccountNumber: accountNumber,
+        bankAccountName: accountName,
+        note: note,
+      ),
     )).toDomain(),
   );
 }

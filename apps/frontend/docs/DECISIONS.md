@@ -127,3 +127,22 @@ Năm điểm mới trong SRS. SRS **không liệt kê endpoint** cho các điể
   Giao diện hiện chưa có chỗ nào gọi "đổi vai trò", "gỡ cấm đấu giá", "shop uy tín" nên frontend giả chỉ ghi 6 loại; 3 loại kia (đổi vai trò, gỡ cấm, shop uy tín) vẫn có nhãn để hiển thị khi backend gửi.
 - **Không làm (SRS không yêu cầu giao diện):** ví của sàn; hoàn tiền VNPay muộn vào ví (dòng "Hoàn tiền" trong lịch sử ví đã có sẵn).
 - **Ngoài SRS, chưa làm theo yêu cầu người dùng:** chọn sản phẩm trong giỏ; trường ngân hàng / số tài khoản / tên chủ tài khoản / ghi chú khi tạo yêu cầu rút tiền.
+
+### Bảy mục ngoài SRS (yêu cầu của người dùng 31/10) — tên field / endpoint tạm trong `openapi/openapi.yaml`
+SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
+- **Sách yêu thích:** `POST /listings/{id}/favorite` {favorite}, `GET /me/favorites` → `ListingDto[]`. Tim ở trang chi tiết sách (điện thoại + máy tính),
+  màn "Sách yêu thích" ở Tài khoản (`/account/favorites`, menu ba chấm trên mỗi ô để bỏ tim). Trạng thái tim lấy từ danh sách yêu thích (`favoriteIds`),
+  không thêm field vào `ListingDto`.
+- **Phiên yêu thích:** `POST /sessions/{id}/watch` {watch}, `GET /me/watched-sessions` → `AuctionSessionDto[]`. Tim trên thẻ phiên và trang phiên.
+  Tab "Yêu thích" ở trang chủ đấu giá = phiên đã theo dõi **hoặc** phiên có lô đang theo dõi.
+- **Toạ độ địa chỉ:** `AddressDto` / `AddressRequest` thêm `latitude`, `longitude` (tuỳ chọn). Form địa chỉ có nút "Ghim vị trí trên bản đồ": chạm vào
+  sơ đồ Việt Nam tự vẽ (mặc định ở tâm tỉnh); bản đồ ở bước thanh toán ghim đúng điểm đã chọn, chưa ghim thì dùng tâm tỉnh như trước.
+- **Chọn món trong giỏ:** `GET /cart?itemIds=…` chỉ tính các món đã chọn (ship tính lại theo khối lượng các món này); `POST /orders/checkout` đã có `itemIds`.
+  Trạng thái chọn nằm ở frontend (mặc định chọn hết, món mới thêm tự được chọn), không lưu ở backend. Có chọn từng món, từng shop, "Chọn tất cả / Bỏ chọn tất cả".
+- **Rút tiền có thông tin ngân hàng:** `WithdrawalRequest` {amount, bankName, bankAccountNumber, bankAccountName, note}; `WithdrawalDto` trả lại các trường này.
+  Ngân hàng chọn từ danh sách cố định ở frontend (`shared/data/vietnam_banks.dart`); tên chủ tài khoản tự đổi sang IN HOA không dấu khi gõ.
+  Số tài khoản 6–19 chữ số.
+- **Trừ ví khi Admin duyệt (khác bản trước, theo ghi chú của người dùng):** tạo yêu cầu chỉ kiểm tra số dư khả dụng đủ; ví bị trừ lúc duyệt và duyệt
+  kiểm tra lại số dư (`INSUFFICIENT_BALANCE` nếu người bán đã tiêu mất). Trong lúc chờ, tiền vẫn nằm ở số dư khả dụng — backend nên cân nhắc khoá tạm nếu muốn chặn rút trùng.
+- **Người duyệt / thời gian duyệt:** `WithdrawalDto.approvedBy/approvedAt`, `ListingDto.reviewedBy/reviewedAt`, `ReturnRequestDto.resolvedBy/resolvedAt`;
+  `GET /admin/returns?resolved=true` trả các yêu cầu đã phân xử. Hiện ở bảng rút tiền, mục "Đã xử lý gần đây" của duyệt tin, mục "Đã phân xử" của khiếu nại; nhật ký hoạt động vẫn giữ.

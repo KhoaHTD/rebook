@@ -11,5 +11,12 @@ abstract interface class WalletRepository {
 
   Future<List<Withdrawal>> withdrawals();
 
-  Future<Withdrawal> requestWithdrawal(int amount);
+  /// Tạo yêu cầu rút tiền kèm thông tin nhận tiền. Số dư khả dụng phải đủ; ví chỉ bị trừ khi Admin duyệt (SRS 8.1).
+  Future<Withdrawal> requestWithdrawal(
+    int amount, {
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    String? note,
+  });
 }

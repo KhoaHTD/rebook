@@ -49,5 +49,8 @@ abstract interface class AdminRepository {
   /// Nhật ký hoạt động của Admin, mới nhất trước (SRS 8.1).
   Future<List<ActivityLog>> activityLogs();
   Future<List<Order>> disputes();
+
+  /// Các yêu cầu trả hàng đã phân xử, kèm Admin phân xử và thời điểm.
+  Future<List<Order>> resolvedDisputes();
   Future<Order> resolveDispute(String id, {required bool refund, String? note});
 }

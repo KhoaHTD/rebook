@@ -42,10 +42,24 @@ class WalletController extends _$WalletController {
     return payment;
   }
 
-  Future<bool> withdraw(int amount) async {
+  Future<bool> withdraw(
+    int amount, {
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    String? note,
+  }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => ref.read(walletRepositoryProvider).requestWithdrawal(amount),
+      () => ref
+          .read(walletRepositoryProvider)
+          .requestWithdrawal(
+            amount,
+            bankName: bankName,
+            accountNumber: accountNumber,
+            accountName: accountName,
+            note: note,
+          ),
     );
     if (!state.hasError) {
       ref.read(dataChangesProvider.notifier).bump(DataArea.wallet);

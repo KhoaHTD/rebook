@@ -22,6 +22,11 @@ abstract interface class AuctionRepository {
 
   Future<Lot> watch(String lotId, {required bool on});
 
+  /// Phiên tôi theo dõi (phiên yêu thích) và bật / tắt theo dõi cả phiên.
+  Future<List<AuctionSession>> watchedSessions();
+
+  Future<void> watchSession(String sessionId, {required bool on});
+
   /// Trả giá tự động tới [maxAmount].
   Future<void> setProxyBid(String lotId, int maxAmount);
 

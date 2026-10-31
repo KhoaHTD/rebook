@@ -5,12 +5,12 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
-import '../models/amount_request.dart';
 import '../models/payment_dto.dart';
 import '../models/top_up_request.dart';
 import '../models/wallet_dto.dart';
 import '../models/wallet_transaction_page.dart';
 import '../models/withdrawal_dto.dart';
+import '../models/withdrawal_request.dart';
 
 part 'wallet_client.g.dart';
 
@@ -33,8 +33,9 @@ abstract class WalletClient {
   @GET('/wallet/withdrawals')
   Future<List<WithdrawalDto>> listWithdrawals();
 
+  /// Tạo yêu cầu rút tiền. Backend kiểm tra thông tin ngân hàng và available_balance đủ số tiền; ví chỉ bị trừ khi Admin duyệt (SRS 8.1).
   @POST('/wallet/withdrawals')
   Future<WithdrawalDto> requestWithdrawal({
-    @Body() required AmountRequest body,
+    @Body() required WithdrawalRequest body,
   });
 }

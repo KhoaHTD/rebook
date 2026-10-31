@@ -9,6 +9,7 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_floor_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
+import 'package:book_marketplace/features/auction/presentation/providers/session_watch_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_home_widgets.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_stage_widgets.dart';
 import 'package:book_marketplace/features/auction/presentation/widgets/auction_widgets.dart';
@@ -319,7 +320,10 @@ class _MobileFloorState extends ConsumerState<_MobileFloor> {
                   ..sort((a, b) => a.startAt.compareTo(b.startAt));
             final q = _search.text.trim().toLowerCase();
             final mineIds = {for (final r in mine) r.sessionId};
-            final watchedIds = {for (final l in watched) l.sessionId};
+            final watchedIds = {
+              for (final l in watched) l.sessionId,
+              ...ref.watch(watchedSessionIdsProvider),
+            };
             var shown = switch (_tab) {
               0 => [...live, ...upcoming],
               1 => live,

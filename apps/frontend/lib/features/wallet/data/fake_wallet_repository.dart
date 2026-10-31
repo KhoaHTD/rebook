@@ -21,6 +21,19 @@ class FakeWalletRepository implements WalletRepository {
   Future<List<Withdrawal>> withdrawals() => fakeCall(_store.myWithdrawals);
 
   @override
-  Future<Withdrawal> requestWithdrawal(int amount) =>
-      fakeCall(() => _store.requestWithdrawal(amount));
+  Future<Withdrawal> requestWithdrawal(
+    int amount, {
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    String? note,
+  }) => fakeCall(
+    () => _store.requestWithdrawal(
+      amount,
+      bankName: bankName,
+      accountNumber: accountNumber,
+      accountName: accountName,
+      note: note,
+    ),
+  );
 }

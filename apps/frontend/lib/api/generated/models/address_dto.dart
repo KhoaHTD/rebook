@@ -17,6 +17,8 @@ class AddressDto {
     required this.ward,
     required this.detail,
     required this.isDefault,
+    this.latitude,
+    this.longitude,
   });
 
   factory AddressDto.fromJson(Map<String, Object?> json) =>
@@ -30,6 +32,10 @@ class AddressDto {
   final String ward;
   final String detail;
   final bool isDefault;
+
+  /// Vị trí người dùng ghim trên bản đồ (SRS 9 — addresses).
+  final double? latitude;
+  final double? longitude;
 
   Map<String, Object?> toJson() => _$AddressDtoToJson(this);
 }

@@ -13,6 +13,21 @@ class ApiCatalogRepository implements CatalogRepository {
   static const pageSize = 20;
 
   @override
+  Future<List<Listing>> favorites() => guardApi(
+    () async => (await _client.listings.listFavoriteListings())
+        .map((e) => e.toDomain())
+        .toList(),
+  );
+
+  @override
+  Future<void> setFavorite(String listingId, {required bool on}) => guardApi(
+    () async => _client.listings.setFavoriteListing(
+      id: listingId,
+      body: api.FavoriteRequest(favorite: on),
+    ),
+  );
+
+  @override
   Future<HomeFeed> homeFeed() => guardApi(() async {
     final dto = await _client.listings.getHomeFeed();
     return HomeFeed(

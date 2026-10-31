@@ -82,6 +82,8 @@ extension AddressDtoMapper on api.AddressDto {
     ward: ward,
     detail: detail,
     isDefault: isDefault,
+    latitude: latitude,
+    longitude: longitude,
   );
 }
 
@@ -94,6 +96,8 @@ extension AddressToApi on Address {
     ward: ward,
     detail: detail,
     isDefault: isDefault,
+    latitude: latitude,
+    longitude: longitude,
   );
 }
 
@@ -210,6 +214,8 @@ extension ListingDtoMapper on api.ListingDto {
     status: _enum(ListingStatus.values, status, ListingStatus.hidden),
     createdAt: createdAt,
     rejectReason: rejectReason,
+    reviewedBy: reviewedBy,
+    reviewedAt: reviewedAt,
   );
 }
 
@@ -324,6 +330,8 @@ extension OrderDtoMapper on api.OrderDto {
             ),
             resolution: returnRequest!.resolution,
             respondBy: returnRequest!.respondBy,
+            resolvedBy: returnRequest!.resolvedBy,
+            resolvedAt: returnRequest!.resolvedAt,
           ),
   );
 }
@@ -378,6 +386,12 @@ extension WithdrawalDtoMapper on api.WithdrawalDto {
     status: _enum(WithdrawalStatus.values, status, WithdrawalStatus.pending),
     createdAt: createdAt,
     userName: userName,
+    bankName: bankName,
+    bankAccountNumber: bankAccountNumber,
+    bankAccountName: bankAccountName,
+    note: note,
+    approvedBy: approvedBy,
+    approvedAt: approvedAt,
     receipt: receipt?.toDomain(),
   );
 }

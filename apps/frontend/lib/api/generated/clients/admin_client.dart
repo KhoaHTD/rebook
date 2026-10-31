@@ -139,9 +139,9 @@ abstract class AdminClient {
   @GET('/admin/activity-logs')
   Future<List<ActivityLogDto>> adminListActivityLogs();
 
-  /// Yêu cầu trả hàng bị shop từ chối, chờ Admin phân xử.
+  /// Yêu cầu trả hàng bị shop từ chối, chờ Admin phân xử; resolved=true thì trả các yêu cầu đã phân xử (kèm resolvedBy / resolvedAt).
   @GET('/admin/returns')
-  Future<List<OrderDto>> adminListDisputes();
+  Future<List<OrderDto>> adminListDisputes({@Query('resolved') bool? resolved});
 
   @POST('/admin/returns/{id}/resolve')
   Future<OrderDto> adminResolveDispute({

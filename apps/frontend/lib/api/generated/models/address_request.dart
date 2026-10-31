@@ -16,6 +16,8 @@ class AddressRequest {
     required this.ward,
     required this.detail,
     required this.isDefault,
+    this.latitude,
+    this.longitude,
   });
 
   factory AddressRequest.fromJson(Map<String, Object?> json) =>
@@ -28,6 +30,8 @@ class AddressRequest {
   final String ward;
   final String detail;
   final bool isDefault;
+  final double? latitude;
+  final double? longitude;
 
   Map<String, Object?> toJson() => _$AddressRequestToJson(this);
 }

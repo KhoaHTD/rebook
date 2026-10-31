@@ -127,6 +127,9 @@ class FakeAdminRepository implements AdminRepository {
   Future<List<Order>> disputes() => fakeCall(_store.disputes);
 
   @override
+  Future<List<Order>> resolvedDisputes() => fakeCall(_store.resolvedDisputes);
+
+  @override
   Future<Order> resolveDispute(
     String id, {
     required bool refund,

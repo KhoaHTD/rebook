@@ -256,6 +256,11 @@ extension _Seed on FakeStore {
       status: WithdrawalStatus.completed,
       createdAt: now.subtract(const Duration(days: 3)),
       userName: 'Nguyễn Minh Anh',
+      bankName: 'Vietcombank',
+      bankAccountNumber: '0011004567890',
+      bankAccountName: 'NGUYEN MINH ANH',
+      approvedBy: 'Admin ReBook',
+      approvedAt: now.subtract(const Duration(days: 2, hours: 4)),
       receipt: WithdrawalReceipt(
         senderName: 'CTY TNHH REBOOK',
         transferredAt: now.subtract(const Duration(days: 2, hours: 4)),
@@ -269,6 +274,23 @@ extension _Seed on FakeStore {
       status: WithdrawalStatus.pending,
       createdAt: now.subtract(const Duration(hours: 6)),
       userName: 'Nguyễn Minh Anh',
+      bankName: 'Techcombank',
+      bankAccountNumber: '19036789012345',
+      bankAccountName: 'NGUYEN MINH ANH',
+      note: 'Rút tiền bán sách tháng 10',
+    );
+    // Số dư mẫu đủ để duyệt yêu cầu đang chờ; yêu cầu đã duyệt đã bị trừ ví từ trước.
+    _ledger(
+      'u1',
+      WalletTxnType.topUp,
+      availableDelta: 1500000,
+      note: 'Số dư mẫu',
+    );
+    _ledger(
+      'u1',
+      WalletTxnType.withdraw,
+      availableDelta: -500000,
+      note: 'Rút tiền về Vietcombank',
     );
     withdrawals.addAll([pending, done]);
     _withdrawalOwner['wd-seed1'] = 'u1';
@@ -306,6 +328,15 @@ extension _Seed on FakeStore {
         target: 'Dế Mèn Phiêu Lưu Ký',
       ),
     ]);
+
+    // Hai tin đã được Admin duyệt, để bảng "Đã xử lý gần đây" có dữ liệu.
+    var k = 0;
+    for (final r in _listings.values.take(2)) {
+      r.listing = r.listing.copyWith(
+        reviewedBy: 'Admin ReBook',
+        reviewedAt: now.subtract(Duration(days: 5 + k++)),
+      );
+    }
 
     // Lời mời mua lần hai cho người dùng demo (u2): lô bị bỏ thanh toán, giá ≥ giá sàn, hạn 24h.
     final row = _lots.values

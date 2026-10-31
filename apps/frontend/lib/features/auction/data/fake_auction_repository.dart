@@ -41,6 +41,14 @@ class FakeAuctionRepository implements AuctionRepository {
       fakeCall(() => _store.registerSession(sessionId, deposit), ms: 500);
 
   @override
+  Future<List<AuctionSession>> watchedSessions() =>
+      fakeCall(_store.watchedSessionList, ms: 80);
+
+  @override
+  Future<void> watchSession(String sessionId, {required bool on}) =>
+      fakeCall(() => _store.setSessionWatch(sessionId, on: on), ms: 60);
+
+  @override
   Future<Lot> watch(String lotId, {required bool on}) =>
       fakeCall(() => _store.watch(lotId, on: on), ms: 80);
 
