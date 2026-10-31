@@ -26,6 +26,8 @@ dependencies:
   url_launcher: mở trang thanh toán VNPay sandbox, duyệt 2026-10-22
   firebase_core: nền cho FCM, duyệt 2026-10-22
   firebase_messaging: thông báo đẩy FCM (SRS mục 3), duyệt 2026-10-22
+  flutter_map: bản đồ OpenStreetMap trong màn sửa địa chỉ, duyệt 2026-11-01
+  latlong2: kiểu toạ độ cho flutter_map, duyệt 2026-11-01
 
 dev_dependencies:
   flutter_test: SDK

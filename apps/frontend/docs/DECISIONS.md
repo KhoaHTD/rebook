@@ -160,3 +160,9 @@ SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
 - Căn cứ SRS: email, SĐT VN (`0` + 9 số), mật khẩu ≥ 6 ký tự (giữ để tài khoản mẫu `123456` còn dùng), OTP 6 số, STK ngân hàng 6–19 số, ISBN-10/13 có kiểm tra số cuối, giá và cọc tối thiểu 10.000 đ, tiền nạp / rút tối thiểu theo ví.
 - Do frontend đề xuất, SRS không nêu (backend nên đối chiếu): mã kệ `^[A-Z]\d{1,2}-\d{1,3}$`, mã vận đơn `^[A-Z0-9]{8,20}$`, các cận số (năm, số trang, cân nặng, thời lượng lô 30–600 giây, soft-close 5–60 giây, cấu hình phí 0–100%), độ dài tên / mô tả / lý do.
 - Không dùng dấu phân cách hàng nghìn trong ô tiền.
+
+## 2026-11-01 — Bản đồ thật + tự định vị trong màn sửa địa chỉ
+
+- Người dùng chốt thêm `flutter_map` + `latlong2` (allowlist cập nhật) và bỏ qua luật "package phải duyệt" cho lần này; luật không đưa code backend lên nhánh `interface` vẫn giữ.
+- `OsmMap` (tile OSM) thay `VietnamMap` ở màn sửa địa chỉ; Hoàng Sa, Trường Sa luôn ghi tên "(Việt Nam)" phủ lên bản đồ. Màn thanh toán vẫn dùng sơ đồ tự vẽ.
+- `Geocoder` (`core/network/geocoder.dart`): Nominatim khi chạy thật, tâm tỉnh khi mock. Tự định vị sau khi ngừng gõ 1,5 giây; chạm bản đồ thì khoá tự định vị cho tới khi bấm nút "Định vị theo địa chỉ".

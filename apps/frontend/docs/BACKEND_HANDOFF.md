@@ -66,7 +66,7 @@ Frontend: **mỗi lần thêm thứ ngoài SRS đều phải đánh dấu như t
   Tab "Yêu thích" ở trang chủ đấu giá = phiên đã theo dõi hoặc phiên có lô đang theo dõi (frontend tự ghép).
 
 ### B3. Toạ độ và loại địa chỉ
-- `AddressDto` / `AddressRequest` thêm `latitude`, `longitude` (double, tuỳ chọn); cột `addresses.latitude/longitude`. Người dùng ghim trên bản đồ tự vẽ; không ghim thì null.
+- `AddressDto` / `AddressRequest` thêm `latitude`, `longitude` (double, tuỳ chọn); cột `addresses.latitude/longitude`. Ghim trên bản đồ OpenStreetMap: app tự định vị từ địa chỉ gõ tay (Nominatim, gọi thẳng từ app, 1 yêu cầu/giây) hoặc người dùng chạm bản đồ; không ghim thì null. Khi chạy thật nhiều người nên để backend gọi geocoder và cache, và dùng nhà cung cấp tile riêng (máy chủ tile công cộng của OSM cấm dùng nặng).
 - Thêm `addressType` (`HOME` | `OFFICE`, mặc định `HOME`) cho nhãn Nhà riêng / Văn phòng; cột `addresses.address_type`.
 - `province` là một trong 63 tên tỉnh / thành frontend cho chọn (`VietnamGeo.provinceNames`, vd "TP. Hồ Chí Minh"); `district`, `ward` là chữ người dùng tự gõ.
 

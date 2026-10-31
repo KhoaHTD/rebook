@@ -1114,5 +1114,9 @@
   "hintReason": "Briefly describe the reason…",
   "hintReview": "Share your experience (optional)",
   "hintSearch": "Search books, authors…",
-  "hintConditionReport": "Cover, spine, pages, foxing, notes, signature…"
+  "hintConditionReport": "Cover, spine, pages, foxing, notes, signature…",
+  "mapAttribution": "OpenStreetMap",
+  "addrLocate": "Locate from address",
+  "addrLocating": "Locating…",
+  "addrNotFound": "Address not found. Try less detail or tap the map to place the pin."
 }

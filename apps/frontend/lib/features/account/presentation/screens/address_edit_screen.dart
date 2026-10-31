@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/network/geocoder.dart';
 import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/vietnamese.dart';
@@ -14,7 +17,7 @@ import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
-import 'package:book_marketplace/shared/widgets/vietnam_map.dart';
+import 'package:book_marketplace/shared/widgets/osm_map.dart';
 
 /// Thêm / sửa một địa chỉ: tỉnh (chọn từ danh sách) + quận + phường + số nhà, bản đồ ghim ngay trong trang,
 /// thông tin liên hệ, đặt mặc định, loại địa chỉ; ghim ở đáy: Xóa địa chỉ (khi sửa) + Hoàn thành.
@@ -80,10 +83,53 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     for (final c in [_receiver, _phone, _district, _ward, _detail]) {
       c.dispose();
     }
     super.dispose();
+  }
+
+  Timer? _debounce;
+  var _locating = false;
+  var _notFound = false;
+
+  /// Người dùng đã tự chạm bản đồ: không tự định vị đè lên nữa (vẫn bấm nút được).
+  var _manualPin = false;
+
+  /// Gõ xong (ngừng 1,5 giây) thì tự định vị theo địa chỉ; Nominatim giới hạn 1 yêu cầu / giây.
+  void _scheduleLocate() {
+    _debounce?.cancel();
+    if (_province.isEmpty || _manualPin) return;
+    _debounce = Timer(const Duration(milliseconds: 1500), _locate);
+  }
+
+  Future<void> _locate() async {
+    if (_province.isEmpty || !mounted) return;
+    String join(List<String> parts) => [
+      ...parts.map((e) => e.trim()).where((e) => e.isNotEmpty),
+      'Việt Nam',
+    ].join(', ');
+    final queries = <String>{
+      join([_detail.text, _ward.text, _district.text, _province]),
+      join([_ward.text, _district.text, _province]),
+      join([_district.text, _province]),
+      join([_province]),
+    }.toList();
+    setState(() {
+      _locating = true;
+      _notFound = false;
+    });
+    final hit = await ref.read(geocoderProvider).locate(queries);
+    if (!mounted) return;
+    setState(() {
+      _locating = false;
+      _notFound = hit == null;
+      if (hit != null) {
+        _lat = hit.$1;
+        _lon = hit.$2;
+      }
+    });
   }
 
   GeoPoint? get _point => _lat == null || _lon == null ? null : (_lat!, _lon!);
@@ -103,7 +149,10 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
       isScrollControlled: true,
       builder: (_) => _ProvincePicker(selected: _province),
     );
-    if (picked != null) setState(() => _province = picked);
+    if (picked != null) {
+      setState(() => _province = picked);
+      _scheduleLocate();
+    }
   }
 
   Future<void> _save() async {
@@ -253,34 +302,62 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
                     controller: _district,
                     rule: Rules.district,
                     label: l10n.addressDistrict,
+                    onChanged: (_) => _scheduleLocate(),
                   ),
                   RuleField(
                     controller: _ward,
                     rule: Rules.ward,
                     label: l10n.addressWard,
+                    onChanged: (_) => _scheduleLocate(),
                   ),
                   RuleField(
                     controller: _detail,
                     rule: Rules.street,
                     label: l10n.addressDetail,
+                    onChanged: (_) => _scheduleLocate(),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 360),
-                    child: Center(
-                      child: VietnamMap(
-                        point: pin,
-                        onPick: (p) => setState(() {
-                          _lat = p.$1;
-                          _lon = p.$2;
-                        }),
+                  OsmMap(
+                    point: pin,
+                    zoom: _point == null ? 8 : 16,
+                    onPick: (p) => setState(() {
+                      _manualPin = true;
+                      _notFound = false;
+                      _lat = p.$1;
+                      _lon = p.$2;
+                    }),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: OutlinedButton.icon(
+                      onPressed: _locating || _province.isEmpty
+                          ? null
+                          : () {
+                              _manualPin = false;
+                              _locate();
+                            },
+                      icon: _locating
+                          ? const SizedBox.square(
+                              dimension: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.my_location_rounded, size: 18),
+                      label: Text(
+                        _locating ? l10n.addrLocating : l10n.addrLocate,
                       ),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    _point != null ? l10n.addrPinned : l10n.addrMapHint,
-                    style: text.bodySmall?.copyWith(color: c.secondaryText),
+                    _notFound
+                        ? l10n.addrNotFound
+                        : _point != null
+                        ? l10n.addrPinned
+                        : l10n.addrMapHint,
+                    style: text.bodySmall?.copyWith(
+                      color: _notFound ? context.colors.error : c.secondaryText,
+                    ),
                   ),
                 ]),
                 section(l10n.addrContact, [
