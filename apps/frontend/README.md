@@ -1,7 +1,7 @@
 # Chợ Sách Cũ — Book Marketplace
 
 Mua bán sách cũ và đấu giá realtime. Flutter cho **web + Android + iOS**, deploy web lên **Firebase Hosting**.
-Giao diện theo style **Liquid Glass**, chữ San Francisco (xem `../../design-preview/png/lg-desktop.png`, `lg-mobile.png` và mục 6 của [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
+Giao diện theo style **Liquid Glass**, chữ San Francisco (xem `docs/design/lg-desktop.png`, `lg-mobile.png` và mục 6 của [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
 
 ## Bắt đầu
 

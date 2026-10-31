@@ -1,7 +1,7 @@
 # Tiến độ triển khai frontend theo SRS
 
 Nhánh `design/apple-books` (commit local, **không push**). SRS: `docs/SRS.txt` + `docs/srs-*.png`.
-Quyết định tự đưa ra: `docs/DECISIONS.md`. Giao diện chuẩn: `../../design-preview/png/apple-desktop.png`, `apple-mobile.png`.
+Quyết định tự đưa ra: `docs/DECISIONS.md`. Giao diện chuẩn: `docs/design/lg-desktop.png`, `lg-mobile.png`.
 Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style Apple Books.
 
 ## Khi bị ngắt

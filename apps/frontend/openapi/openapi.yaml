@@ -198,6 +198,7 @@ paths:
     post:
       tags: [Listings]
       operationId: setFavoriteListing
+      x-origin: frontend
       description: Thêm / bỏ một tin bán khỏi danh sách yêu thích (SRS 3, mở rộng).
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FavoriteRequest' } } } }
@@ -249,9 +250,10 @@ paths:
     get:
       tags: [Cart]
       operationId: getCart
+      x-frontend-change: "thêm tham số itemIds: chỉ tính các món đã chọn, ship tính lại theo khối lượng các món này"
       parameters:
         - { name: addressId, in: query, description: Địa chỉ để tính phí ship, schema: { type: string } }
-        - { name: itemIds, in: query, description: 'Chỉ tính các món giỏ đã chọn (mặc định cả giỏ). Phí ship tính lại theo khối lượng các món này.', schema: { type: array, items: { type: string } } }
+        - { name: itemIds, x-origin: frontend, in: query, description: 'Chỉ tính các món giỏ đã chọn (mặc định cả giỏ). Phí ship tính lại theo khối lượng các món này.', schema: { type: array, items: { type: string } } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/CartDto' } } } } }
     post:
       tags: [Cart]
@@ -405,6 +407,7 @@ paths:
     post:
       tags: [Wallet]
       operationId: requestWithdrawal
+      x-frontend-change: "nhận thông tin ngân hàng (WithdrawalRequest); chỉ kiểm tra số dư, ví chưa bị trừ; tự lưu tài khoản vào bankAccounts"
       description: Tạo yêu cầu rút tiền. Backend kiểm tra thông tin ngân hàng và available_balance đủ số tiền; ví chỉ bị trừ khi Admin duyệt (SRS 8.1).
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalRequest' } } } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalDto' } } } } }
@@ -412,12 +415,14 @@ paths:
     get:
       tags: [Wallet]
       operationId: listBankAccounts
+      x-origin: frontend
       description: Tài khoản ngân hàng tôi đã dùng để rút tiền (màn "Gần đây"), yêu thích đứng đầu rồi tới lần dùng mới nhất. Backend tự lưu / cập nhật khi tạo yêu cầu rút tiền.
       responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/BankAccountDto' } } } } } }
   /wallet/bank-accounts/{id}/favorite:
     post:
       tags: [Wallet]
       operationId: setBankAccountFavorite
+      x-origin: frontend
       description: Đánh dấu / bỏ đánh dấu yêu thích một tài khoản ngân hàng đã lưu.
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FavoriteRequest' } } } }
@@ -633,12 +638,14 @@ paths:
     get:
       tags: [Auctions]
       operationId: listSecondChanceOffers
+      x-origin: frontend
       description: Lời mời mua lần hai (SRS 6.6) gửi tới người trả giá cao thứ hai khi người thắng bỏ thanh toán. Chỉ mời khi giá của họ ≥ giá sàn.
       responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/SecondChanceOfferDto' } } } } } }
   /me/offers/{id}/accept:
     post:
       tags: [Auctions]
       operationId: acceptSecondChanceOffer
+      x-origin: frontend
       description: Nhận mua với giá đã trả; trả về hoá đơn lô (đơn AUCTION).
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/OrderDto' } } } } }
@@ -646,24 +653,28 @@ paths:
     post:
       tags: [Auctions]
       operationId: declineSecondChanceOffer
+      x-origin: frontend
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/SecondChanceOfferDto' } } } } }
   /me/favorites:
     get:
       tags: [Listings]
       operationId: listFavoriteListings
+      x-origin: frontend
       description: Sách tôi đã thả tim, mới nhất trước.
       responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ListingDto' } } } } } }
   /me/watched-sessions:
     get:
       tags: [Auctions]
       operationId: listWatchedSessions
+      x-origin: frontend
       description: Các phiên đấu giá tôi theo dõi (phiên yêu thích).
       responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/AuctionSessionDto' } } } } } }
   /sessions/{id}/watch:
     post:
       tags: [Auctions]
       operationId: watchSession
+      x-origin: frontend
       description: Theo dõi / bỏ theo dõi cả phiên (khác với theo dõi từng lô).
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WatchRequest' } } } }
@@ -819,6 +830,7 @@ paths:
     post:
       tags: [Admin]
       operationId: adminCompleteWithdrawal
+      x-frontend-change: "nhận biên lai chuyển khoản (WithdrawalReceiptDto); số tiền phải đúng số yêu cầu; ví bị trừ lúc duyệt"
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalReceiptDto' } } } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalDto' } } } } }
@@ -826,14 +838,16 @@ paths:
     get:
       tags: [Admin]
       operationId: adminListActivityLogs
+      x-origin: frontend
       description: Nhật ký mọi thao tác của Admin (SRS 8.1), mới nhất trước.
       responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ActivityLogDto' } } } } } }
   /admin/returns:
     get:
       tags: [Admin]
       operationId: adminListDisputes
+      x-frontend-change: "thêm tham số resolved để lấy các yêu cầu đã phân xử"
       description: Yêu cầu trả hàng bị shop từ chối, chờ Admin phân xử; resolved=true thì trả các yêu cầu đã phân xử (kèm resolvedBy / resolvedAt).
-      parameters: [ { name: resolved, in: query, schema: { type: boolean } } ]
+      parameters: [ { name: resolved, x-origin: frontend, in: query, schema: { type: boolean } } ]
       responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/OrderDto' } } } } } }
   /admin/returns/{id}/resolve:
     post:
@@ -872,7 +886,7 @@ components:
       enum: [PENDING_PAYMENT, PENDING_CONFIRM, PREPARING, SHIPPING, DELIVERED, RETURN_REQUESTED, COMPLETED, CANCELLED, RETURNED, FAILED_DELIVERY]
     PaymentMethod: { type: string, enum: [COD, WALLET, VNPAY] }
     PaymentStatus: { type: string, enum: [PENDING, SUCCESS, FAILED, EXPIRED] }
-    ReturnStatus: { type: string, enum: [PENDING, ACCEPTED, REJECTED, ESCALATED, RESOLVED_REFUND, RESOLVED_NO_REFUND, WITHDRAWN] }
+    ReturnStatus: { type: string, enum: [PENDING, ACCEPTED, REJECTED, ESCALATED, RESOLVED_REFUND, RESOLVED_NO_REFUND, WITHDRAWN], x-frontend-added: [WITHDRAWN] }
     WalletTransactionType:
       type: string
       enum: [TOP_UP, PAYMENT, REFUND, DEPOSIT_HOLD, DEPOSIT_RELEASE, DEPOSIT_FORFEIT, SALE_PENDING, SALE_RELEASE, FEE, WITHDRAW]
@@ -986,8 +1000,8 @@ components:
         ward: { type: string }
         detail: { type: string }
         isDefault: { type: boolean }
-        latitude: { type: number, format: double, description: Vị trí người dùng ghim trên bản đồ (SRS 9 — addresses). }
-        longitude: { type: number, format: double }
+        latitude: { x-origin: frontend, type: number, format: double, description: Vị trí người dùng ghim trên bản đồ (SRS 9 — addresses). }
+        longitude: { x-origin: frontend, type: number, format: double }
     AddressRequest:
       type: object
       required: [receiver, phone, province, district, ward, detail, isDefault]
@@ -999,8 +1013,8 @@ components:
         ward: { type: string }
         detail: { type: string }
         isDefault: { type: boolean }
-        latitude: { type: number, format: double }
-        longitude: { type: number, format: double }
+        latitude: { x-origin: frontend, type: number, format: double }
+        longitude: { x-origin: frontend, type: number, format: double }
     RegisterDeviceRequest:
       type: object
       required: [fcmToken, platform]
@@ -1120,8 +1134,8 @@ components:
         status: { $ref: '#/components/schemas/ListingStatus' }
         rejectReason: { type: string }
         createdAt: { type: string, format: date-time }
-        reviewedBy: { type: string, description: Tên Admin duyệt / từ chối. }
-        reviewedAt: { type: string, format: date-time }
+        reviewedBy: { x-origin: frontend, type: string, description: Tên Admin duyệt / từ chối. }
+        reviewedAt: { x-origin: frontend, type: string, format: date-time }
     ListingPage:
       type: object
       required: [items, page, size, total]
@@ -1251,9 +1265,9 @@ components:
         imageUrls: { type: array, items: { type: string } }
         status: { $ref: '#/components/schemas/ReturnStatus' }
         resolution: { type: string }
-        resolvedBy: { type: string, description: Tên Admin phân xử. }
-        resolvedAt: { type: string, format: date-time }
-        respondBy: { type: string, format: date-time, description: 'Hạn shop / kho trả lời (SRS 4.4). Quá hạn thì yêu cầu tự chuyển Admin phân xử (status ESCALATED).' }
+        resolvedBy: { x-origin: frontend, type: string, description: Tên Admin phân xử. }
+        resolvedAt: { x-origin: frontend, type: string, format: date-time }
+        respondBy: { x-origin: frontend, type: string, format: date-time, description: 'Hạn shop / kho trả lời (SRS 4.4). Quá hạn thì yêu cầu tự chuyển Admin phân xử (status ESCALATED).' }
     ReturnDecisionRequest:
       type: object
       required: [accept]
@@ -1347,14 +1361,15 @@ components:
         amount: { type: integer, format: int64 }
         status: { $ref: '#/components/schemas/WithdrawalStatus' }
         createdAt: { type: string, format: date-time }
-        bankName: { type: string }
-        bankAccountNumber: { type: string }
-        bankAccountName: { type: string }
-        note: { type: string }
-        approvedBy: { type: string, description: Tên Admin duyệt. }
-        approvedAt: { type: string, format: date-time }
-        receipt: { $ref: '#/components/schemas/WithdrawalReceiptDto' }
+        bankName: { x-origin: frontend, type: string }
+        bankAccountNumber: { x-origin: frontend, type: string }
+        bankAccountName: { x-origin: frontend, type: string }
+        note: { x-origin: frontend, type: string }
+        approvedBy: { x-origin: frontend, type: string, description: Tên Admin duyệt. }
+        approvedAt: { x-origin: frontend, type: string, format: date-time }
+        receipt: { x-origin: frontend, $ref: '#/components/schemas/WithdrawalReceiptDto' }
     WithdrawalReceiptDto:
+      x-origin: frontend
       type: object
       description: Biên lai chuyển khoản Admin nhập khi duyệt rút tiền (SRS 8.1). Người bán xem được trong lịch sử rút tiền.
       required: [senderName, transferredAt, amount, proofImageUrl]
@@ -1364,9 +1379,11 @@ components:
         amount: { type: integer, format: int64, description: Phải đúng số tiền yêu cầu. }
         proofImageUrl: { type: string }
     AdminAction:
+      x-origin: frontend
       type: string
       enum: [LISTING_APPROVED, LISTING_REJECTED, USER_LOCKED, USER_UNLOCKED, ROLE_CHANGED, AUCTION_BAN_LIFTED, SHOP_MARKED_TRUSTED, WITHDRAWAL_COMPLETED, CONFIG_CHANGED]
     ActivityLogDto:
+      x-origin: frontend
       type: object
       required: [id, adminName, action, createdAt]
       properties:
@@ -1376,8 +1393,9 @@ components:
         target: { type: string, description: 'Đối tượng bị tác động (tên sách, email người dùng, mã yêu cầu rút…).' }
         note: { type: string }
         createdAt: { type: string, format: date-time }
-    SecondChanceOfferStatus: { type: string, enum: [PENDING, ACCEPTED, DECLINED, EXPIRED] }
+    SecondChanceOfferStatus: { x-origin: frontend, type: string, enum: [PENDING, ACCEPTED, DECLINED, EXPIRED] }
     SecondChanceOfferDto:
+      x-origin: frontend
       type: object
       required: [id, lotId, lotNumber, bookTitle, amount, expiresAt, status]
       properties:
@@ -1390,6 +1408,7 @@ components:
         expiresAt: { type: string, format: date-time, description: Hạn 24h. }
         status: { $ref: '#/components/schemas/SecondChanceOfferStatus' }
     WithdrawalRequest:
+      x-origin: frontend
       type: object
       required: [amount, bankName, bankAccountNumber, bankAccountName]
       properties:
@@ -1399,6 +1418,7 @@ components:
         bankAccountName: { type: string, description: IN HOA, không dấu. }
         note: { type: string }
     BankAccountDto:
+      x-origin: frontend
       type: object
       required: [id, bankName, accountNumber, accountName, favorite, lastUsedAt]
       properties:
@@ -1408,7 +1428,7 @@ components:
         accountName: { type: string }
         favorite: { type: boolean }
         lastUsedAt: { type: string, format: date-time }
-    FavoriteRequest: { type: object, required: [favorite], properties: { favorite: { type: boolean } } }
+    FavoriteRequest: { x-origin: frontend, type: object, required: [favorite], properties: { favorite: { type: boolean } } }
     UploadSignatureRequest: { type: object, required: [folder], properties: { folder: { type: string } } }
     UploadSignatureDto:
       type: object
@@ -1706,7 +1726,7 @@ components:
         auctionPaymentTimeoutHours: { type: integer }
         depositLimitMultiplier: { type: integer }
         auctionBanDays: { type: integer }
-        returnResponseDays: { type: integer, description: 'order.return_response_days — số ngày shop được trả lời yêu cầu trả hàng (mặc định 2).' }
+        returnResponseDays: { x-origin: frontend, type: integer, description: 'order.return_response_days — số ngày shop được trả lời yêu cầu trả hàng (mặc định 2).' }
         bidIncrementTiers: { type: array, items: { $ref: '#/components/schemas/BidIncrementTierDto' } }
     DashboardDto:
       type: object

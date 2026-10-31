@@ -115,7 +115,7 @@ DTO dùng `json_serializable` (swagger_parser chưa sinh được cú pháp free
 
 ## 6. Giao diện, theme & responsive
 
-Style **Liquid Glass** (chuẩn: `../../design-preview/png/lg-desktop.png`, `lg-mobile.png`):
+Style **Liquid Glass** (chuẩn: `docs/design/lg-desktop.png`, `lg-mobile.png`):
 
 - **Tiêu đề serif mềm** (`AppFonts.serif` = Newsreader, giống New York của Apple): `displaySmall`, `headlineMedium`, `headlineSmall` và dòng sự kiện trong băng chuyền; nhãn nhỏ phía trên là chữ hoa tracking rộng.
 - **Chữ San Francisco** (nội dung): `AppFonts.family` = `null` trên iOS / macOS (Flutter dùng SF của hệ thống) và `Inter` trên web / Android

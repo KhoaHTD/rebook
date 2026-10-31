@@ -20,7 +20,7 @@ Người mua dùng app kiểu *Liquid Glass* (kính mờ, bìa sách loang màu)
 - **Web và app là một sản phẩm:** mọi màn phải dùng được và đẹp ở điện thoại (375px) lẫn desktop (≥1400px). Dưới 900px sidebar thành ngăn kéo.
   Đây là điều hay vỡ nhất, hãy thử ở 375 / 800 / 1400px.
 
-Ảnh tham chiếu: `design-preview/png/` (bản duyệt) và các màn có sẵn: `admin/dashboard_screen.dart`,
+Ảnh tham chiếu: `docs/design/` (bản duyệt) và các màn có sẵn: `admin/dashboard_screen.dart`,
 `admin/listing_review_screen.dart` (danh sách – chi tiết), `staff/staff_consignments_screen.dart`, `admin/config_screen.dart`.
 
 ## Đồ nghề có sẵn (dùng cho nhanh và đúng gu, không bắt buộc)

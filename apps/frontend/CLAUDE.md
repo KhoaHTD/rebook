@@ -5,7 +5,7 @@ Firebase chỉ dùng cho **hosting bản web** và **FCM (thông báo đẩy)**:
 
 Nghiệp vụ: [docs/SRS.txt](docs/SRS.txt) (đặc tả gốc, @Khoa 21/10/2026) + 3 sơ đồ `docs/srs-*.png`. Tiến độ: [docs/PROGRESS.md](docs/PROGRESS.md).
 
-**Giao diện: style Liquid Glass đã duyệt (2026-10-22)** — chuẩn là `../../design-preview/png/lg-desktop.png` và `lg-mobile.png`
+**Giao diện: style Liquid Glass đã duyệt (2026-10-22)** — chuẩn là `docs/design/lg-desktop.png` và `lg-mobile.png`
 (nền màu loang lấy tông từ bìa sách, sidebar / tab bar / thanh đầu trang / thanh mua hàng bằng kính mờ nổi, màu nhấn xanh,
 chữ là font hệ thống (`AppFonts` trong `app_tokens.dart` trả `null`: SF / Roboto / Segoe UI; không đóng gói font riêng, tiêu đề cũng dùng font hệ thống), nền sáng xanh sương #EBEFF4 (không trắng toát), sidebar kính tràn hết chiều cao sát mép trái, băng chuyền `HeroCarousel` ở trang chủ, chi tiết sách lấy bìa phóng to + làm mờ làm nền cả trang (`AppPage.background` + `BookBackdrop`) với chữ trong khung kính, poster sách lớn có gáy + bóng,
 lưới 4 poster/hàng trên desktop, kệ cuộn ngang + tab bar kính nổi trên mobile). Mọi màn mới theo đúng style này:
@@ -106,6 +106,12 @@ lib/
 - Thêm package, đổi state management, đổi router, thêm Firebase SDK ngoài `firebase_core`/`firebase_messaging`.
 - Tạo thư mục cấp cao mới trong `lib/` ngoài `app/ core/ shared/ api/ features/`.
 - Gọi API bằng đường dẫn tự gõ khi spec chưa có endpoint: báo người dùng cập nhật `openapi/openapi.yaml` rồi chạy `/sync-api`.
+
+## Làm thêm ngoài SRS: báo cho backend
+
+Giao diện được phép nhiều hơn SRS (người dùng quyết). Mỗi thứ ngoài SRS cần dữ liệu / endpoint mới thì **trong cùng commit**: (1) thêm vào `openapi/openapi.yaml` và đánh dấu
+`x-origin: frontend` (endpoint / schema / field / tham số), `x-frontend-change: "..."` (endpoint đã có nhưng đổi hành vi) hoặc `x-frontend-added: [...]` (enum), (2) thêm một mục vào
+[docs/BACKEND_HANDOFF.md](docs/BACKEND_HANDOFF.md) (hành vi, endpoint, field, luật nghiệp vụ, bảng DB), (3) làm giao diện bằng dữ liệu giả. Backend chạy `dart run tool/api_gap.dart` để biết còn thiếu gì.
 
 ## Công cụ Claude Code trong repo
 

@@ -14,13 +14,23 @@ Chợ sách cũ: bán giá cố định + đấu giá.
 - Workflow CI nằm ở `.github/workflows/` (gốc repo), mỗi app một file `<app>-*.yml`, lọc theo `paths`.
 - Hooks trong `.claude/settings.json` chủ yếu tác động lên file trong `apps/frontend/`; riêng luật "không có code `apps/backend` trên `interface`" áp cho cả repo.
 
-## Giai đoạn hiện tại: frontend ĐÃ XONG theo SRS (GĐ0–7) — tiếp theo là thêm thắt theo yêu cầu người dùng (đọc `HANDOFF.md`, `apps/frontend/docs/PROGRESS.md`)
+## Giai đoạn hiện tại: frontend ĐÃ XONG theo SRS (GĐ0–7) — tiếp theo là thêm thắt theo yêu cầu người dùng (đọc `apps/frontend/docs/PROGRESS.md`)
 
-- Người dùng đã duyệt kế hoạch 8 giai đoạn (2026-10-22); cả 8 giai đoạn đã xong. Giao diện đã đổi sang **Liquid Glass + chữ SF** (người dùng duyệt bản vẽ `design-preview/png/lg-*.png`). Thay đổi mới: hỏi người dùng trước, giữ đúng style.
+- Người dùng đã duyệt kế hoạch 8 giai đoạn (2026-10-22); cả 8 giai đoạn đã xong. Giao diện đã đổi sang **Liquid Glass + chữ SF** (người dùng duyệt bản vẽ `apps/frontend/docs/design/lg-*.png`). Thay đổi mới: hỏi người dùng trước, giữ đúng style.
 - Lấy logic (OpenAPI, entity, FakeStore, provider, test) từ tag `backup/srs-frontend-2026-10-22`; **giao diện làm mới** (nay là style Liquid Glass, xem `apps/frontend/CLAUDE.md`).
 - Mỗi giai đoạn: `dart analyze --fatal-infos` + `dart run tool/arch_check.dart` + `flutter test` sạch → commit local → cập nhật PROGRESS.md.
 - Không push, không force-push, không xoá branch/tag `backup/*`, không reset Git. Không tự suy diễn ngoài SRS; chỗ SRS thiếu → ghi vào `apps/frontend/docs/DECISIONS.md`.
 - Commit không thêm dòng `Co-Authored-By` hay ghi tên Claude.
+
+## Ghép frontend với backend: giao diện nhiều hơn SRS thì backend làm theo giao diện
+
+- Frontend đã làm nhiều thứ ngoài SRS. Phần dư đó nằm trong `apps/frontend/docs/BACKEND_HANDOFF.md` (mô tả từng mục, endpoint, field, luật nghiệp vụ, bảng DB)
+  và được đánh dấu `x-origin: frontend` / `x-frontend-change` / `x-frontend-added` trong `apps/frontend/openapi/openapi.yaml`.
+- **Phiên làm backend: trước khi code, đọc `BACKEND_HANDOFF.md`, rồi chạy trong `apps/frontend`: `dart run tool/api_gap.dart`** (so spec frontend với `apps/backend/openapi.yaml`,
+  in endpoint / field / enum còn thiếu hoặc lệch, mã thoát 1 nếu còn). Làm xong từng mục thì chạy lại và cập nhật cột Tình trạng ở mục D của sổ bàn giao.
+- Spec của frontend là hợp đồng cho phần giao diện cần. Backend thấy không hợp lý thì **sửa spec (PR / báo chủ repo) rồi mới làm khác**, không lặng lẽ làm lệch; frontend sẽ chạy `/sync-api`.
+- Phiên làm frontend: mỗi lần thêm endpoint / field / hành vi ngoài SRS phải đánh dấu trong `openapi.yaml` và thêm một mục vào `BACKEND_HANDOFF.md` (cùng commit).
+- Đừng sửa `apps/backend` từ phiên frontend (luật cứng ở trên); chỉ ghi vào sổ bàn giao.
 
 ## Làm việc nhóm (luật nhẹ, tin nhau; chi tiết ở `apps/frontend/docs/TEAM_GUIDE.md`)
 
