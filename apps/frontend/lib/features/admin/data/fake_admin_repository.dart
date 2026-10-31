@@ -117,8 +117,11 @@ class FakeAdminRepository implements AdminRepository {
       fakeCall(() => List.of(_store.withdrawals));
 
   @override
-  Future<Withdrawal> completeWithdrawal(String id) =>
-      fakeCall(() => _store.completeWithdrawal(id));
+  Future<Withdrawal> completeWithdrawal(String id, WithdrawalReceipt receipt) =>
+      fakeCall(() => _store.completeWithdrawal(id, receipt));
+
+  @override
+  Future<List<ActivityLog>> activityLogs() => fakeCall(_store.allActivityLogs);
 
   @override
   Future<List<Order>> disputes() => fakeCall(_store.disputes);

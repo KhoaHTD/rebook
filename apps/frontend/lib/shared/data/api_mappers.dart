@@ -323,6 +323,7 @@ extension OrderDtoMapper on api.OrderDto {
               ReturnStatus.pending,
             ),
             resolution: returnRequest!.resolution,
+            respondBy: returnRequest!.respondBy,
           ),
   );
 }
@@ -377,6 +378,53 @@ extension WithdrawalDtoMapper on api.WithdrawalDto {
     status: _enum(WithdrawalStatus.values, status, WithdrawalStatus.pending),
     createdAt: createdAt,
     userName: userName,
+    receipt: receipt?.toDomain(),
+  );
+}
+
+extension WithdrawalReceiptDtoMapper on api.WithdrawalReceiptDto {
+  WithdrawalReceipt toDomain() => WithdrawalReceipt(
+    senderName: senderName,
+    transferredAt: transferredAt,
+    amount: amount,
+    proofImageUrl: proofImageUrl,
+  );
+}
+
+extension WithdrawalReceiptToApi on WithdrawalReceipt {
+  api.WithdrawalReceiptDto toDto() => api.WithdrawalReceiptDto(
+    senderName: senderName,
+    transferredAt: transferredAt,
+    amount: amount,
+    proofImageUrl: proofImageUrl,
+  );
+}
+
+extension ActivityLogDtoMapper on api.ActivityLogDto {
+  ActivityLog toDomain() => ActivityLog(
+    id: id,
+    adminName: adminName,
+    action: _enum(AdminAction.values, action, AdminAction.configChanged),
+    createdAt: createdAt,
+    target: target,
+    note: note,
+  );
+}
+
+extension SecondChanceOfferDtoMapper on api.SecondChanceOfferDto {
+  SecondChanceOffer toDomain() => SecondChanceOffer(
+    id: id,
+    lotId: lotId,
+    lotNumber: lotNumber,
+    bookTitle: bookTitle,
+    amount: amount,
+    expiresAt: expiresAt,
+    status: _enum(
+      SecondChanceStatus.values,
+      status,
+      SecondChanceStatus.pending,
+    ),
+    coverUrl: coverUrl,
   );
 }
 
@@ -651,6 +699,7 @@ extension SystemConfigDtoMapper on api.SystemConfigDto {
     auctionPaymentTimeoutHours: auctionPaymentTimeoutHours,
     depositLimitMultiplier: depositLimitMultiplier,
     auctionBanDays: auctionBanDays,
+    returnResponseDays: returnResponseDays ?? 2,
     bidTiers: [
       for (final t in bidIncrementTiers) BidTier(t.fromPrice, t.increment),
     ],
@@ -668,6 +717,7 @@ extension SystemConfigToApi on SystemConfig {
     auctionPaymentTimeoutHours: auctionPaymentTimeoutHours,
     depositLimitMultiplier: depositLimitMultiplier,
     auctionBanDays: auctionBanDays,
+    returnResponseDays: returnResponseDays,
     bidIncrementTiers: [
       for (final t in bidTiers)
         api.BidIncrementTierDto(fromPrice: t.fromPrice, increment: t.increment),

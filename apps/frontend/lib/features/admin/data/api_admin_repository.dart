@@ -169,8 +169,19 @@ class ApiAdminRepository implements AdminRepository {
   );
 
   @override
-  Future<Withdrawal> completeWithdrawal(String id) => guardApi(
-    () async => (await _admin.adminCompleteWithdrawal(id: id)).toDomain(),
+  Future<Withdrawal> completeWithdrawal(String id, WithdrawalReceipt receipt) =>
+      guardApi(
+        () async => (await _admin.adminCompleteWithdrawal(
+          id: id,
+          body: receipt.toDto(),
+        )).toDomain(),
+      );
+
+  @override
+  Future<List<ActivityLog>> activityLogs() => guardApi(
+    () async => (await _admin.adminListActivityLogs())
+        .map((e) => e.toDomain())
+        .toList(),
   );
 
   @override

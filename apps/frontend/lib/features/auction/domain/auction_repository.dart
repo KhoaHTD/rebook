@@ -39,4 +39,12 @@ abstract interface class AuctionRepository {
   Future<SessionResult> results(String sessionId);
 
   Future<Wallet> wallet();
+
+  /// Lời mời mua lần hai (SRS 6.6).
+  Future<List<SecondChanceOffer>> secondChanceOffers();
+
+  /// Nhận mua với giá đã trả → hoá đơn lô (đơn đấu giá).
+  Future<Order> acceptSecondChance(String id);
+
+  Future<SecondChanceOffer> declineSecondChance(String id);
 }

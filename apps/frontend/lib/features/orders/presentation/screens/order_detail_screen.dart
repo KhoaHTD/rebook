@@ -167,6 +167,17 @@ class _Main extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             PhotoStrip(urls: order.returnRequest!.imageUrls, size: 72),
           ],
+          if (order.returnRequest!.status == ReturnStatus.pending &&
+              order.returnRequest!.respondBy != null)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                l10n.returnRespondBy(
+                  formatDateTime(order.returnRequest!.respondBy!),
+                ),
+                style: context.textStyles.bodySmall,
+              ),
+            ),
           if (order.returnRequest!.resolution != null)
             Text(
               order.returnRequest!.resolution!,
@@ -277,6 +288,22 @@ class _Actions extends ConsumerWidget {
           child: Text(l10n.requestReturn),
         ),
       ],
+      // Đang yêu cầu trả hàng mà bấm "Đã nhận hàng" = rút yêu cầu, đơn hoàn tất (SRS 4.4).
+      if (order.status == OrderStatus.returnRequested &&
+          (order.returnRequest?.status == ReturnStatus.pending ||
+              order.returnRequest?.status == ReturnStatus.escalated))
+        OutlinedButton(
+          onPressed: busy
+              ? null
+              : () async {
+                  final ok = await confirmDialog(
+                    context,
+                    l10n.withdrawReturnQuestion,
+                  );
+                  if (ok) await run(actions.confirmReceived);
+                },
+          child: Text(l10n.withdrawReturnAndConfirm),
+        ),
       if (order.canReview)
         FilledButton(
           onPressed: busy

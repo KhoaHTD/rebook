@@ -24,6 +24,7 @@ import 'package:book_marketplace/features/auction/presentation/screens/live_room
 import 'package:book_marketplace/features/auction/presentation/screens/lot_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/my_auctions_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/my_bids_screen.dart';
+import 'package:book_marketplace/features/auction/presentation/screens/offers_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/register_session_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/results_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/session_screen.dart';
@@ -352,6 +353,10 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'bids',
                     builder: (_, _) => const MyBidsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'offers',
+                    builder: (_, _) => const OffersScreen(),
                   ),
                 ],
               ),

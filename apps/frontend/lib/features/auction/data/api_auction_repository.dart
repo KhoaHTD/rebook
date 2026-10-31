@@ -128,4 +128,23 @@ class ApiAuctionRepository implements AuctionRepository {
   @override
   Future<Wallet> wallet() =>
       guardApi(() async => (await _client.wallet.getWallet()).toDomain());
+
+  @override
+  Future<List<SecondChanceOffer>> secondChanceOffers() => guardApi(
+    () async => (await _client.auctions.listSecondChanceOffers())
+        .map((e) => e.toDomain())
+        .toList(),
+  );
+
+  @override
+  Future<Order> acceptSecondChance(String id) => guardApi(
+    () async =>
+        (await _client.auctions.acceptSecondChanceOffer(id: id)).toDomain(),
+  );
+
+  @override
+  Future<SecondChanceOffer> declineSecondChance(String id) => guardApi(
+    () async =>
+        (await _client.auctions.declineSecondChanceOffer(id: id)).toDomain(),
+  );
 }

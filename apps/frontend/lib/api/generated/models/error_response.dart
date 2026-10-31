@@ -13,7 +13,7 @@ class ErrorResponse {
   factory ErrorResponse.fromJson(Map<String, Object?> json) =>
       _$ErrorResponseFromJson(json);
 
-  /// vd PRICE_CHANGED, OUT_OF_STOCK, INVALID_TRANSITION
+  /// vd PRICE_CHANGED, OUT_OF_STOCK, OWN_LISTING, INVALID_TRANSITION
   final String code;
   final String message;
 

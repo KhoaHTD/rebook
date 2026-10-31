@@ -120,6 +120,21 @@ class _Main extends StatelessWidget {
         if (ret != null) ...[
           heading(l10n.returnRequestFrom),
           StatusPill(ret.status.label(l10n), tone: StatusTone.warning),
+          if (ret.status == ReturnStatus.pending && ret.respondBy != null)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                ret.respondBy!.isAfter(DateTime.now())
+                    ? l10n.returnRespondBySeller(
+                        formatDateTime(ret.respondBy!),
+                        ret.respondBy!.difference(DateTime.now()).inHours,
+                      )
+                    : l10n.returnOverdue,
+                style: context.textStyles.bodyMedium?.copyWith(
+                  color: c.warning,
+                ),
+              ),
+            ),
           const SizedBox(height: AppSpacing.sm),
           Text(ret.reason, style: context.textStyles.bodyMedium),
           if (ret.imageUrls.isNotEmpty) ...[

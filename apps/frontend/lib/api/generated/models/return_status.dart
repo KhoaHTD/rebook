@@ -18,6 +18,8 @@ enum ReturnStatus {
   resolvedRefund('RESOLVED_REFUND'),
   @JsonValue('RESOLVED_NO_REFUND')
   resolvedNoRefund('RESOLVED_NO_REFUND'),
+  @JsonValue('WITHDRAWN')
+  withdrawn('WITHDRAWN'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

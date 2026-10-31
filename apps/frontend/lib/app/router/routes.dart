@@ -34,6 +34,7 @@ abstract final class Routes {
   static const auctionOrders = '/auctions/account/orders';
   static String auctionOrder(String id) => '/auctions/account/orders/$id';
   static const auctionBids = '/auctions/account/bids';
+  static const auctionOffers = '/auctions/account/offers';
 
   // Nhánh 3 — Thông báo
   static const notifications = '/notifications';
@@ -93,4 +94,5 @@ abstract final class AdminRoutes {
   static const config = '/config';
   static const withdrawals = '/withdrawals';
   static const disputes = '/disputes';
+  static const activity = '/activity';
 }

@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'withdrawal_receipt_dto.dart';
 import 'withdrawal_status.dart';
 
 part 'withdrawal_dto.g.dart';
@@ -16,6 +17,7 @@ class WithdrawalDto {
     required this.status,
     required this.createdAt,
     this.userName,
+    this.receipt,
   });
 
   factory WithdrawalDto.fromJson(Map<String, Object?> json) =>
@@ -26,6 +28,7 @@ class WithdrawalDto {
   final int amount;
   final WithdrawalStatus status;
   final DateTime createdAt;
+  final WithdrawalReceiptDto? receipt;
 
   Map<String, Object?> toJson() => _$WithdrawalDtoToJson(this);
 }

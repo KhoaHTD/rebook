@@ -8,6 +8,7 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
+import 'package:book_marketplace/features/auction/presentation/providers/second_chance_providers.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -23,6 +24,7 @@ class AuctionAccountScreen extends ConsumerWidget {
     final text = context.textStyles;
     final user = ref.watch(sessionControllerProvider).user;
     final wallet = ref.watch(auctionWalletProvider).value;
+    final offers = ref.watch(pendingOfferCountProvider);
 
     Widget row(
       IconData icon,
@@ -119,6 +121,13 @@ class AuctionAccountScreen extends ConsumerWidget {
                       Icons.gavel_rounded,
                       l10n.myBids,
                       () => context.go(Routes.auctionBids),
+                    ),
+                    row(
+                      Icons.local_offer_outlined,
+                      offers > 0
+                          ? '${l10n.auctionAccountOffers} ($offers)'
+                          : l10n.auctionAccountOffers,
+                      () => context.go(Routes.auctionOffers),
                     ),
                     row(
                       Icons.bookmark_border_rounded,

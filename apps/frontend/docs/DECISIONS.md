@@ -2,7 +2,7 @@
 
 > **2026-10-22 — làm lại UI theo style Apple Books.** File này lấy từ tag `backup/srs-frontend-2026-10-22`; các mục về nghiệp vụ
 > vẫn giữ. Các mục về giao diện cũ (kính, theme tối tự động trên mobile, trang giới thiệu web) **không còn áp dụng**:
-> giao diện chuẩn là `design-preview/png/apple-desktop.png` + `apple-mobile.png`, nền sáng, web mở thẳng trang chủ.
+> giao diện chuẩn là bản vẽ Apple Books cũ (đã xoá; nay thay bằng `docs/design/lg-*.png`), nền sáng, web mở thẳng trang chủ.
 > Nhánh làm việc hiện tại: `design/apple-books` (không phải `feat/srs-frontend`).
 
 Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, lý do, cách đổi nếu không đồng ý.
@@ -87,7 +87,7 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Màn hình con mở từ sidebar desktop (Đơn mua, Ví…) giữ sidebar; phòng đấu giá phủ toàn màn hình.
 
 ### Giao diện Liquid Glass + chữ SF (2026-10-22)
-- Người dùng duyệt bản vẽ `design-preview/png/lg-desktop.png`, `lg-mobile.png`, thay style Apple Books (nền trắng, serif Newsreader).
+- Người dùng duyệt bản vẽ `docs/design/lg-desktop.png`, `lg-mobile.png`, thay style Apple Books (nền trắng, serif Newsreader).
 - Chữ: người dùng muốn toàn bộ chữ là San Francisco. Giấy phép SF của Apple chỉ cho dùng trên nền tảng Apple, không cho đóng gói
   vào app web / Android → iPhone / Mac dùng SF có sẵn của hệ điều hành, web và Android dùng **Inter** (OFL, gần SF nhất). Người dùng đồng ý.
 - Thêm màu nhấn xanh (`AppColors.tint`) — trước đây chỉ đen trắng. Người dùng đồng ý.
@@ -107,3 +107,23 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
   Video chỉ cho thấy bố cục và chuyển động, không có chữ của ReBook → nội dung được viết lại cho ReBook; ảnh là bìa sách mẫu; "membership" của video thành ba mức phí theo SRS 8.2 (5% bán thường, 15% hoa hồng ký gửi, 10% phí người mua đấu giá).
 - Bảng màu theo video (nền trắng ngà, cam, băng vàng chanh, hồng, xanh dương) — khác với phần còn lại của app (Liquid Glass + xanh); trang này là trang giới thiệu riêng.
 - Web mở `/` là trang giới thiệu; người đã đăng nhập vào thẳng `/home`; app điện thoại không có trang này. Đổi lại bằng `initialLocation` trong `app_router.dart`.
+
+### Cập nhật SRS 31/10 (file `docs/Đặc-tả-ứng-dụng-mua-bán-đấu-giá-sách-cũ.docx`)
+Năm điểm mới trong SRS. SRS **không liệt kê endpoint** cho các điểm này (mục 10.4 chỉ rút gọn), nên tên field / endpoint dưới đây do frontend
+đặt tạm trong `openapi/openapi.yaml` — **backend đối chiếu và sửa nếu khác**, rồi chạy `/sync-api`:
+- **Hạn trả lời yêu cầu trả hàng (4.4):** `ReturnRequestDto.respondBy` (date-time); cấu hình `SystemConfigDto.returnResponseDays` (mặc định 2,
+  `order.return_response_days`); quá hạn thì backend tự đổi `status` sang `ESCALATED`. Frontend chỉ hiển thị hạn (người bán: còn bao nhiêu giờ;
+  người mua: hạn shop trả lời) và có ô cấu hình ở màn Cấu hình phí của Admin.
+- **Rút yêu cầu trả hàng (4.4):** không thêm endpoint — người mua gọi lại `/orders/{id}/confirm-received` khi đơn đang `RETURN_REQUESTED`;
+  backend đóng yêu cầu với trạng thái mới `ReturnStatus.WITHDRAWN` và hoàn tất đơn. Nút hiện là "Đã nhận hàng, rút yêu cầu trả" kèm hộp xác nhận.
+- **Mời mua lần hai (6.6):** `GET /me/offers` (`listSecondChanceOffers`), `POST /me/offers/{id}/accept` (trả `OrderDto`, đơn AUCTION),
+  `POST /me/offers/{id}/decline`; `SecondChanceOfferDto` {id, lotId, lotNumber, bookTitle, coverUrl, amount, expiresAt, status}. Chỉ mời khi giá ≥ giá sàn
+  và hạn 24h — **do backend quyết định**, frontend chỉ hiện lời mời có sẵn. Màn ở hồ sơ đấu giá (`/auctions/account/offers`), có số lời mời còn hiệu lực.
+- **Biên lai rút tiền (8.1):** `POST /admin/withdrawals/{id}/complete` nay nhận `WithdrawalReceiptDto` {senderName, transferredAt, amount, proofImageUrl};
+  `WithdrawalDto.receipt` trả lại cho người bán xem trong lịch sử rút tiền. Số tiền phải đúng số yêu cầu (mã lỗi `RECEIPT_AMOUNT_MISMATCH`, HTTP 422).
+  Ảnh chứng từ upload qua `PhotoPickerField` như các ảnh khác.
+- **Nhật ký hoạt động Admin (8.1):** `GET /admin/activity-logs` → `ActivityLogDto` {id, adminName, action, target, note, createdAt}; `AdminAction` gồm 9 loại
+  theo SRS (duyệt/từ chối tin, khóa/mở khóa, đổi vai trò, gỡ cấm đấu giá, shop uy tín, duyệt rút tiền, đổi cấu hình). Màn `/activity` (sidebar "Nhật ký").
+  Giao diện hiện chưa có chỗ nào gọi "đổi vai trò", "gỡ cấm đấu giá", "shop uy tín" nên frontend giả chỉ ghi 6 loại; 3 loại kia (đổi vai trò, gỡ cấm, shop uy tín) vẫn có nhãn để hiển thị khi backend gửi.
+- **Không làm (SRS không yêu cầu giao diện):** ví của sàn; hoàn tiền VNPay muộn vào ví (dòng "Hoàn tiền" trong lịch sử ví đã có sẵn).
+- **Ngoài SRS, chưa làm theo yêu cầu người dùng:** chọn sản phẩm trong giỏ; trường ngân hàng / số tài khoản / tên chủ tài khoản / ghi chú khi tạo yêu cầu rút tiền.

@@ -72,6 +72,9 @@ class _ConfigFormState extends ConsumerState<_ConfigForm> {
       text: '${widget.initial.depositLimitMultiplier}',
     ),
     'ban': TextEditingController(text: '${widget.initial.auctionBanDays}'),
+    'returnDays': TextEditingController(
+      text: '${widget.initial.returnResponseDays}',
+    ),
   };
   late final _tiers = [
     for (final t in widget.initial.bidTiers)
@@ -108,6 +111,7 @@ class _ConfigFormState extends ConsumerState<_ConfigForm> {
       auctionPaymentTimeoutHours: i('payHours'),
       depositLimitMultiplier: i('multiplier'),
       auctionBanDays: i('ban'),
+      returnResponseDays: i('returnDays'),
       bidTiers: [
         for (final (a, b) in _tiers)
           BidTier(int.tryParse(a.text) ?? 0, int.tryParse(b.text) ?? 0),
@@ -164,6 +168,7 @@ class _ConfigFormState extends ConsumerState<_ConfigForm> {
               field('payHours', l10n.auctionPaymentHours),
               field('multiplier', l10n.depositMultiplier),
               field('ban', l10n.banDays),
+              field('returnDays', l10n.admReturnResponseDays),
             ],
           ),
         ),

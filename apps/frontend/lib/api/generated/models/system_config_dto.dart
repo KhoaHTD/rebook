@@ -21,6 +21,7 @@ class SystemConfigDto {
     required this.depositLimitMultiplier,
     required this.auctionBanDays,
     required this.bidIncrementTiers,
+    this.returnResponseDays,
   });
 
   factory SystemConfigDto.fromJson(Map<String, Object?> json) =>
@@ -35,6 +36,9 @@ class SystemConfigDto {
   final int auctionPaymentTimeoutHours;
   final int depositLimitMultiplier;
   final int auctionBanDays;
+
+  /// order.return_response_days — số ngày shop được trả lời yêu cầu trả hàng (mặc định 2).
+  final int? returnResponseDays;
   final List<BidIncrementTierDto> bidIncrementTiers;
 
   Map<String, Object?> toJson() => _$SystemConfigDtoToJson(this);

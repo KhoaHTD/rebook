@@ -19,6 +19,7 @@ abstract final class ErrorCodes {
   static const invalidOtp = 'INVALID_OTP';
   static const emailTaken = 'EMAIL_TAKEN';
   static const notFound = 'NOT_FOUND';
+  static const receiptMismatch = 'RECEIPT_AMOUNT_MISMATCH';
 }
 
 /// Lỗi chuẩn hoá của app. Tầng data bắt mọi exception và ném lại dạng này

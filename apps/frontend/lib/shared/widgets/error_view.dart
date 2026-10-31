@@ -25,6 +25,7 @@ String errorMessage(BuildContext context, Object error) {
       ErrorCodes.invalidOtp => l10n.errInvalidOtp,
       ErrorCodes.emailTaken => l10n.errEmailTaken,
       ErrorCodes.notFound => l10n.errNotFound,
+      ErrorCodes.receiptMismatch => l10n.errReceiptMismatch,
       _ => null,
     };
     if (byCode != null) return byCode;

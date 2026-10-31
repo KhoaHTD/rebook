@@ -604,6 +604,25 @@ paths:
       parameters: [ { $ref: '#/components/parameters/Id' } ]
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WatchRequest' } } } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/LotDto' } } } } }
+  /me/offers:
+    get:
+      tags: [Auctions]
+      operationId: listSecondChanceOffers
+      description: Lời mời mua lần hai (SRS 6.6) gửi tới người trả giá cao thứ hai khi người thắng bỏ thanh toán. Chỉ mời khi giá của họ ≥ giá sàn.
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/SecondChanceOfferDto' } } } } } }
+  /me/offers/{id}/accept:
+    post:
+      tags: [Auctions]
+      operationId: acceptSecondChanceOffer
+      description: Nhận mua với giá đã trả; trả về hoá đơn lô (đơn AUCTION).
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/OrderDto' } } } } }
+  /me/offers/{id}/decline:
+    post:
+      tags: [Auctions]
+      operationId: declineSecondChanceOffer
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/SecondChanceOfferDto' } } } } }
   /me/registrations:
     get:
       tags: [Auctions]
@@ -756,7 +775,14 @@ paths:
       tags: [Admin]
       operationId: adminCompleteWithdrawal
       parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalReceiptDto' } } } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalDto' } } } } }
+  /admin/activity-logs:
+    get:
+      tags: [Admin]
+      operationId: adminListActivityLogs
+      description: Nhật ký mọi thao tác của Admin (SRS 8.1), mới nhất trước.
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ActivityLogDto' } } } } } }
   /admin/returns:
     get:
       tags: [Admin]
@@ -800,7 +826,7 @@ components:
       enum: [PENDING_PAYMENT, PENDING_CONFIRM, PREPARING, SHIPPING, DELIVERED, RETURN_REQUESTED, COMPLETED, CANCELLED, RETURNED, FAILED_DELIVERY]
     PaymentMethod: { type: string, enum: [COD, WALLET, VNPAY] }
     PaymentStatus: { type: string, enum: [PENDING, SUCCESS, FAILED, EXPIRED] }
-    ReturnStatus: { type: string, enum: [PENDING, ACCEPTED, REJECTED, ESCALATED, RESOLVED_REFUND, RESOLVED_NO_REFUND] }
+    ReturnStatus: { type: string, enum: [PENDING, ACCEPTED, REJECTED, ESCALATED, RESOLVED_REFUND, RESOLVED_NO_REFUND, WITHDRAWN] }
     WalletTransactionType:
       type: string
       enum: [TOP_UP, PAYMENT, REFUND, DEPOSIT_HOLD, DEPOSIT_RELEASE, DEPOSIT_FORFEIT, SALE_PENDING, SALE_RELEASE, FEE, WITHDRAW]
@@ -1173,6 +1199,7 @@ components:
         imageUrls: { type: array, items: { type: string } }
         status: { $ref: '#/components/schemas/ReturnStatus' }
         resolution: { type: string }
+        respondBy: { type: string, format: date-time, description: 'Hạn shop / kho trả lời (SRS 4.4). Quá hạn thì yêu cầu tự chuyển Admin phân xử (status ESCALATED).' }
     ReturnDecisionRequest:
       type: object
       required: [accept]
@@ -1266,6 +1293,42 @@ components:
         amount: { type: integer, format: int64 }
         status: { $ref: '#/components/schemas/WithdrawalStatus' }
         createdAt: { type: string, format: date-time }
+        receipt: { $ref: '#/components/schemas/WithdrawalReceiptDto' }
+    WithdrawalReceiptDto:
+      type: object
+      description: Biên lai chuyển khoản Admin nhập khi duyệt rút tiền (SRS 8.1). Người bán xem được trong lịch sử rút tiền.
+      required: [senderName, transferredAt, amount, proofImageUrl]
+      properties:
+        senderName: { type: string }
+        transferredAt: { type: string, format: date-time }
+        amount: { type: integer, format: int64, description: Phải đúng số tiền yêu cầu. }
+        proofImageUrl: { type: string }
+    AdminAction:
+      type: string
+      enum: [LISTING_APPROVED, LISTING_REJECTED, USER_LOCKED, USER_UNLOCKED, ROLE_CHANGED, AUCTION_BAN_LIFTED, SHOP_MARKED_TRUSTED, WITHDRAWAL_COMPLETED, CONFIG_CHANGED]
+    ActivityLogDto:
+      type: object
+      required: [id, adminName, action, createdAt]
+      properties:
+        id: { type: string }
+        adminName: { type: string }
+        action: { $ref: '#/components/schemas/AdminAction' }
+        target: { type: string, description: 'Đối tượng bị tác động (tên sách, email người dùng, mã yêu cầu rút…).' }
+        note: { type: string }
+        createdAt: { type: string, format: date-time }
+    SecondChanceOfferStatus: { type: string, enum: [PENDING, ACCEPTED, DECLINED, EXPIRED] }
+    SecondChanceOfferDto:
+      type: object
+      required: [id, lotId, lotNumber, bookTitle, amount, expiresAt, status]
+      properties:
+        id: { type: string }
+        lotId: { type: string }
+        lotNumber: { type: integer }
+        bookTitle: { type: string }
+        coverUrl: { type: string }
+        amount: { type: integer, format: int64, description: Giá người nhận lời mời đã trả (giá mua). }
+        expiresAt: { type: string, format: date-time, description: Hạn 24h. }
+        status: { $ref: '#/components/schemas/SecondChanceOfferStatus' }
     UploadSignatureRequest: { type: object, required: [folder], properties: { folder: { type: string } } }
     UploadSignatureDto:
       type: object
@@ -1563,6 +1626,7 @@ components:
         auctionPaymentTimeoutHours: { type: integer }
         depositLimitMultiplier: { type: integer }
         auctionBanDays: { type: integer }
+        returnResponseDays: { type: integer, description: 'order.return_response_days — số ngày shop được trả lời yêu cầu trả hàng (mặc định 2).' }
         bidIncrementTiers: { type: array, items: { $ref: '#/components/schemas/BidIncrementTierDto' } }
     DashboardDto:
       type: object

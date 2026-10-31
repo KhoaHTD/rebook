@@ -8,11 +8,13 @@ import 'package:retrofit/retrofit.dart';
 import '../models/auction_session_dto.dart';
 import '../models/bid_dto.dart';
 import '../models/lot_dto.dart';
+import '../models/order_dto.dart';
 import '../models/place_bid_request.dart';
 import '../models/proxy_bid_dto.dart';
 import '../models/proxy_bid_request.dart';
 import '../models/register_session_request.dart';
 import '../models/registration_dto.dart';
+import '../models/second_chance_offer_dto.dart';
 import '../models/session_catalogue_dto.dart';
 import '../models/session_result_dto.dart';
 import '../models/session_state_dto.dart';
@@ -75,6 +77,19 @@ abstract class AuctionsClient {
   Future<LotDto> watchLot({
     @Path('id') required String id,
     @Body() required WatchRequest body,
+  });
+
+  /// Lời mời mua lần hai (SRS 6.6) gửi tới người trả giá cao thứ hai khi người thắng bỏ thanh toán. Chỉ mời khi giá của họ ≥ giá sàn.
+  @GET('/me/offers')
+  Future<List<SecondChanceOfferDto>> listSecondChanceOffers();
+
+  /// Nhận mua với giá đã trả; trả về hoá đơn lô (đơn AUCTION).
+  @POST('/me/offers/{id}/accept')
+  Future<OrderDto> acceptSecondChanceOffer({@Path('id') required String id});
+
+  @POST('/me/offers/{id}/decline')
+  Future<SecondChanceOfferDto> declineSecondChanceOffer({
+    @Path('id') required String id,
   });
 
   @GET('/me/registrations')

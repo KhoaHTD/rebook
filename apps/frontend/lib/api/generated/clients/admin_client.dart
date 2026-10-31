@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/activity_log_dto.dart';
 import '../models/approval_request.dart';
 import '../models/auction_session_dto.dart';
 import '../models/category_dto.dart';
@@ -26,6 +27,7 @@ import '../models/system_config_dto.dart';
 import '../models/user_dto.dart';
 import '../models/user_page.dart';
 import '../models/withdrawal_dto.dart';
+import '../models/withdrawal_receipt_dto.dart';
 
 part 'admin_client.g.dart';
 
@@ -130,7 +132,12 @@ abstract class AdminClient {
   @POST('/admin/withdrawals/{id}/complete')
   Future<WithdrawalDto> adminCompleteWithdrawal({
     @Path('id') required String id,
+    @Body() required WithdrawalReceiptDto body,
   });
+
+  /// Nhật ký mọi thao tác của Admin (SRS 8.1), mới nhất trước.
+  @GET('/admin/activity-logs')
+  Future<List<ActivityLogDto>> adminListActivityLogs();
 
   /// Yêu cầu trả hàng bị shop từ chối, chờ Admin phân xử.
   @GET('/admin/returns')

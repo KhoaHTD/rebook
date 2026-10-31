@@ -44,6 +44,9 @@ enum ReturnStatus {
   escalated,
   resolvedRefund,
   resolvedNoRefund,
+
+  /// Người mua bấm "Đã nhận hàng" khi đang yêu cầu trả hàng: coi như rút yêu cầu (SRS 4.4).
+  withdrawn,
 }
 
 /// Loại giao dịch ví (SRS 8.1). Mọi thay đổi số dư là một dòng sổ cái.
@@ -61,6 +64,22 @@ enum WalletTxnType {
 }
 
 enum WithdrawalStatus { pending, completed, rejected }
+
+/// Thao tác của Admin được ghi vào nhật ký hoạt động (SRS 8.1).
+enum AdminAction {
+  listingApproved,
+  listingRejected,
+  userLocked,
+  userUnlocked,
+  roleChanged,
+  auctionBanLifted,
+  shopMarkedTrusted,
+  withdrawalCompleted,
+  configChanged,
+}
+
+/// Lời mời mua lần hai (SRS 6.6).
+enum SecondChanceStatus { pending, accepted, declined, expired }
 
 /// Vòng đời ký gửi trước khi thành lô (SRS 6.1 – 6.2).
 enum ConsignmentStatus {

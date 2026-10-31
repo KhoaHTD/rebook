@@ -16,6 +16,7 @@ import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
+import 'package:book_marketplace/shared/widgets/withdrawal_receipt_view.dart';
 
 /// Ví ReBook: số dư dùng được / đang khóa, nạp tiền VNPay, rút tiền (người bán), sổ giao dịch (SRS 8.1).
 /// Khu mua sách chỉ hiện giao dịch mua bán; khu đấu giá ([auction]) chỉ hiện giao dịch cọc.
@@ -207,7 +208,14 @@ class WalletScreen extends ConsumerWidget {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(formatVnd(w.amount)),
-                    subtitle: Text(formatDateTime(w.createdAt)),
+                    subtitle: Text(
+                      w.receipt == null
+                          ? formatDateTime(w.createdAt)
+                          : '${formatDateTime(w.createdAt)} · ${l10n.receiptTitle}',
+                    ),
+                    onTap: w.receipt == null
+                        ? null
+                        : () => showReceiptSheet(context, w.receipt!),
                     trailing: StatusPill(
                       w.status.label(l10n),
                       tone: w.status.tone,

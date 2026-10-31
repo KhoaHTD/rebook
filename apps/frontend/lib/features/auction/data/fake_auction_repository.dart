@@ -70,4 +70,16 @@ class FakeAuctionRepository implements AuctionRepository {
   @override
   Future<Wallet> wallet() =>
       fakeCall(() => _store.walletOf(_store.currentUserId!));
+
+  @override
+  Future<List<SecondChanceOffer>> secondChanceOffers() =>
+      fakeCall(_store.mySecondChances);
+
+  @override
+  Future<Order> acceptSecondChance(String id) =>
+      fakeCall(() => _store.acceptSecondChance(id), ms: 300);
+
+  @override
+  Future<SecondChanceOffer> declineSecondChance(String id) =>
+      fakeCall(() => _store.declineSecondChance(id), ms: 150);
 }

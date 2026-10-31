@@ -1313,6 +1313,28 @@
   },
   "adminBidFeed": "Lượt trả giá trực tiếp",
   "adminLotQueue": "Hàng đợi lô",
+  "admReceiptTitle": "Biên lai chuyển khoản",
+  "admReceiptSender": "Người chuyển (tên tài khoản của sàn)",
+  "admReceiptTime": "Thời điểm chuyển",
+  "admReceiptAmount": "Số tiền thực chuyển",
+  "admReceiptProof": "Ảnh biên lai / chứng từ",
+  "admReceiptProofRequired": "Cần đính kèm ảnh chứng từ",
+  "admReceiptSenderRequired": "Nhập tên người chuyển",
+  "admReceiptConfirm": "Xác nhận đã chuyển",
+  "admReceiptSeeLink": "Xem biên lai",
+  "admNavActivity": "Nhật ký",
+  "admActivityTitle": "Nhật ký hoạt động",
+  "admActivityEmpty": "Chưa có thao tác nào",
+  "admActListingApproved": "Duyệt tin đăng",
+  "admActListingRejected": "Từ chối tin đăng",
+  "admActUserLocked": "Khóa tài khoản",
+  "admActUserUnlocked": "Mở khóa tài khoản",
+  "admActRoleChanged": "Đổi vai trò",
+  "admActAuctionBanLifted": "Gỡ cấm đấu giá",
+  "admActShopMarkedTrusted": "Đánh dấu shop uy tín",
+  "admActWithdrawalCompleted": "Duyệt rút tiền",
+  "admActConfigChanged": "Đổi cấu hình",
+  "admReturnResponseDays": "Hạn shop trả lời yêu cầu trả hàng (ngày)",
   "modeBooks": "Mua sách",
   "modeAuction": "Đấu giá",
   "modeBackToBooks": "Về Mua sách",
@@ -1489,5 +1511,65 @@
   },
   "bidLeading": "Đang dẫn đầu",
   "bidOutbid": "Đã bị vượt giá",
-  "auctionAccountRegistrations": "Phiên đã đăng ký & số bài"
+  "auctionAccountRegistrations": "Phiên đã đăng ký & số bài",
+  "rsWithdrawn": "Đã rút yêu cầu",
+  "errReceiptMismatch": "Số tiền trên biên lai phải đúng số tiền yêu cầu rút",
+  "returnRespondBy": "Shop có tới {time} để trả lời. Quá hạn, yêu cầu tự chuyển Admin phân xử.",
+  "@returnRespondBy": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "returnRespondBySeller": "Hạn trả lời: {time} (còn {hours} giờ). Quá hạn, yêu cầu tự chuyển Admin phân xử.",
+  "@returnRespondBySeller": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "returnOverdue": "Đã quá hạn trả lời, yêu cầu được chuyển Admin phân xử.",
+  "withdrawReturnAndConfirm": "Đã nhận hàng, rút yêu cầu trả",
+  "withdrawReturnQuestion": "Xác nhận đã nhận hàng? Yêu cầu trả hàng sẽ được rút và đơn hoàn tất.",
+  "receiptTitle": "Biên lai chuyển khoản",
+  "receiptSender": "Người chuyển",
+  "receiptTime": "Thời điểm chuyển",
+  "receiptAmount": "Số tiền chuyển",
+  "receiptNoImage": "Không có ảnh chứng từ",
+  "offersTitle": "Lời mời mua lần hai",
+  "offersEmpty": "Chưa có lời mời nào",
+  "offersHint": "Khi người thắng bỏ thanh toán, bạn (người trả giá cao thứ hai, giá từ giá sàn trở lên) được mời mua với giá đã trả trong 24 giờ.",
+  "offerLotLine": "Lô {n} · {price}",
+  "@offerLotLine": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "offerExpires": "Hết hạn {time}",
+  "@offerExpires": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "offerAccept": "Mua với giá này",
+  "offerDecline": "Từ chối",
+  "offerDeclineQuestion": "Từ chối lời mời này? Lô sẽ quay lại chờ xếp phiên sau.",
+  "offerAccepted": "Đã tạo hoá đơn, thanh toán trong 48 giờ",
+  "offerStatusPending": "Đang chờ bạn",
+  "offerStatusAccepted": "Đã mua",
+  "offerStatusDeclined": "Đã từ chối",
+  "offerStatusExpired": "Hết hạn",
+  "auctionAccountOffers": "Lời mời mua lần hai"
 }

@@ -92,6 +92,16 @@ Future<List<Withdrawal>> adminWithdrawals(Ref ref) {
   return ref.watch(adminRepositoryProvider).withdrawals();
 }
 
+/// Nhật ký hoạt động của Admin (SRS 8.1). Tải lại mỗi khi có vùng dữ liệu liên quan đổi.
+@riverpod
+Future<List<ActivityLog>> adminActivityLogs(Ref ref) {
+  ref.watchArea(DataArea.wallet);
+  ref.watchArea(DataArea.listings);
+  ref.watchArea(DataArea.profile);
+  ref.watchArea(DataArea.warehouse);
+  return ref.watch(adminRepositoryProvider).activityLogs();
+}
+
 @riverpod
 Future<List<Order>> adminDisputes(Ref ref) {
   ref.watchArea(DataArea.orders);

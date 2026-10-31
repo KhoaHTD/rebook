@@ -16,6 +16,7 @@ class ReturnRequestDto {
     required this.imageUrls,
     required this.status,
     this.resolution,
+    this.respondBy,
   });
 
   factory ReturnRequestDto.fromJson(Map<String, Object?> json) =>
@@ -26,6 +27,9 @@ class ReturnRequestDto {
   final List<String> imageUrls;
   final ReturnStatus status;
   final String? resolution;
+
+  /// Hạn shop / kho trả lời (SRS 4.4). Quá hạn thì yêu cầu tự chuyển Admin phân xử (status ESCALATED).
+  final DateTime? respondBy;
 
   Map<String, Object?> toJson() => _$ReturnRequestDtoToJson(this);
 }
