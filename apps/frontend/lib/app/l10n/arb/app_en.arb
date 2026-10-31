@@ -1046,5 +1046,15 @@
   "addrDelete": "Delete address",
   "addrDone": "Done",
   "addrAddNew": "Add a new address",
-  "addrMapHint": "Tap the map to place the pin. Until you do, it sits at the province centre."
+  "addrMapHint": "Tap the map to place the pin. Until you do, it sits at the province centre.",
+  "coverTitle": "Cover image",
+  "coverHint": "Take or pick a photo of the front cover, then drag the 4 dots to its corners so the app flattens and trims it. This becomes the cover shown in the shop; the real photos below stay untouched so buyers can judge the condition.",
+  "coverCamera": "Camera",
+  "coverPick": "Pick cover",
+  "coverRedo": "Pick again",
+  "coverRemove": "Remove cover",
+  "coverScanTitle": "Adjust the cover",
+  "coverScanHint": "Drag the 4 dots to the 4 corners of the front cover. A tilted shot will be flattened.",
+  "coverReset": "Reset",
+  "coverUse": "Use this"
 }

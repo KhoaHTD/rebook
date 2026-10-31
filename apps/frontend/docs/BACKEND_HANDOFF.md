@@ -95,6 +95,13 @@ Frontend: **mỗi lần thêm thứ ngoài SRS đều phải đánh dấu như t
 - `WithdrawalDto.approvedBy/approvedAt`, `ListingDto.reviewedBy/reviewedAt` (duyệt hoặc từ chối), `ReturnRequestDto.resolvedBy/resolvedAt` (Admin phân xử).
 - `GET /admin/returns?resolved=true` trả các đơn đã phân xử (mặc định chỉ các đơn đang chờ phân xử).
 
+### B8. Ảnh bìa đại diện (không cần endpoint mới)
+- Khi đăng bán / ký gửi, frontend cho người bán chọn ảnh bìa trước, kéo 4 góc, **tự làm phẳng ở máy** (nắn phối cảnh, xuất PNG) rồi upload như ảnh thường.
+  Ảnh bìa đó được đặt **đứng đầu** `imageUrls`, theo sau là các ảnh thật. Backend **giữ nguyên thứ tự ảnh** (`book_images.sort_order`): ảnh đầu = bìa đại diện (`Book.coverUrl`).
+- Số ảnh tối thiểu (SRS 4.1: 3 ảnh thật) tính trên các ảnh thật, **không tính** ảnh bìa đại diện.
+- Đề xuất (chưa làm, chờ backend): `POST /uploads/cover-check` nhận ảnh, dùng model đọc ảnh trả `{type: FRONT_COVER|BACK_COVER|SPINE|OTHER|NOT_A_BOOK, issues: [BLURRY, GLARE, TOO_DARK, CROPPED], corners}`;
+  frontend dùng để chặn ảnh rác (ảnh chụp màn hình…) và gợi ý sẵn 4 góc. Khoá API model chỉ để ở backend.
+
 ## C. Frontend suy ra từ dữ liệu có sẵn (không cần endpoint mới, có thể tối ưu)
 - **Khu mua sách / khu đấu giá tách hồ sơ:** đơn lọc theo `Order.type` (`NORMAL` / `AUCTION`); ví lọc theo loại giao dịch (`DEPOSIT_*` là của đấu giá).
   Đề xuất: `GET /orders?type=` và `GET /wallet/transactions?group=` để khỏi tải rồi lọc.
@@ -116,5 +123,6 @@ Frontend: **mỗi lần thêm thứ ngoài SRS đều phải đánh dấu như t
 | B5 Rút tiền + ngân hàng | chưa |
 | B6 Tài khoản ngân hàng đã dùng | chưa |
 | B7 Người duyệt | chưa |
+| B8 Ảnh bìa đại diện | giữ thứ tự ảnh (chưa); AI kiểm tra loại ảnh (đề xuất) |
 
 Backend cập nhật cột này khi làm xong từng mục (và chạy lại `api_gap`).

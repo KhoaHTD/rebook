@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/network/upload_service.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/widgets/book_poster.dart';
+import 'package:book_marketplace/shared/widgets/cover_scanner.dart';
+import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/glass_menu.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -13,7 +19,7 @@ import 'package:book_marketplace/shared/widgets/photo_picker.dart';
 /// Phần nhập thông tin sách — dùng chung cho đăng bán và ký gửi.
 ///
 /// Gọi [BookFormState.validate] / [BookFormState.draft] qua GlobalKey.
-class BookForm extends StatefulWidget {
+class BookForm extends ConsumerStatefulWidget {
   const BookForm({
     super.key,
     required this.categories,
@@ -30,10 +36,10 @@ class BookForm extends StatefulWidget {
   final int minPhotos;
 
   @override
-  State<BookForm> createState() => BookFormState();
+  ConsumerState<BookForm> createState() => BookFormState();
 }
 
-class BookFormState extends State<BookForm> {
+class BookFormState extends ConsumerState<BookForm> {
   final _form = GlobalKey<FormState>();
   late final _title = TextEditingController(text: widget.initial?.title);
   late final _author = TextEditingController(text: widget.initial?.author);
@@ -60,6 +66,38 @@ class BookFormState extends State<BookForm> {
   late ConditionGrade? _condition = widget.initial?.condition;
   late String? _categoryId = widget.initial?.categoryId;
   var _showPhotoError = false;
+
+  /// Ảnh bìa đại diện đã làm phẳng (đứng đầu danh sách ảnh); null = lấy ảnh thật đầu tiên như trước.
+  String? _cover;
+  var _coverBusy = false;
+
+  /// Chọn / chụp ảnh bìa trước, cho người bán kéo 4 góc, làm phẳng rồi upload.
+  Future<void> _pickCover(ImageSource source) async {
+    final file = await ImagePicker().pickImage(
+      source: source,
+      imageQuality: 90,
+      maxWidth: 2000,
+    );
+    if (file == null || !mounted) return;
+    final photo = await file.readAsBytes();
+    if (!mounted) return;
+    final flat = await showCoverScanner(context, photo);
+    if (flat == null || !mounted) return;
+    setState(() => _coverBusy = true);
+    try {
+      final url = await ref
+          .read(imageUploaderProvider)
+          .upload(
+            XFile.fromData(flat, name: 'cover.png', mimeType: 'image/png'),
+            folder: widget.photoFolder,
+          );
+      if (mounted) setState(() => _cover = url);
+    } catch (e) {
+      if (mounted) showErrorSnack(context, e);
+    } finally {
+      if (mounted) setState(() => _coverBusy = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -92,7 +130,7 @@ class BookFormState extends State<BookForm> {
       title: _title.text.trim(),
       author: _author.text.trim(),
       condition: _condition!,
-      imageUrls: _photos,
+      imageUrls: [?_cover, ..._photos],
       publisher: text(_publisher),
       publishYear: int.tryParse(_year.text),
       isbn: text(_isbn),
@@ -138,6 +176,80 @@ class BookFormState extends State<BookForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          InfoPanel(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l10n.coverTitle, style: context.textStyles.titleSmall),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  l10n.coverHint,
+                  style: context.textStyles.bodySmall?.copyWith(
+                    color: context.appColors.secondaryText,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (_cover != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: AppSpacing.md),
+                        child: BookPoster(
+                          title: _title.text,
+                          author: _author.text,
+                          coverUrl: _cover,
+                          seed: _cover!,
+                          width: 84,
+                        ),
+                      ),
+                    Expanded(
+                      child: Wrap(
+                        spacing: AppSpacing.sm,
+                        runSpacing: AppSpacing.sm,
+                        children: [
+                          OutlinedButton.icon(
+                            onPressed: _coverBusy
+                                ? null
+                                : () => _pickCover(ImageSource.camera),
+                            icon: const Icon(
+                              Icons.photo_camera_outlined,
+                              size: 18,
+                            ),
+                            label: Text(l10n.coverCamera),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: _coverBusy
+                                ? null
+                                : () => _pickCover(ImageSource.gallery),
+                            icon: const Icon(
+                              Icons.photo_library_outlined,
+                              size: 18,
+                            ),
+                            label: Text(
+                              _cover == null ? l10n.coverPick : l10n.coverRedo,
+                            ),
+                          ),
+                          if (_cover != null)
+                            TextButton(
+                              onPressed: () => setState(() => _cover = null),
+                              child: Text(l10n.coverRemove),
+                            ),
+                          if (_coverBusy)
+                            const SizedBox.square(
+                              dimension: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          gap,
           InfoPanel(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(

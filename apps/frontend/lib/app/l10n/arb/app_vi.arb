@@ -1706,5 +1706,15 @@
   "addrDelete": "Xóa địa chỉ",
   "addrDone": "Hoàn thành",
   "addrAddNew": "Thêm địa chỉ mới",
-  "addrMapHint": "Chạm vào bản đồ để đặt ghim. Chưa chạm thì ghim ở giữa tỉnh / thành."
+  "addrMapHint": "Chạm vào bản đồ để đặt ghim. Chưa chạm thì ghim ở giữa tỉnh / thành.",
+  "coverTitle": "Ảnh bìa đại diện",
+  "coverHint": "Chụp hoặc chọn ảnh mặt bìa trước, rồi kéo 4 chấm về 4 góc để app làm phẳng và cắt gọn. Ảnh này làm bìa hiển thị trên shop; các ảnh thật bên dưới vẫn giữ nguyên để người mua xem tình trạng.",
+  "coverCamera": "Chụp",
+  "coverPick": "Chọn ảnh bìa",
+  "coverRedo": "Chọn lại",
+  "coverRemove": "Bỏ ảnh bìa",
+  "coverScanTitle": "Chỉnh bìa sách",
+  "coverScanHint": "Kéo 4 chấm về đúng 4 góc của bìa trước. Bìa chụp nghiêng sẽ được làm phẳng.",
+  "coverReset": "Đặt lại",
+  "coverUse": "Dùng ảnh này"
 }
