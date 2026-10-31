@@ -42,6 +42,7 @@ class AuctionAccountScreen extends ConsumerWidget {
 
     return AppPage(
       title: l10n.auctionAccountTitle,
+      showBack: false,
       onRefresh: () => ref.refresh(auctionWalletProvider.future),
       children: [
         ConstrainedBox(

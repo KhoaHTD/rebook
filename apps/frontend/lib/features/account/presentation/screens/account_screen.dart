@@ -58,6 +58,7 @@ class AccountScreen extends ConsumerWidget {
 
     return AppPage(
       title: l10n.accountTitle,
+      showBack: false,
       children: [
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
