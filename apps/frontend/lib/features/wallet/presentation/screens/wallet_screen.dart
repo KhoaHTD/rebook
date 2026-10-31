@@ -9,9 +9,8 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/external_link.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
-import 'package:book_marketplace/core/utils/vietnamese.dart';
-import 'package:book_marketplace/shared/data/vietnam_banks.dart';
 import 'package:book_marketplace/features/wallet/presentation/providers/wallet_providers.dart';
+import 'package:book_marketplace/features/wallet/presentation/providers/withdraw_draft.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
@@ -136,29 +135,6 @@ class WalletScreen extends ConsumerWidget {
       }
     }
 
-    Future<void> withdraw(int available) async {
-      final form = await showModalBottomSheet<_WithdrawForm>(
-        context: context,
-        useRootNavigator: true,
-        isScrollControlled: true,
-        builder: (_) => _WithdrawSheet(available: available),
-      );
-      if (form == null || !context.mounted) return;
-      final ok = await ref
-          .read(walletControllerProvider.notifier)
-          .withdraw(
-            form.amount,
-            bankName: form.bank,
-            accountNumber: form.number,
-            accountName: form.name,
-            note: form.note,
-          );
-      if (!context.mounted) return;
-      ok
-          ? showInfoSnack(context, l10n.withdrawSent)
-          : showErrorSnack(context, ref.read(walletControllerProvider).error!);
-    }
-
     return AppPage(
       title: auction ? l10n.auctionWalletTitle : l10n.wallet,
       onRefresh: () => ref.refresh(myWalletProvider.future),
@@ -200,7 +176,15 @@ class WalletScreen extends ConsumerWidget {
                             OutlinedButton(
                               onPressed: busy
                                   ? null
-                                  : () => withdraw(w.available),
+                                  : () {
+                                      ref
+                                          .read(
+                                            withdrawDraftControllerProvider
+                                                .notifier,
+                                          )
+                                          .reset();
+                                      context.push(Routes.withdrawBank);
+                                    },
                               child: Text(l10n.withdraw),
                             ),
                         ],
@@ -284,184 +268,6 @@ class WalletScreen extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// Kết quả form rút tiền.
-class _WithdrawForm {
-  const _WithdrawForm(
-    this.amount,
-    this.bank,
-    this.number,
-    this.name,
-    this.note,
-  );
-
-  final int amount;
-  final String bank;
-  final String number;
-  final String name;
-  final String? note;
-}
-
-/// Tạo yêu cầu rút tiền: số tiền, ngân hàng, số tài khoản, tên chủ tài khoản (in hoa, không dấu), ghi chú (SRS 8.1).
-class _WithdrawSheet extends StatefulWidget {
-  const _WithdrawSheet({required this.available});
-
-  final int available;
-
-  @override
-  State<_WithdrawSheet> createState() => _WithdrawSheetState();
-}
-
-class _WithdrawSheetState extends State<_WithdrawSheet> {
-  final _amount = TextEditingController();
-  final _number = TextEditingController();
-  final _name = TextEditingController();
-  final _note = TextEditingController();
-  String? _bank;
-  var _submitted = false;
-
-  @override
-  void dispose() {
-    _amount.dispose();
-    _number.dispose();
-    _name.dispose();
-    _note.dispose();
-    super.dispose();
-  }
-
-  String? _amountError(AppLocalizations l10n) {
-    final v = int.tryParse(_amount.text) ?? 0;
-    if (v < WalletController.minAmount) {
-      return l10n.amountMin(formatVnd(WalletController.minAmount));
-    }
-    if (v > widget.available) return l10n.amountTooHigh;
-    return null;
-  }
-
-  void _submit(AppLocalizations l10n) {
-    setState(() => _submitted = true);
-    final numberOk = RegExp(r'^\d{6,19}$').hasMatch(_number.text);
-    if (_amountError(l10n) != null ||
-        _bank == null ||
-        !numberOk ||
-        _name.text.trim().isEmpty) {
-      return;
-    }
-    final note = _note.text.trim();
-    Navigator.pop(
-      context,
-      _WithdrawForm(
-        int.parse(_amount.text),
-        _bank!,
-        _number.text,
-        _name.text.trim(),
-        note.isEmpty ? null : note,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final text = context.textStyles;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        0,
-        20,
-        20 + MediaQuery.viewInsetsOf(context).bottom,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.withdraw, style: text.titleLarge),
-            const SizedBox(height: AppSpacing.xs),
-            Text(l10n.wdDeductHint, style: text.bodySmall),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _amount,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: l10n.amount,
-                helperText: l10n.amountMin(
-                  formatVnd(WalletController.minAmount),
-                ),
-                errorText: _submitted ? _amountError(l10n) : null,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            DropdownButtonFormField<String>(
-              initialValue: _bank,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: l10n.wdBank,
-                hintText: l10n.wdBankHint,
-                errorText: _submitted && _bank == null ? l10n.wdNeedBank : null,
-              ),
-              items: [
-                for (final b in vietnamBanks)
-                  DropdownMenuItem(value: b, child: Text(b)),
-              ],
-              onChanged: (v) => setState(() => _bank = v),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _number,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(19),
-              ],
-              decoration: InputDecoration(
-                labelText: l10n.wdAccountNumber,
-                errorText:
-                    _submitted && !RegExp(r'^\d{6,19}$').hasMatch(_number.text)
-                    ? l10n.wdNeedNumber
-                    : null,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _name,
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                labelText: l10n.wdAccountName,
-                errorText: _submitted && _name.text.trim().isEmpty
-                    ? l10n.wdNeedName
-                    : null,
-              ),
-              // Gõ có dấu / chữ thường thì tự đổi thành IN HOA không dấu.
-              onChanged: (v) {
-                final fixed = bankAccountName(v);
-                if (fixed != v) {
-                  _name.value = TextEditingValue(
-                    text: fixed,
-                    selection: TextSelection.collapsed(offset: fixed.length),
-                  );
-                }
-                setState(() {});
-              },
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _note,
-              maxLength: 120,
-              decoration: InputDecoration(labelText: l10n.wdNote),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            FilledButton(
-              onPressed: () => _submit(l10n),
-              child: Text(l10n.confirm),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

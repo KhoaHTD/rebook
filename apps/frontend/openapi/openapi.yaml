@@ -408,6 +408,20 @@ paths:
       description: Tạo yêu cầu rút tiền. Backend kiểm tra thông tin ngân hàng và available_balance đủ số tiền; ví chỉ bị trừ khi Admin duyệt (SRS 8.1).
       requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalRequest' } } } }
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/WithdrawalDto' } } } } }
+  /wallet/bank-accounts:
+    get:
+      tags: [Wallet]
+      operationId: listBankAccounts
+      description: Tài khoản ngân hàng tôi đã dùng để rút tiền (màn "Gần đây"), yêu thích đứng đầu rồi tới lần dùng mới nhất. Backend tự lưu / cập nhật khi tạo yêu cầu rút tiền.
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/BankAccountDto' } } } } } }
+  /wallet/bank-accounts/{id}/favorite:
+    post:
+      tags: [Wallet]
+      operationId: setBankAccountFavorite
+      description: Đánh dấu / bỏ đánh dấu yêu thích một tài khoản ngân hàng đã lưu.
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FavoriteRequest' } } } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/BankAccountDto' } } } } }
   /payments/{id}:
     get:
       tags: [Payments]
@@ -1384,6 +1398,16 @@ components:
         bankAccountNumber: { type: string }
         bankAccountName: { type: string, description: IN HOA, không dấu. }
         note: { type: string }
+    BankAccountDto:
+      type: object
+      required: [id, bankName, accountNumber, accountName, favorite, lastUsedAt]
+      properties:
+        id: { type: string }
+        bankName: { type: string }
+        accountNumber: { type: string }
+        accountName: { type: string }
+        favorite: { type: boolean }
+        lastUsedAt: { type: string, format: date-time }
     FavoriteRequest: { type: object, required: [favorite], properties: { favorite: { type: boolean } } }
     UploadSignatureRequest: { type: object, required: [folder], properties: { folder: { type: string } } }
     UploadSignatureDto:

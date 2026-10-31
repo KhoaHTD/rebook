@@ -109,6 +109,8 @@ class FakeStore {
   final txns = <String, List<WalletTxn>>{};
   final withdrawals = <Withdrawal>[];
   final activityLogs = <ActivityLog>[];
+  final bankAccounts =
+      <String, List<BankAccount>>{}; // userId -> tài khoản đã dùng
   final favorites =
       <String, List<String>>{}; // userId -> listingId, mới nhất trước
   final watchedSessionIds = <String, List<String>>{}; // userId -> sessionId

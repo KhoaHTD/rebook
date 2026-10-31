@@ -279,6 +279,24 @@ extension _Seed on FakeStore {
       bankAccountName: 'NGUYEN MINH ANH',
       note: 'Rút tiền bán sách tháng 10',
     );
+    bankAccounts['u1'] = [
+      BankAccount(
+        id: 'ba-seed1',
+        bankName: 'Vietcombank',
+        accountNumber: '0011004567890',
+        accountName: 'NGUYEN MINH ANH',
+        favorite: true,
+        lastUsedAt: now.subtract(const Duration(days: 3)),
+      ),
+      BankAccount(
+        id: 'ba-seed2',
+        bankName: 'Techcombank',
+        accountNumber: '19036789012345',
+        accountName: 'NGUYEN MINH ANH',
+        favorite: false,
+        lastUsedAt: now.subtract(const Duration(hours: 6)),
+      ),
+    ];
     // Số dư mẫu đủ để duyệt yêu cầu đang chờ; yêu cầu đã duyệt đã bị trừ ví từ trước.
     _ledger(
       'u1',

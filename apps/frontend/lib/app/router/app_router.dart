@@ -17,6 +17,7 @@ import 'package:book_marketplace/features/account/presentation/screens/profile_s
 import 'package:book_marketplace/features/account/presentation/screens/settings_screen.dart';
 import 'package:book_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:book_marketplace/features/wallet/presentation/screens/wallet_screen.dart';
+import 'package:book_marketplace/features/wallet/presentation/screens/withdraw_screens.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/auction_account_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/auction_floor_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/auction_history_screen.dart';
@@ -201,6 +202,24 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: 'wallet',
                     builder: (_, _) => const WalletScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'withdraw/bank',
+                        builder: (_, _) => const WithdrawBankScreen(),
+                      ),
+                      GoRoute(
+                        path: 'withdraw/account',
+                        builder: (_, _) => const WithdrawAccountScreen(),
+                      ),
+                      GoRoute(
+                        path: 'withdraw/amount',
+                        builder: (_, _) => const WithdrawAmountScreen(),
+                      ),
+                      GoRoute(
+                        path: 'withdraw/done',
+                        builder: (_, _) => const WithdrawDoneScreen(),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'seller',

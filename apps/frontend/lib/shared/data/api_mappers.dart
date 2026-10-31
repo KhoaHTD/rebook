@@ -396,6 +396,17 @@ extension WithdrawalDtoMapper on api.WithdrawalDto {
   );
 }
 
+extension BankAccountDtoMapper on api.BankAccountDto {
+  BankAccount toDomain() => BankAccount(
+    id: id,
+    bankName: bankName,
+    accountNumber: accountNumber,
+    accountName: accountName,
+    favorite: favorite,
+    lastUsedAt: lastUsedAt,
+  );
+}
+
 extension WithdrawalReceiptDtoMapper on api.WithdrawalReceiptDto {
   WithdrawalReceipt toDomain() => WithdrawalReceipt(
     senderName: senderName,

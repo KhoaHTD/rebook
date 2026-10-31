@@ -1661,5 +1661,39 @@
       }
     }
   },
-  "cartNothingSelected": "Chọn ít nhất một cuốn để thanh toán"
+  "cartNothingSelected": "Chọn ít nhất một cuốn để thanh toán",
+  "wdSelectBank": "Chọn ngân hàng",
+  "wdSearchBank": "Tìm theo tên ngân hàng",
+  "wdTransferTitle": "Rút tiền về ngân hàng",
+  "wdChange": "Đổi",
+  "wdRecent": "Gần đây",
+  "wdContinue": "Tiếp tục",
+  "wdNext": "Tiếp",
+  "wdAmountLabel": "Số tiền rút",
+  "wdSource": "Rút từ",
+  "wdSourceWallet": "Ví ReBook",
+  "wdAvailable": "Có thể dùng: {amount}",
+  "@wdAvailable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wdWithdrawAll": "Rút hết",
+  "wdDescription": "Ghi chú",
+  "wdDefaultNote": "{name} rut tien tu ReBook",
+  "@wdDefaultNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "wdTotal": "Tổng tiền rút",
+  "wdDoneTitle": "Đã gửi yêu cầu rút tiền",
+  "wdDoneHint": "Admin sẽ duyệt và chuyển khoản. Tiền chỉ bị trừ khỏi ví khi yêu cầu được duyệt.",
+  "wdBackToWallet": "Về ví",
+  "wdFavorite": "Tài khoản yêu thích",
+  "wdAccountHolder": "Chủ tài khoản"
 }

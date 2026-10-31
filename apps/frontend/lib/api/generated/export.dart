@@ -110,6 +110,7 @@ export 'models/activity_log_dto.dart';
 export 'models/second_chance_offer_status.dart';
 export 'models/second_chance_offer_dto.dart';
 export 'models/withdrawal_request.dart';
+export 'models/bank_account_dto.dart';
 export 'models/favorite_request.dart';
 export 'models/upload_signature_request.dart';
 export 'models/upload_signature_dto.dart';

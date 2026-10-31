@@ -146,3 +146,10 @@ SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
   kiểm tra lại số dư (`INSUFFICIENT_BALANCE` nếu người bán đã tiêu mất). Trong lúc chờ, tiền vẫn nằm ở số dư khả dụng — backend nên cân nhắc khoá tạm nếu muốn chặn rút trùng.
 - **Người duyệt / thời gian duyệt:** `WithdrawalDto.approvedBy/approvedAt`, `ListingDto.reviewedBy/reviewedAt`, `ReturnRequestDto.resolvedBy/resolvedAt`;
   `GET /admin/returns?resolved=true` trả các yêu cầu đã phân xử. Hiện ở bảng rút tiền, mục "Đã xử lý gần đây" của duyệt tin, mục "Đã phân xử" của khiếu nại; nhật ký hoạt động vẫn giữ.
+- **Rút tiền chia theo luồng (người dùng yêu cầu, theo ảnh ShopeePay):** `/account/wallet/withdraw/bank` (chọn ngân hàng, có ô tìm kiếm) →
+  `/account/wallet/withdraw/account` (số tài khoản + tên chủ tài khoản tự IN HOA không dấu; khối "Gần đây" chỉ hiện tài khoản của ngân hàng đang chọn) →
+  `/account/wallet/withdraw/amount` (số tiền, gợi ý 100k/500k/1tr + "Rút hết", nguồn tiền Ví ReBook, ghi chú 140 ký tự, tổng + nút Tiếp, ngôi sao yêu thích) →
+  `/account/wallet/withdraw/done` (kết quả, chờ duyệt). Không có màn xác nhận riêng. Nháp nhập liệu giữ trong `WithdrawDraftController`.
+  Logo ngân hàng là ô chữ viết tắt tự vẽ (`BankPalette`, `BankBadge`), không dùng logo thật; tên chủ tài khoản do người dùng nhập (chưa có cổng tra cứu ngân hàng).
+  Endpoint tạm: `GET /wallet/bank-accounts` (yêu thích đứng đầu, rồi lần dùng mới nhất; backend tự lưu / cập nhật khi tạo yêu cầu rút),
+  `POST /wallet/bank-accounts/{id}/favorite` {favorite}. Form rút tiền gộp một tờ trượt trước đó đã bỏ.

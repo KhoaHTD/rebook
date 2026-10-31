@@ -5,6 +5,8 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/bank_account_dto.dart';
+import '../models/favorite_request.dart';
 import '../models/payment_dto.dart';
 import '../models/top_up_request.dart';
 import '../models/wallet_dto.dart';
@@ -37,5 +39,16 @@ abstract class WalletClient {
   @POST('/wallet/withdrawals')
   Future<WithdrawalDto> requestWithdrawal({
     @Body() required WithdrawalRequest body,
+  });
+
+  /// Tài khoản ngân hàng tôi đã dùng để rút tiền (màn "Gần đây"), yêu thích đứng đầu rồi tới lần dùng mới nhất. Backend tự lưu / cập nhật khi tạo yêu cầu rút tiền.
+  @GET('/wallet/bank-accounts')
+  Future<List<BankAccountDto>> listBankAccounts();
+
+  /// Đánh dấu / bỏ đánh dấu yêu thích một tài khoản ngân hàng đã lưu.
+  @POST('/wallet/bank-accounts/{id}/favorite')
+  Future<BankAccountDto> setBankAccountFavorite({
+    @Path('id') required String id,
+    @Body() required FavoriteRequest body,
   });
 }

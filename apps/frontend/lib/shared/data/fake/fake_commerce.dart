@@ -1025,7 +1025,47 @@ extension FakeCommerce on FakeStore {
     );
     withdrawals.insert(0, w);
     _withdrawalOwner[w.id] = _uid;
+    _rememberBankAccount(bankName, accountNumber, accountName);
     return w;
+  }
+
+  /// Tài khoản đã dùng: yêu thích đứng đầu, rồi lần dùng mới nhất.
+  List<BankAccount> myBankAccounts() =>
+      List.of(bankAccounts[_uid] ?? const <BankAccount>[])..sort((a, b) {
+        if (a.favorite != b.favorite) return a.favorite ? -1 : 1;
+        return b.lastUsedAt.compareTo(a.lastUsedAt);
+      });
+
+  BankAccount setBankAccountFavorite(String id, {required bool on}) {
+    final list = bankAccounts[_uid] ?? [];
+    final i = list.indexWhere((a) => a.id == id);
+    if (i < 0) fail(ErrorCodes.notFound, 404);
+    list[i] = list[i].copyWith(favorite: on);
+    _changed('wallet');
+    return list[i];
+  }
+
+  /// Backend tự lưu / cập nhật tài khoản mỗi lần tạo yêu cầu rút tiền.
+  void _rememberBankAccount(String bank, String number, String name) {
+    final list = bankAccounts.putIfAbsent(_uid, () => []);
+    final i = list.indexWhere(
+      (a) => a.bankName == bank && a.accountNumber == number,
+    );
+    final now = DateTime.now();
+    if (i >= 0) {
+      list[i] = list[i].copyWith(accountName: name, lastUsedAt: now);
+    } else {
+      list.add(
+        BankAccount(
+          id: _id('ba'),
+          bankName: bank,
+          accountNumber: number,
+          accountName: name,
+          favorite: false,
+          lastUsedAt: now,
+        ),
+      );
+    }
   }
 
   List<Withdrawal> myWithdrawals() =>

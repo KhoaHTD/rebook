@@ -35,6 +35,22 @@ class ApiWalletRepository implements WalletRepository {
   );
 
   @override
+  Future<List<BankAccount>> bankAccounts() => guardApi(
+    () async => (await _client.wallet.listBankAccounts())
+        .map((e) => e.toDomain())
+        .toList(),
+  );
+
+  @override
+  Future<BankAccount> setBankAccountFavorite(String id, {required bool on}) =>
+      guardApi(
+        () async => (await _client.wallet.setBankAccountFavorite(
+          id: id,
+          body: api.FavoriteRequest(favorite: on),
+        )).toDomain(),
+      );
+
+  @override
   Future<Withdrawal> requestWithdrawal(
     int amount, {
     required String bankName,

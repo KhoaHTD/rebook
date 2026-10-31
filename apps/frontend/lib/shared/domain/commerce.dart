@@ -198,6 +198,19 @@ abstract class Withdrawal with _$Withdrawal {
   }) = _Withdrawal;
 }
 
+/// Tài khoản ngân hàng đã dùng để rút tiền (màn "Gần đây"); sao = yêu thích, đứng đầu danh sách.
+@freezed
+abstract class BankAccount with _$BankAccount {
+  const factory BankAccount({
+    required String id,
+    required String bankName,
+    required String accountNumber,
+    required String accountName,
+    required bool favorite,
+    required DateTime lastUsedAt,
+  }) = _BankAccount;
+}
+
 /// Biên lai chuyển khoản: người chuyển, thời điểm, số tiền (đúng số yêu cầu), ảnh chứng từ.
 @freezed
 abstract class WithdrawalReceipt with _$WithdrawalReceipt {

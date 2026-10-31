@@ -175,6 +175,58 @@ void main() {
     });
   });
 
+  group('tài khoản ngân hàng đã dùng', () {
+    late FakeWalletRepository wallet;
+    setUp(() {
+      store = FakeStore()..login('minhanh@rebook.vn', '123456');
+      wallet = FakeWalletRepository(store);
+    });
+
+    test('yêu thích đứng đầu, rồi tới lần dùng mới nhất', () async {
+      final list = await wallet.bankAccounts();
+      expect(list.first.favorite, isTrue);
+      expect(list.first.bankName, 'Vietcombank');
+      expect(list[1].bankName, 'Techcombank');
+    });
+
+    test(
+      'tạo yêu cầu rút tự lưu tài khoản mới, dùng lại thì không nhân đôi',
+      () async {
+        Future<void> withdraw(String number) => wallet.requestWithdrawal(
+          10000,
+          bankName: 'ACB',
+          accountNumber: number,
+          accountName: 'NGUYEN MINH ANH',
+        );
+        await withdraw('111222333');
+        await withdraw('111222333');
+        await withdraw('444555666');
+        final acb = (await wallet.bankAccounts()).where(
+          (a) => a.bankName == 'ACB',
+        );
+        expect(
+          acb.map((a) => a.accountNumber),
+          unorderedEquals(['111222333', '444555666']),
+        );
+      },
+    );
+
+    test('đánh dấu / bỏ yêu thích', () async {
+      final tcb = (await wallet.bankAccounts()).firstWhere(
+        (a) => a.bankName == 'Techcombank',
+      );
+      await wallet.setBankAccountFavorite(tcb.id, on: true);
+      expect((await wallet.bankAccounts()).first.favorite, isTrue);
+      await wallet.setBankAccountFavorite(tcb.id, on: false);
+      expect(
+        (await wallet.bankAccounts())
+            .where((a) => a.favorite)
+            .map((a) => a.bankName),
+        ['Vietcombank'],
+      );
+    });
+  });
+
   group('tên chủ tài khoản', () {
     test('in hoa, không dấu, bỏ ký tự lạ, gộp khoảng trắng', () {
       expect(bankAccountName('Nguyễn  Minh Ánh'), 'NGUYEN MINH ANH');

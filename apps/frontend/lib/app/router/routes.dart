@@ -49,6 +49,12 @@ abstract final class Routes {
   static String order(String id) => '/account/orders/$id';
   static const wallet = '/account/wallet';
 
+  // Rút tiền: 3 bước + kết quả
+  static const withdrawBank = '/account/wallet/withdraw/bank';
+  static const withdrawAccount = '/account/wallet/withdraw/account';
+  static const withdrawAmount = '/account/wallet/withdraw/amount';
+  static const withdrawDone = '/account/wallet/withdraw/done';
+
   // Người bán (vẫn thuộc nhánh tài khoản)
   static const openShop = '/account/seller/open';
   static const seller = '/account/seller';

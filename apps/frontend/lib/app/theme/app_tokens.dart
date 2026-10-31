@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens — style Liquid Glass đã duyệt (`design-preview/png/lg-*.png`).
+/// Design tokens — style Liquid Glass đã duyệt (`docs/design/lg-*.png`).
 /// Widget KHÔNG hardcode số đo / màu — luôn lấy từ đây hoặc từ Theme.
 abstract final class AppSpacing {
   static const xxs = 2.0;
@@ -310,6 +310,41 @@ abstract final class AmbientPalette {
 
   /// Khu đấu giá: nền đen phẳng, không vệt màu loang.
   static const auction = <(Color, Alignment, double)>[];
+}
+
+/// Màu thương hiệu từng ngân hàng, dùng cho ô chữ viết tắt ở màn rút tiền (không dùng logo thật).
+abstract final class BankPalette {
+  static const _byName = <String, (Color, String)>{
+    'Vietcombank': (Color(0xFF2E8B57), 'VCB'),
+    'VietinBank': (Color(0xFF1F4FA3), 'CTG'),
+    'BIDV': (Color(0xFF1B7F6B), 'BIDV'),
+    'Agribank': (Color(0xFFA6264B), 'AGR'),
+    'Techcombank': (Color(0xFFE0242B), 'TCB'),
+    'MB Bank': (Color(0xFF2B3A8C), 'MB'),
+    'ACB': (Color(0xFF1F5FA8), 'ACB'),
+    'VPBank': (Color(0xFF1E8A3E), 'VPB'),
+    'TPBank': (Color(0xFF6A2A8E), 'TPB'),
+    'Sacombank': (Color(0xFF1B6FC2), 'STB'),
+    'HDBank': (Color(0xFFD6232A), 'HDB'),
+    'VIB': (Color(0xFF1F6FB5), 'VIB'),
+    'SHB': (Color(0xFFE8731B), 'SHB'),
+    'OCB': (Color(0xFF2E9E57), 'OCB'),
+    'MSB': (Color(0xFFD7262E), 'MSB'),
+    'SeABank': (Color(0xFFC8242E), 'SEA'),
+    'Eximbank': (Color(0xFF1B5FA6), 'EIB'),
+    'LPBank': (Color(0xFF8A6A2A), 'LPB'),
+    'Nam A Bank': (Color(0xFF2B8A4E), 'NAB'),
+    'ABBank': (Color(0xFF2E8A5A), 'ABB'),
+  };
+
+  static const _fallback = (Color(0xFF6B7280), '?');
+
+  static Color colorOf(String bank) => (_byName[bank] ?? _fallback).$1;
+
+  /// Chữ viết tắt trong ô; ngân hàng lạ thì lấy chữ cái đầu.
+  static String codeOf(String bank) =>
+      _byName[bank]?.$2 ??
+      (bank.isEmpty ? '?' : bank.characters.first.toUpperCase());
 }
 
 /// Màu sơ đồ Việt Nam (tờ vị trí giao hàng).
