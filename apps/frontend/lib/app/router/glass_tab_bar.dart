@@ -81,7 +81,8 @@ class ExpandingTabBar extends StatelessWidget {
     final cellW = (full - pad * 2) / items.length;
     final open = state.open;
     final onRight = state.onRight;
-    final inset = pad + (cellW - button) / 2;
+    // Nhiều tab trên màn hẹp làm ô nhỏ hơn nút → không để lề âm (AnimatedContainer sẽ báo lỗi).
+    final inset = (pad + (cellW - button) / 2).clamp(0.0, double.infinity);
     return SizedBox(
       width: full,
       height: height,
