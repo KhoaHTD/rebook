@@ -108,6 +108,12 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Bảng màu theo video (nền trắng ngà, cam, băng vàng chanh, hồng, xanh dương) — khác với phần còn lại của app (Liquid Glass + xanh); trang này là trang giới thiệu riêng.
 - Web mở `/` là trang giới thiệu; người đã đăng nhập vào thẳng `/home`; app điện thoại không có trang này. Đổi lại bằng `initialLocation` trong `app_router.dart`.
 
+### Backend: sửa lỗi nghiệp vụ sau rà soát (2026-10-29)
+- Mời người trả giá cao thứ hai mua lại lô chỉ khi giá của họ **≥ giá sàn**. SRS chỉ nói "mời người trả cao thứ hai", không nói giá sàn; dưới giá sàn thì người bán chưa đồng ý bán nên lô quay về chờ xếp phiên.
+- Người bán (hoặc kho) phải trả lời yêu cầu trả hàng trong **2 ngày** (cấu hình `order.return_response_days`); quá hạn thì tự chuyển Admin phân xử như khi người bán từ chối, tiền vẫn giữ ở sàn. SRS không có hạn này.
+- Người mua bấm "Đã nhận hàng" khi đang yêu cầu trả hàng = rút yêu cầu: yêu cầu đóng lại (REJECTED).
+- Thanh toán VNPay về muộn mà đơn đã được trả bằng cách khác (ví / link mới): phần tiền thừa hoàn vào ví người mua.
+
 ### Cập nhật SRS 31/10 (file `docs/Đặc-tả-ứng-dụng-mua-bán-đấu-giá-sách-cũ.docx`)
 Năm điểm mới trong SRS. SRS **không liệt kê endpoint** cho các điểm này (mục 10.4 chỉ rút gọn), nên tên field / endpoint dưới đây do frontend
 đặt tạm trong `openapi/openapi.yaml` — **backend đối chiếu và sửa nếu khác**, rồi chạy `/sync-api`:
@@ -178,3 +184,15 @@ SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
 - `OsmMap`: ghim luôn ở giữa khung, người dùng kéo / chụm bản đồ cho tâm trúng chỗ cần chọn; toạ độ lưu là toạ độ ở tâm khi kéo xong. Không còn chạm để đặt ghim.
 - Định vị tự động chỉ di chuyển bản đồ tới điểm tìm được; không làm gì nếu điểm đó đã là tâm hiện tại (tránh giật khi chính cú kéo báo toạ độ lên). Kéo tay thì tự định vị dừng cho tới khi bấm "Định vị theo địa chỉ".
 - Địa chỉ chưa kéo lần nào thì lưu toạ độ tâm tỉnh / điểm tự định vị.
+
+## 2026-11-04 — Ghép lại nhánh interface với main (sau PR #1)
+
+PR #1 chép nguyên frontend của `interface` đè lên `main`, làm mất phần nối backend thật đã làm trên `main` (client sinh từ spec backend,
+WebSocket JSON thuần, không có tiền tố `/api`, các mapper). Đã merge 3 chiều lại (gốc là điểm rẽ nhánh), giữ giao diện mới của `interface`
+và lớp API của `main`, rồi làm thêm phía backend cho các tính năng mới:
+- Client API sinh từ `apps/backend/openapi.yaml` (spec thật); `openapi/openapi.yaml` giữ vai trò hợp đồng / danh sách việc (`tool/api_gap.dart`).
+- Backend dùng kiểu sẵn có `POST` bật / `DELETE` tắt (yêu thích sách, theo dõi phiên, sao tài khoản ngân hàng) thay cho body `{favorite}` trong spec frontend.
+- Lời mời mua lần hai không có bảng riêng: là hoá đơn lô cờ `secondChance` (backend có từ trước), frontend lọc từ `GET /orders`.
+- Chọn món trong giỏ: frontend lọc các món và gửi `listingIds` cho báo giá, không cần `GET /cart?itemIds`.
+- Thêm `AdminAction.withdrawalRejected` vì backend ghi cả "từ chối rút tiền" vào nhật ký.
+- Chưa làm: `ListingDto.reviewedBy/reviewedAt`, ô ghi chú khi rút tiền (frontend không gửi), upload ảnh thật (`POST /files` đã có nhưng app vẫn dùng ảnh mẫu).

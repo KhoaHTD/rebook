@@ -32,13 +32,13 @@ Chợ sách cũ: bán giá cố định + đấu giá.
   in endpoint / field / enum còn thiếu hoặc lệch, mã thoát 1 nếu còn). Làm xong từng mục thì chạy lại và cập nhật cột Tình trạng ở mục D của sổ bàn giao.
 - Spec của frontend là hợp đồng cho phần giao diện cần. Backend thấy không hợp lý thì **sửa spec (PR / báo chủ repo) rồi mới làm khác**, không lặng lẽ làm lệch; frontend sẽ chạy `/sync-api`.
 - Phiên làm frontend: mỗi lần thêm endpoint / field / hành vi ngoài SRS phải đánh dấu trong `openapi.yaml` và thêm một mục vào `BACKEND_HANDOFF.md` (cùng commit).
-- Đừng sửa `apps/backend` từ phiên frontend (luật cứng ở trên); chỉ ghi vào sổ bàn giao.
+- Client API của frontend (`lib/api/generated`) sinh từ **spec thật của backend** (`apps/backend/openapi.yaml`, xuất từ `/v3/api-docs.yaml`);
+  `apps/frontend/openapi/openapi.yaml` là hợp đồng / danh sách việc cho backend. Backend đổi API → xuất lại spec, chạy `/sync-api`, sửa mapper.
 
 ## Làm việc nhóm (luật nhẹ, tin nhau; chi tiết ở `apps/frontend/docs/TEAM_GUIDE.md`)
 
-- **LUẬT CỨNG, KHÔNG NGOẠI LỆ: không đưa code `apps/backend` lên nhánh `interface` hay bất kỳ nhánh con nào của nó** (các nhánh này chỉ chứa frontend; backend ở `main`).
-  Không sửa / commit / push file backend trên các nhánh này, không merge `main` vào chúng. Hook push (`.githooks/pre-push`, bật bằng
-  `git config core.hooksPath .githooks`), hook Claude và CI "Backend Guard" cùng chặn. Bị chặn → dừng, báo người dùng; không lách.
+- Nhánh `interface` đã merge vào `main` (2026-11-04); luật "không đưa backend lên `interface`" và ba lớp chặn (pre-push, hook Claude, CI "Backend Guard") đã gỡ.
+  Làm frontend hay backend đều cắt nhánh từ `main`.
 - Đọc `apps/frontend/docs/TEAM_GUIDE.md` nếu bạn là Claude của một thành viên nhóm.
 - Không push thẳng `main` / `interface`: nhánh riêng + PR. Không tự đổi file hạ tầng (`pubspec`, `core/`, `app/`, `api/`, `openapi/`, `env/`, `tool/`, `.github/`, `.claude/`, `android/ios/web`) và không thêm package: hỏi chủ repo.
 - Bố cục màn Admin / Staff do người làm tự sáng tạo, chỉ cần hợp gu chung (đọc `apps/frontend/docs/ADMIN_VIBE.md` để hiểu bối cảnh). Giao diện phần người mua sửa thoải mái, miễn đúng style Liquid Glass; mọi thứ qua `arch_check` + test.

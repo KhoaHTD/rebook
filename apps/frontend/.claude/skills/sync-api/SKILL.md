@@ -1,14 +1,15 @@
 ---
 name: sync-api
-description: Sinh lại REST client và DTO từ openapi/openapi.yaml sau khi backend cập nhật spec, rồi sửa các mapper/repository bị ảnh hưởng.
+description: Sinh lại REST client và DTO từ spec thật của backend (apps/backend/openapi.yaml) sau khi backend cập nhật, rồi sửa các mapper/repository bị ảnh hưởng.
 argument-hint: "[đường dẫn hoặc URL file OpenAPI mới — tuỳ chọn]"
 disable-model-invocation: true
 ---
 
 # Đồng bộ API từ OpenAPI
 
-1. Nếu người dùng đưa file/URL spec mới (`$ARGUMENTS`), chép nội dung vào `openapi/openapi.yaml`
-   (giữ YAML hoặc đổi `schema_path` trong `swagger_parser.yaml` nếu là JSON). Không tự bịa endpoint.
+1. Client sinh từ `../backend/openapi.yaml` (`schema_path` trong `swagger_parser.yaml`). Backend đang chạy thì xuất lại:
+   `curl -sf http://localhost:8080/v3/api-docs.yaml -o ../backend/openapi.yaml`. Người dùng đưa file/URL khác (`$ARGUMENTS`) thì chép vào đó.
+   `openapi/openapi.yaml` là hợp đồng / danh sách việc cho backend, không dùng để sinh client. Không tự bịa endpoint.
 2. Ghi lại danh sách file trong `lib/api/generated/` trước khi sinh (để biết file nào bị bỏ).
 3. Chạy:
    ```bash
