@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class AuctionService {
     private final LotRepository lotRepository;
     private final AuctionRegistrationRepository registrationRepository;
     private final LotWatcherRepository watcherRepository;
+    private final SessionWatcherRepository sessionWatcherRepository;
     private final ConsignmentRepository consignmentRepository;
     private final InspectionRepository inspectionRepository;
     private final BookRepository bookRepository;
@@ -206,6 +208,32 @@ public class AuctionService {
         Set<Long> all = new HashSet<>(ids);
         return lotRepository.findAllById(ids).stream()
                 .map(l -> views.lotPublic(l, views.paddles(l.getSessionId()), all)).toList();
+    }
+
+    /** Theo dõi / bỏ theo dõi cả phiên (phiên yêu thích). */
+    @Transactional
+    public boolean watchSession(Long userId, Long sessionId, boolean on) {
+        AuctionSession s = publicSession(sessionId);
+        if (on) {
+            if (!sessionWatcherRepository.existsById(new SessionWatcher.Key(userId, s.getId()))) {
+                sessionWatcherRepository.save(new SessionWatcher(userId, s.getId()));
+            }
+        } else {
+            sessionWatcherRepository.deleteById(new SessionWatcher.Key(userId, sessionId));
+        }
+        return on;
+    }
+
+    /** Các phiên tôi theo dõi, theo dõi gần nhất trước. Phiên đã ẩn (nháp / huỷ) thì bỏ qua. */
+    @Transactional(readOnly = true)
+    public List<SessionSummary> watchedSessions(Long userId) {
+        List<Long> ids = sessionWatcherRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(SessionWatcher::getSessionId).toList();
+        Map<Long, AuctionSession> byId = new HashMap<>();
+        sessionRepository.findAllById(ids).forEach(s -> byId.put(s.getId(), s));
+        return ids.stream().map(byId::get)
+                .filter(s -> s != null && SessionStatus.PUBLIC.contains(s.getStatus()))
+                .map(views::summary).toList();
     }
 
     // ---- Nội bộ ----

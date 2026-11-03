@@ -146,6 +146,23 @@ public class AuctionController {
         return auctionService.watchedLots(me.id());
     }
 
+    @Operation(summary = "Theo dõi cả phiên (phiên yêu thích)")
+    @PostMapping("/sessions/{id}/watch")
+    public Map<String, Boolean> watchSession(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return Map.of("watching", auctionService.watchSession(me.id(), id, true));
+    }
+
+    @DeleteMapping("/sessions/{id}/watch")
+    public Map<String, Boolean> unwatchSession(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return Map.of("watching", auctionService.watchSession(me.id(), id, false));
+    }
+
+    @Operation(summary = "Các phiên tôi theo dõi")
+    @GetMapping("/me/watched-sessions")
+    public List<SessionSummary> watchedSessions(@AuthenticationPrincipal UserPrincipal me) {
+        return auctionService.watchedSessions(me.id());
+    }
+
     @Operation(summary = "Hoá đơn lô thắng: giao tận nơi hoặc nhận tại kho")
     @PostMapping("/orders/{id}/delivery-option")
     public OrderDetail deliveryOption(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
