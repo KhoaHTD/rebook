@@ -34,16 +34,31 @@ class ApiAdminRepository implements AdminRepository {
 
   // ── Tin đăng ──
 
-  /// Backend chỉ có danh sách "chờ duyệt" cho admin; trạng thái khác lấy từ danh sách công khai.
+  /// [status] null = mọi tin Admin quan tâm: đang chờ duyệt + đã duyệt / từ chối (kèm người duyệt).
+  /// Trạng thái khác lấy từ danh sách công khai.
   @override
   Future<List<Listing>> listings({ListingStatus? status}) => guardApi(() async {
-    final pendingOnly = status == null || status == ListingStatus.pendingReview;
-    final res = pendingOnly
-        ? await _client.catalog.getAdminListingsPending(size: 100)
-        : await _client.catalog.getListings(size: 100);
-    final all = <Listing>[for (final l in res.items.orEmpty) l.toDomain()];
-    return pendingOnly ? all : all.where((l) => l.status == status).toList();
+    if (status == ListingStatus.pendingReview) return _pendingListings();
+    if (status == null) {
+      final (pending, reviewed) = await (
+        _pendingListings(),
+        _client.catalog.getAdminListingsReviewed(size: 200),
+      ).wait;
+      return [...pending, for (final l in reviewed.items.orEmpty) l.toDomain()];
+    }
+    final res = await _client.catalog.getListings(size: 100);
+    return [
+      for (final l in res.items.orEmpty)
+        if (l.toDomain() case final d when d.status == status) d,
+    ];
   });
+
+  Future<List<Listing>> _pendingListings() async => [
+    for (final l in (await _client.catalog.getAdminListingsPending(
+      size: 100,
+    )).items.orEmpty)
+      l.toDomain(),
+  ];
 
   @override
   Future<Listing> reviewListing(

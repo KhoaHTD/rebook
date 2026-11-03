@@ -456,6 +456,8 @@ extension ListingDetailMapper on api.ListingDetail {
     status: listingStatusToDomain(status),
     createdAt: _t(createdAt),
     rejectReason: rejectReason,
+    reviewedBy: reviewedByName,
+    reviewedAt: reviewedAt,
   );
 }
 
@@ -477,6 +479,8 @@ extension ListingSummaryMapper on api.ListingSummary {
     stock: stock ?? 0,
     status: listingStatusToDomain(status),
     createdAt: _t(createdAt),
+    reviewedBy: reviewedByName,
+    reviewedAt: reviewedAt,
   );
 }
 
@@ -738,7 +742,7 @@ extension WithdrawResponseMapper on api.WithdrawResponse {
     bankName: bankName,
     bankAccountNumber: accountNumber,
     bankAccountName: accountHolder,
-    note: note,
+    note: userNote,
     approvedBy: processedByName,
     approvedAt: processedAt,
     receipt: transfer == null

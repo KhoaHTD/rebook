@@ -126,6 +126,13 @@ abstract class CatalogClient {
   @GET('/admin/listings/{id}')
   Future<ListingDetail> getAdminListingsId({@Path('id') required int id});
 
+  /// [Admin] Tin đã duyệt / từ chối, mới nhất trước (kèm người duyệt)
+  @GET('/admin/listings/reviewed')
+  Future<PageResponseListingSummary> getAdminListingsReviewed({
+    @Query('page') int? page = 0,
+    @Query('size') int? size = 20,
+  });
+
   /// [Admin] Tin chờ duyệt
   @GET('/admin/listings/pending')
   Future<PageResponseListingSummary> getAdminListingsPending({

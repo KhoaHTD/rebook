@@ -1,4 +1,6 @@
 import 'package:book_marketplace/api/generated/export.dart' as api;
+import 'package:book_marketplace/app/env.dart';
+import 'package:book_marketplace/core/network/upload_service.dart';
 import 'package:book_marketplace/shared/data/api_mappers.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
@@ -116,6 +118,8 @@ void main() {
       accountNumber: '0123',
       accountHolder: 'NGUYEN VAN A',
       status: api.WithdrawStatus.approved,
+      note: 'Đã chuyển',
+      userNote: 'Rut tien thang 11',
       processedByName: 'Admin',
       processedAt: DateTime(2026, 11, 2),
       createdAt: DateTime(2026, 11, 1),
@@ -133,6 +137,33 @@ void main() {
     expect(w.approvedBy, 'Admin');
     expect(w.receipt?.amount, 500000);
     expect(w.receipt?.proofImageUrl, '/files/a.png');
+    // Ghi chú hiển thị là của người rút, không phải ghi chú Admin khi xử lý.
+    expect(w.note, 'Rut tien thang 11');
+  });
+
+  test('tin đăng mang tên Admin duyệt và thời điểm duyệt', () {
+    final at = DateTime(2026, 11, 3, 10);
+    final l = api.ListingSummary(
+      id: 9,
+      title: 'Sách',
+      status: api.ListingStatus.rejected,
+      reviewedBy: 1,
+      reviewedByName: 'Admin Duyệt',
+      reviewedAt: at,
+    ).toDomain();
+    expect(l.reviewedBy, 'Admin Duyệt');
+    expect(l.reviewedAt, at);
+    expect(const api.ListingSummary(id: 10).toDomain().reviewedBy, isNull);
+  });
+
+  test('ảnh upload lên backend (URL tương đối) được ghép với địa chỉ API', () {
+    expect(resolveImageUrl('/files/a.png'), '${Env.apiBaseUrl}/files/a.png');
+    expect(
+      resolveImageUrl('https://example.com/b.jpg'),
+      'https://example.com/b.jpg',
+    );
+    expect(resolveImageUrl('assets/books/x.jpg'), 'assets/books/x.jpg');
+    expect(resolveImageUrl('mem://3'), 'mem://3');
   });
 
   test('địa chỉ: ghim bản đồ và loại địa chỉ đi cả hai chiều', () {

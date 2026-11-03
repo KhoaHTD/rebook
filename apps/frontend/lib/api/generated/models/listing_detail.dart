@@ -23,6 +23,9 @@ class ListingDetail {
     this.shop,
     this.createdAt,
     this.updatedAt,
+    this.reviewedBy,
+    this.reviewedByName,
+    this.reviewedAt,
   });
 
   factory ListingDetail.fromJson(Map<String, Object?> json) =>
@@ -38,6 +41,9 @@ class ListingDetail {
   final ShopBrief? shop;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final int? reviewedBy;
+  final String? reviewedByName;
+  final DateTime? reviewedAt;
 
   Map<String, Object?> toJson() => _$ListingDetailToJson(this);
 }

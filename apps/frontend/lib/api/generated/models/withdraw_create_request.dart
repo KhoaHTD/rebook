@@ -13,6 +13,7 @@ class WithdrawCreateRequest {
     required this.bankName,
     required this.accountNumber,
     required this.accountHolder,
+    this.note,
   });
 
   factory WithdrawCreateRequest.fromJson(Map<String, Object?> json) =>
@@ -22,6 +23,7 @@ class WithdrawCreateRequest {
   final String bankName;
   final String accountNumber;
   final String accountHolder;
+  final String? note;
 
   Map<String, Object?> toJson() => _$WithdrawCreateRequestToJson(this);
 }

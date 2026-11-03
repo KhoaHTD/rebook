@@ -26,6 +26,7 @@ class WithdrawResponse {
     this.processedAt,
     this.createdAt,
     this.transfer,
+    this.userNote,
   });
 
   factory WithdrawResponse.fromJson(Map<String, Object?> json) =>
@@ -45,6 +46,7 @@ class WithdrawResponse {
   final DateTime? processedAt;
   final DateTime? createdAt;
   final TransferReceipt? transfer;
+  final String? userNote;
 
   Map<String, Object?> toJson() => _$WithdrawResponseToJson(this);
 }

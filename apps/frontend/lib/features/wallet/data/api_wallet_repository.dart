@@ -34,7 +34,6 @@ class ApiWalletRepository implements WalletRepository {
   );
 
   /// Backend tự lưu tài khoản ngân hàng này vào danh sách "Gần đây".
-  /// [note] chưa gửi được: backend chưa có ô ghi chú của người rút.
   @override
   Future<Withdrawal> requestWithdrawal(
     int amount, {
@@ -49,6 +48,7 @@ class ApiWalletRepository implements WalletRepository {
         bankName: bankName,
         accountNumber: accountNumber,
         accountHolder: accountName,
+        note: note,
       ),
     );
     return res.toDomain();
