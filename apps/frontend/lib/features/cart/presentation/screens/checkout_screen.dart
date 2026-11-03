@@ -49,11 +49,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
     final payment = result.payment;
     if (payment != null && _method == PaymentMethod.vnpay) {
-      if (isMockUrl(payment.paymentUrl)) {
-        context.go(Routes.paymentResult(payment.id));
-      } else {
-        await openExternal(payment.paymentUrl!);
-      }
+      final url = payment.paymentUrl;
+      if (url != null && !isMockUrl(url)) await openExternal(url);
+      if (mounted) context.go(Routes.paymentResult(payment.id));
       return;
     }
     showInfoSnack(context, context.l10n.ordersCreated(result.orders.length));

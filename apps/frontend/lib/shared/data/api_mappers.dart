@@ -709,7 +709,9 @@ extension PaymentResponseMapper on api.PaymentResponse {
     id: code ?? _id(id),
     amount: _n(amount),
     status: paymentStatusToDomain(status),
-    paymentUrl: paymentUrl,
+    // Backend chưa cấu hình VNPay thì cho giả lập: dùng URL `mock://` để app hiện cổng giả lập.
+    paymentUrl:
+        paymentUrl ?? ((simulateAvailable ?? false) ? 'mock://simulate' : null),
     expiresAt: expiresAt,
   );
 }

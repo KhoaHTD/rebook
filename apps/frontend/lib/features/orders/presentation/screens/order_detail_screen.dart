@@ -249,10 +249,12 @@ class _Actions extends ConsumerWidget {
                   if (error != null) return showErrorSnack(context, error);
                   final p = result?.payment;
                   if (p != null && choice.method == PaymentMethod.vnpay) {
-                    if (isMockUrl(p.paymentUrl)) {
+                    final url = p.paymentUrl;
+                    if (url != null && !isMockUrl(url)) {
+                      await openExternal(url);
+                    }
+                    if (context.mounted) {
                       context.go(Routes.paymentResult(p.id));
-                    } else {
-                      await openExternal(p.paymentUrl!);
                     }
                   } else {
                     showInfoSnack(context, l10n.paymentDone);

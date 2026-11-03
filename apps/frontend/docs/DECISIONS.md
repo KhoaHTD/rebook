@@ -198,3 +198,11 @@ và lớp API của `main`, rồi làm thêm phía backend cho các tính năng 
 - Sau đó (cùng ngày) đã làm nốt: người duyệt tin (`GET /admin/listings/reviewed`), ghi chú của người rút (`userNote`), upload ảnh thật qua `POST /files`.
   Ảnh trên backend lưu URL tương đối `/files/...`; app ghép với `API_BASE_URL` lúc hiển thị (`resolveImageUrl`), nên đổi máy chủ / tunnel / máy ảo không làm hỏng ảnh cũ.
   Client sinh với `use_multipart_file: true` để upload chạy được trên web.
+
+## 2026-11-04 — VNPay sandbox thật
+
+- Mã sandbox để ở `apps/backend/.env` (không commit); backend đọc qua `spring.config.import`.
+- Có VNPay thật thì backend tắt `simulateAvailable`; app chỉ hiện cổng giả lập khi cờ này bật (trước đây app coi mọi thanh toán không có link là giả lập).
+- Web mở VNPay trong cùng tab, nên sau khi trả tiền trang `/payments/vnpay/return` của backend (HTML) đưa người dùng về `APP_URL/home/payments/{mã}`.
+  Điện thoại mở trình duyệt ngoài; màn kết quả trong app tự hỏi lại trạng thái mỗi 3 giây.
+- IPN không tới được máy dev (localhost), nên return URL cũng xác nhận giao dịch (đã có từ trước, có kiểm chữ ký, không cộng hai lần).

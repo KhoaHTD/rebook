@@ -194,6 +194,7 @@
   "continueShopping": "Keep shopping",
   "paymentTitle": "Payment",
   "paymentPending": "Waiting for payment",
+  "paymentWaitingGateway": "Finish paying on the VNPay page. This screen updates by itself when the result arrives.",
   "paymentSuccess": "Payment successful",
   "paymentFailed": "Payment failed",
   "paymentExpired": "Payment session expired",

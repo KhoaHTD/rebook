@@ -131,11 +131,9 @@ class WalletScreen extends ConsumerWidget {
       if (err != null || p == null) {
         return showErrorSnack(context, err ?? Exception());
       }
-      if (isMockUrl(p.paymentUrl)) {
-        context.go(Routes.paymentResult(p.id));
-      } else {
-        await openExternal(p.paymentUrl!);
-      }
+      final url = p.paymentUrl;
+      if (url != null && !isMockUrl(url)) await openExternal(url);
+      if (context.mounted) context.go(Routes.paymentResult(p.id));
     }
 
     return AppPage(

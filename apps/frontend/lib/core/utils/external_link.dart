@@ -7,5 +7,5 @@ Future<bool> openExternal(String url) => launchUrl(
   webOnlyWindowName: '_self',
 );
 
-/// Mock dùng `mock://...` thay cho URL thật của cổng thanh toán.
-bool isMockUrl(String? url) => url == null || url.startsWith('mock://');
+/// Cổng thanh toán giả lập (mock, hoặc backend chưa cấu hình VNPay) dùng `mock://...` thay cho URL thật.
+bool isMockUrl(String? url) => url != null && url.startsWith('mock://');

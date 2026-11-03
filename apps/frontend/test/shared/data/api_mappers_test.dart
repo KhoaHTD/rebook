@@ -1,6 +1,7 @@
 import 'package:book_marketplace/api/generated/export.dart' as api;
 import 'package:book_marketplace/app/env.dart';
 import 'package:book_marketplace/core/network/upload_service.dart';
+import 'package:book_marketplace/core/utils/external_link.dart';
 import 'package:book_marketplace/shared/data/api_mappers.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
@@ -194,5 +195,33 @@ void main() {
     expect(back.hasPin, isTrue);
     expect(back.type, AddressType.office);
     expect(const api.AddressResponse(id: 2).toDomain().type, AddressType.home);
+  });
+
+  test('thanh toán: chỉ hiện cổng giả lập khi backend cho phép', () {
+    const real = api.PaymentResponse(
+      code: 'PM1',
+      status: api.PaymentStatus.pending,
+      paymentUrl: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?x=1',
+      simulateAvailable: false,
+    );
+    expect(isMockUrl(real.toDomain().paymentUrl), isFalse);
+    expect(real.toDomain().id, 'PM1');
+
+    // Backend chưa cấu hình VNPay: giả lập.
+    const sim = api.PaymentResponse(
+      code: 'PM2',
+      status: api.PaymentStatus.pending,
+      simulateAvailable: true,
+    );
+    expect(isMockUrl(sim.toDomain().paymentUrl), isTrue);
+
+    // Tra cứu lại thanh toán VNPay thật: không có link, cũng không phải giả lập.
+    const lookup = api.PaymentResponse(
+      code: 'PM3',
+      status: api.PaymentStatus.pending,
+      simulateAvailable: false,
+    );
+    expect(lookup.toDomain().paymentUrl, isNull);
+    expect(isMockUrl(lookup.toDomain().paymentUrl), isFalse);
   });
 }
