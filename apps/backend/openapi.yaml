@@ -525,6 +525,44 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PaymentResponse"
+  /wallet/bank-accounts/{id}/favorite:
+    post:
+      tags:
+      - Wallet
+      summary: Đánh dấu yêu thích một tài khoản ngân hàng đã lưu
+      operationId: favoriteBankAccount
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BankAccountResponse"
+    delete:
+      tags:
+      - Wallet
+      operationId: unfavoriteBankAccount
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BankAccountResponse"
   /staff/warehouse/{id}/return:
     post:
       tags:
@@ -806,6 +844,48 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ConsignmentResponse"
+  /sessions/{id}/watch:
+    post:
+      tags:
+      - Auction
+      summary: Theo dõi cả phiên (phiên yêu thích)
+      operationId: watchSession
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+    delete:
+      tags:
+      - Auction
+      operationId: unwatchSession
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
   /sessions/{id}/register:
     post:
       tags:
@@ -1459,6 +1539,73 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BidResponse"
+  /listings/{id}/favorite:
+    post:
+      tags:
+      - Catalog
+      summary: Thả tim một tin bán (sách yêu thích)
+      operationId: favorite
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+    delete:
+      tags:
+      - Catalog
+      operationId: unfavorite
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+  /files:
+    post:
+      tags:
+      - Files
+      summary: "Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL tương đối\
+        \ để gắn vào nghiệp vụ"
+      operationId: upload
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/FileResponse"
   /consignments:
     get:
       tags:
@@ -1765,7 +1912,7 @@ paths:
     post:
       tags:
       - Admin
-      summary: Duyệt rút tiền (giả lập đã chuyển khoản) hoặc từ chối
+      summary: Duyệt rút tiền (kèm biên lai chuyển khoản thủ công) hoặc từ chối
       operationId: processWithdrawal
       parameters:
       - name: id
@@ -2091,6 +2238,22 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PageResponseTransactionResponse"
+  /wallet/bank-accounts:
+    get:
+      tags:
+      - Wallet
+      summary: "Tài khoản ngân hàng đã dùng để rút tiền (yêu thích trước, rồi mới\
+        \ dùng gần nhất)"
+      operationId: bankAccounts
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BankAccountResponse"
   /staff/warehouse:
     get:
       tags:
@@ -2594,6 +2757,21 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LotPublic"
+  /me/watched-sessions:
+    get:
+      tags:
+      - Auction
+      summary: Các phiên tôi theo dõi
+      operationId: watchedSessions
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SessionSummary"
   /me/registrations:
     get:
       tags:
@@ -2608,6 +2786,21 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/RegistrationResponse"
+  /me/favorites:
+    get:
+      tags:
+      - Catalog
+      summary: "Sách tôi đã thả tim, mới nhất trước"
+      operationId: favorites
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ListingSummary"
   /lots/{id}:
     get:
       tags:
@@ -2721,6 +2914,26 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ListingDetail"
+  /files/{name}:
+    get:
+      tags:
+      - Files
+      summary: Xem ảnh đã tải lên
+      operationId: download
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
   /consignments/{id}:
     get:
       tags:
@@ -2760,8 +2973,15 @@ paths:
     get:
       tags:
       - Admin
+      summary: Yêu cầu rút tiền theo trạng thái (mặc định PENDING; APPROVED / REJECTED
+        để xem lịch sử duyệt)
       operationId: withdrawals
       parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          $ref: "#/components/schemas/WithdrawStatus"
       - name: page
         in: query
         required: false
@@ -2918,9 +3138,16 @@ paths:
     get:
       tags:
       - Order management
-      summary: "[Admin] Khiếu nại trả hàng chờ phân xử"
+      summary: "[Admin] Khiếu nại trả hàng: resolved=false chờ phân xử, true đã phâ\
+        n xử"
       operationId: disputes
       parameters:
+      - name: resolved
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
       - name: page
         in: query
         required: false
@@ -2970,6 +3197,51 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SystemConfig"
+  /admin/activity-logs:
+    get:
+      tags:
+      - Admin
+      summary: "Lịch sử thao tác của Admin (duyệt tin, duyệt rút tiền, khoá tài khoả\
+        n, đổi cấu hình...)"
+      operationId: activityLogs
+      parameters:
+      - name: targetType
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: action
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: adminId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseActivityLogResponse"
 components:
   schemas:
     ShelfRequest:
@@ -3362,6 +3634,18 @@ components:
           type: string
           maxLength: 300
           minLength: 0
+        latitude:
+          type: number
+          format: double
+          maximum: 90
+          minimum: -90
+        longitude:
+          type: number
+          format: double
+          maximum: 180
+          minimum: -180
+        addressType:
+          $ref: "#/components/schemas/AddressType"
         isDefault:
           type: boolean
       required:
@@ -3371,6 +3655,11 @@ components:
       - province
       - receiverName
       - ward
+    AddressType:
+      type: string
+      enum:
+      - HOME
+      - OFFICE
     AddressResponse:
       type: object
       properties:
@@ -3391,6 +3680,14 @@ components:
           type: string
         isDefault:
           type: boolean
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        addressType:
+          $ref: "#/components/schemas/AddressType"
     ProxyBidRequest:
       type: object
       properties:
@@ -3771,6 +4068,18 @@ components:
       - accountNumber
       - amount
       - bankName
+    TransferReceipt:
+      type: object
+      properties:
+        senderName:
+          type: string
+        transferTime:
+          type: string
+          format: date-time
+        amount:
+          type: number
+        proofImageUrl:
+          type: string
     WithdrawResponse:
       type: object
       properties:
@@ -3780,6 +4089,8 @@ components:
         userId:
           type: integer
           format: int64
+        userName:
+          type: string
         amount:
           type: number
         bankName:
@@ -3792,12 +4103,19 @@ components:
           $ref: "#/components/schemas/WithdrawStatus"
         note:
           type: string
+        processedBy:
+          type: integer
+          format: int64
+        processedByName:
+          type: string
         processedAt:
           type: string
           format: date-time
         createdAt:
           type: string
           format: date-time
+        transfer:
+          $ref: "#/components/schemas/TransferReceipt"
     WithdrawStatus:
       type: string
       enum:
@@ -3856,6 +4174,23 @@ components:
       - SUCCESS
       - FAILED
       - EXPIRED
+    BankAccountResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        bankName:
+          type: string
+        accountNumber:
+          type: string
+        accountHolder:
+          type: string
+        favorite:
+          type: boolean
+        lastUsedAt:
+          type: string
+          format: date-time
     ShipRequest:
       type: object
       properties:
@@ -4039,6 +4374,17 @@ components:
         resolution:
           type: string
         createdAt:
+          type: string
+          format: date-time
+        respondBy:
+          type: string
+          format: date-time
+        resolvedBy:
+          type: integer
+          format: int64
+        resolvedByName:
+          type: string
+        resolvedAt:
           type: string
           format: date-time
     ReturnStatus:
@@ -4363,6 +4709,11 @@ components:
         createdAt:
           type: string
           format: date-time
+        lotId:
+          type: integer
+          format: int64
+        secondChance:
+          type: boolean
     PayResponse:
       type: object
       properties:
@@ -4525,6 +4876,16 @@ components:
           $ref: "#/components/schemas/LotCloseResult"
         hammerPrice:
           type: number
+    FileResponse:
+      type: object
+      properties:
+        url:
+          type: string
+        contentType:
+          type: string
+        size:
+          type: integer
+          format: int64
     ConsignmentCreateRequest:
       type: object
       properties:
@@ -4719,6 +5080,21 @@ components:
           type: boolean
         note:
           type: string
+          maxLength: 500
+          minLength: 0
+        senderName:
+          type: string
+          maxLength: 120
+          minLength: 0
+        transferTime:
+          type: string
+          format: date-time
+        transferAmount:
+          type: number
+        proofImageUrl:
+          type: string
+          maxLength: 500
+          minLength: 0
     LockRequest:
       type: object
       properties:
@@ -5147,6 +5523,47 @@ components:
           format: double
         platformBalance:
           type: number
+    ActivityLogResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        adminId:
+          type: integer
+          format: int64
+        adminName:
+          type: string
+        action:
+          type: string
+        targetType:
+          type: string
+        targetId:
+          type: string
+        summary:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    PageResponseActivityLogResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityLogResponse"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalItems:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int32
     AuctionEvent:
       properties:
         type:
