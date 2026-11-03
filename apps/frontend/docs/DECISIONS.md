@@ -195,4 +195,6 @@ và lớp API của `main`, rồi làm thêm phía backend cho các tính năng 
 - Lời mời mua lần hai không có bảng riêng: là hoá đơn lô cờ `secondChance` (backend có từ trước), frontend lọc từ `GET /orders`.
 - Chọn món trong giỏ: frontend lọc các món và gửi `listingIds` cho báo giá, không cần `GET /cart?itemIds`.
 - Thêm `AdminAction.withdrawalRejected` vì backend ghi cả "từ chối rút tiền" vào nhật ký.
-- Chưa làm: `ListingDto.reviewedBy/reviewedAt`, ô ghi chú khi rút tiền (frontend không gửi), upload ảnh thật (`POST /files` đã có nhưng app vẫn dùng ảnh mẫu).
+- Sau đó (cùng ngày) đã làm nốt: người duyệt tin (`GET /admin/listings/reviewed`), ghi chú của người rút (`userNote`), upload ảnh thật qua `POST /files`.
+  Ảnh trên backend lưu URL tương đối `/files/...`; app ghép với `API_BASE_URL` lúc hiển thị (`resolveImageUrl`), nên đổi máy chủ / tunnel / máy ảo không làm hỏng ảnh cũ.
+  Client sinh với `use_multipart_file: true` để upload chạy được trên web.

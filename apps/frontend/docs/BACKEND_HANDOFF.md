@@ -166,9 +166,9 @@ Chuẩn hoá trước khi lưu: cắt khoảng trắng hai đầu, gộp khoản
 | B2 Phiên yêu thích | xong: `POST` / `DELETE /sessions/{id}/watch`, `GET /me/watched-sessions` |
 | B3 Toạ độ địa chỉ + chọn quận / phường từ danh sách | xong phần lưu: `latitude`, `longitude`, `addressType` (HOME / OFFICE) |
 | B4 Chọn món trong giỏ | xong, không cần endpoint mới: `POST /orders/checkout/preview` {listingIds} báo ship cho các món chọn |
-| B5 Rút tiền + ngân hàng | xong (bank, accountNumber, accountHolder); khác spec: tiền khoá (`held`) ngay lúc yêu cầu; ô ghi chú của người rút chưa có |
+| B5 Rút tiền + ngân hàng | xong (bank, accountNumber, accountHolder); khác spec: tiền khoá (`held`) ngay lúc yêu cầu; ghi chú của người rút ở `userNote` (`note` là ghi chú Admin) |
 | B6 Tài khoản ngân hàng đã dùng | xong: `GET /wallet/bank-accounts`, `POST` / `DELETE /wallet/bank-accounts/{id}/favorite` |
-| B7 Người duyệt | rút tiền + phân xử trả hàng xong (`processedByName`, `resolvedByName`, `GET /admin/disputes?resolved=true`); tin đăng chưa (`reviewedBy`) |
+| B7 Người duyệt | rút tiền + phân xử trả hàng xong (`processedByName`, `resolvedByName`, `GET /admin/disputes?resolved=true`); tin đăng: `reviewedBy` / `reviewedByName` / `reviewedAt`, `GET /admin/listings/reviewed` |
 | B9 Luật nhập liệu (bảng ở B9) | chưa kiểm tra lại phía server |
 | B8 Ảnh bìa đại diện | giữ thứ tự ảnh (chưa); AI kiểm tra loại ảnh (đề xuất) |
 

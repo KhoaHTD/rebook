@@ -64,4 +64,5 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 - [x] Merge 3 chiều `interface` + `main` (khôi phục lớp API nối backend, giữ giao diện mới)
 - [x] Backend: yêu thích sách, theo dõi phiên, tài khoản ngân hàng đã dùng, ghim bản đồ địa chỉ, khiếu nại đã phân xử, `secondChance` / `lotId` trong `OrderSummary`, `/files` nhận multipart
 - [x] Gỡ luật chặn backend (pre-push, hook Claude, CI Backend Guard)
+- [x] Upload ảnh thật (`POST /files`), ghi chú khi rút tiền, người duyệt tin đăng
 - [x] Chạy thử web với `env/local.json`: đăng nhập, trang chủ, yêu thích, giỏ, ví gọi backend thật không lỗi
