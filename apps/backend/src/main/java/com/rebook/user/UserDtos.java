@@ -1,5 +1,7 @@
 package com.rebook.user;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -43,15 +45,20 @@ public final class UserDtos {
             @NotBlank String district,
             @NotBlank String ward,
             @NotBlank @Size(max = 300) String detail,
+            @DecimalMin("-90") @DecimalMax("90") Double latitude,
+            @DecimalMin("-180") @DecimalMax("180") Double longitude,
+            Address.Type addressType,
             boolean isDefault) {
     }
 
     public record AddressResponse(Long id, String receiverName, String phone, String province, String district,
-                                  String ward, String detail, boolean isDefault) {
+                                  String ward, String detail, boolean isDefault, Double latitude,
+                                  Double longitude, Address.Type addressType) {
 
         public static AddressResponse of(Address a) {
             return new AddressResponse(a.getId(), a.getReceiverName(), a.getPhone(), a.getProvince(),
-                    a.getDistrict(), a.getWard(), a.getDetail(), a.isDefaultAddress());
+                    a.getDistrict(), a.getWard(), a.getDetail(), a.isDefaultAddress(), a.getLatitude(),
+                    a.getLongitude(), a.getAddressType());
         }
     }
 

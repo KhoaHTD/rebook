@@ -108,6 +108,9 @@ public class UserService {
         a.setDistrict(req.district().trim());
         a.setWard(req.ward().trim());
         a.setDetail(req.detail().trim());
+        a.setLatitude(req.latitude());
+        a.setLongitude(req.longitude());
+        a.setAddressType(req.addressType() == null ? Address.Type.HOME : req.addressType());
     }
 
     // ---- Shop ----
