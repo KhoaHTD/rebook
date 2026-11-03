@@ -57,6 +57,7 @@ public class ReturnRequest {
     private String sellerNote;
     private String resolution;
     private Long resolvedBy;
+    private Instant resolvedAt;
 
     @CreationTimestamp
     private Instant createdAt;

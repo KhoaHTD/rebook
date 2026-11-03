@@ -69,7 +69,8 @@ public final class OrderDtos {
     public record OrderSummary(Long id, String code, Order.Type orderType, OrderStatus status, Long shopId,
                                String shopName, Long buyerId, int itemCount, String firstItemTitle, String coverUrl,
                                BigDecimal total, BigDecimal amountDue, Payment.Method paymentMethod,
-                               boolean paid, boolean cancelRequested, Instant paymentDueAt, Instant createdAt) {
+                               boolean paid, boolean cancelRequested, Instant paymentDueAt, Instant createdAt,
+                               Long lotId, boolean secondChance) {
     }
 
     public record OrderItemResponse(Long id, Long listingId, Long lotId, String title, String imageUrl,
@@ -109,13 +110,19 @@ public final class OrderDtos {
                                       @NotNull @Size(min = 1, max = 10, message = "Cần 1–10 ảnh minh chứng") List<@NotBlank String> images) {
     }
 
+    /**
+     * respondBy: hạn người bán / kho trả lời (chỉ khi còn chờ trả lời).
+     * resolvedBy / resolvedByName / resolvedAt: Admin phân xử và lúc nào.
+     */
     public record ReturnResponse(Long id, Long orderId, ReturnRequest.Reason reason, String description,
                                  List<String> images, ReturnRequest.Status status, String sellerNote,
-                                 String resolution, Instant createdAt) {
+                                 String resolution, Instant createdAt, Instant respondBy, Long resolvedBy,
+                                 String resolvedByName, Instant resolvedAt) {
 
-        public static ReturnResponse of(ReturnRequest r) {
+        public static ReturnResponse of(ReturnRequest r, Instant respondBy, String resolvedByName) {
             return new ReturnResponse(r.getId(), r.getOrderId(), r.getReason(), r.getDescription(), r.getImages(),
-                    r.getStatus(), r.getSellerNote(), r.getResolution(), r.getCreatedAt());
+                    r.getStatus(), r.getSellerNote(), r.getResolution(), r.getCreatedAt(), respondBy,
+                    r.getResolvedBy(), resolvedByName, r.getResolvedAt());
         }
     }
 

@@ -16,6 +16,8 @@ public interface ReturnRequestRepository extends JpaRepository<ReturnRequest, Lo
 
     Page<ReturnRequest> findByStatusOrderByIdAsc(ReturnRequest.Status status, Pageable pageable);
 
+    Page<ReturnRequest> findByResolvedByIsNotNullOrderByResolvedAtDesc(Pageable pageable);
+
     /** Đơn có yêu cầu trả hàng mà người bán chưa trả lời từ trước thời điểm này. */
     @Query("""
             select r.orderId from ReturnRequest r

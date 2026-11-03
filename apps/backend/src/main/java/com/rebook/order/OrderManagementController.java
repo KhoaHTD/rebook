@@ -130,11 +130,12 @@ public class OrderManagementController {
 
     // ---- Admin ----
 
-    @Operation(summary = "[Admin] Khiếu nại trả hàng chờ phân xử")
+    @Operation(summary = "[Admin] Khiếu nại trả hàng: resolved=false chờ phân xử, true đã phân xử")
     @GetMapping("/admin/disputes")
-    public PageResponse<ReturnResponse> disputes(@RequestParam(defaultValue = "0") int page,
+    public PageResponse<ReturnResponse> disputes(@RequestParam(defaultValue = "false") boolean resolved,
+                                                 @RequestParam(defaultValue = "0") int page,
                                                  @RequestParam(defaultValue = "20") int size) {
-        return orderService.disputes(page, size);
+        return orderService.disputes(resolved, page, size);
     }
 
     @Operation(summary = "[Admin] Phân xử: approve=true hoàn tiền người mua, false giữ đơn hoàn tất")

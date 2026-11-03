@@ -163,7 +163,7 @@ public class OrderService {
                 .toList();
         var items = o.getItems().stream().map(i -> new OrderItemResponse(i.getId(), i.getListingId(), i.getLotId(),
                 i.getTitleSnapshot(), i.getImageSnapshot(), i.getUnitPrice(), i.getQuantity(), i.lineTotal())).toList();
-        ReturnResponse ret = returnRepository.findByOrderId(o.getId()).map(ReturnResponse::of).orElse(null);
+        ReturnResponse ret = returnRepository.findByOrderId(o.getId()).map(this::returnView).orElse(null);
         boolean reviewed = reviewRepository.existsByOrderId(o.getId());
         boolean canReview = !reviewed && o.getStatus() == OrderStatus.COMPLETED && o.getOrderType() == Order.Type.NORMAL;
         boolean canReturn = o.getStatus() == OrderStatus.DELIVERED && withinComplaintWindow(o);
@@ -190,7 +190,7 @@ public class OrderService {
                 o.getBuyerId(), o.getItems().stream().mapToInt(OrderItem::getQuantity).sum(),
                 first == null ? null : first.getTitleSnapshot(), first == null ? null : first.getImageSnapshot(),
                 o.getTotal(), o.amountDue(), o.getPaymentMethod(), o.getPaidAt() != null, o.isCancelRequested(),
-                o.getPaymentDueAt(), o.getCreatedAt());
+                o.getPaymentDueAt(), o.getCreatedAt(), o.getLotId(), o.isSecondChance());
     }
 
     public OrderSummary toSummary(Order o) {
@@ -427,10 +427,22 @@ public class OrderService {
     // Admin phân xử
     // =====================================================================
 
+    /** resolved = false: khiếu nại chờ phân xử (cũ nhất trước); true: đã phân xử (mới nhất trước). */
     @Transactional(readOnly = true)
-    public PageResponse<ReturnResponse> disputes(int page, int size) {
-        return PageResponse.of(returnRepository.findByStatusOrderByIdAsc(ReturnRequest.Status.DISPUTED,
-                PageRequest.of(page, size)), ReturnResponse::of);
+    public PageResponse<ReturnResponse> disputes(boolean resolved, int page, int size) {
+        var pageable = PageRequest.of(page, size);
+        var result = resolved
+                ? returnRepository.findByResolvedByIsNotNullOrderByResolvedAtDesc(pageable)
+                : returnRepository.findByStatusOrderByIdAsc(ReturnRequest.Status.DISPUTED, pageable);
+        return PageResponse.of(result, this::returnView);
+    }
+
+    private ReturnResponse returnView(ReturnRequest r) {
+        Instant respondBy = r.getStatus() == ReturnRequest.Status.PENDING && r.getCreatedAt() != null
+                ? r.getCreatedAt().plus(config.days(SystemConfigService.RETURN_RESPONSE_DAYS)) : null;
+        String resolvedByName = r.getResolvedBy() == null ? null
+                : userRepository.findById(r.getResolvedBy()).map(User::getFullName).orElse(null);
+        return ReturnResponse.of(r, respondBy, resolvedByName);
     }
 
     @Transactional
@@ -441,6 +453,7 @@ public class OrderService {
                 .orElseThrow(() -> ApiException.conflict("NO_DISPUTE", "Đơn không có khiếu nại chờ phân xử"));
         r.setResolution(resolution);
         r.setResolvedBy(adminId);
+        r.setResolvedAt(Instant.now());
         if (refundBuyer) {
             r.setStatus(ReturnRequest.Status.APPROVED);
             transition(o, OrderStatus.RETURNED, adminId, "Admin chấp nhận trả hàng: " + resolution);
