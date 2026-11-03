@@ -7,7 +7,7 @@ spring:
   application:
     name: rebook-backend
   config:
-    # Cấu hình riêng của từng máy (mã VNPay sandbox...) đặt ở apps/backend/.env, dạng KEY=giá trị; file này không commit.
+    # Cấu hình riêng của từng máy (khoá ZaloPay riêng, APP_URL...) đặt ở apps/backend/.env, dạng KEY=giá trị; file này không commit.
     import: optional:file:.env[.properties]
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
@@ -70,13 +70,17 @@ app:
   auction:
     engine-enabled: true
   payment:
-    # true = cho phép gọi /payments/{code}/simulate để giả lập VNPay trả về thành công
+    # true = cho phép gọi /payments/{code}/simulate để giả lập cổng thanh toán trả về thành công
     simulate-enabled: false
-    vnpay:
-      tmn-code: ${VNPAY_TMN_CODE:}
-      hash-secret: ${VNPAY_HASH_SECRET:}
-      pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-      return-url: ${VNPAY_RETURN_URL:http://localhost:8080/payments/vnpay/return}
+    zalopay:
+      # Mặc định là bộ khoá sandbox dùng thử công khai trong tài liệu ZaloPay (app 2554, không cần đăng ký).
+      # Có tài khoản sandbox riêng thì đặt ZALOPAY_APP_ID / ZALOPAY_KEY1 / ZALOPAY_KEY2 trong .env. Để trống app-id = tắt ZaloPay (giả lập).
+      app-id: ${ZALOPAY_APP_ID:2554}
+      key1: ${ZALOPAY_KEY1:sdngKKJmqEMzvh5QQcdD2A9XBSKUNaYn}
+      key2: ${ZALOPAY_KEY2:trMrHtvjo6myautxDUiAcYsVtaeQ8nhf}
+      endpoint: ${ZALOPAY_ENDPOINT:https://sb-openapi.zalopay.vn/v2}
+      return-url: ${ZALOPAY_RETURN_URL:http://localhost:8080/payments/zalopay/return}
+      callback-url: ${ZALOPAY_CALLBACK_URL:}
     # Bản web của app (chạy `flutter run -d chrome --web-port 5199 ...`). Trống = trang kết quả chỉ nhắc quay lại app.
     app-url: ${APP_URL:http://localhost:5199}
 

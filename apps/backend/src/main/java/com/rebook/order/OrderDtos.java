@@ -40,7 +40,7 @@ public final class OrderDtos {
 
     // ---- Checkout ----
 
-    /** listingIds = null → đặt toàn bộ giỏ. paymentMethod: COD | WALLET | VNPAY. */
+    /** listingIds = null → đặt toàn bộ giỏ. paymentMethod: COD | WALLET | ZALOPAY. */
     public record CheckoutRequest(@NotNull Long addressId, @NotNull Payment.Method paymentMethod,
                                   List<Long> listingIds, @Size(max = 500) String note) {
     }
@@ -54,7 +54,7 @@ public final class OrderDtos {
     public record CheckoutPreview(List<ShopQuote> shops, BigDecimal subtotal, BigDecimal shippingFee, BigDecimal total) {
     }
 
-    /** payment != null khi cần thanh toán qua VNPay: mở payment.paymentUrl. */
+    /** payment != null khi cần thanh toán qua ZaloPay: mở payment.paymentUrl. */
     public record CheckoutResponse(List<OrderSummary> orders, PaymentResponse payment) {
     }
 

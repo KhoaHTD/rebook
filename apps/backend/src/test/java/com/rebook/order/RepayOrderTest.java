@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Người mua thanh toán lại đơn đang chờ: giao dịch VNPay cũ thành công muộn không được làm mất tiền. */
+/** Người mua thanh toán lại đơn đang chờ: giao dịch ZaloPay cũ thành công muộn không được làm mất tiền. */
 class RepayOrderTest extends IntegrationTest {
 
     private long buyerId;
@@ -45,13 +45,13 @@ class RepayOrderTest extends IntegrationTest {
                 Long.class, book, shop, price);
     }
 
-    private String checkoutVnpay(long... listings) throws Exception {
+    private String checkoutZaloPay(long... listings) throws Exception {
         for (long l : listings) {
             mvc.perform(post("/cart").with(as(buyerId, Role.USER)).contentType(MediaType.APPLICATION_JSON)
                     .content("{\"listingId\":" + l + ",\"quantity\":1}")).andExpect(status().isOk());
         }
         return mvc.perform(post("/orders/checkout").with(as(buyerId, Role.USER)).contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"addressId\":" + addressId + ",\"paymentMethod\":\"VNPAY\"}"))
+                        .content("{\"addressId\":" + addressId + ",\"paymentMethod\":\"ZALOPAY\"}"))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
     }
@@ -76,8 +76,8 @@ class RepayOrderTest extends IntegrationTest {
     }
 
     @Test
-    void lateVnpayAfterPayingOneOrderByWalletRefundsThatShare() throws Exception {
-        String body = checkoutVnpay(createListing(100_000), createListing(50_000));
+    void lateZaloPayAfterPayingOneOrderByWalletRefundsThatShare() throws Exception {
+        String body = checkoutZaloPay(createListing(100_000), createListing(50_000));
         List<Integer> ids = JsonPath.read(body, "$.orders[*].id");
         String oldCode = JsonPath.read(body, "$.payment.code");
         long first = ids.get(0);
@@ -87,7 +87,7 @@ class RepayOrderTest extends IntegrationTest {
         long afterWallet = walletAvailable(buyerId);
         assertThat(afterWallet).isEqualTo(1_000_000 - amountDue(first));
 
-        simulate(oldCode); // VNPay cũ vẫn trừ tiền người mua đủ cho cả hai đơn
+        simulate(oldCode); // ZaloPay cũ vẫn trừ tiền người mua đủ cho cả hai đơn
 
         assertThat(orderStatus(first)).isEqualTo("PENDING_CONFIRM");
         assertThat(orderStatus(second)).isEqualTo("PENDING_CONFIRM");
@@ -96,12 +96,12 @@ class RepayOrderTest extends IntegrationTest {
     }
 
     @Test
-    void oldVnpayLinkSucceedingAfterNewLinkWasCreatedIsRefunded() throws Exception {
-        String body = checkoutVnpay(createListing(80_000));
+    void oldZaloPayLinkSucceedingAfterNewLinkWasCreatedIsRefunded() throws Exception {
+        String body = checkoutZaloPay(createListing(80_000));
         long order = ((Integer) JsonPath.read(body, "$.orders[0].id")).longValue();
         String oldCode = JsonPath.read(body, "$.payment.code");
 
-        String newCode = JsonPath.read(pay(order, "VNPAY"), "$.payment.code");
+        String newCode = JsonPath.read(pay(order, "ZALOPAY"), "$.payment.code");
 
         simulate(oldCode);
         // Link cũ không còn gắn với đơn: tiền vào ví, đơn vẫn chờ link mới

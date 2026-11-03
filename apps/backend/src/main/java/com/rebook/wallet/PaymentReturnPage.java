@@ -3,22 +3,26 @@ package com.rebook.wallet;
 import org.springframework.web.util.HtmlUtils;
 
 /**
- * Trang trình duyệt thấy sau khi thanh toán VNPay. App (đang mở ở tab / màn khác) tự hỏi lại trạng thái thanh toán,
- * nên trang này chỉ báo kết quả và nhắc người dùng quay lại ứng dụng.
+ * Trang trình duyệt thấy sau khi thanh toán ZaloPay. App (đang mở ở tab / màn khác) tự hỏi lại trạng thái thanh toán,
+ * nên trang này chỉ báo kết quả, có nút quay về app và tự chuyển về màn kết quả trong app (bản web).
  */
-final class VnpayReturnPage {
+final class PaymentReturnPage {
 
-    private VnpayReturnPage() {
+    private PaymentReturnPage() {
     }
 
-    /** [appUrl] khác rỗng: thêm nút "Quay lại ReBook" và tự chuyển về màn kết quả thanh toán trong app sau 3 giây. */
-    static String render(boolean success, String paymentCode, String appUrl) {
-        String title = success ? "Thanh toán thành công" : "Thanh toán không thành công";
+    /** [appUrl] khác rỗng và biết mã thanh toán: thêm nút "Quay lại ReBook" và tự chuyển về app sau 3 giây. */
+    static String render(Payment.Status status, String paymentCode, String appUrl) {
+        boolean success = status == Payment.Status.SUCCESS;
+        boolean pending = status == Payment.Status.PENDING;
+        String title = success ? "Thanh toán thành công" : pending ? "Đang chờ xác nhận" : "Thanh toán không thành công";
         String message = success
                 ? "ReBook đã nhận được tiền. Bạn có thể đóng trang này và quay lại ứng dụng."
+                : pending
+                ? "ZaloPay chưa xác nhận giao dịch. Quay lại ứng dụng, kết quả sẽ tự cập nhật."
                 : "Giao dịch chưa hoàn tất. Quay lại ứng dụng để thử lại hoặc chọn cách thanh toán khác.";
-        String color = success ? "#1a7f37" : "#c62828";
-        String icon = success ? "&#10003;" : "&#10005;";
+        String color = success ? "#1a7f37" : pending ? "#b26a00" : "#c62828";
+        String icon = success ? "&#10003;" : pending ? "&#8987;" : "&#10005;";
         String code = paymentCode == null ? "" : "<p class=\"code\">Mã thanh toán: " + HtmlUtils.htmlEscape(paymentCode) + "</p>";
         String back = "";
         String redirect = "";

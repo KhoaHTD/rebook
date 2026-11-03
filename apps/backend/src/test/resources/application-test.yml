@@ -15,3 +15,6 @@ app:
     dir: target/test-uploads
   payment:
     simulate-enabled: true
+    # Test không gọi ZaloPay thật; ZaloPayTest bật lại với client giả.
+    zalopay:
+      app-id: ""

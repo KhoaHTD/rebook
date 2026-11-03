@@ -510,7 +510,7 @@ paths:
     post:
       tags:
       - Wallet
-      summary: Nạp tiền qua VNPay sandbox — trả về paymentUrl để mở trình duyệt
+      summary: Nạp tiền qua ZaloPay sandbox — trả về paymentUrl để mở trình duyệt
       operationId: topUp
       requestBody:
         content:
@@ -1181,7 +1181,7 @@ paths:
     post:
       tags:
       - Wallet
-      summary: "[DEV] Giả lập VNPay trả về thành công (chỉ khi app.payment.simulate-enabled=true)"
+      summary: "[DEV] Giả lập cổng thanh toán trả về thành công (chỉ khi app.payment.simulate-enabled=true)"
       operationId: simulate
       parameters:
       - name: code
@@ -1196,6 +1196,27 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PaymentResponse"
+  /payments/zalopay/callback:
+    post:
+      tags:
+      - Wallet
+      summary: Callback ZaloPay (server-to-server)
+      operationId: zalopayCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: {}
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}
   /orders/{id}/review:
     post:
       tags:
@@ -1252,7 +1273,7 @@ paths:
     post:
       tags:
       - Order
-      summary: Thanh toán đơn đang chờ (cả hoá đơn lô đấu giá) bằng WALLET hoặc VNPAY
+      summary: Thanh toán đơn đang chờ (cả hoá đơn lô đấu giá) bằng WALLET hoặc ZALOPAY
       operationId: pay
       parameters:
       - name: id
@@ -1367,8 +1388,8 @@ paths:
       tags:
       - Order
       summary: "Đặt hàng: mỗi shop một đơn, giữ hàng ngay"
-      description: "COD → đơn vào thẳng PENDING_CONFIRM. WALLET → trừ ví ngay. VNPAY\
-        \ → trả về payment.paymentUrl, hạn 15 phút."
+      description: "COD → đơn vào thẳng PENDING_CONFIRM. WALLET → trừ ví ngay. ZALOPAY\
+        \ → trả về payment.paymentUrl (trang ZaloPay), hạn 15 phút."
       operationId: checkout
       requestBody:
         content:
@@ -2603,12 +2624,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PaymentResponse"
-  /payments/vnpay/return:
+  /payments/zalopay/return:
     get:
       tags:
       - Wallet
-      summary: Return URL của VNPay
-      operationId: vnpayReturn
+      summary: "Redirect URL của ZaloPay: xác nhận giao dịch rồi hiện trang kết quả\
+        \ cho người dùng"
+      operationId: zalopayReturn
       parameters:
       - name: params
         in: query
@@ -2621,34 +2643,9 @@ paths:
         "200":
           description: OK
           content:
-            '*/*':
+            text/html:
               schema:
-                type: object
-                additionalProperties:
-                  type: string
-  /payments/vnpay/ipn:
-    get:
-      tags:
-      - Wallet
-      summary: IPN VNPay gọi về (server-to-server)
-      operationId: vnpayIpn
-      parameters:
-      - name: params
-        in: query
-        required: true
-        schema:
-          type: object
-          additionalProperties:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                type: object
-                additionalProperties:
-                  type: string
+                type: string
   /orders:
     get:
       tags:
@@ -4177,7 +4174,7 @@ components:
       enum:
       - COD
       - WALLET
-      - VNPAY
+      - ZALOPAY
     PaymentPurpose:
       type: string
       enum:

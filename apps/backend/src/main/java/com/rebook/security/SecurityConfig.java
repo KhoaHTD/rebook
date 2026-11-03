@@ -43,7 +43,7 @@ public class SecurityConfig {
                         // Đăng ký, đăng nhập, OTP
                         .requestMatchers("/auth/**").permitAll()
                         // Callback cổng thanh toán (kiểm chữ ký bên trong)
-                        .requestMatchers("/payments/vnpay/**").permitAll()
+                        .requestMatchers("/payments/zalopay/**").permitAll()
                         // WebSocket: tự xác thực bằng ?token=
                         .requestMatchers("/ws/**").permitAll()
                         // Khách (Guest) được xem sách, shop, lịch phiên, catalogue

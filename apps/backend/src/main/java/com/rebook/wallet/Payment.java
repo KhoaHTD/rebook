@@ -29,7 +29,7 @@ public class Payment {
     public enum Purpose { ORDER, TOP_UP }
 
     @Schema(name = "PaymentMethod", enumAsRef = true)
-    public enum Method { COD, WALLET, VNPAY }
+    public enum Method { COD, WALLET, ZALOPAY }
 
     @Schema(name = "PaymentStatus", enumAsRef = true)
     public enum Status { PENDING, SUCCESS, FAILED, EXPIRED }
@@ -54,6 +54,12 @@ public class Payment {
 
     /** Mã giao dịch phía cổng — UNIQUE để IPN gọi 2 lần không cộng trùng. */
     private String gatewayTxnId;
+
+    /** Mã đơn phía ZaloPay (app_trans_id = yyMMdd_<code>), dùng để truy vấn trạng thái. */
+    private String gatewayRef;
+
+    /** Link trang thanh toán ZaloPay (order_url), trả lại cho app khi thanh toán còn chờ. */
+    private String paymentUrl;
 
     private String rawCallback;
     private Instant paidAt;

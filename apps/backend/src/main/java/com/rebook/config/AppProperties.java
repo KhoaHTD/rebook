@@ -19,10 +19,11 @@ public record AppProperties(Jwt jwt, Otp otp, Cors cors, Auction auction, Paymen
     public record Auction(boolean engineEnabled) {
     }
 
-    /** appUrl: địa chỉ bản web của app; trang VNPay quay về đưa người dùng về `appUrl/home/payments/{mã}`. */
-    public record Payment(boolean simulateEnabled, Vnpay vnpay, String appUrl) {
+    /** appUrl: địa chỉ bản web của app; trang ZaloPay quay về đưa người dùng về `appUrl/home/payments/{mã}`. */
+    public record Payment(boolean simulateEnabled, ZaloPay zalopay, String appUrl) {
     }
 
-    public record Vnpay(String tmnCode, String hashSecret, String payUrl, String returnUrl) {
+    /** endpoint: gốc API (sandbox https://sb-openapi.zalopay.vn/v2); callbackUrl trống = không nhận callback (máy dev). */
+    public record ZaloPay(String appId, String key1, String key2, String endpoint, String returnUrl, String callbackUrl) {
     }
 }

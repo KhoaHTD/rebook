@@ -18,6 +18,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("select p from Payment p where p.code = :code")
     Optional<Payment> lockByCode(@Param("code") String code);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Payment p where p.gatewayRef = :ref")
+    Optional<Payment> lockByGatewayRef(@Param("ref") String ref);
+
     @Query("select p from Payment p where p.status = 'PENDING' and p.expiresAt < :now")
     List<Payment> findExpired(@Param("now") Instant now);
 }

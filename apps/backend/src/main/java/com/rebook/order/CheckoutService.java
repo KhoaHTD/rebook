@@ -138,10 +138,10 @@ public class CheckoutService {
                 payWithWallet(userId, orders, grandTotal);
                 yield null;
             }
-            case VNPAY -> {
-                PaymentResponse p = paymentService.createVnpay(userId, Payment.Purpose.ORDER, grandTotal,
+            case ZALOPAY -> {
+                PaymentResponse p = paymentService.createZaloPay(userId, Payment.Purpose.ORDER, grandTotal,
                         config.minutes(SystemConfigService.PAYMENT_TIMEOUT_MIN),
-                        "Thanh toan don hang ReBook", clientIp);
+                        "ReBook - Thanh toán " + orders.size() + " đơn hàng");
                 orders.forEach(o -> o.setPaymentId(p.id()));
                 yield p;
             }
@@ -168,12 +168,12 @@ public class CheckoutService {
                 payWithWallet(userId, List.of(o), o.amountDue());
                 yield new PayResponse(orderService.toSummary(o), null);
             }
-            case VNPAY -> {
+            case ZALOPAY -> {
                 Duration ttl = Duration.between(Instant.now(), o.getPaymentDueAt());
-                PaymentResponse p = paymentService.createVnpay(userId, Payment.Purpose.ORDER, o.amountDue(),
+                PaymentResponse p = paymentService.createZaloPay(userId, Payment.Purpose.ORDER, o.amountDue(),
                         ttl.compareTo(Duration.ofMinutes(15)) > 0 ? Duration.ofMinutes(15) : ttl,
-                        "Thanh toan don " + o.getCode(), clientIp);
-                o.setPaymentMethod(Payment.Method.VNPAY);
+                        "ReBook - Thanh toán đơn " + o.getCode());
+                o.setPaymentMethod(Payment.Method.ZALOPAY);
                 o.setPaymentId(p.id());
                 yield new PayResponse(orderService.toSummary(o), p);
             }
@@ -200,13 +200,13 @@ public class CheckoutService {
     }
 
     /**
-     * VNPay báo thành công → chuyển các đơn sang chờ xác nhận. Đơn đã bị huỷ thì hoàn tiền vào ví.
-     * Phần tiền không còn đơn nào nhận (người mua đã trả lại đơn bằng ví hoặc link VNPay mới) cũng hoàn vào ví.
+     * ZaloPay báo thành công → chuyển các đơn sang chờ xác nhận. Đơn đã bị huỷ thì hoàn tiền vào ví.
+     * Phần tiền không còn đơn nào nhận (người mua đã trả lại đơn bằng ví hoặc link ZaloPay mới) cũng hoàn vào ví.
      */
     @EventListener
     public void onPaymentSucceeded(PaymentSucceededEvent event) {
         Payment p = event.payment();
-        if (p.getPurpose() != Payment.Purpose.ORDER || p.getMethod() != Payment.Method.VNPAY) {
+        if (p.getPurpose() != Payment.Purpose.ORDER || p.getMethod() != Payment.Method.ZALOPAY) {
             return;
         }
         BigDecimal handled = BigDecimal.ZERO;
@@ -214,7 +214,7 @@ public class CheckoutService {
             Order locked = orderService.lock(o.getId());
             handled = handled.add(locked.amountDue());
             if (locked.getStatus() == OrderStatus.PENDING_PAYMENT) {
-                markPaid(locked, Payment.Method.VNPAY, p.getId());
+                markPaid(locked, Payment.Method.ZALOPAY, p.getId());
             } else {
                 log.warn("Payment {} về sau khi đơn {} đã {}, hoàn tiền vào ví", p.getCode(), locked.getCode(), locked.getStatus());
                 walletService.credit(locked.getBuyerId(), WalletTxType.REFUND, locked.amountDue(), "ORDER", locked.getId(),

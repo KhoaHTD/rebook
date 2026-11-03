@@ -82,7 +82,7 @@ public class OrderController {
     }
 
     @Operation(summary = "Đặt hàng: mỗi shop một đơn, giữ hàng ngay",
-            description = "COD → đơn vào thẳng PENDING_CONFIRM. WALLET → trừ ví ngay. VNPAY → trả về payment.paymentUrl, hạn 15 phút.")
+            description = "COD → đơn vào thẳng PENDING_CONFIRM. WALLET → trừ ví ngay. ZALOPAY → trả về payment.paymentUrl (trang ZaloPay), hạn 15 phút.")
     @PostMapping("/orders/checkout")
     @ResponseStatus(HttpStatus.CREATED)
     public CheckoutResponse checkout(@AuthenticationPrincipal UserPrincipal me, @Valid @RequestBody CheckoutRequest req,
@@ -90,7 +90,7 @@ public class OrderController {
         return checkoutService.checkout(me.id(), req, http.getRemoteAddr());
     }
 
-    @Operation(summary = "Thanh toán đơn đang chờ (cả hoá đơn lô đấu giá) bằng WALLET hoặc VNPAY")
+    @Operation(summary = "Thanh toán đơn đang chờ (cả hoá đơn lô đấu giá) bằng WALLET hoặc ZALOPAY")
     @PostMapping("/orders/{id}/pay")
     public PayResponse pay(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
                            @Valid @RequestBody PayRequest req, HttpServletRequest http) {

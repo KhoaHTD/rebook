@@ -54,13 +54,13 @@ public class WalletController {
         return walletService.transactions(me.id(), page, size);
     }
 
-    @Operation(summary = "Nạp tiền qua VNPay sandbox — trả về paymentUrl để mở trình duyệt")
+    @Operation(summary = "Nạp tiền qua ZaloPay sandbox — trả về paymentUrl để mở trình duyệt")
     @PostMapping("/wallet/top-up")
     @ResponseStatus(HttpStatus.CREATED)
     public PaymentResponse topUp(@AuthenticationPrincipal UserPrincipal me, @Valid @RequestBody TopUpRequest req,
                                  HttpServletRequest http) {
-        return paymentService.createVnpay(me.id(), Payment.Purpose.TOP_UP, req.amount(), Duration.ofMinutes(15),
-                "Nap tien vi ReBook", http.getRemoteAddr());
+        return paymentService.createZaloPay(me.id(), Payment.Purpose.TOP_UP, req.amount(), Duration.ofMinutes(15),
+                "ReBook - Nạp tiền vào ví");
     }
 
     @Operation(summary = "Tạo yêu cầu rút tiền (Admin duyệt)")
@@ -98,29 +98,27 @@ public class WalletController {
         return paymentService.get(me.id(), code);
     }
 
-    @Operation(summary = "[DEV] Giả lập VNPay trả về thành công (chỉ khi app.payment.simulate-enabled=true)")
+    @Operation(summary = "[DEV] Giả lập cổng thanh toán trả về thành công (chỉ khi app.payment.simulate-enabled=true)")
     @PostMapping("/payments/{code}/simulate")
     public PaymentResponse simulate(@AuthenticationPrincipal UserPrincipal me, @PathVariable String code) {
         return paymentService.simulateSuccess(me.id(), code);
     }
 
-    @Operation(summary = "IPN VNPay gọi về (server-to-server)")
-    @GetMapping("/payments/vnpay/ipn")
-    public Map<String, String> vnpayIpn(@RequestParam Map<String, String> params) {
-        return paymentService.handleVnpayCallback(params);
+    /** Callback server-to-server của ZaloPay (chỉ tới được khi backend có địa chỉ công khai, đặt ZALOPAY_CALLBACK_URL). */
+    @Operation(summary = "Callback ZaloPay (server-to-server)")
+    @PostMapping("/payments/zalopay/callback")
+    public Map<String, Object> zalopayCallback(@RequestBody Map<String, Object> body) {
+        return paymentService.handleZaloPayCallback(String.valueOf(body.get("data")), String.valueOf(body.get("mac")));
     }
 
     /**
-     * Trình duyệt quay về sau khi thanh toán. Khi chạy localhost VNPay không gọi được IPN,
-     * nên return URL cũng xác nhận giao dịch (idempotent, có kiểm chữ ký).
+     * Trình duyệt quay về sau khi thanh toán ZaloPay. Máy dev chạy localhost ZaloPay không gọi callback được,
+     * nên trang này kiểm checksum rồi hỏi ZaloPay để chốt giao dịch (idempotent).
      */
-    @Operation(summary = "Return URL của VNPay: xác nhận giao dịch rồi hiện trang kết quả cho người dùng")
-    @GetMapping(value = "/payments/vnpay/return", produces = MediaType.TEXT_HTML_VALUE)
-    public String vnpayReturn(@RequestParam Map<String, String> params) {
-        Map<String, String> rsp = paymentService.handleVnpayCallback(params);
-        String appUrl = props.payment().appUrl();
-        boolean success = "00".equals(params.get("vnp_ResponseCode"))
-                && ("00".equals(rsp.get("RspCode")) || "02".equals(rsp.get("RspCode")));
-        return VnpayReturnPage.render(success, params.get("vnp_TxnRef"), appUrl);
+    @Operation(summary = "Redirect URL của ZaloPay: xác nhận giao dịch rồi hiện trang kết quả cho người dùng")
+    @GetMapping(value = "/payments/zalopay/return", produces = MediaType.TEXT_HTML_VALUE)
+    public String zalopayReturn(@RequestParam Map<String, String> params) {
+        PaymentService.ReturnResult r = paymentService.handleZaloPayReturn(params);
+        return PaymentReturnPage.render(r.status(), r.code(), props.payment().appUrl());
     }
 }

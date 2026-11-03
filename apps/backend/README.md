@@ -46,7 +46,7 @@ Modular monolith, mỗi package một module (entity, repository, service, contr
 | `user` | hồ sơ, sổ địa chỉ, bật shop |
 | `catalog` | danh mục cây, sách, tin đăng, tìm kiếm / lọc / sắp xếp, Admin duyệt tin |
 | `order` | giỏ nhiều shop, checkout tách đơn theo shop, vòng đời đơn, trả hàng, đánh giá, job tự động |
-| `wallet` | ví (available / held), sổ cái, VNPay sandbox, rút tiền (Admin duyệt phải nhập biên lai chuyển khoản: người chuyển, giờ, số tiền, ảnh) |
+| `wallet` | ví (available / held), sổ cái, ZaloPay sandbox, rút tiền (Admin duyệt phải nhập biên lai chuyển khoản: người chuyển, giờ, số tiền, ảnh) |
 | `consignment` | ký gửi, lịch hẹn, nhận sách, kiểm định, kho |
 | `auction` | phiên, lô, đăng ký + cọc, trả giá, proxy bid, bộ máy chạy phiên, quyết toán sau phiên |
 | `notification` | lưu thông báo + đẩy realtime qua WebSocket |
@@ -88,20 +88,17 @@ gọi `GET /sessions/{id}/state` trước rồi mới nghe tiếp WebSocket. M�
 - **WebSocket thuần thay cho STOMP**: frontend đã viết `RealtimeClient` theo kiểu này và allowlist package không có thư viện STOMP.
 - **Không gửi FCM**: frontend không dùng Firebase SDK. Thông báo lưu DB + đẩy qua `/ws/notifications`.
 - **OTP**: chưa có dịch vụ email/SMS — mã ghi ra log; ở profile `dev` trả luôn trong response (`devOtp`).
-- **VNPay**: cần `VNPAY_TMN_CODE` + `VNPAY_HASH_SECRET` (tài khoản sandbox). Đặt trong file `apps/backend/.env` (không commit,
-  đã có trong `.gitignore`; Spring tự đọc khi chạy trong `apps/backend`), mỗi dòng `KHÓA=giá trị`:
-  ```
-  VNPAY_TMN_CODE=<mã website>
-  VNPAY_HASH_SECRET=<chuỗi bí mật>
-  APP_URL=http://localhost:5199
-  ```
-  Chưa cấu hình thì `paymentUrl = null`, `simulateAvailable = true` và app hiện cổng giả lập (`POST /payments/{code}/simulate`, chỉ bật ở `dev`).
-  Có cấu hình thì app mở trang VNPay; trả xong VNPay đưa trình duyệt về `/payments/vnpay/return`: backend xác nhận giao dịch
-  (chạy localhost VNPay không gọi được IPN; có kiểm chữ ký, idempotent) rồi hiện trang kết quả, tự chuyển về
-  `APP_URL/home/payments/{mã}` (bản web chạy `flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.json`).
-  App điện thoại: người dùng quay lại app, màn kết quả tự hỏi lại trạng thái mỗi 3 giây.
-  Thẻ test NCB: xem email VNPay gửi khi đăng ký sandbox. Trang VNPay báo **mã 71 "Website chưa được phê duyệt"** = tài khoản
-  sandbox chưa duyệt hoặc đã bị khoá (đăng nhập Merchant Admin sandbox để kiểm tra, hoặc đăng ký lại); mã 70 mới là sai chữ ký.
+- **ZaloPay** (thay VNPay từ 2026-11-04): mặc định dùng **bộ khoá sandbox dùng thử công khai** trong tài liệu ZaloPay (app 2554),
+  chạy được ngay không cần đăng ký. Có tài khoản sandbox riêng thì đặt trong `apps/backend/.env` (không commit, đã có trong `.gitignore`;
+  Spring tự đọc khi chạy trong `apps/backend`), mỗi dòng `KHÓA=giá trị`: `ZALOPAY_APP_ID`, `ZALOPAY_KEY1`, `ZALOPAY_KEY2`, `APP_URL`.
+  Đặt `ZALOPAY_APP_ID=` (trống) để tắt ZaloPay: app hiện cổng giả lập (`POST /payments/{code}/simulate`, chỉ bật ở `dev`).
+  Luồng: backend tạo đơn (`/v2/create`, `app_trans_id = yyMMdd_<mã thanh toán>`) → app mở `order_url` (web: tab mới) và sang màn kết quả;
+  trả xong ZaloPay đưa trình duyệt về `/payments/zalopay/return` (kiểm checksum bằng key2, rồi **hỏi `/v2/query` để chốt**) và trang kết quả
+  tự chuyển về `APP_URL/home/payments/{mã}`. Mỗi lần app hỏi `GET /payments/{code}` khi còn chờ, backend cũng hỏi ZaloPay, nên máy dev
+  (localhost, ZaloPay không gọi callback được) và app điện thoại vẫn nhận kết quả. Có địa chỉ công khai thì đặt `ZALOPAY_CALLBACK_URL`
+  (`POST /payments/zalopay/callback`, kiểm mac bằng key2).
+  Thẻ test (tài liệu ZaloPay): Visa `4111 1111 1111 1111`, `NGUYEN VAN A`, CVV `123`; hạn ghi trong tài liệu (01/25) đã qua nên nhập hạn
+  bất kỳ trong tương lai (vd 12/30). Bản web chạy `flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.json`.
 - **Vận chuyển**: giả lập bằng nút bấm (`/seller/orders/{id}/ship`, `/delivered`); phí ship theo bảng nội tỉnh / liên tỉnh + khối lượng.
 - **Lô không bán được → bán giá cố định**: tạo tin đăng chờ duyệt trong shop người bán (dùng lại `Book`), người bán nhận sách về và tự giao.
 - Bộ máy chạy phiên chỉ chạy đúng trên **một** instance backend.
