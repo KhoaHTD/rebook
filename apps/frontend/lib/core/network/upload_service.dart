@@ -1,16 +1,19 @@
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'package:book_marketplace/api/generated/export.dart';
 import 'package:book_marketplace/app/env.dart';
+import 'package:book_marketplace/core/error/app_exception.dart';
+import 'package:book_marketplace/core/network/api_providers.dart';
 
 part 'upload_service.g.dart';
 
-/// Upload ảnh sách (đăng bán ≥ 3 ảnh, ký gửi, kiểm định, trả hàng).
-/// Cuối cùng sẽ upload thẳng lên Cloudinary bằng chữ ký backend cấp (SRS 10.1); hiện backend chưa có endpoint đó.
+/// Upload ảnh sách (đăng bán ≥ 3 ảnh, ký gửi, kiểm định, trả hàng, biên lai rút tiền).
 abstract interface class ImageUploader {
-  /// Trả về URL công khai của ảnh.
+  /// Trả về URL của ảnh. Ảnh lên backend là URL tương đối (`/files/...`); hiển thị qua [resolveImageUrl].
   Future<String> upload(XFile file, {required String folder});
 }
 
@@ -30,25 +33,57 @@ abstract final class MemoryImages {
   static bool isMemory(String? url) => url != null && url.startsWith('mem://');
 }
 
+/// Backend lưu ảnh với URL tương đối (`/files/<tên>`) để đổi máy chủ (tunnel, máy ảo `10.0.2.2`) không làm hỏng
+/// dữ liệu; lúc hiển thị mới ghép với địa chỉ API đang dùng. URL đầy đủ, `assets/`, `mem://` giữ nguyên.
+String resolveImageUrl(String url) {
+  if (!url.startsWith('/')) return url;
+  final base = Env.apiBaseUrl.endsWith('/')
+      ? Env.apiBaseUrl.substring(0, Env.apiBaseUrl.length - 1)
+      : Env.apiBaseUrl;
+  return '$base$url';
+}
+
 class FakeImageUploader implements ImageUploader {
   @override
   Future<String> upload(XFile file, {required String folder}) async =>
       MemoryImages.put(await file.readAsBytes());
 }
 
-/// Tạm thời: backend chưa có endpoint cấp chữ ký upload (Cloudinary). Giữ bytes trong
-/// bộ nhớ để xem ngay trên máy, nhưng gửi lên backend một URL ảnh mẫu ổn định
-/// (cùng nguồn với dữ liệu mẫu) để tin đăng / ký gửi vẫn tạo được.
-class PlaceholderImageUploader implements ImageUploader {
-  var _seq = 0;
+/// Upload thật lên backend (`POST /files`, PNG / JPEG / WebP, tối đa 5MB).
+/// `folder` chỉ để phân loại phía app; backend lưu chung một chỗ.
+class ApiImageUploader implements ImageUploader {
+  ApiImageUploader(this._client);
+
+  final RestClient _client;
 
   @override
-  Future<String> upload(XFile file, {required String folder}) async {
-    MemoryImages.put(await file.readAsBytes());
-    return 'https://picsum.photos/seed/rebook-upload-${DateTime.now().millisecondsSinceEpoch}-${_seq++}/600/800';
+  Future<String> upload(XFile file, {required String folder}) =>
+      guardApi(() async {
+        final bytes = await file.readAsBytes();
+        final res = await _client.files.postFiles(
+          file: MultipartFile.fromBytes(
+            bytes,
+            filename: file.name.isEmpty ? 'image.jpg' : file.name,
+            contentType: DioMediaType.parse(
+              file.mimeType ?? _guessType(file.name),
+            ),
+          ),
+        );
+        return res.url ?? '';
+      });
+
+  /// Backend kiểm tra loại ảnh theo Content-Type của phần file; `mimeType` thường trống trên điện thoại.
+  static String _guessType(String name) {
+    final ext = name.split('.').last.toLowerCase();
+    return switch (ext) {
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      _ => 'image/jpeg',
+    };
   }
 }
 
 @Riverpod(keepAlive: true)
-ImageUploader imageUploader(Ref ref) =>
-    Env.useMock ? FakeImageUploader() : PlaceholderImageUploader();
+ImageUploader imageUploader(Ref ref) => Env.useMock
+    ? FakeImageUploader()
+    : ApiImageUploader(ref.watch(restClientProvider));

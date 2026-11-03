@@ -26,7 +26,7 @@ abstract final class CoverAspect {
       return bytes == null ? null : MemoryImage(bytes);
     }
     if (url.startsWith('assets/')) return AssetImage(url);
-    return CachedNetworkImageProvider(url);
+    return CachedNetworkImageProvider(resolveImageUrl(url));
   }
 
   static double normalize(double ratio) => ratio.clamp(min, max);

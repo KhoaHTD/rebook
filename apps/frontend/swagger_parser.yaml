@@ -13,4 +13,6 @@ swagger_parser:
   put_clients_in_folder: true
   path_method_name: true
   unknown_enum_value: true
+  # MultipartFile thay vì dart:io File: upload ảnh chạy được cả trên web.
+  use_multipart_file: true
   mark_files_as_generated: true
