@@ -37,7 +37,8 @@ public final class WalletDtos {
             @NotNull @DecimalMin(value = "50000", message = "Rút tối thiểu 50.000đ") BigDecimal amount,
             @NotBlank String bankName,
             @NotBlank String accountNumber,
-            @NotBlank String accountHolder) {
+            @NotBlank String accountHolder,
+            @Size(max = 200) String note) {
     }
 
     public record TransferReceipt(String senderName, Instant transferTime, BigDecimal amount, String proofImageUrl) {
@@ -59,12 +60,13 @@ public final class WalletDtos {
     public record WithdrawResponse(Long id, Long userId, String userName, BigDecimal amount, String bankName,
                                    String accountNumber, String accountHolder, WithdrawRequest.Status status,
                                    String note, Long processedBy, String processedByName, Instant processedAt,
-                                   Instant createdAt, TransferReceipt transfer) {
+                                   Instant createdAt, TransferReceipt transfer, String userNote) {
 
         public static WithdrawResponse of(WithdrawRequest w, String userName, String processedByName, WithdrawTransfer transfer) {
             return new WithdrawResponse(w.getId(), w.getUserId(), userName, w.getAmount(), w.getBankName(),
                     w.getAccountNumber(), w.getAccountHolder(), w.getStatus(), w.getNote(), w.getProcessedBy(),
-                    processedByName, w.getProcessedAt(), w.getCreatedAt(), TransferReceipt.of(transfer));
+                    processedByName, w.getProcessedAt(), w.getCreatedAt(), TransferReceipt.of(transfer),
+                    w.getUserNote());
         }
     }
 

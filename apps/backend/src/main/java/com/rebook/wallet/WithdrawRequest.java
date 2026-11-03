@@ -36,6 +36,9 @@ public class WithdrawRequest {
     private String accountNumber;
     private String accountHolder;
 
+    /** Ghi chú của người rút (nội dung chuyển khoản). `note` là ghi chú của Admin khi xử lý. */
+    private String userNote;
+
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
 

@@ -158,6 +158,7 @@ public class WalletService {
         w.setBankName(req.bankName());
         w.setAccountNumber(req.accountNumber());
         w.setAccountHolder(req.accountHolder());
+        w.setUserNote(req.note() == null || req.note().isBlank() ? null : req.note().trim());
         w = withdrawRepository.save(w);
         // Khoá tiền trong lúc chờ duyệt
         hold(userId, WalletTxType.WITHDRAW, req.amount(), "WITHDRAW", w.getId(), "Yêu cầu rút tiền");
