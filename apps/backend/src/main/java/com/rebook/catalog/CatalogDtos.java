@@ -80,30 +80,39 @@ public final class CatalogDtos {
     public record ShopBrief(Long id, String name, String pickupProvince, BigDecimal ratingAvg, int ratingCount) {
     }
 
+    /** reviewedBy / reviewedByName / reviewedAt: Admin duyệt hoặc từ chối tin (tên chỉ có ở danh sách của Admin). */
     public record ListingSummary(Long id, String title, String author, String coverUrl, ConditionGrade conditionGrade,
                                  BigDecimal price, int stock, int soldCount, ListingStatus status, ShopBrief shop,
-                                 Instant createdAt) {
+                                 Instant createdAt, Long reviewedBy, String reviewedByName, Instant reviewedAt) {
 
         public static ListingSummary of(Listing l) {
+            return of(l, null);
+        }
+
+        public static ListingSummary of(Listing l, String reviewedByName) {
             Book b = l.getBook();
             var s = l.getShop();
             return new ListingSummary(l.getId(), b.getTitle(), b.getAuthor(), b.coverUrl(), b.getConditionGrade(),
                     l.getPrice(), l.getStock(), l.getSoldCount(), l.getStatus(),
                     new ShopBrief(s.getId(), s.getName(), s.getPickupProvince(), s.getRatingAvg(), s.getRatingCount()),
-                    l.getCreatedAt());
+                    l.getCreatedAt(), l.getReviewedBy(), reviewedByName, l.getReviewedAt());
         }
     }
 
     public record ListingDetail(Long id, BigDecimal price, int stock, int soldCount, ListingStatus status,
                                 String rejectReason, BookResponse book, ShopBrief shop, Instant createdAt,
-                                Instant updatedAt) {
+                                Instant updatedAt, Long reviewedBy, String reviewedByName, Instant reviewedAt) {
 
         public static ListingDetail of(Listing l) {
+            return of(l, null);
+        }
+
+        public static ListingDetail of(Listing l, String reviewedByName) {
             var s = l.getShop();
             return new ListingDetail(l.getId(), l.getPrice(), l.getStock(), l.getSoldCount(), l.getStatus(),
                     l.getRejectReason(), BookResponse.of(l.getBook()),
                     new ShopBrief(s.getId(), s.getName(), s.getPickupProvince(), s.getRatingAvg(), s.getRatingCount()),
-                    l.getCreatedAt(), l.getUpdatedAt());
+                    l.getCreatedAt(), l.getUpdatedAt(), l.getReviewedBy(), reviewedByName, l.getReviewedAt());
         }
     }
 

@@ -138,6 +138,13 @@ public class CatalogController {
         return listingService.pendingReview(page, size);
     }
 
+    @Operation(summary = "[Admin] Tin đã duyệt / từ chối, mới nhất trước (kèm người duyệt)")
+    @GetMapping("/admin/listings/reviewed")
+    public PageResponse<ListingSummary> reviewed(@RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "20") int size) {
+        return listingService.reviewed(page, size);
+    }
+
     @Operation(summary = "[Admin] Chi tiết tin (mọi trạng thái)")
     @GetMapping("/admin/listings/{id}")
     public ListingDetail adminDetail(@PathVariable Long id) {

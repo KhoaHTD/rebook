@@ -51,6 +51,10 @@ public class Listing {
 
     private String rejectReason;
 
+    /** Admin duyệt / từ chối tin gần nhất và lúc nào. */
+    private Long reviewedBy;
+    private Instant reviewedAt;
+
     @Version
     private Long version;
 

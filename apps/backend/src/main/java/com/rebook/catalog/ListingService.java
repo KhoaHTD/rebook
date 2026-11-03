@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -171,11 +172,12 @@ public class ListingService {
         Listing l = getDetailed(id);
         l.setStatus(l.getStatus().moveTo(activeOrOut(l.getStock())));
         l.setRejectReason(null);
+        markReviewed(l, adminId);
         activityLog.record(adminId, "APPROVE_LISTING", ActivityLogService.LISTING, id,
                 "Duyệt tin \"" + l.getBook().getTitle() + "\" của shop " + l.getShop().getName());
         notifications.notify(l.getShop().getUserId(), NotificationService.LISTING, "Tin đăng đã được duyệt",
                 "\"" + l.getBook().getTitle() + "\" đã được duyệt và đang bán", Map.of("listingId", l.getId()));
-        return ListingDetail.of(l);
+        return ListingDetail.of(l, reviewerName(adminId));
     }
 
     @Transactional
@@ -183,14 +185,35 @@ public class ListingService {
         Listing l = getDetailed(id);
         l.setStatus(l.getStatus().moveTo(ListingStatus.REJECTED));
         l.setRejectReason(reason);
+        markReviewed(l, adminId);
         activityLog.record(adminId, "REJECT_LISTING", ActivityLogService.LISTING, id,
                 "Từ chối tin \"" + l.getBook().getTitle() + "\" của shop " + l.getShop().getName() + ": " + reason);
         notifications.notify(l.getShop().getUserId(), NotificationService.LISTING, "Tin đăng bị từ chối",
                 "\"" + l.getBook().getTitle() + "\": " + reason, Map.of("listingId", l.getId()));
-        return ListingDetail.of(l);
+        return ListingDetail.of(l, reviewerName(adminId));
+    }
+
+    /** Tin Admin đã duyệt / từ chối, mới nhất trước, kèm tên người duyệt. */
+    @Transactional(readOnly = true)
+    public PageResponse<ListingSummary> reviewed(int page, int size) {
+        Specification<Listing> spec = (root, q, cb) -> cb.isNotNull(root.get("reviewedBy"));
+        var result = listingRepository.findAll(spec,
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "reviewedAt")));
+        Map<Long, String> names = new HashMap<>();
+        return PageResponse.of(result,
+                l -> ListingSummary.of(l, names.computeIfAbsent(l.getReviewedBy(), this::reviewerName)));
     }
 
     // ---- Nội bộ ----
+
+    private void markReviewed(Listing l, Long adminId) {
+        l.setReviewedBy(adminId);
+        l.setReviewedAt(Instant.now());
+    }
+
+    private String reviewerName(Long adminId) {
+        return userService.getUser(adminId).getFullName();
+    }
 
     private Listing getOwned(Long userId, Long id) {
         Listing l = getDetailed(id);
