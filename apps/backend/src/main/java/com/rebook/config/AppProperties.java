@@ -19,7 +19,8 @@ public record AppProperties(Jwt jwt, Otp otp, Cors cors, Auction auction, Paymen
     public record Auction(boolean engineEnabled) {
     }
 
-    public record Payment(boolean simulateEnabled, Vnpay vnpay) {
+    /** appUrl: địa chỉ bản web của app; trang VNPay quay về đưa người dùng về `appUrl/home/payments/{mã}`. */
+    public record Payment(boolean simulateEnabled, Vnpay vnpay, String appUrl) {
     }
 
     public record Vnpay(String tmnCode, String hashSecret, String payUrl, String returnUrl) {

@@ -1,6 +1,7 @@
 package com.rebook.wallet;
 
 import com.rebook.common.PageResponse;
+import com.rebook.config.AppProperties;
 import com.rebook.security.UserPrincipal;
 import com.rebook.wallet.PaymentService.PaymentResponse;
 import com.rebook.wallet.WalletDtos.BankAccountResponse;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +38,7 @@ public class WalletController {
 
     private final WalletService walletService;
     private final PaymentService paymentService;
+    private final AppProperties props;
 
     @Operation(summary = "Số dư ví")
     @GetMapping("/wallet")
@@ -111,14 +114,13 @@ public class WalletController {
      * Trình duyệt quay về sau khi thanh toán. Khi chạy localhost VNPay không gọi được IPN,
      * nên return URL cũng xác nhận giao dịch (idempotent, có kiểm chữ ký).
      */
-    @Operation(summary = "Return URL của VNPay")
-    @GetMapping("/payments/vnpay/return")
-    public Map<String, String> vnpayReturn(@RequestParam Map<String, String> params) {
+    @Operation(summary = "Return URL của VNPay: xác nhận giao dịch rồi hiện trang kết quả cho người dùng")
+    @GetMapping(value = "/payments/vnpay/return", produces = MediaType.TEXT_HTML_VALUE)
+    public String vnpayReturn(@RequestParam Map<String, String> params) {
         Map<String, String> rsp = paymentService.handleVnpayCallback(params);
+        String appUrl = props.payment().appUrl();
         boolean success = "00".equals(params.get("vnp_ResponseCode"))
                 && ("00".equals(rsp.get("RspCode")) || "02".equals(rsp.get("RspCode")));
-        return Map.of("paymentCode", String.valueOf(params.get("vnp_TxnRef")),
-                "result", success ? "SUCCESS" : "FAILED",
-                "message", success ? "Thanh toán thành công, bạn có thể quay lại ứng dụng" : "Thanh toán không thành công");
+        return VnpayReturnPage.render(success, params.get("vnp_TxnRef"), appUrl);
     }
 }

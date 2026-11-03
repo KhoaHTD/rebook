@@ -50,7 +50,7 @@ public class PaymentService {
         String url = vnpay.isConfigured()
                 ? vnpay.buildPaymentUrl(p.getCode(), amount, orderInfo, clientIp, p.getExpiresAt())
                 : null;
-        return PaymentResponse.of(p, url, props.payment().simulateEnabled());
+        return PaymentResponse.of(p, url, simulateAvailable());
     }
 
     /** Payment nội bộ (ví / COD) — ghi lại để đối soát, ví thì thành công ngay. */
@@ -74,7 +74,7 @@ public class PaymentService {
         if (!p.getUserId().equals(userId)) {
             throw ApiException.forbidden("Không phải thanh toán của bạn");
         }
-        return PaymentResponse.of(p, null, props.payment().simulateEnabled());
+        return PaymentResponse.of(p, null, simulateAvailable());
     }
 
     /**
@@ -105,6 +105,11 @@ public class PaymentService {
             p.setStatus(Payment.Status.FAILED);
         }
         return rsp("00", "Confirm Success");
+    }
+
+    /** Có VNPay sandbox thật thì app đi qua VNPay, không hiện nút giả lập nữa (endpoint giả lập vẫn dùng được khi bật). */
+    private boolean simulateAvailable() {
+        return props.payment().simulateEnabled() && !vnpay.isConfigured();
     }
 
     /** Chỉ bật ở môi trường dev: giả lập cổng thanh toán trả về thành công. */

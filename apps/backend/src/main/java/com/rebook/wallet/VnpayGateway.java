@@ -47,12 +47,20 @@ public class VnpayGateway {
         params.put("vnp_OrderType", "other");
         params.put("vnp_Locale", "vn");
         params.put("vnp_ReturnUrl", v.returnUrl());
-        params.put("vnp_IpAddr", clientIp == null ? "127.0.0.1" : clientIp);
+        params.put("vnp_IpAddr", ipv4(clientIp));
         params.put("vnp_CreateDate", VNP_DATE.format(Instant.now()));
         params.put("vnp_ExpireDate", VNP_DATE.format(expireAt));
 
         String query = encode(params);
         return v.payUrl() + "?" + query + "&vnp_SecureHash=" + hmacSha512(v.hashSecret(), query);
+    }
+
+    /** Chạy localhost thì servlet trả IP dạng IPv6 (::1); VNPay mẫu dùng IPv4 nên đổi về 127.0.0.1. */
+    static String ipv4(String clientIp) {
+        if (clientIp == null || clientIp.isBlank() || "::1".equals(clientIp) || "0:0:0:0:0:0:0:1".equals(clientIp)) {
+            return "127.0.0.1";
+        }
+        return clientIp;
     }
 
     /** Kiểm chữ ký callback (IPN hoặc return URL). */

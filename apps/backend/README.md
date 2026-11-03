@@ -88,9 +88,20 @@ gọi `GET /sessions/{id}/state` trước rồi mới nghe tiếp WebSocket. M�
 - **WebSocket thuần thay cho STOMP**: frontend đã viết `RealtimeClient` theo kiểu này và allowlist package không có thư viện STOMP.
 - **Không gửi FCM**: frontend không dùng Firebase SDK. Thông báo lưu DB + đẩy qua `/ws/notifications`.
 - **OTP**: chưa có dịch vụ email/SMS — mã ghi ra log; ở profile `dev` trả luôn trong response (`devOtp`).
-- **VNPay**: cần `VNPAY_TMN_CODE` + `VNPAY_HASH_SECRET` (tài khoản sandbox). Chưa cấu hình thì `paymentUrl = null`,
-  dùng `POST /payments/{code}/simulate` (chỉ bật ở `dev`) để giả lập thanh toán thành công.
-  Chạy localhost VNPay không gọi được IPN, nên return URL cũng xác nhận giao dịch (có kiểm chữ ký, idempotent).
+- **VNPay**: cần `VNPAY_TMN_CODE` + `VNPAY_HASH_SECRET` (tài khoản sandbox). Đặt trong file `apps/backend/.env` (không commit,
+  đã có trong `.gitignore`; Spring tự đọc khi chạy trong `apps/backend`), mỗi dòng `KHÓA=giá trị`:
+  ```
+  VNPAY_TMN_CODE=<mã website>
+  VNPAY_HASH_SECRET=<chuỗi bí mật>
+  APP_URL=http://localhost:5199
+  ```
+  Chưa cấu hình thì `paymentUrl = null`, `simulateAvailable = true` và app hiện cổng giả lập (`POST /payments/{code}/simulate`, chỉ bật ở `dev`).
+  Có cấu hình thì app mở trang VNPay; trả xong VNPay đưa trình duyệt về `/payments/vnpay/return`: backend xác nhận giao dịch
+  (chạy localhost VNPay không gọi được IPN; có kiểm chữ ký, idempotent) rồi hiện trang kết quả, tự chuyển về
+  `APP_URL/home/payments/{mã}` (bản web chạy `flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.json`).
+  App điện thoại: người dùng quay lại app, màn kết quả tự hỏi lại trạng thái mỗi 3 giây.
+  Thẻ test NCB: xem email VNPay gửi khi đăng ký sandbox. Trang VNPay báo **mã 71 "Website chưa được phê duyệt"** = tài khoản
+  sandbox chưa duyệt hoặc đã bị khoá (đăng nhập Merchant Admin sandbox để kiểm tra, hoặc đăng ký lại); mã 70 mới là sai chữ ký.
 - **Vận chuyển**: giả lập bằng nút bấm (`/seller/orders/{id}/ship`, `/delivered`); phí ship theo bảng nội tỉnh / liên tỉnh + khối lượng.
 - **Lô không bán được → bán giá cố định**: tạo tin đăng chờ duyệt trong shop người bán (dùng lại `Book`), người bán nhận sách về và tự giao.
 - Bộ máy chạy phiên chỉ chạy đúng trên **một** instance backend.
