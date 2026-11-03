@@ -153,14 +153,14 @@ RegistrationStatus registrationStatusToDomain(api.RegistrationStatus? s) =>
 PaymentMethod paymentMethodToDomain(api.PaymentMethod? m) => switch (m) {
   api.PaymentMethod.cod => PaymentMethod.cod,
   api.PaymentMethod.wallet => PaymentMethod.wallet,
-  api.PaymentMethod.vnpay => PaymentMethod.vnpay,
+  api.PaymentMethod.zalopay => PaymentMethod.zalopay,
   _ => PaymentMethod.cod,
 };
 
 api.PaymentMethod paymentMethodToApi(PaymentMethod m) => switch (m) {
   PaymentMethod.cod => api.PaymentMethod.cod,
   PaymentMethod.wallet => api.PaymentMethod.wallet,
-  PaymentMethod.vnpay => api.PaymentMethod.vnpay,
+  PaymentMethod.zalopay => api.PaymentMethod.zalopay,
 };
 
 PaymentStatus paymentStatusToDomain(api.PaymentStatus? s) => switch (s) {
@@ -709,7 +709,7 @@ extension PaymentResponseMapper on api.PaymentResponse {
     id: code ?? _id(id),
     amount: _n(amount),
     status: paymentStatusToDomain(status),
-    // Backend chưa cấu hình VNPay thì cho giả lập: dùng URL `mock://` để app hiện cổng giả lập.
+    // Backend chưa cấu hình ZaloPay thì cho giả lập: dùng URL `mock://` để app hiện cổng giả lập.
     paymentUrl:
         paymentUrl ?? ((simulateAvailable ?? false) ? 'mock://simulate' : null),
     expiresAt: expiresAt,

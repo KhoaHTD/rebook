@@ -37,7 +37,7 @@ extension PaymentMethodL10n on PaymentMethod {
   String label(AppLocalizations l) => switch (this) {
     PaymentMethod.cod => l.pmCod,
     PaymentMethod.wallet => l.pmWallet,
-    PaymentMethod.vnpay => l.pmVnpay,
+    PaymentMethod.zalopay => l.pmZalopay,
   };
 }
 

@@ -19,7 +19,7 @@ import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 import 'package:book_marketplace/shared/widgets/withdrawal_receipt_view.dart';
 
-/// Ví ReBook: số dư dùng được / đang khóa, nạp tiền VNPay, rút tiền (người bán), sổ giao dịch (SRS 8.1).
+/// Ví ReBook: số dư dùng được / đang khóa, nạp tiền ZaloPay, rút tiền (người bán), sổ giao dịch (SRS 8.1).
 /// Khu mua sách chỉ hiện giao dịch mua bán; khu đấu giá ([auction]) chỉ hiện giao dịch cọc.
 class WalletScreen extends ConsumerWidget {
   const WalletScreen({super.key, this.auction = false});

@@ -583,7 +583,7 @@ class FlatAddressCard extends StatelessWidget {
   }
 }
 
-/// Ô icon vuông chọn phương thức thanh toán (tiền mặt / ví / VNPay).
+/// Ô icon vuông chọn phương thức thanh toán (tiền mặt / ví / ZaloPay).
 class FlatPayTile extends StatelessWidget {
   const FlatPayTile({
     super.key,
@@ -651,7 +651,7 @@ class FlatPayTile extends StatelessWidget {
   }
 }
 
-/// Thẻ đen lớn giải thích phương thức đang chọn (ví: số dư; VNPay; tiền mặt khi nhận hàng).
+/// Thẻ đen lớn giải thích phương thức đang chọn (ví: số dư; ZaloPay; tiền mặt khi nhận hàng).
 class FlatPayCard extends StatelessWidget {
   const FlatPayCard({
     super.key,
@@ -675,7 +675,7 @@ class FlatPayCard extends StatelessWidget {
     final icon = switch (method) {
       PaymentMethod.cod => Icons.payments_outlined,
       PaymentMethod.wallet => Icons.account_balance_wallet_outlined,
-      PaymentMethod.vnpay => Icons.qr_code_2_rounded,
+      PaymentMethod.zalopay => Icons.qr_code_2_rounded,
     };
     return AspectRatio(
       aspectRatio: 1.75,

@@ -201,13 +201,13 @@ void main() {
     const real = api.PaymentResponse(
       code: 'PM1',
       status: api.PaymentStatus.pending,
-      paymentUrl: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?x=1',
+      paymentUrl: 'https://sandbox.zalopayment.vn/paymentv2/vpcpay.html?x=1',
       simulateAvailable: false,
     );
     expect(isMockUrl(real.toDomain().paymentUrl), isFalse);
     expect(real.toDomain().id, 'PM1');
 
-    // Backend chưa cấu hình VNPay: giả lập.
+    // Backend chưa cấu hình ZaloPay: giả lập.
     const sim = api.PaymentResponse(
       code: 'PM2',
       status: api.PaymentStatus.pending,
@@ -215,7 +215,7 @@ void main() {
     );
     expect(isMockUrl(sim.toDomain().paymentUrl), isTrue);
 
-    // Tra cứu lại thanh toán VNPay thật: không có link, cũng không phải giả lập.
+    // Tra cứu lại thanh toán ZaloPay thật: không có link, cũng không phải giả lập.
     const lookup = api.PaymentResponse(
       code: 'PM3',
       status: api.PaymentStatus.pending,

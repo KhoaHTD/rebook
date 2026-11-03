@@ -15,9 +15,9 @@ import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
-/// Kết quả một lần thanh toán VNPay (đơn hàng, nạp ví, hóa đơn lô đấu giá).
-/// Chế độ mock: hiện cổng VNPay giả lập để chọn thành công / thất bại.
-/// VNPay thật: người dùng trả tiền ở trang VNPay; màn này hỏi lại trạng thái mỗi [pollEvery] tới khi có kết quả.
+/// Kết quả một lần thanh toán ZaloPay (đơn hàng, nạp ví, hóa đơn lô đấu giá).
+/// Chế độ mock: hiện cổng ZaloPay giả lập để chọn thành công / thất bại.
+/// ZaloPay thật: người dùng trả tiền ở trang ZaloPay; màn này hỏi lại trạng thái mỗi [pollEvery] tới khi có kết quả.
 class PaymentResultScreen extends ConsumerStatefulWidget {
   const PaymentResultScreen({super.key, required this.paymentId});
 
@@ -200,7 +200,7 @@ class _Body extends ConsumerWidget {
             const SizedBox(height: AppSpacing.md),
             FilledButton(
               onPressed: () => openExternal(payment.paymentUrl!),
-              child: Text(l10n.payNow),
+              child: Text(l10n.openGateway),
             ),
           ],
         ] else ...[

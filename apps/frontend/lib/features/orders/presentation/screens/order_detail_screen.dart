@@ -248,7 +248,7 @@ class _Actions extends ConsumerWidget {
                   final error = ref.read(orderActionsProvider(order.id)).error;
                   if (error != null) return showErrorSnack(context, error);
                   final p = result?.payment;
-                  if (p != null && choice.method == PaymentMethod.vnpay) {
+                  if (p != null && choice.method == PaymentMethod.zalopay) {
                     final url = p.paymentUrl;
                     if (url != null && !isMockUrl(url)) {
                       await openExternal(url);

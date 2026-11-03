@@ -190,14 +190,14 @@ extension _Seed on FakeStore {
       'u1',
       WalletTxnType.topUp,
       availableDelta: 3000000,
-      note: 'Nạp qua VNPay',
+      note: 'Nạp qua ZaloPay',
       refType: 'PAYMENT',
     );
     _ledger(
       'u2',
       WalletTxnType.topUp,
       availableDelta: 1500000,
-      note: 'Nạp qua VNPay',
+      note: 'Nạp qua ZaloPay',
       refType: 'PAYMENT',
     );
     _ledger(

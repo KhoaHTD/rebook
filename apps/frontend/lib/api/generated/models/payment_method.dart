@@ -10,8 +10,8 @@ enum PaymentMethod {
   cod('COD'),
   @JsonValue('WALLET')
   wallet('WALLET'),
-  @JsonValue('VNPAY')
-  vnpay('VNPAY'),
+  @JsonValue('ZALOPAY')
+  zalopay('ZALOPAY'),
 
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);

@@ -54,7 +54,7 @@ abstract class OrderClient {
     @Body() required ReturnCreateRequest body,
   });
 
-  /// Thanh toán đơn đang chờ (cả hoá đơn lô đấu giá) bằng WALLET hoặc VNPAY
+  /// Thanh toán đơn đang chờ (cả hoá đơn lô đấu giá) bằng WALLET hoặc ZALOPAY
   @POST('/orders/{id}/pay')
   Future<PayResponse> postOrdersIdPay({
     @Path('id') required int id,
@@ -76,7 +76,7 @@ abstract class OrderClient {
 
   /// Đặt hàng: mỗi shop một đơn, giữ hàng ngay.
   ///
-  /// COD → đơn vào thẳng PENDING_CONFIRM. WALLET → trừ ví ngay. VNPAY → trả về payment.paymentUrl, hạn 15 phút.
+  /// COD → đơn vào thẳng PENDING_CONFIRM. WALLET → trừ ví ngay. ZALOPAY → trả về payment.paymentUrl (trang ZaloPay), hạn 15 phút.
   @POST('/orders/checkout')
   Future<CheckoutResponse> postOrdersCheckout({
     @Body() required CheckoutRequest body,

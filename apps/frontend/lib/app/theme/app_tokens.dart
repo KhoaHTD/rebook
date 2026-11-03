@@ -364,8 +364,8 @@ abstract final class PayPalette {
   /// Ví ReBook.
   static const wallet = Color(0xFFF2994A);
 
-  /// VNPay.
-  static const vnpay = Color(0xFF1E6FE8);
+  /// ZaloPay (xanh thương hiệu).
+  static const zalopay = Color(0xFF0068FF);
 }
 
 /// Thẻ mời sang khu đấu giá đặt ở app mua sách (nền đen → xám đậm, chữ trắng): đối lập với khu mua sách sáng.

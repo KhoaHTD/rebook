@@ -66,3 +66,4 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 - [x] Gỡ luật chặn backend (pre-push, hook Claude, CI Backend Guard)
 - [x] Upload ảnh thật (`POST /files`), ghi chú khi rút tiền, người duyệt tin đăng
 - [x] Chạy thử web với `env/local.json`: đăng nhập, trang chủ, yêu thích, giỏ, ví gọi backend thật không lỗi
+- [x] Cổng thanh toán đổi sang ZaloPay sandbox (thay VNPay): thanh toán thật bằng thẻ test, app tự cập nhật kết quả

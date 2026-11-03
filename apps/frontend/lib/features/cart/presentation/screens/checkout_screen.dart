@@ -21,7 +21,7 @@ import 'package:book_marketplace/shared/widgets/money_summary.dart';
 import 'package:book_marketplace/shared/widgets/vietnam_map.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
-/// Xác nhận đặt hàng: chọn địa chỉ (đổi phí ship), chọn COD / ví / VNPay, đặt hàng.
+/// Xác nhận đặt hàng: chọn địa chỉ (đổi phí ship), chọn COD / ví / ZaloPay, đặt hàng.
 /// Hệ thống tách mỗi shop một đơn; một lần thanh toán trả cho nhiều đơn (SRS 4.2).
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
@@ -48,7 +48,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       return;
     }
     final payment = result.payment;
-    if (payment != null && _method == PaymentMethod.vnpay) {
+    if (payment != null && _method == PaymentMethod.zalopay) {
       final url = payment.paymentUrl;
       if (url != null && !isMockUrl(url)) await openExternal(url);
       if (mounted) context.go(Routes.paymentResult(payment.id));
@@ -188,7 +188,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         l10n.payWallet,
         l10n.payWalletHint(formatVnd(wallet?.available ?? 0)),
       ),
-      PaymentMethod.vnpay => (l10n.payVnpay, l10n.payVnpayHint),
+      PaymentMethod.zalopay => (l10n.payZalopay, l10n.payZalopayHint),
     };
     Widget heading(String t, {double top = 22}) => Padding(
       padding: EdgeInsets.only(top: top, bottom: 10),
@@ -251,10 +251,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             const SizedBox(width: 12),
             FlatPayTile(
               icon: Icons.qr_code_2_rounded,
-              color: PayPalette.vnpay,
-              label: l10n.payShortVnpay,
-              selected: _method == PaymentMethod.vnpay,
-              onTap: () => setState(() => _method = PaymentMethod.vnpay),
+              color: PayPalette.zalopay,
+              label: l10n.payShortZalopay,
+              selected: _method == PaymentMethod.zalopay,
+              onTap: () => setState(() => _method = PaymentMethod.zalopay),
             ),
           ],
         ),
@@ -412,11 +412,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               : null,
         ),
         SelectTile(
-          selected: _method == PaymentMethod.vnpay,
+          selected: _method == PaymentMethod.zalopay,
           leading: const Icon(Icons.qr_code_2_rounded),
-          title: l10n.payVnpay,
-          subtitle: l10n.payVnpayHint,
-          onTap: () => setState(() => _method = PaymentMethod.vnpay),
+          title: l10n.payZalopay,
+          subtitle: l10n.payZalopayHint,
+          onTap: () => setState(() => _method = PaymentMethod.zalopay),
         ),
         const SizedBox(height: AppSpacing.lg),
         AsyncValueView(

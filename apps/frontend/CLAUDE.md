@@ -39,7 +39,7 @@ flutter run -d chrome --dart-define-from-file=env/local.json
 ```
 
 - Khi người dùng nói "chạy nối backend / chạy thật / ghép backend" → dùng `env/local.json`, không phải `dev.json`.
-- Thanh toán VNPay sandbox trên web: chạy với `--web-port 5199` (backend đưa trình duyệt về `APP_URL=http://localhost:5199/home/payments/{mã}` sau khi trả tiền). Cấu hình VNPay xem README backend.
+- Thanh toán ZaloPay sandbox trên web: chạy với `--web-port 5199` (backend đưa trình duyệt về `APP_URL=http://localhost:5199/home/payments/{mã}` sau khi trả tiền). Cấu hình và thẻ test xem README backend.
 - Máy ảo Android gọi máy host bằng `10.0.2.2`: đổi `localhost` thành `10.0.2.2` trong bản sao của file env (đừng commit bản đã đổi).
 - Backend (README ở `apps/backend`): cần Java 21 + PostgreSQL `localhost:5432`, tạo DB bằng `scripts/create-database.sql`, chạy `./mvnw spring-boot:run`. Tài khoản mẫu `buyer1@rebook.vn` / `Rebook@123`. Cổng 8080 bị chiếm → đặt biến môi trường `PORT` và đổi cổng trong file env.
 - Client sinh từ `../backend/openapi.yaml` (spec thật, xuất từ `http://localhost:8080/v3/api-docs.yaml`). Gọi API lỗi / sai field → xuất lại spec đó, chạy `/sync-api`, sửa mapper (`shared/data/api_mappers.dart`).

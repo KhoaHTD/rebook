@@ -206,3 +206,12 @@ và lớp API của `main`, rồi làm thêm phía backend cho các tính năng 
 - Web mở VNPay trong cùng tab, nên sau khi trả tiền trang `/payments/vnpay/return` của backend (HTML) đưa người dùng về `APP_URL/home/payments/{mã}`.
   Điện thoại mở trình duyệt ngoài; màn kết quả trong app tự hỏi lại trạng thái mỗi 3 giây.
 - IPN không tới được máy dev (localhost), nên return URL cũng xác nhận giao dịch (đã có từ trước, có kiểm chữ ký, không cộng hai lần).
+
+## 2026-11-04 — Đổi cổng thanh toán từ VNPay sang ZaloPay
+
+- SRS ghi VNPay, nhưng tài khoản VNPay sandbox của nhóm bị từ chối (mã 71, website chưa được duyệt) và đăng ký mới bị lỗi. Người dùng quyết định
+  thay hẳn bằng ZaloPay: phương thức `VNPAY` thành `ZALOPAY` (migration V7 đổi cả dữ liệu cũ), ô thanh toán trong app thành "ZaloPay".
+- Dùng bộ khoá sandbox dùng thử công khai của ZaloPay (app 2554) làm mặc định để ai clone về cũng thanh toán thử được.
+- Không tin tham số trên redirect URL: backend luôn hỏi lại ZaloPay (`/v2/query`) trước khi cộng tiền / chuyển đơn.
+- Web mở trang ZaloPay ở tab mới (tab app chuyển sang màn kết quả và tự hỏi lại); màn kết quả có nút mở lại trang ZaloPay
+  (backend lưu `order_url`, migration V8) phòng khi trình duyệt chặn tab mới.

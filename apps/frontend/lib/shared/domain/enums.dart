@@ -36,7 +36,7 @@ enum OrderStatus {
       this == failedDelivery;
 }
 
-enum PaymentMethod { cod, wallet, vnpay }
+enum PaymentMethod { cod, wallet, zalopay }
 
 enum PaymentStatus { pending, success, failed, expired }
 

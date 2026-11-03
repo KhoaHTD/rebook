@@ -28,7 +28,7 @@ abstract class WalletClient {
     @Body() required WithdrawCreateRequest body,
   });
 
-  /// Nạp tiền qua VNPay sandbox — trả về paymentUrl để mở trình duyệt
+  /// Nạp tiền qua ZaloPay sandbox — trả về paymentUrl để mở trình duyệt
   @POST('/wallet/top-up')
   Future<PaymentResponse> postWalletTopUp({@Body() required TopUpRequest body});
 
@@ -43,10 +43,16 @@ abstract class WalletClient {
     @Path('id') required int id,
   });
 
-  /// [DEV] Giả lập VNPay trả về thành công (chỉ khi app.payment.simulate-enabled=true)
+  /// [DEV] Giả lập cổng thanh toán trả về thành công (chỉ khi app.payment.simulate-enabled=true)
   @POST('/payments/{code}/simulate')
   Future<PaymentResponse> postPaymentsCodeSimulate({
     @Path('code') required String code,
+  });
+
+  /// Callback ZaloPay (server-to-server)
+  @POST('/payments/zalopay/callback')
+  Future<dynamic> postPaymentsZalopayCallback({
+    @Body() required Map<String, dynamic> body,
   });
 
   /// Số dư ví
@@ -68,15 +74,9 @@ abstract class WalletClient {
   @GET('/payments/{code}')
   Future<PaymentResponse> getPaymentsCode({@Path('code') required String code});
 
-  /// Return URL của VNPay
-  @GET('/payments/vnpay/return')
-  Future<Map<String, String>> getPaymentsVnpayReturn({
-    @Query('params') required Map<String, String> params,
-  });
-
-  /// IPN VNPay gọi về (server-to-server)
-  @GET('/payments/vnpay/ipn')
-  Future<Map<String, String>> getPaymentsVnpayIpn({
+  /// Redirect URL của ZaloPay: xác nhận giao dịch rồi hiện trang kết quả cho người dùng
+  @GET('/payments/zalopay/return')
+  Future<String> getPaymentsZalopayReturn({
     @Query('params') required Map<String, String> params,
   });
 }
