@@ -45,7 +45,7 @@ public class FileController {
     }
 
     @Operation(summary = "Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL tương đối để gắn vào nghiệp vụ")
-    @PostMapping("/files")
+    @PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public FileResponse upload(@RequestParam("file") MultipartFile file) throws IOException {
         String ext = TYPES.get(file.getContentType());
         if (file.isEmpty() || ext == null) {
