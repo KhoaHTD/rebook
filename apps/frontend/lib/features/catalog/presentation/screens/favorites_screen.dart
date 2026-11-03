@@ -18,6 +18,8 @@ class FavoritesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final list = ref.watch(favoriteListingsProvider);
+    // watch giữ notifier sống: chỉ `read` thì nó tự huỷ giữa lúc đang gọi API và danh sách không tải lại.
+    ref.watch(favoriteActionsProvider);
     return AppPage(
       title: l10n.favTitle,
       showBack: true,

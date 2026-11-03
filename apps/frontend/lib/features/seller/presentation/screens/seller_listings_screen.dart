@@ -51,6 +51,8 @@ class _SellerListingsScreenState extends ConsumerState<SellerListingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // watch giữ notifier sống: chỉ `read` thì nó tự huỷ giữa lúc đang gọi API.
+    ref.watch(sellerActionsProvider);
     final l10n = context.l10n;
     final listings = ref.watch(sellerListingsProvider);
     return AppPage(

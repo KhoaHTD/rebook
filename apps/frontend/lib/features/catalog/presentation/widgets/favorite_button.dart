@@ -19,6 +19,8 @@ class FavoriteButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final on = ref.watch(favoriteIdsProvider).contains(listingId);
+    // watch giữ notifier sống: chỉ `read` thì nó tự huỷ giữa lúc đang gọi API và danh sách không tải lại.
+    ref.watch(favoriteActionsProvider);
     return IconButton(
       tooltip: on ? l10n.favRemove : l10n.favAdd,
       icon: Icon(
