@@ -9,19 +9,19 @@ part 'register_request.g.dart';
 @JsonSerializable()
 class RegisterRequest {
   const RegisterRequest({
-    required this.fullName,
     required this.email,
-    required this.phone,
     required this.password,
+    required this.fullName,
+    this.phone,
   });
 
   factory RegisterRequest.fromJson(Map<String, Object?> json) =>
       _$RegisterRequestFromJson(json);
 
-  final String fullName;
   final String email;
-  final String phone;
   final String password;
+  final String fullName;
+  final String? phone;
 
   Map<String, Object?> toJson() => _$RegisterRequestToJson(this);
 }

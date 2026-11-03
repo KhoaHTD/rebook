@@ -4,25 +4,24 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-/// Vòng đời ký gửi trước khi thành lô: SUBMITTED → PRE_APPROVED (hoặc PRE_REJECTED) → APPOINTMENT_BOOKED (hoặc EXPIRED) → RECEIVED → INSPECTED (hoặc INSPECTION_FAILED → RETURNED) → ACCEPTED (thành lô READY) / WITHDRAWN
 @JsonEnum()
 enum ConsignmentStatus {
   @JsonValue('SUBMITTED')
   submitted('SUBMITTED'),
-  @JsonValue('PRE_APPROVED')
-  preApproved('PRE_APPROVED'),
-  @JsonValue('PRE_REJECTED')
-  preRejected('PRE_REJECTED'),
+  @JsonValue('APPROVED')
+  approved('APPROVED'),
+  @JsonValue('REJECTED')
+  rejected('REJECTED'),
   @JsonValue('APPOINTMENT_BOOKED')
   appointmentBooked('APPOINTMENT_BOOKED'),
   @JsonValue('EXPIRED')
   expired('EXPIRED'),
   @JsonValue('RECEIVED')
   received('RECEIVED'),
-  @JsonValue('INSPECTED')
-  inspected('INSPECTED'),
   @JsonValue('INSPECTION_FAILED')
   inspectionFailed('INSPECTION_FAILED'),
+  @JsonValue('AWAITING_SELLER')
+  awaitingSeller('AWAITING_SELLER'),
   @JsonValue('ACCEPTED')
   accepted('ACCEPTED'),
   @JsonValue('WITHDRAWN')

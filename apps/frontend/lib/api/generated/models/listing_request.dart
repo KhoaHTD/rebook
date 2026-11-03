@@ -4,7 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'book_input.dart';
+import 'book_request.dart';
 
 part 'listing_request.g.dart';
 
@@ -19,8 +19,8 @@ class ListingRequest {
   factory ListingRequest.fromJson(Map<String, Object?> json) =>
       _$ListingRequestFromJson(json);
 
-  final BookInput book;
-  final int price;
+  final BookRequest book;
+  final num price;
   final int stock;
 
   Map<String, Object?> toJson() => _$ListingRequestToJson(this);
