@@ -47,6 +47,15 @@ public final class WalletDtos {
         }
     }
 
+    public record BankAccountResponse(Long id, String bankName, String accountNumber, String accountHolder,
+                                      boolean favorite, Instant lastUsedAt) {
+
+        public static BankAccountResponse of(BankAccount a) {
+            return new BankAccountResponse(a.getId(), a.getBankName(), a.getAccountNumber(), a.getAccountHolder(),
+                    a.isFavorite(), a.getLastUsedAt());
+        }
+    }
+
     public record WithdrawResponse(Long id, Long userId, String userName, BigDecimal amount, String bankName,
                                    String accountNumber, String accountHolder, WithdrawRequest.Status status,
                                    String note, Long processedBy, String processedByName, Instant processedAt,

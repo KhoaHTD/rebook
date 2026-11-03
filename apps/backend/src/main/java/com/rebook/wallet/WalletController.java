@@ -3,6 +3,7 @@ package com.rebook.wallet;
 import com.rebook.common.PageResponse;
 import com.rebook.security.UserPrincipal;
 import com.rebook.wallet.PaymentService.PaymentResponse;
+import com.rebook.wallet.WalletDtos.BankAccountResponse;
 import com.rebook.wallet.WalletDtos.TopUpRequest;
 import com.rebook.wallet.WalletDtos.TransactionResponse;
 import com.rebook.wallet.WalletDtos.WalletResponse;
@@ -15,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -68,6 +70,23 @@ public class WalletController {
     @GetMapping("/wallet/withdrawals")
     public List<WithdrawResponse> myWithdrawals(@AuthenticationPrincipal UserPrincipal me) {
         return walletService.myWithdrawals(me.id());
+    }
+
+    @Operation(summary = "Tài khoản ngân hàng đã dùng để rút tiền (yêu thích trước, rồi mới dùng gần nhất)")
+    @GetMapping("/wallet/bank-accounts")
+    public List<BankAccountResponse> bankAccounts(@AuthenticationPrincipal UserPrincipal me) {
+        return walletService.bankAccounts(me.id());
+    }
+
+    @Operation(summary = "Đánh dấu yêu thích một tài khoản ngân hàng đã lưu")
+    @PostMapping("/wallet/bank-accounts/{id}/favorite")
+    public BankAccountResponse favoriteBankAccount(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return walletService.setBankAccountFavorite(me.id(), id, true);
+    }
+
+    @DeleteMapping("/wallet/bank-accounts/{id}/favorite")
+    public BankAccountResponse unfavoriteBankAccount(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return walletService.setBankAccountFavorite(me.id(), id, false);
     }
 
     @Operation(summary = "Trạng thái một thanh toán")

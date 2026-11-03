@@ -5,6 +5,7 @@ import com.rebook.common.ApiException;
 import com.rebook.common.PageResponse;
 import com.rebook.user.User;
 import com.rebook.user.UserRepository;
+import com.rebook.wallet.WalletDtos.BankAccountResponse;
 import com.rebook.wallet.WalletDtos.ProcessRequest;
 import com.rebook.wallet.WalletDtos.TransactionResponse;
 import com.rebook.wallet.WalletDtos.WalletResponse;
@@ -36,6 +37,7 @@ public class WalletService {
     private final WalletTransactionRepository transactionRepository;
     private final WithdrawRequestRepository withdrawRepository;
     private final WithdrawTransferRepository transferRepository;
+    private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
     private final ActivityLogService activityLog;
 
@@ -159,12 +161,45 @@ public class WalletService {
         w = withdrawRepository.save(w);
         // Khoá tiền trong lúc chờ duyệt
         hold(userId, WalletTxType.WITHDRAW, req.amount(), "WITHDRAW", w.getId(), "Yêu cầu rút tiền");
+        rememberBankAccount(userId, req);
         return toResponse(List.of(w)).get(0);
     }
 
     @Transactional(readOnly = true)
     public List<WithdrawResponse> myWithdrawals(Long userId) {
         return toResponse(withdrawRepository.findByUserIdOrderByIdDesc(userId));
+    }
+
+    // ---- Tài khoản ngân hàng đã dùng ----
+
+    @Transactional(readOnly = true)
+    public List<BankAccountResponse> bankAccounts(Long userId) {
+        return bankAccountRepository.findByUserIdOrderByFavoriteDescLastUsedAtDesc(userId).stream()
+                .map(BankAccountResponse::of).toList();
+    }
+
+    @Transactional
+    public BankAccountResponse setBankAccountFavorite(Long userId, Long id, boolean on) {
+        BankAccount a = bankAccountRepository.findById(id)
+                .filter(x -> x.getUserId().equals(userId))
+                .orElseThrow(() -> ApiException.notFound("tài khoản ngân hàng"));
+        a.setFavorite(on);
+        return BankAccountResponse.of(a);
+    }
+
+    private void rememberBankAccount(Long userId, WithdrawCreateRequest req) {
+        BankAccount a = bankAccountRepository
+                .findByUserIdAndBankNameAndAccountNumber(userId, req.bankName(), req.accountNumber())
+                .orElseGet(() -> {
+                    BankAccount n = new BankAccount();
+                    n.setUserId(userId);
+                    n.setBankName(req.bankName());
+                    n.setAccountNumber(req.accountNumber());
+                    return n;
+                });
+        a.setAccountHolder(req.accountHolder());
+        a.setLastUsedAt(Instant.now());
+        bankAccountRepository.save(a);
     }
 
     /** Admin xem yêu cầu theo trạng thái: mặc định chờ duyệt, truyền status khác để xem lịch sử duyệt. */
