@@ -854,6 +854,7 @@
   "admActAuctionBanLifted": "Lifted an auction ban",
   "admActShopMarkedTrusted": "Marked a shop as trusted",
   "admActWithdrawalCompleted": "Completed a withdrawal",
+  "admActWithdrawalRejected": "Rejected a withdrawal",
   "admActConfigChanged": "Changed the configuration",
   "admReturnResponseDays": "Days a shop has to answer a return request",
   "admWdPayTo": "Pay to {bank} · {number} · {name}",

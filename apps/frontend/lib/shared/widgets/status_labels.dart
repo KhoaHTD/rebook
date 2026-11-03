@@ -78,6 +78,7 @@ extension AdminActionL10n on AdminAction {
     AdminAction.auctionBanLifted => l.admActAuctionBanLifted,
     AdminAction.shopMarkedTrusted => l.admActShopMarkedTrusted,
     AdminAction.withdrawalCompleted => l.admActWithdrawalCompleted,
+    AdminAction.withdrawalRejected => l.admActWithdrawalRejected,
     AdminAction.configChanged => l.admActConfigChanged,
   };
 }

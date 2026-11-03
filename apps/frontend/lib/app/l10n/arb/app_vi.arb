@@ -1333,6 +1333,7 @@
   "admActAuctionBanLifted": "Gỡ cấm đấu giá",
   "admActShopMarkedTrusted": "Đánh dấu shop uy tín",
   "admActWithdrawalCompleted": "Duyệt rút tiền",
+  "admActWithdrawalRejected": "Từ chối rút tiền",
   "admActConfigChanged": "Đổi cấu hình",
   "admReturnResponseDays": "Hạn shop trả lời yêu cầu trả hàng (ngày)",
   "admWdPayTo": "Chuyển tới {bank} · {number} · {name}",

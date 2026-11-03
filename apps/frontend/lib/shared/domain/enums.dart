@@ -78,6 +78,7 @@ enum AdminAction {
   auctionBanLifted,
   shopMarkedTrusted,
   withdrawalCompleted,
+  withdrawalRejected,
   configChanged,
 }
 
