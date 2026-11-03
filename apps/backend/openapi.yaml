@@ -3106,6 +3106,34 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ListingDetail"
+  /admin/listings/reviewed:
+    get:
+      tags:
+      - Catalog
+      summary: "[Admin] Tin đã duyệt / từ chối, mới nhất trước (kèm người duyệt)"
+      operationId: reviewed
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PageResponseListingSummary"
   /admin/listings/pending:
     get:
       tags:
@@ -3449,6 +3477,14 @@ components:
           type: string
           format: date-time
         updatedAt:
+          type: string
+          format: date-time
+        reviewedBy:
+          type: integer
+          format: int64
+        reviewedByName:
+          type: string
+        reviewedAt:
           type: string
           format: date-time
     ListingStatus:
@@ -4063,6 +4099,10 @@ components:
         accountHolder:
           type: string
           minLength: 1
+        note:
+          type: string
+          maxLength: 200
+          minLength: 0
       required:
       - accountHolder
       - accountNumber
@@ -4116,6 +4156,8 @@ components:
           format: date-time
         transfer:
           $ref: "#/components/schemas/TransferReceipt"
+        userNote:
+          type: string
     WithdrawStatus:
       type: string
       enum:
@@ -5343,6 +5385,14 @@ components:
         shop:
           $ref: "#/components/schemas/ShopBrief"
         createdAt:
+          type: string
+          format: date-time
+        reviewedBy:
+          type: integer
+          format: int64
+        reviewedByName:
+          type: string
+        reviewedAt:
           type: string
           format: date-time
     PageResponseListingSummary:

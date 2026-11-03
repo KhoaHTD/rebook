@@ -175,4 +175,52 @@ class FrontendExtrasTest extends IntegrationTest {
         mvc.perform(get("/admin/disputes").param("size", "100").with(as(admin, Role.ADMIN)))
                 .andExpect(jsonPath("$.items[?(@.orderId == " + order + ")]").isEmpty());
     }
+
+    @Test
+    void reviewedListingsShowWhoReviewedAndWhen() throws Exception {
+        long admin = createUser(Role.ADMIN, "Admin Duyệt Tin", 0);
+        long pending = createListing("PENDING_REVIEW");
+        long other = createListing("PENDING_REVIEW");
+
+        mvc.perform(post("/admin/listings/" + pending + "/approve").with(as(admin, Role.ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reviewedBy").value(admin))
+                .andExpect(jsonPath("$.reviewedByName").value("Admin Duyệt Tin"))
+                .andExpect(jsonPath("$.reviewedAt").isNotEmpty());
+        mvc.perform(post("/admin/listings/" + other + "/reject").with(as(admin, Role.ADMIN))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"reason\":\"Ảnh mờ\"}"))
+                .andExpect(status().isOk());
+
+        // Mới nhất trước: tin vừa từ chối đứng trước tin vừa duyệt.
+        mvc.perform(get("/admin/listings/reviewed").param("size", "100").with(as(admin, Role.ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].id").value(other))
+                .andExpect(jsonPath("$.items[0].status").value("REJECTED"))
+                .andExpect(jsonPath("$.items[1].id").value(pending))
+                .andExpect(jsonPath("$.items[1].reviewedByName").value("Admin Duyệt Tin"));
+        // Chưa duyệt thì không có trong danh sách.
+        mvc.perform(get("/admin/listings/reviewed").param("size", "100").with(as(admin, Role.ADMIN)))
+                .andExpect(jsonPath("$.items[?(@.reviewedBy == null)]").isEmpty());
+        // Người dùng thường không xem được.
+        long user = createUser(Role.USER, "Khách", 0);
+        mvc.perform(get("/admin/listings/reviewed").with(as(user, Role.USER))).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void withdrawalKeepsTheSellersNoteApartFromTheAdminNote() throws Exception {
+        long me = createUser(Role.USER, "Người rút", 500_000);
+        mvc.perform(post("/wallet/withdrawals").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"amount":100000,"bankName":"VCB","accountNumber":"0123","accountHolder":"NGUYEN A",
+                                 "note":"  Rut tien ban sach thang 11  "}"""))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userNote").value("Rut tien ban sach thang 11"))
+                .andExpect(jsonPath("$.note").doesNotExist());
+        // Không ghi chú vẫn tạo được.
+        mvc.perform(post("/wallet/withdrawals").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"amount":100000,"bankName":"VCB","accountNumber":"0123","accountHolder":"NGUYEN A"}"""))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userNote").doesNotExist());
+    }
 }
