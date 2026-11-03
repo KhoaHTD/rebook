@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import java.util.Map;
 public class ListingService {
 
     private final ListingRepository listingRepository;
+    private final ListingFavoriteRepository favoriteRepository;
     private final BookService bookService;
     private final CategoryService categoryService;
     private final UserService userService;
@@ -124,6 +126,34 @@ public class ListingService {
         }
         l.setStatus(activeOrOut(l.getStock()));
         return ListingDetail.of(l);
+    }
+
+    // ---- Sách yêu thích ----
+
+    @Transactional
+    public boolean setFavorite(Long userId, Long listingId, boolean on) {
+        var key = new ListingFavorite.Key(userId, listingId);
+        if (on) {
+            Listing l = listingRepository.findById(listingId).orElseThrow(() -> ApiException.notFound("tin đăng"));
+            if (!favoriteRepository.existsById(key)) {
+                favoriteRepository.save(new ListingFavorite(userId, l.getId()));
+            }
+        } else {
+            favoriteRepository.deleteById(key);
+        }
+        return on;
+    }
+
+    /** Sách tôi thả tim, mới nhất trước; tin đã gỡ / chưa duyệt thì không hiện. */
+    @Transactional(readOnly = true)
+    public List<ListingSummary> favorites(Long userId) {
+        List<Long> ids = favoriteRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(ListingFavorite::getListingId).toList();
+        Map<Long, Listing> byId = new HashMap<>();
+        listingRepository.findAllById(ids).forEach(l -> byId.put(l.getId(), l));
+        return ids.stream().map(byId::get)
+                .filter(l -> l != null && (l.getStatus() == ListingStatus.ACTIVE || l.getStatus() == ListingStatus.OUT_OF_STOCK))
+                .map(ListingSummary::of).toList();
     }
 
     // ---- Admin duyệt tin ----

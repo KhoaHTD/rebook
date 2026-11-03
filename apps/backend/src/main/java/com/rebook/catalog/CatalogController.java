@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Catalog")
 @RestController
@@ -66,6 +67,23 @@ public class CatalogController {
     @GetMapping("/listings/{id}")
     public ListingDetail detail(@PathVariable Long id, @AuthenticationPrincipal UserPrincipal me) {
         return listingService.publicDetail(id, me == null ? null : me.id());
+    }
+
+    @Operation(summary = "Thả tim một tin bán (sách yêu thích)")
+    @PostMapping("/listings/{id}/favorite")
+    public Map<String, Boolean> favorite(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return Map.of("favorite", listingService.setFavorite(me.id(), id, true));
+    }
+
+    @DeleteMapping("/listings/{id}/favorite")
+    public Map<String, Boolean> unfavorite(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return Map.of("favorite", listingService.setFavorite(me.id(), id, false));
+    }
+
+    @Operation(summary = "Sách tôi đã thả tim, mới nhất trước")
+    @GetMapping("/me/favorites")
+    public List<ListingSummary> favorites(@AuthenticationPrincipal UserPrincipal me) {
+        return listingService.favorites(me.id());
     }
 
     // ---- Người bán ----
