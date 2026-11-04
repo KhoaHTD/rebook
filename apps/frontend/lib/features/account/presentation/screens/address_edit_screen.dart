@@ -483,25 +483,27 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
                         value: _default,
                         onChanged: (v) => setState(() => _default = v),
                       ),
-                      Row(
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: AppSpacing.sm,
                         children: [
                           Text('${l10n.addrType}:', style: text.bodyMedium),
-                          const Spacer(),
-                          for (final t in AddressType.values)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: AppSpacing.sm,
-                              ),
-                              child: ChoiceChip(
-                                label: Text(
-                                  t == AddressType.office
-                                      ? l10n.addrTypeOffice
-                                      : l10n.addrTypeHome,
+                          Wrap(
+                            spacing: AppSpacing.sm,
+                            children: [
+                              for (final t in AddressType.values)
+                                ChoiceChip(
+                                  label: Text(
+                                    t == AddressType.office
+                                        ? l10n.addrTypeOffice
+                                        : l10n.addrTypeHome,
+                                  ),
+                                  selected: _type == t,
+                                  onSelected: (_) => setState(() => _type = t),
                                 ),
-                                selected: _type == t,
-                                onSelected: (_) => setState(() => _type = t),
-                              ),
-                            ),
+                            ],
+                          ),
                         ],
                       ),
                     ],
