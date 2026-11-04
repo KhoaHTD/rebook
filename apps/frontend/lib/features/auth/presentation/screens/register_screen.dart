@@ -40,9 +40,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final ok = await ref
         .read(authControllerProvider.notifier)
         .register(
-          fullName: _name.text,
-          email: _email.text,
-          phone: _phone.text,
+          fullName: _name.text.trim(),
+          email: Rules.email.value(_email.text),
+          phone: Rules.phone.value(_phone.text),
           password: _password.text,
         );
     if (ok && mounted) {

@@ -40,23 +40,29 @@ void main() {
     expect(store.listing(first.id).stock, first.stock - 1);
   });
 
-  test('ZaloPay: tạo payment, cổng báo thành công → đơn chờ xác nhận', () async {
-    final l = store
-        .searchListings(const ListingQuery())
-        .items
-        .firstWhere((l) => l.shop.id != 's1');
-    store.addToCart(l.id, 1);
-    final result = await repo.checkout(
-      addressId: await address(),
-      method: PaymentMethod.zalopay,
-    );
-    final order = result.orders.single;
-    expect(order.status, OrderStatus.pendingPayment);
+  test(
+    'ZaloPay: tạo payment, cổng báo thành công → đơn chờ xác nhận',
+    () async {
+      final l = store
+          .searchListings(const ListingQuery())
+          .items
+          .firstWhere((l) => l.shop.id != 's1');
+      store.addToCart(l.id, 1);
+      final result = await repo.checkout(
+        addressId: await address(),
+        method: PaymentMethod.zalopay,
+      );
+      final order = result.orders.single;
+      expect(order.status, OrderStatus.pendingPayment);
 
-    final paid = await repo.simulateGateway(result.payment!.id, success: true);
-    expect(paid.status, PaymentStatus.success);
-    expect(store.order(order.id).status, OrderStatus.pendingConfirm);
-  });
+      final paid = await repo.simulateGateway(
+        result.payment!.id,
+        success: true,
+      );
+      expect(paid.status, PaymentStatus.success);
+      expect(store.order(order.id).status, OrderStatus.pendingConfirm);
+    },
+  );
 
   test('ví không đủ tiền → INSUFFICIENT_BALANCE', () async {
     final l = store

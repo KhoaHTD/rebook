@@ -67,7 +67,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 RuleField(
                   controller: _password,
-                  rule: Rules.password,
+                  rule: Rules.loginPassword,
                   label: l10n.password,
                   obscure: true,
                   autofillHints: const [AutofillHints.password],

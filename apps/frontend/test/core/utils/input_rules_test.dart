@@ -22,13 +22,18 @@ void main() {
   test('số điện thoại: 0xxxxxxxxx hoặc +84, bỏ dấu cách', () {
     expect(ok(Rules.phone, '0901234567'), isTrue);
     expect(ok(Rules.phone, '+84 901 234 567'), isTrue);
+    // Backend chỉ nhận số bắt đầu bằng 0: +84 được đổi thành 0 trước khi gửi.
+    expect(Rules.phone.value('+84 901 234 567'), '0901234567');
     expect(ok(Rules.phone, '090123'), isFalse);
     expect(ok(Rules.phone, '12345678901'), isFalse);
   });
 
-  test('mật khẩu ≥ 6, OTP đúng 6 chữ số', () {
-    expect(ok(Rules.password, '123456'), isTrue);
-    expect(ok(Rules.password, '12345'), isFalse);
+  test('mật khẩu mới 8–72 ký tự, OTP đúng 6 chữ số', () {
+    // Mật khẩu mới 8–72 ký tự như backend; đăng nhập không áp luật độ dài.
+    expect(ok(Rules.password, '12345678'), isTrue);
+    expect(ok(Rules.password, '1234567'), isFalse);
+    expect(ok(Rules.loginPassword, '123456'), isTrue);
+    expect(ok(Rules.loginPassword, ''), isFalse);
     expect(ok(Rules.otp, '123456'), isTrue);
     expect(ok(Rules.otp, '12345'), isFalse);
     expect(ok(Rules.otp, '12a456'), isFalse);
