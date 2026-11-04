@@ -164,17 +164,6 @@ class HomeChart extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
-            SizedBox(
-              width: 44,
-              child: Text(
-                '${i + 1}',
-                textAlign: TextAlign.center,
-                style: context.textStyles.displaySmall?.copyWith(
-                  color: c.tertiaryText,
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
             BookPoster(
               title: l.book.title,
               author: l.book.author,

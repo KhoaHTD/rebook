@@ -46,7 +46,7 @@ void main() {
     addTearDown(tester.view.reset);
   }
 
-  testWidgets('có bốn tab, số hạng 1 trên poster giữa và nút Xem sách', (
+  testWidgets('có bốn tab, poster giữa không đánh số và có nút Xem sách', (
     tester,
   ) async {
     phone(tester);
@@ -57,7 +57,7 @@ void main() {
     expect(find.text('Mới lên kệ'), findsOneWidget);
     expect(find.text('Giá tốt'), findsOneWidget);
     expect(find.text('Thể loại'), findsOneWidget);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('1'), findsNothing);
     expect(find.text('Xem sách'), findsOneWidget);
   });
 
