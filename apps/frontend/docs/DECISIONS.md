@@ -178,3 +178,44 @@ SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
 - `OsmMap`: ghim luôn ở giữa khung, người dùng kéo / chụm bản đồ cho tâm trúng chỗ cần chọn; toạ độ lưu là toạ độ ở tâm khi kéo xong. Không còn chạm để đặt ghim.
 - Định vị tự động chỉ di chuyển bản đồ tới điểm tìm được; không làm gì nếu điểm đó đã là tâm hiện tại (tránh giật khi chính cú kéo báo toạ độ lên). Kéo tay thì tự định vị dừng cho tới khi bấm "Định vị theo địa chỉ".
 - Địa chỉ chưa kéo lần nào thì lưu toạ độ tâm tỉnh / điểm tự định vị.
+
+## 2026-11-04 — Ghép lại nhánh interface với main (sau PR #1)
+
+PR #1 chép nguyên frontend của `interface` đè lên `main`, làm mất phần nối backend thật đã làm trên `main` (client sinh từ spec backend,
+WebSocket JSON thuần, không có tiền tố `/api`, các mapper). Đã merge 3 chiều lại (gốc là điểm rẽ nhánh), giữ giao diện mới của `interface`
+và lớp API của `main`, rồi làm thêm phía backend cho các tính năng mới:
+- Client API sinh từ `apps/backend/openapi.yaml` (spec thật); `openapi/openapi.yaml` giữ vai trò hợp đồng / danh sách việc (`tool/api_gap.dart`).
+- Backend dùng kiểu sẵn có `POST` bật / `DELETE` tắt (yêu thích sách, theo dõi phiên, sao tài khoản ngân hàng) thay cho body `{favorite}` trong spec frontend.
+- Lời mời mua lần hai không có bảng riêng: là hoá đơn lô cờ `secondChance` (backend có từ trước), frontend lọc từ `GET /orders`.
+- Chọn món trong giỏ: frontend lọc các món và gửi `listingIds` cho báo giá, không cần `GET /cart?itemIds`.
+- Thêm `AdminAction.withdrawalRejected` vì backend ghi cả "từ chối rút tiền" vào nhật ký.
+- Sau đó (cùng ngày) đã làm nốt: người duyệt tin (`GET /admin/listings/reviewed`), ghi chú của người rút (`userNote`), upload ảnh thật qua `POST /files`.
+  Ảnh trên backend lưu URL tương đối `/files/...`; app ghép với `API_BASE_URL` lúc hiển thị (`resolveImageUrl`), nên đổi máy chủ / tunnel / máy ảo không làm hỏng ảnh cũ.
+  Client sinh với `use_multipart_file: true` để upload chạy được trên web.
+
+## 2026-11-04 — VNPay sandbox thật
+
+- Mã sandbox để ở `apps/backend/.env` (không commit); backend đọc qua `spring.config.import`.
+- Có VNPay thật thì backend tắt `simulateAvailable`; app chỉ hiện cổng giả lập khi cờ này bật (trước đây app coi mọi thanh toán không có link là giả lập).
+- Web mở VNPay trong cùng tab, nên sau khi trả tiền trang `/payments/vnpay/return` của backend (HTML) đưa người dùng về `APP_URL/home/payments/{mã}`.
+  Điện thoại mở trình duyệt ngoài; màn kết quả trong app tự hỏi lại trạng thái mỗi 3 giây.
+- IPN không tới được máy dev (localhost), nên return URL cũng xác nhận giao dịch (đã có từ trước, có kiểm chữ ký, không cộng hai lần).
+
+## 2026-11-04 — Đổi cổng thanh toán từ VNPay sang ZaloPay
+
+- SRS ghi VNPay, nhưng tài khoản VNPay sandbox của nhóm bị từ chối (mã 71, website chưa được duyệt) và đăng ký mới bị lỗi. Người dùng quyết định
+  thay hẳn bằng ZaloPay: phương thức `VNPAY` thành `ZALOPAY` (migration V7 đổi cả dữ liệu cũ), ô thanh toán trong app thành "ZaloPay".
+- Dùng bộ khoá sandbox dùng thử công khai của ZaloPay (app 2554) làm mặc định để ai clone về cũng thanh toán thử được.
+- Không tin tham số trên redirect URL: backend luôn hỏi lại ZaloPay (`/v2/query`) trước khi cộng tiền / chuyển đơn.
+- Web mở trang ZaloPay ở tab mới (tab app chuyển sang màn kết quả và tự hỏi lại); màn kết quả có nút mở lại trang ZaloPay
+  (backend lưu `order_url`, migration V8) phòng khi trình duyệt chặn tab mới.
+
+## 2026-11-04 — Màn giới thiệu, màn loading và chế độ khách
+
+- Mở app vào `/start`: khung xương trang chủ (`SplashScreen`) hiện trong lúc đọc phiên đăng nhập và cờ "đã xem intro", rồi router chuyển tiếp.
+  Điện thoại lần đầu → `/intro` (3 trang vuốt ngang, tranh có mép rách; tranh dùng lại `assets/banners/{picks,shop,live}.jpg`); các lần sau → `/home`.
+  Web giữ trang giới thiệu `/` cho người chưa đăng nhập, không có intro. Cờ lưu trong `flutter_secure_storage` (khoá `intro_seen`, qua `TokenStorage`), không xoá khi đăng xuất.
+- Khách (chưa đăng nhập) vào app thấy hộp thoại mời đăng nhập / đăng ký một lần mỗi lần chạy; "Chỉ xem sách" để từ chối và xem tiếp.
+- Khách không còn bị đẩy sang `/login`: mục cần đăng nhập (`Routes.requiresAuth`) giữ nguyên khung, nội dung là `GuestGate` "Cần đăng nhập".
+  Việc cần tài khoản (thêm giỏ, yêu thích, theo dõi phiên) hiện hộp thoại `showLoginRequired` thay vì chuyển trang.
+- Mục Tài khoản (mua sách và đấu giá) của khách là `GuestAccountView` ("Tài khoản khách" + Đăng nhập / Đăng ký + Cài đặt). Không có thay đổi API.

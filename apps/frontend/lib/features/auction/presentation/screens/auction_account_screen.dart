@@ -10,6 +10,7 @@ import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/second_chance_providers.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
+import 'package:book_marketplace/shared/widgets/guest_views.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Hồ sơ trong khu đấu giá: ví cọc (khả dụng / đang giữ), lô đã thắng, phiên đã đăng ký + số bài, lịch sử trả giá,
@@ -23,6 +24,7 @@ class AuctionAccountScreen extends ConsumerWidget {
     final c = context.appColors;
     final text = context.textStyles;
     final user = ref.watch(sessionControllerProvider).user;
+    if (user == null) return const GuestAccountView(auction: true);
     final wallet = ref.watch(auctionWalletProvider).value;
     final offers = ref.watch(pendingOfferCountProvider);
 
@@ -50,29 +52,28 @@ class AuctionAccountScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (user != null)
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: c.tintSoft,
-                      child: Text(
-                        user.fullName.characters.first.toUpperCase(),
-                        style: text.headlineSmall,
-                      ),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: c.tintSoft,
+                    child: Text(
+                      user.fullName.characters.first.toUpperCase(),
+                      style: text.headlineSmall,
                     ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(user.fullName, style: text.headlineSmall),
-                          Text(user.email, style: text.bodySmall),
-                        ],
-                      ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(user.fullName, style: text.headlineSmall),
+                        Text(user.email, style: text.bodySmall),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
               const SizedBox(height: AppSpacing.xl),
               Glass(
                 blur: false,

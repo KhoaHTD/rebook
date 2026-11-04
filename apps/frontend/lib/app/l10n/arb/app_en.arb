@@ -1125,5 +1125,31 @@
   "addrPickDistrictFirst": "Select a district first",
   "addrSearchUnit": "Search by name",
   "addrUnitsFailed": "Could not load the list. Type the name:",
-  "addrUnitsEmpty": "No results"
+  "addrUnitsEmpty": "No results",
+  "introTitle1": "Find used books you love",
+  "introBody1": "Thousands of pre-loved titles at friendly prices, with their condition described honestly.",
+  "introTitle2": "Sell books, get paid",
+  "introBody2": "Open a shop or consign to ReBook. Once a book is on the shelf, buyers come to it.",
+  "introTitle3": "Auction rare books",
+  "introBody3": "Join live rooms, bid in real time and take the rare edition home.",
+  "introSkip": "Skip",
+  "introNext": "Next",
+  "introStart": "Get started",
+  "guestWelcomeTitle": "Welcome to ReBook",
+  "guestWelcomeBody": "Log in or sign up to buy books, bid and track orders. You can also just browse.",
+  "guestBrowseOnly": "Just browse",
+  "loginRequiredTitle": "Login required",
+  "loginRequiredBody": "Log in or sign up to use this feature.",
+  "loginLater": "Later",
+  "gateBody": "Log in or sign up to see your {feature}.",
+  "@gateBody": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "gateFeatureGeneric": "This content",
+  "guestAccountTitle": "Guest account",
+  "guestAccountBody": "You are not logged in. Log in to use the cart, orders and wallet."
 }

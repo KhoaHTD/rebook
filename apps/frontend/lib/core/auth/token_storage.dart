@@ -18,6 +18,7 @@ class TokenStorage {
   static const _accessKey = 'access_token';
   static const _refreshKey = 'refresh_token';
   static const _userKey = 'auth_user';
+  static const _introKey = 'intro_seen';
 
   Future<AuthTokens?> read() async {
     final access = await _storage.read(key: _accessKey);
@@ -43,6 +44,12 @@ class TokenStorage {
 
   Future<void> writeUser(AuthUser user) =>
       _storage.write(key: _userKey, value: jsonEncode(user.toJson()));
+
+  /// Đã xem màn giới thiệu chưa (không xoá khi đăng xuất).
+  Future<bool> readIntroSeen() async =>
+      await _storage.read(key: _introKey) == '1';
+
+  Future<void> writeIntroSeen() => _storage.write(key: _introKey, value: '1');
 
   Future<void> clear() async {
     await _storage.delete(key: _accessKey);

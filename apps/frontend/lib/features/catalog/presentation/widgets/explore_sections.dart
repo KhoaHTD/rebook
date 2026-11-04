@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/shared/widgets/login_prompt.dart';
 
 /// Tiêu đề một mục của trang Khám phá: biểu tượng nhỏ, tên, và "Xem tất cả" bên phải.
 class ExploreHeader extends StatelessWidget {
@@ -433,12 +434,7 @@ class _ExplorePosterFlowState extends ConsumerState<ExplorePosterFlow> {
   Future<void> _addToCart(Listing l) async {
     final l10n = context.l10n;
     if (!ref.read(sessionControllerProvider).isSignedIn) {
-      context.go(
-        Uri(
-          path: Routes.login,
-          queryParameters: {'from': Routes.search},
-        ).toString(),
-      );
+      await showLoginRequired(context, from: Routes.search);
       return;
     }
     final ok = await ref.read(addToCartControllerProvider.notifier).add(l.id);

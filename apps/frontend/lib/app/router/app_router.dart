@@ -10,6 +10,9 @@ import 'package:book_marketplace/app/router/placeholder_page.dart';
 import 'package:book_marketplace/app/router/mode_switch.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/core/settings/intro_state.dart';
+import 'package:book_marketplace/features/intro/presentation/screens/intro_screen.dart';
+import 'package:book_marketplace/features/intro/presentation/screens/splash_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/account_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/address_edit_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/addresses_screen.dart';
@@ -64,27 +67,31 @@ final _rootKey = GlobalKey<NavigatorState>();
 GoRouter appRouter(Ref ref) {
   final refresh = ValueNotifier(0);
   ref.listen(sessionControllerProvider, (_, _) => refresh.value++);
+  ref.listen(introSeenProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
     navigatorKey: _rootKey,
-    // Web mở trang giới thiệu (`/`); app điện thoại vào thẳng Mua sách.
-    initialLocation: kIsWeb ? Routes.landing : Routes.home,
+    // Mở app: màn loading (khung xương) trong lúc đọc phiên đăng nhập, rồi redirect chọn tiếp.
+    initialLocation: Routes.start,
     refreshListenable: refresh,
     redirect: (context, state) {
       final location = state.matchedLocation;
       final session = ref.read(sessionControllerProvider);
+      if (location == Routes.start) {
+        final seen = ref.read(introSeenProvider);
+        if (session.status == AuthStatus.unknown || seen == null) return null;
+        // Điện thoại: lần đầu có giới thiệu. Web: trang giới thiệu `/` cho người chưa đăng nhập.
+        if (!kIsWeb && !seen) return Routes.intro;
+        return kIsWeb && !session.isSignedIn ? Routes.landing : Routes.home;
+      }
       if (location == Routes.landing && (!kIsWeb || session.isSignedIn)) {
         return Routes.home;
       }
       if (session.status == AuthStatus.unknown) return null;
 
-      if (!session.isSignedIn && Routes.requiresAuth(location)) {
-        return Uri(
-          path: Routes.login,
-          queryParameters: {'from': state.uri.toString()},
-        ).toString();
-      }
+      // Khách vào mục cần đăng nhập: không đẩy sang trang đăng nhập; khung (AppShell / AuctionShell)
+      // hiện GuestGate "cần đăng nhập" thay cho nội dung.
       if (session.isSignedIn && Routes.isAuthPage(location)) {
         return state.uri.queryParameters['from'] ?? Routes.home;
       }
@@ -93,6 +100,8 @@ GoRouter appRouter(Ref ref) {
     errorBuilder: (context, state) =>
         PlaceholderPage(title: context.l10n.notFound, notFound: true),
     routes: [
+      GoRoute(path: Routes.start, builder: (_, _) => const SplashScreen()),
+      GoRoute(path: Routes.intro, builder: (_, _) => const IntroScreen()),
       GoRoute(
         path: Routes.landing,
         builder: (_, s) => WelcomeScreen(

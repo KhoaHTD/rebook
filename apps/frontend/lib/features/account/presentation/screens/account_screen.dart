@@ -8,6 +8,7 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/account/presentation/providers/account_providers.dart';
 import 'package:book_marketplace/shared/widgets/app_image.dart';
+import 'package:book_marketplace/shared/widgets/guest_views.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Tài khoản: lối vào mua sắm, bán sách (shop, ký gửi), hồ sơ, cài đặt, đăng xuất.
@@ -19,7 +20,7 @@ class AccountScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final c = context.appColors;
     final user = ref.watch(sessionControllerProvider).user;
-    if (user == null) return const SizedBox.shrink();
+    if (user == null) return const GuestAccountView();
 
     Widget group(String title, List<Widget> rows) => Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),

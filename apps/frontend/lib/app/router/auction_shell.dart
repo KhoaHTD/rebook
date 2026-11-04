@@ -15,6 +15,7 @@ import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/auction_providers.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/glass.dart';
+import 'package:book_marketplace/shared/widgets/guest_views.dart';
 
 /// Theme riêng của khu đấu giá: luôn tối, đỏ LIVE + vàng đồng (không theo chế độ sáng/tối của máy).
 final ThemeData _auctionTheme = AppTheme.auction();
@@ -71,10 +72,18 @@ class AuctionShell extends ConsumerWidget {
       child: Builder(
         builder: (context) {
           final loc = GoRouterState.of(context).uri.path;
+          // Khách mở mục cần đăng nhập (Của tôi, ví, lượt trả giá…): hiện lời mời đăng nhập thay vì chuyển trang.
+          final gated =
+              ref.watch(sessionControllerProvider).status ==
+                  AuthStatus.signedOut &&
+              Routes.requiresAuth(loc);
           return Scaffold(
             body: NavOverlay(
               icon: _icons[navigationShell.currentIndex],
-              showButton: !context.windowSize.isCompact || _roots.contains(loc),
+              showButton:
+                  !context.windowSize.isCompact ||
+                  _roots.contains(loc) ||
+                  gated,
               panel: _AuctionSidebar(
                 index: navigationShell.currentIndex,
                 onBranch: _goBranch,
@@ -84,7 +93,7 @@ class AuctionShell extends ConsumerWidget {
                 index: navigationShell.currentIndex,
                 onSelect: _goBranch,
               ),
-              child: navigationShell,
+              child: gated ? GuestGate(location: loc) : navigationShell,
             ),
           );
         },

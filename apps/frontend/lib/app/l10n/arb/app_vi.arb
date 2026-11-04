@@ -1829,5 +1829,31 @@
   "addrPickDistrictFirst": "Chọn quận / huyện trước",
   "addrSearchUnit": "Tìm theo tên",
   "addrUnitsFailed": "Không tải được danh sách. Nhập tên thủ công:",
-  "addrUnitsEmpty": "Không có kết quả"
+  "addrUnitsEmpty": "Không có kết quả",
+  "introTitle1": "Tìm sách cũ giá tốt",
+  "introBody1": "Hàng nghìn đầu sách đã qua tay người đọc, giá mềm, tình trạng được mô tả rõ ràng.",
+  "introTitle2": "Bán sách, nhận tiền",
+  "introBody2": "Mở shop hoặc ký gửi cho ReBook. Sách lên kệ là có người tìm đến.",
+  "introTitle3": "Đấu giá sách quý hiếm",
+  "introBody3": "Vào phòng trực tiếp, trả giá theo thời gian thực và mang về bản hiếm.",
+  "introSkip": "Bỏ qua",
+  "introNext": "Tiếp",
+  "introStart": "Bắt đầu",
+  "guestWelcomeTitle": "Chào mừng đến ReBook",
+  "guestWelcomeBody": "Đăng nhập hoặc đăng ký để mua sách, trả giá và theo dõi đơn hàng. Bạn vẫn có thể chỉ xem sách.",
+  "guestBrowseOnly": "Chỉ xem sách",
+  "loginRequiredTitle": "Cần đăng nhập",
+  "loginRequiredBody": "Đăng nhập hoặc đăng ký để dùng tính năng này.",
+  "loginLater": "Để sau",
+  "gateBody": "Đăng nhập hoặc đăng ký để xem {feature} của bạn.",
+  "@gateBody": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "gateFeatureGeneric": "Nội dung này",
+  "guestAccountTitle": "Tài khoản khách",
+  "guestAccountBody": "Bạn chưa đăng nhập. Đăng nhập để dùng giỏ hàng, đơn hàng và ví."
 }
