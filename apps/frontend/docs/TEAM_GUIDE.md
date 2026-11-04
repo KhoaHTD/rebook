@@ -5,9 +5,7 @@ thoải mái, chỉ giữ chặt vài thứ làm sập app**. Có hai máy kiể
 
 ## 1. Luật (7 dòng)
 
-1. **TUYỆT ĐỐI không đưa code `apps/backend` lên nhánh `interface` hay bất kỳ nhánh con nào của nó**
-   (nhánh cắt ra từ nó: `admin/...`, `staff/...`, `fix/...`). Các nhánh này chỉ chứa frontend; backend ở `main` do người khác làm.
-   Dù bất cứ lý do gì (kể cả "sửa nhanh một dòng", merge `main` vào) cũng không. Mục 2 nói máy chặn thế nào.
+1. **Cắt nhánh từ `main`.** `interface` đã merge vào `main` (2026-11-04); luật "không đưa backend lên `interface`" đã gỡ (mục 2).
 2. **Không push thẳng `main` hay `interface`.** Làm trên nhánh riêng, mở PR, chủ repo duyệt.
    Đặt tên nhánh `admin/<việc>` hoặc `staff/<việc>` (hoặc `fix/<việc>`, `feat/<việc>`) cho dễ theo dõi.
 3. **Không tự ý đổi file hạ tầng:** `pubspec`, `lib/core/`, `lib/app/` (router, shell, theme gốc), `lib/api/`, `openapi/`,
@@ -21,7 +19,10 @@ thoải mái, chỉ giữ chặt vài thứ làm sập app**. Có hai máy kiể
 
 Không dùng `--no-verify`, không force-push, không `reset --hard` lên nhánh chung.
 
-## 2. Luật cứng về backend: ba lớp chặn
+## 2. (Đã gỡ 2026-11-04) Luật cứng về backend
+
+`interface` đã merge hết vào `main`, nên ba lớp chặn dưới đây đã gỡ (xoá `.githooks/pre-push`, `backend-guard.yml`, phần backend trong hook Claude).
+Giữ lại để biết lịch sử:
 
 Luật số 1 có ba lớp, cái nào cũng đủ để ngăn. Hai lớp đầu cần bật một lần ở máy bạn:
 
@@ -39,7 +40,6 @@ Nếu bạn lỡ kéo `main` vào nhánh này rồi thấy bị chặn: đó là
 ## 3. Thiết lập máy (một lần)
 
 ```bash
-git config core.hooksPath .githooks
 cd apps/frontend
 flutter pub get
 dart run build_runner build
@@ -149,9 +149,8 @@ flutter test
 
 Thao tác trên GitHub (Settings → Branches) để luật có tác dụng thật:
 
-- **`interface`:** bắt buộc PR, bắt buộc status check **`Backend Guard`** và `Frontend CI`, chặn force-push, chặn xoá nhánh.
-  Nhánh con (`admin/*`, `staff/*`...) được Backend Guard kiểm khi push và khi mở PR, nhưng chỉ PR vào nhánh được bảo vệ mới *chặn merge*.
-- Khi `interface` đã merge hết vào `main`: gỡ luật backend (workflow `backend-guard.yml`, `.githooks/pre-push`, hằng `_frontendBranch` trong hook), kẻo nhánh backend cắt từ `main` bị chặn nhầm.
+- **`interface`:** đã merge vào `main`; nhánh mới cắt từ `main`.
+- Đã gỡ luật backend (2026-11-04) sau khi `interface` merge vào `main`. Bỏ check bắt buộc **`Backend Guard`** khỏi branch protection nếu đã bật.
 - **`main`:** bắt buộc PR, bắt buộc review của Code Owners, chặn force-push.
 - Hook máy (git + Claude) chỉ là lớp đầu, có thể bị tắt cục bộ; **CI và branch protection mới là chốt chặn thật**.
 - Muốn họ duyệt chéo hoặc thêm người backend vào CODEOWNERS: sửa `.github/CODEOWNERS`.

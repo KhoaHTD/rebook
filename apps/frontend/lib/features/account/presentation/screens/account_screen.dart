@@ -17,6 +17,8 @@ class AccountScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // watch giữ notifier sống: chỉ `read` thì nó tự huỷ giữa lúc đang gọi API.
+    ref.watch(accountControllerProvider);
     final l10n = context.l10n;
     final c = context.appColors;
     final user = ref.watch(sessionControllerProvider).user;

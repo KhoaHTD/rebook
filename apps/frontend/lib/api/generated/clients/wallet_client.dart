@@ -5,14 +5,13 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
-import '../models/bank_account_dto.dart';
-import '../models/favorite_request.dart';
-import '../models/payment_dto.dart';
+import '../models/bank_account_response.dart';
+import '../models/page_response_transaction_response.dart';
+import '../models/payment_response.dart';
 import '../models/top_up_request.dart';
-import '../models/wallet_dto.dart';
-import '../models/wallet_transaction_page.dart';
-import '../models/withdrawal_dto.dart';
-import '../models/withdrawal_request.dart';
+import '../models/wallet_response.dart';
+import '../models/withdraw_create_request.dart';
+import '../models/withdraw_response.dart';
 
 part 'wallet_client.g.dart';
 
@@ -20,35 +19,64 @@ part 'wallet_client.g.dart';
 abstract class WalletClient {
   factory WalletClient(Dio dio, {String? baseUrl}) = _WalletClient;
 
-  @GET('/wallet')
-  Future<WalletDto> getWallet();
+  @GET('/wallet/withdrawals')
+  Future<List<WithdrawResponse>> getWalletWithdrawals();
 
+  /// Tạo yêu cầu rút tiền (Admin duyệt)
+  @POST('/wallet/withdrawals')
+  Future<WithdrawResponse> postWalletWithdrawals({
+    @Body() required WithdrawCreateRequest body,
+  });
+
+  /// Nạp tiền qua ZaloPay sandbox — trả về paymentUrl để mở trình duyệt
+  @POST('/wallet/top-up')
+  Future<PaymentResponse> postWalletTopUp({@Body() required TopUpRequest body});
+
+  /// Đánh dấu yêu thích một tài khoản ngân hàng đã lưu
+  @POST('/wallet/bank-accounts/{id}/favorite')
+  Future<BankAccountResponse> postWalletBankAccountsIdFavorite({
+    @Path('id') required int id,
+  });
+
+  @DELETE('/wallet/bank-accounts/{id}/favorite')
+  Future<BankAccountResponse> deleteWalletBankAccountsIdFavorite({
+    @Path('id') required int id,
+  });
+
+  /// [DEV] Giả lập cổng thanh toán trả về thành công (chỉ khi app.payment.simulate-enabled=true)
+  @POST('/payments/{code}/simulate')
+  Future<PaymentResponse> postPaymentsCodeSimulate({
+    @Path('code') required String code,
+  });
+
+  /// Callback ZaloPay (server-to-server)
+  @POST('/payments/zalopay/callback')
+  Future<dynamic> postPaymentsZalopayCallback({
+    @Body() required Map<String, dynamic> body,
+  });
+
+  /// Số dư ví
+  @GET('/wallet')
+  Future<WalletResponse> getWallet();
+
+  /// Lịch sử giao dịch ví (sổ cái)
   @GET('/wallet/transactions')
-  Future<WalletTransactionPage> listWalletTransactions({
+  Future<PageResponseTransactionResponse> getWalletTransactions({
     @Query('page') int? page = 0,
     @Query('size') int? size = 20,
   });
 
-  @POST('/wallet/top-up')
-  Future<PaymentDto> topUp({@Body() required TopUpRequest body});
-
-  @GET('/wallet/withdrawals')
-  Future<List<WithdrawalDto>> listWithdrawals();
-
-  /// Tạo yêu cầu rút tiền. Backend kiểm tra thông tin ngân hàng và available_balance đủ số tiền; ví chỉ bị trừ khi Admin duyệt (SRS 8.1).
-  @POST('/wallet/withdrawals')
-  Future<WithdrawalDto> requestWithdrawal({
-    @Body() required WithdrawalRequest body,
-  });
-
-  /// Tài khoản ngân hàng tôi đã dùng để rút tiền (màn "Gần đây"), yêu thích đứng đầu rồi tới lần dùng mới nhất. Backend tự lưu / cập nhật khi tạo yêu cầu rút tiền.
+  /// Tài khoản ngân hàng đã dùng để rút tiền (yêu thích trước, rồi mới dùng gần nhất)
   @GET('/wallet/bank-accounts')
-  Future<List<BankAccountDto>> listBankAccounts();
+  Future<List<BankAccountResponse>> getWalletBankAccounts();
 
-  /// Đánh dấu / bỏ đánh dấu yêu thích một tài khoản ngân hàng đã lưu.
-  @POST('/wallet/bank-accounts/{id}/favorite')
-  Future<BankAccountDto> setBankAccountFavorite({
-    @Path('id') required String id,
-    @Body() required FavoriteRequest body,
+  /// Trạng thái một thanh toán
+  @GET('/payments/{code}')
+  Future<PaymentResponse> getPaymentsCode({@Path('code') required String code});
+
+  /// Redirect URL của ZaloPay: xác nhận giao dịch rồi hiện trang kết quả cho người dùng
+  @GET('/payments/zalopay/return')
+  Future<String> getPaymentsZalopayReturn({
+    @Query('params') required Map<String, String> params,
   });
 }

@@ -40,7 +40,7 @@ void main() {
     expect(store.listing(first.id).stock, first.stock - 1);
   });
 
-  test('VNPay: tạo payment, cổng báo thành công → đơn chờ xác nhận', () async {
+  test('ZaloPay: tạo payment, cổng báo thành công → đơn chờ xác nhận', () async {
     final l = store
         .searchListings(const ListingQuery())
         .items
@@ -48,7 +48,7 @@ void main() {
     store.addToCart(l.id, 1);
     final result = await repo.checkout(
       addressId: await address(),
-      method: PaymentMethod.vnpay,
+      method: PaymentMethod.zalopay,
     );
     final order = result.orders.single;
     expect(order.status, OrderStatus.pendingPayment);

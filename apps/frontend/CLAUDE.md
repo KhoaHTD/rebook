@@ -32,16 +32,17 @@ flutter test
 ### Ghép với backend thật (`apps/backend`)
 
 Merge code không tự tắt mock: `USE_MOCK` chỉ do file `--dart-define-from-file` quyết định. **Không sửa `env/dev.json`** (giữ mock để code giao diện).
-Muốn nối backend thật thì chạy bằng `env/local.json` (`USE_MOCK=false`, API `http://localhost:8080/api`, WS `ws://localhost:8080/ws`):
+Muốn nối backend thật thì chạy bằng `env/local.json` (`USE_MOCK=false`, API `http://localhost:8080` (không có `/api`), WS `ws://localhost:8080/ws` — WebSocket JSON thuần, không phải STOMP):
 
 ```bash
 flutter run -d chrome --dart-define-from-file=env/local.json
 ```
 
 - Khi người dùng nói "chạy nối backend / chạy thật / ghép backend" → dùng `env/local.json`, không phải `dev.json`.
+- Thanh toán ZaloPay sandbox trên web: chạy với `--web-port 5199` (backend đưa trình duyệt về `APP_URL=http://localhost:5199/home/payments/{mã}` sau khi trả tiền). Cấu hình và thẻ test xem README backend.
 - Máy ảo Android gọi máy host bằng `10.0.2.2`: đổi `localhost` thành `10.0.2.2` trong bản sao của file env (đừng commit bản đã đổi).
 - Backend (README ở `apps/backend`): cần Java 21 + PostgreSQL `localhost:5432`, tạo DB bằng `scripts/create-database.sql`, chạy `./mvnw spring-boot:run`. Tài khoản mẫu `buyer1@rebook.vn` / `Rebook@123`. Cổng 8080 bị chiếm → đặt biến môi trường `PORT` và đổi cổng trong file env.
-- Gọi API lỗi / sai field → `openapi/openapi.yaml` của frontend có thể lệch với `apps/backend/openapi.yaml`: báo người dùng, rồi chạy `/sync-api`. Không sửa gì trong `apps/backend`.
+- Client sinh từ `../backend/openapi.yaml` (spec thật, xuất từ `http://localhost:8080/v3/api-docs.yaml`). Gọi API lỗi / sai field → xuất lại spec đó, chạy `/sync-api`, sửa mapper (`shared/data/api_mappers.dart`).
 
 ## Stack đã chốt — KHÔNG thêm công nghệ khác
 
@@ -67,7 +68,7 @@ lib/
   app/            # wiring: app.dart, env.dart, router/, theme/, l10n/
   core/           # hạ tầng: network/, auth/, realtime/, error/, settings/, utils/
   shared/         # dùng chung ≥2 feature: domain/ (entity), data/ (mapper, fake data), widgets/, layout/
-  api/generated/  # SINH TỰ ĐỘNG từ openapi/openapi.yaml — không sửa tay
+  api/generated/  # SINH TỰ ĐỘNG từ ../backend/openapi.yaml — không sửa tay
   features/<tên>/
     domain/       # entity riêng của feature + interface repository (Dart thuần)
     data/         # api_<x>_repository.dart, fake_<x>_repository.dart, <x>_mapper.dart, <x>_repository_provider.dart
@@ -105,7 +106,7 @@ lib/
 - Sửa file `*.g.dart`, `*.freezed.dart`, `lib/api/generated/**`, `lib/app/l10n/generated/**` (hook sẽ chặn) — sửa nguồn rồi chạy lại generator.
 - Thêm package, đổi state management, đổi router, thêm Firebase SDK ngoài `firebase_core`/`firebase_messaging`.
 - Tạo thư mục cấp cao mới trong `lib/` ngoài `app/ core/ shared/ api/ features/`.
-- Gọi API bằng đường dẫn tự gõ khi spec chưa có endpoint: báo người dùng cập nhật `openapi/openapi.yaml` rồi chạy `/sync-api`.
+- Gọi API bằng đường dẫn tự gõ khi spec chưa có endpoint: ghi việc vào `openapi/openapi.yaml` + `docs/BACKEND_HANDOFF.md`, đợi backend làm rồi chạy `/sync-api`.
 
 ## Làm thêm ngoài SRS: báo cho backend
 
@@ -122,10 +123,10 @@ Giao diện được phép nhiều hơn SRS (người dùng quyết). Mỗi th�
 
 ## Làm việc nhóm: Admin & Staff (đọc [docs/TEAM_GUIDE.md](docs/TEAM_GUIDE.md))
 
-- **Luật cứng: không đưa code `apps/backend` lên nhánh `interface` hay nhánh con của nó** (hook push, hook Claude và CI "Backend Guard" cùng chặn). Phần còn lại là luật nhẹ: PR + review, không tự đổi file hạ tầng / thêm package, giao diện sửa thoải mái.
+- `interface` đã merge vào `main` (2026-11-04), luật chặn backend đã gỡ; cắt nhánh từ `main`. Luật nhẹ: PR + review, không tự đổi file hạ tầng / thêm package, giao diện sửa thoải mái.
 - Phần quản trị chia hai module: `features/admin/**` và `features/staff/**` (+ `test/features/<vai>/`), mỗi vai một file module nên ít đụng nhau.
 - **Router và sidebar quản trị do module quyết định**: thêm màn = sửa `features/<vai>/presentation/<vai>_module.dart` (route + mục sidebar + `smokePaths`) + file màn hình. Không sửa `app/router/admin_router.dart`, `admin_shell.dart`, `admin_modules.dart`.
 - **Bố cục màn Admin / Staff do người làm tự sáng tạo.** Gu chung (sáng, phẳng, nút đen, tiêu đề serif, dữ liệu là nhân vật chính) và đồ nghề có sẵn (`AppPage`, `AdminCard`, `AdminKpi`, `AdminPalette`) nằm ở [docs/ADMIN_VIBE.md](docs/ADMIN_VIBE.md): đọc để hiểu bối cảnh, không phải luật. Không có máy nào chặn kiểu dáng.
 - Chuỗi mới: `node tool/l10n_add.mjs <file.json> --zone adm|stf` (key bắt đầu `adm` / `stf`, không đổi key cũ).
 - Responsive: điểm gãy khung quản trị 900px (dưới đó sidebar là ngăn kéo). Mọi màn phải ổn ở 375 / 800 / 1400px. `test/layout/admin_staff_layout_test.dart` quét các route đã khai báo và chỉ hỏng khi có lỗi tràn / dựng hình; đừng sửa test này để "xanh".
-- Bị hook chặn (backend trên nhánh bảo vệ, package lạ, file sinh tự động) → dừng và báo người dùng; không lách.
+- Bị hook chặn (package lạ, file sinh tự động, lệnh nguy hiểm) → dừng và báo người dùng; không lách.

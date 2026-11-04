@@ -80,6 +80,8 @@ class CategoriesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // watch giữ notifier sống: chỉ `read` thì nó tự huỷ giữa lúc đang gọi API.
+    ref.watch(adminActionsProvider);
     final l10n = context.l10n;
     final sep = context.appColors.separator;
     final cats = ref.watch(adminCategoriesProvider);

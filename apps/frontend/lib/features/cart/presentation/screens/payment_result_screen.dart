@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/core/utils/external_link.dart';
 import 'package:book_marketplace/features/cart/presentation/providers/cart_providers.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
@@ -12,16 +15,62 @@ import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
-/// Kết quả một lần thanh toán VNPay (đơn hàng, nạp ví, hóa đơn lô đấu giá).
-/// Chế độ mock: hiện cổng VNPay giả lập để chọn thành công / thất bại.
-class PaymentResultScreen extends ConsumerWidget {
+/// Kết quả một lần thanh toán ZaloPay (đơn hàng, nạp ví, hóa đơn lô đấu giá).
+/// Chế độ mock: hiện cổng ZaloPay giả lập để chọn thành công / thất bại.
+/// ZaloPay thật: người dùng trả tiền ở trang ZaloPay; màn này hỏi lại trạng thái mỗi [pollEvery] tới khi có kết quả.
+class PaymentResultScreen extends ConsumerStatefulWidget {
   const PaymentResultScreen({super.key, required this.paymentId});
 
   final String paymentId;
 
+  static const pollEvery = Duration(seconds: 3);
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PaymentResultScreen> createState() =>
+      _PaymentResultScreenState();
+}
+
+class _PaymentResultScreenState extends ConsumerState<PaymentResultScreen> {
+  Timer? _poll;
+
+  String get paymentId => widget.paymentId;
+
+  @override
+  void initState() {
+    super.initState();
+    _poll = Timer.periodic(PaymentResultScreen.pollEvery, (_) {
+      final p = ref.read(paymentProvider(paymentId)).value;
+      if (p != null &&
+          p.status == PaymentStatus.pending &&
+          !isMockUrl(p.paymentUrl)) {
+        ref.invalidate(paymentProvider(paymentId));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // Có kết quả từ cổng thật: tải lại đơn hàng và ví.
+    ref.listen(paymentProvider(paymentId), (prev, next) {
+      final was = prev?.value?.status;
+      final now = next.value?.status;
+      if (was == PaymentStatus.pending &&
+          now != null &&
+          now != PaymentStatus.pending) {
+        _poll?.cancel();
+        final changes = ref.read(dataChangesProvider.notifier);
+        for (final area in [DataArea.orders, DataArea.wallet]) {
+          changes.bump(area);
+        }
+      }
+    });
     final payment = ref.watch(paymentProvider(paymentId));
     return AppPage(
       title: l10n.paymentTitle,
@@ -128,13 +177,33 @@ class _Body extends ConsumerWidget {
               ],
             ),
           )
-        else if (payment.status == PaymentStatus.pending &&
-            payment.paymentUrl != null)
-          FilledButton(
-            onPressed: () => openExternal(payment.paymentUrl!),
-            child: Text(l10n.payNow),
-          )
-        else ...[
+        else if (payment.status == PaymentStatus.pending) ...[
+          InfoPanel(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Row(
+              children: [
+                const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    l10n.paymentWaitingGateway,
+                    style: context.textStyles.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (payment.paymentUrl != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            FilledButton(
+              onPressed: () => openExternal(payment.paymentUrl!),
+              child: Text(l10n.openGateway),
+            ),
+          ],
+        ] else ...[
           FilledButton(
             onPressed: () => context.go(Routes.orders),
             child: Text(l10n.viewOrders),

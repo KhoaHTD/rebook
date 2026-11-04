@@ -23,7 +23,7 @@ class AppImage extends StatelessWidget {
       return Image.asset(url, fit: fit, errorBuilder: (_, _, _) => placeholder);
     }
     return CachedNetworkImage(
-      imageUrl: url,
+      imageUrl: resolveImageUrl(url),
       fit: fit,
       placeholder: (_, _) => placeholder,
       errorWidget: (_, _, _) => placeholder,

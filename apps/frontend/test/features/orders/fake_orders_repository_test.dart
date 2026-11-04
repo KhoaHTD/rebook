@@ -57,7 +57,7 @@ void main() {
     final id = store
         .checkout(
           addressId: store.myAddresses().first.id,
-          method: PaymentMethod.vnpay,
+          method: PaymentMethod.zalopay,
         )
         .orders
         .single

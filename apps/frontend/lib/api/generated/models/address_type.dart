@@ -4,7 +4,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-/// Loại địa chỉ: nhà riêng / văn phòng (màn sửa địa chỉ).
 @JsonEnum()
 enum AddressType {
   @JsonValue('HOME')

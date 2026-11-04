@@ -31,7 +31,7 @@ Future<List<BankAccount>> bankAccounts(Ref ref) {
   return ref.watch(walletRepositoryProvider).bankAccounts();
 }
 
-/// Nạp / rút. Nạp trả về phiên thanh toán để mở VNPay.
+/// Nạp / rút. Nạp trả về phiên thanh toán để mở ZaloPay.
 @riverpod
 class WalletController extends _$WalletController {
   /// Số tiền tối thiểu mỗi lần nạp / rút.

@@ -25,6 +25,6 @@ abstract interface class CartRepository {
 
   Future<Payment> payment(String id);
 
-  /// Chỉ chế độ mock: giả lập cổng VNPay báo kết quả về backend.
+  /// Chỉ chế độ mock: giả lập cổng ZaloPay báo kết quả về backend.
   Future<Payment> simulateGateway(String paymentId, {required bool success});
 }

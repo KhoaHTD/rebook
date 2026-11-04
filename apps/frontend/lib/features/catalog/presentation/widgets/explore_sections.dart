@@ -475,6 +475,8 @@ class _ExplorePosterFlowState extends ConsumerState<ExplorePosterFlow> {
 
   @override
   Widget build(BuildContext context) {
+    // watch giữ notifier sống: chỉ `read` thì nó tự huỷ giữa lúc đang gọi API.
+    ref.watch(addToCartControllerProvider);
     final l10n = context.l10n;
     final c = context.appColors;
     final text = context.textStyles;

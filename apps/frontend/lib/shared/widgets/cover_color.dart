@@ -64,7 +64,7 @@ abstract final class CoverColor {
       if (bytes != null) return MemoryImage(bytes);
     }
     if (url.startsWith('assets/')) return AssetImage(url);
-    return CachedNetworkImageProvider(url);
+    return CachedNetworkImageProvider(resolveImageUrl(url));
   }
 
   static Future<Color> _fromImage(String url) async {

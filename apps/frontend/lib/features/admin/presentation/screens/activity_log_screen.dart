@@ -23,6 +23,7 @@ class ActivityLogScreen extends ConsumerWidget {
     AdminAction.auctionBanLifted => Icons.gavel_rounded,
     AdminAction.shopMarkedTrusted => Icons.verified_outlined,
     AdminAction.withdrawalCompleted => Icons.account_balance_outlined,
+    AdminAction.withdrawalRejected => Icons.money_off_rounded,
     AdminAction.configChanged => Icons.tune_rounded,
   };
 

@@ -1,7 +1,8 @@
 # Sinh REST client + DTO từ OpenAPI. Chạy bằng skill /sync-api hoặc:
+# Client lấy từ spec thật của backend (apps/backend/openapi.yaml); openapi/openapi.yaml là hợp đồng / danh sách việc cho backend.
 #   dart run swagger_parser && dart run build_runner build -d
 swagger_parser:
-  schema_path: openapi/openapi.yaml
+  schema_path: ../backend/openapi.yaml
   output_directory: lib/api/generated
   name: api
   language: dart
@@ -10,6 +11,8 @@ swagger_parser:
   root_client_name: RestClient
   export_file: true
   put_clients_in_folder: true
-  path_method_name: false
+  path_method_name: true
   unknown_enum_value: true
+  # MultipartFile thay vì dart:io File: upload ảnh chạy được cả trên web.
+  use_multipart_file: true
   mark_files_as_generated: true

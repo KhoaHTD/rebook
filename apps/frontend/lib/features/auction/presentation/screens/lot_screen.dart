@@ -97,6 +97,8 @@ class _Info extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // watch giữ notifier sống: chỉ `read` thì nó tự huỷ giữa lúc đang gọi API.
+    ref.watch(auctionActionsProvider);
     final l10n = context.l10n;
     final c = context.appColors;
     final bids = ref.watch(lotBidsProvider(lot.id)).value ?? const <Bid>[];
@@ -259,6 +261,8 @@ class _CompactLotBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // watch giữ notifier sống: chỉ `read` thì nó tự huỷ giữa lúc đang gọi API.
+    ref.watch(auctionActionsProvider);
     final l10n = context.l10n;
     final c = context.appColors;
     final text = context.textStyles;

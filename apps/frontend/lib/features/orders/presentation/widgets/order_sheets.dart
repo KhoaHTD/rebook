@@ -114,7 +114,7 @@ typedef InvoiceChoice = ({
   bool pickup,
 });
 
-/// Thanh toán hóa đơn đấu giá: giao tận nơi (chọn địa chỉ) hoặc nhận tại kho; trả bằng ví hoặc VNPay (SRS 6.6).
+/// Thanh toán hóa đơn đấu giá: giao tận nơi (chọn địa chỉ) hoặc nhận tại kho; trả bằng ví hoặc ZaloPay (SRS 6.6).
 Future<InvoiceChoice?> showPayInvoiceSheet(
   BuildContext context,
   WidgetRef ref,
@@ -164,10 +164,10 @@ Future<InvoiceChoice?> showPayInvoiceSheet(
               onTap: () => setState(() => method = PaymentMethod.wallet),
             ),
             SelectTile(
-              selected: method == PaymentMethod.vnpay,
-              title: l10n.payVnpay,
-              subtitle: l10n.payVnpayHint,
-              onTap: () => setState(() => method = PaymentMethod.vnpay),
+              selected: method == PaymentMethod.zalopay,
+              title: l10n.payZalopay,
+              subtitle: l10n.payZalopayHint,
+              onTap: () => setState(() => method = PaymentMethod.zalopay),
             ),
             const SizedBox(height: AppSpacing.md),
             PriceText(order.total, style: c.textStyles.titleLarge),

@@ -2,7 +2,7 @@
 abstract final class Env {
   static const apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:8080/api',
+    defaultValue: 'http://localhost:8080',
   );
 
   /// Endpoint STOMP của backend Spring (SRS 10.3).
@@ -17,7 +17,7 @@ abstract final class Env {
   /// Bật thông báo đẩy FCM — chỉ bật khi đã cấu hình Firebase project.
   static const fcmEnabled = bool.fromEnvironment('FCM_ENABLED');
 
-  /// Trang VNPay quay về sau khi thanh toán (deep link app / URL web).
+  /// Trang ZaloPay quay về sau khi thanh toán (deep link app / URL web).
   static const paymentReturnUrl = String.fromEnvironment(
     'PAYMENT_RETURN_URL',
     defaultValue: 'http://localhost:8080/payment-return',

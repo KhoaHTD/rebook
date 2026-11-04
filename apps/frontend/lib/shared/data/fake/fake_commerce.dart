@@ -482,7 +482,7 @@ extension FakeCommerce on FakeStore {
       _payFromWallet(_uid, created.map((o) => o.id).toList(), total);
       return CheckoutResult(orders: created.map((o) => orders[o.id]!).toList());
     }
-    if (method == PaymentMethod.vnpay) {
+    if (method == PaymentMethod.zalopay) {
       final p = _createPayment(
         _uid,
         total,
@@ -528,7 +528,7 @@ extension FakeCommerce on FakeStore {
       id: _id('pay'),
       amount: amount,
       status: PaymentStatus.pending,
-      paymentUrl: 'mock://vnpay-sandbox',
+      paymentUrl: 'mock://zalopay-sandbox',
       expiresAt: DateTime.now().add(const Duration(minutes: 15)),
     );
     payments[p.id] = p;
@@ -536,7 +536,7 @@ extension FakeCommerce on FakeStore {
     return p;
   }
 
-  /// Giả lập cổng VNPay gọi IPN về backend. Lưu mã giao dịch để không cộng trùng (SRS 8.1).
+  /// Giả lập cổng ZaloPay gọi IPN về backend. Lưu mã giao dịch để không cộng trùng (SRS 8.1).
   Payment completePayment(String paymentId, {bool success = true}) {
     final p = payments[paymentId] ?? fail(ErrorCodes.notFound, 404);
     if (p.status != PaymentStatus.pending) return p; // IPN đến 2 lần: bỏ qua.
@@ -551,7 +551,7 @@ extension FakeCommerce on FakeStore {
         target.userId,
         WalletTxnType.topUp,
         availableDelta: p.amount,
-        note: 'Nạp qua VNPay',
+        note: 'Nạp qua ZaloPay',
         refType: 'PAYMENT',
         refId: p.id,
       );

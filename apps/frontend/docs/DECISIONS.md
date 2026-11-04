@@ -108,6 +108,12 @@ Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, l�
 - Bảng màu theo video (nền trắng ngà, cam, băng vàng chanh, hồng, xanh dương) — khác với phần còn lại của app (Liquid Glass + xanh); trang này là trang giới thiệu riêng.
 - Web mở `/` là trang giới thiệu; người đã đăng nhập vào thẳng `/home`; app điện thoại không có trang này. Đổi lại bằng `initialLocation` trong `app_router.dart`.
 
+### Backend: sửa lỗi nghiệp vụ sau rà soát (2026-10-29)
+- Mời người trả giá cao thứ hai mua lại lô chỉ khi giá của họ **≥ giá sàn**. SRS chỉ nói "mời người trả cao thứ hai", không nói giá sàn; dưới giá sàn thì người bán chưa đồng ý bán nên lô quay về chờ xếp phiên.
+- Người bán (hoặc kho) phải trả lời yêu cầu trả hàng trong **2 ngày** (cấu hình `order.return_response_days`); quá hạn thì tự chuyển Admin phân xử như khi người bán từ chối, tiền vẫn giữ ở sàn. SRS không có hạn này.
+- Người mua bấm "Đã nhận hàng" khi đang yêu cầu trả hàng = rút yêu cầu: yêu cầu đóng lại (REJECTED).
+- Thanh toán VNPay về muộn mà đơn đã được trả bằng cách khác (ví / link mới): phần tiền thừa hoàn vào ví người mua.
+
 ### Cập nhật SRS 31/10 (file `docs/Đặc-tả-ứng-dụng-mua-bán-đấu-giá-sách-cũ.docx`)
 Năm điểm mới trong SRS. SRS **không liệt kê endpoint** cho các điểm này (mục 10.4 chỉ rút gọn), nên tên field / endpoint dưới đây do frontend
 đặt tạm trong `openapi/openapi.yaml` — **backend đối chiếu và sửa nếu khác**, rồi chạy `/sync-api`:

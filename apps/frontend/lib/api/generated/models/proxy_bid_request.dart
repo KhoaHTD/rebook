@@ -13,7 +13,7 @@ class ProxyBidRequest {
   factory ProxyBidRequest.fromJson(Map<String, Object?> json) =>
       _$ProxyBidRequestFromJson(json);
 
-  final int maxAmount;
+  final num maxAmount;
 
   Map<String, Object?> toJson() => _$ProxyBidRequestToJson(this);
 }

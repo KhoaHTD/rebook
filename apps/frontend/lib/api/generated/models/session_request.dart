@@ -14,9 +14,11 @@ class SessionRequest {
     required this.registrationDeadline,
     required this.minParticipants,
     required this.depositAmount,
-    this.lotDurationSec = 60,
-    this.softCloseSec = 15,
     this.description,
+    this.coverUrl,
+    this.lotDurationSec,
+    this.softCloseSec,
+    this.lotGapSec,
   });
 
   factory SessionRequest.fromJson(Map<String, Object?> json) =>
@@ -24,12 +26,14 @@ class SessionRequest {
 
   final String title;
   final String? description;
+  final String? coverUrl;
   final DateTime startAt;
   final DateTime registrationDeadline;
   final int minParticipants;
-  final int depositAmount;
-  final int lotDurationSec;
-  final int softCloseSec;
+  final num depositAmount;
+  final int? lotDurationSec;
+  final int? softCloseSec;
+  final int? lotGapSec;
 
   Map<String, Object?> toJson() => _$SessionRequestToJson(this);
 }

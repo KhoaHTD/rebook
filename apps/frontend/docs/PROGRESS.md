@@ -59,3 +59,11 @@ Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style 
 
 ## Giai đoạn 7 — Hoàn thiện
 - [x] analyze + arch_check + test sạch, build web 2 app, chụp màn hình so mockup, cập nhật README/ARCHITECTURE
+
+## 2026-11-04 — Ghép lại với backend thật
+- [x] Merge 3 chiều `interface` + `main` (khôi phục lớp API nối backend, giữ giao diện mới)
+- [x] Backend: yêu thích sách, theo dõi phiên, tài khoản ngân hàng đã dùng, ghim bản đồ địa chỉ, khiếu nại đã phân xử, `secondChance` / `lotId` trong `OrderSummary`, `/files` nhận multipart
+- [x] Gỡ luật chặn backend (pre-push, hook Claude, CI Backend Guard)
+- [x] Upload ảnh thật (`POST /files`), ghi chú khi rút tiền, người duyệt tin đăng
+- [x] Chạy thử web với `env/local.json`: đăng nhập, trang chủ, yêu thích, giỏ, ví gọi backend thật không lỗi
+- [x] Cổng thanh toán đổi sang ZaloPay sandbox (thay VNPay): thanh toán thật bằng thẻ test, app tự cập nhật kết quả

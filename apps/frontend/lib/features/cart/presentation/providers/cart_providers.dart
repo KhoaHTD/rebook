@@ -131,7 +131,7 @@ class CheckoutController extends _$CheckoutController {
 Future<Payment> payment(Ref ref, String id) =>
     ref.watch(cartRepositoryProvider).payment(id);
 
-/// Cổng VNPay giả lập (chỉ chế độ mock).
+/// Cổng ZaloPay giả lập (chỉ chế độ mock).
 @riverpod
 class GatewayController extends _$GatewayController {
   @override
