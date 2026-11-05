@@ -52,6 +52,23 @@ class InputGuardsTest extends IntegrationTest {
     }
 
     @Test
+    void endedSessionStillCountsEveryoneWhoRegisteredEvenAfterTheDepositIsRefunded() throws Exception {
+        long me = createUser(Role.USER, "Người xem phiên", 0);
+        long a = createUser(Role.USER, "Người tham gia A", 0);
+        long b = createUser(Role.USER, "Người tham gia B", 0);
+        long session = jdbc.queryForObject("""
+                INSERT INTO auction_sessions (title, start_at, registration_deadline, deposit_amount, status, ended_at)
+                VALUES ('Phiên đã kết thúc', now() - interval '1 hour', now() - interval '2 hours', 500000, 'ENDED', now())
+                RETURNING id""", Long.class);
+        jdbc.update("INSERT INTO auction_registrations (session_id, user_id, paddle_number, deposit_amount, bid_limit, status) VALUES (?, ?, 1, 500000, 5000000, 'REFUNDED')", session, a);
+        jdbc.update("INSERT INTO auction_registrations (session_id, user_id, paddle_number, deposit_amount, bid_limit, status) VALUES (?, ?, 2, 500000, 5000000, 'APPLIED')", session, b);
+
+        mvc.perform(get("/sessions/" + session).with(as(me, Role.USER)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.session.registeredCount").value(2));
+    }
+
+    @Test
     void wrongMethodAnswers405NotAServerError() throws Exception {
         long me = createUser(Role.USER, "Người dùng", 0);
         mvc.perform(get("/lots/1/bids").with(as(me, Role.USER)))

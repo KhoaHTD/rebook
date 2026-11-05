@@ -27,8 +27,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuctionViews {
 
+    // REFUNDED: phiên đã kết thúc / huỷ và cọc đã hoàn, người đó vẫn là người đã đăng ký.
     private static final Set<AuctionRegistration.Status> COUNTED = EnumSet.of(AuctionRegistration.Status.APPROVED,
-            AuctionRegistration.Status.APPLIED, AuctionRegistration.Status.FORFEITED);
+            AuctionRegistration.Status.APPLIED, AuctionRegistration.Status.FORFEITED, AuctionRegistration.Status.REFUNDED);
 
     private final LotRepository lotRepository;
     private final AuctionRegistrationRepository registrationRepository;
