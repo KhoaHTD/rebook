@@ -123,15 +123,16 @@ class LiveSpotlightCard extends ConsumerWidget {
           children: [
             const LiveBadge(),
             const SizedBox(width: AppSpacing.md),
-            Flexible(
-              child: Text(
-                l10n.viewers(
-                  room?.snapshot.viewerCount ?? session.watcherCount,
+            if ((room?.snapshot.viewerCount ?? session.watcherCount) > 0)
+              Flexible(
+                child: Text(
+                  l10n.viewers(
+                    room?.snapshot.viewerCount ?? session.watcherCount,
+                  ),
+                  style: text.bodySmall,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                style: text.bodySmall,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),

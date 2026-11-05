@@ -113,43 +113,40 @@ void main() {
           accountName: 'NGUYEN MINH ANH',
         );
 
-    test(
-      'yêu cầu rút giữ tiền ngay: yêu cầu sau không rút trùng được số đã giữ',
-      () async {
-        final wallet = FakeWalletRepository(store);
-        final all = (await wallet.wallet()).available;
-        await request(wallet, all);
-        expect((await wallet.wallet()).available, 0);
-        await expectLater(
-          request(wallet, 1),
-          throwsA(
-            isA<ServerException>().having(
-              (e) => e.code,
-              'code',
-              ErrorCodes.insufficientBalance,
-            ),
-          ),
-        );
-      },
-    );
+    test('lúc duyệt kiểm tra lại số dư (đã bị trừ bởi yêu cầu khác)', () async {
+      final wallet = FakeWalletRepository(store);
+      final all = (await wallet.wallet()).available;
+      final big = await request(wallet, all);
+      final small = await request(wallet, 1);
+      expect((await wallet.wallet()).available, all);
 
-    test(
-      'duyệt xong: trừ phần đang khoá, lưu người duyệt và thời gian duyệt',
-      () async {
-        final wallet = FakeWalletRepository(store);
-        final before = await wallet.wallet();
-        final w = await request(wallet, 200000);
-        store.login('admin@rebook.vn', '123456');
-        final done = await FakeAdminRepository(store)
-            .completeWithdrawal(w.id, receipt(200000));
-        expect(done.approvedBy, 'Admin ReBook');
-        expect(done.approvedAt, isNotNull);
-        store.login('minhanh@rebook.vn', '123456');
-        final after = await wallet.wallet();
-        expect(after.available, before.available - 200000);
-        expect(after.held, before.held);
-      },
-    );
+      store.login('admin@rebook.vn', '123456');
+      final admin = FakeAdminRepository(store);
+      await admin.completeWithdrawal(small.id, receipt(1));
+      await expectLater(
+        admin.completeWithdrawal(big.id, receipt(big.amount)),
+        throwsA(
+          isA<ServerException>().having(
+            (e) => e.code,
+            'code',
+            ErrorCodes.insufficientBalance,
+          ),
+        ),
+      );
+    });
+
+    test('duyệt xong: trừ ví, lưu người duyệt và thời gian duyệt', () async {
+      final wallet = FakeWalletRepository(store);
+      final before = (await wallet.wallet()).available;
+      final w = await request(wallet, 200000);
+      store.login('admin@rebook.vn', '123456');
+      final done = await FakeAdminRepository(store)
+          .completeWithdrawal(w.id, receipt(200000));
+      expect(done.approvedBy, 'Admin ReBook');
+      expect(done.approvedAt, isNotNull);
+      store.login('minhanh@rebook.vn', '123456');
+      expect((await wallet.wallet()).available, before - 200000);
+    });
   });
 
   group('người duyệt', () {

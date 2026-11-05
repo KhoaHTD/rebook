@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/shared/widgets/cover_warp.dart';
+import 'package:book_marketplace/shared/widgets/skeleton.dart';
 
 /// Mở tờ "Chỉnh bìa sách": người bán kéo 4 chấm về 4 góc bìa trước, app làm phẳng thành ảnh chữ nhật.
 /// Trả về ảnh PNG đã nắn, hoặc null nếu huỷ.
@@ -93,7 +94,11 @@ class _CoverScannerState extends State<CoverScanner> {
           const SizedBox(height: AppSpacing.md),
           Expanded(
             child: img == null
-                ? const Center(child: CircularProgressIndicator())
+                ? const Skeleton(
+                    width: double.infinity,
+                    height: double.infinity,
+                    radius: 16,
+                  )
                 : LayoutBuilder(
                     builder: (context, box) {
                       // Khung ảnh nằm giữa vùng, giữ tỉ lệ.

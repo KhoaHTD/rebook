@@ -268,8 +268,8 @@ class _WithdrawAmountScreenState extends ConsumerState<WithdrawAmountScreen> {
   int get _value => int.tryParse(_amount.text) ?? 0;
 
   String? _error(AppLocalizations l10n, int available) {
-    if (_value < WalletController.minAmount) {
-      return l10n.amountMin(formatVnd(WalletController.minAmount));
+    if (_value < WalletController.minWithdraw) {
+      return l10n.amountMin(formatVnd(WalletController.minWithdraw));
     }
     if (_value > available) return l10n.amountTooHigh;
     return null;
@@ -442,7 +442,9 @@ class _WithdrawAmountScreenState extends ConsumerState<WithdrawAmountScreen> {
                         fontWeight: FontWeight.w800,
                       ),
                       decoration: InputDecoration(
-                        hintText: Rules.amount.hint(l10n),
+                        hintText: l10n.amountMin(
+                          formatVnd(WalletController.minWithdraw),
+                        ),
                         suffixText: 'đ',
                         errorText: error,
                       ),

@@ -124,29 +124,29 @@ abstract final class Rules {
     keyboard: TextInputType.phone,
     formatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9+ ]'))],
     maxLength: 13,
-    // Backend chỉ nhận số bắt đầu bằng 0: +84 đổi thành 0 trước khi kiểm tra và gửi.
+    // Bỏ khoảng trắng; +84 đổi thành 0 vì backend chỉ nhận dạng 0xxxxxxxxx.
     normalize: (s) {
-      final v = s.replaceAll(' ', '');
-      return v.startsWith('+84') ? '0${v.substring(3)}' : v;
+      final t = s.replaceAll(' ', '');
+      return t.startsWith('+84') ? '0${t.substring(3)}' : t;
     },
-    check: (v) =>
-        RegExp(r'^0\d{9,10}$').hasMatch(v) ? null : (l) => l.phoneInvalid,
+    check: (v) => RegExp(r'^(0|\+84)\d{9,10}$').hasMatch(v)
+        ? null
+        : (l) => l.phoneInvalid,
   );
 
-  /// Mật khẩu mới (đăng ký, đặt lại, đổi mật khẩu): 8–72 ký tự như backend.
+  /// Mật khẩu mới (đăng ký, đặt lại): 8–72 ký tự, đúng luật của backend.
+  static final newPassword = InputRule(
+    hint: (l) => l.hintNewPassword,
+    maxLength: 72,
+    normalize: (s) => s,
+    check: _length(8, 72),
+  );
+
   static final password = InputRule(
     hint: (l) => l.hintPassword,
-    maxLength: 72,
+    maxLength: 64,
     normalize: (s) => s,
-    check: (v) => v.length >= 8 ? null : (l) => l.passwordTooShort,
-  );
-
-  /// Mật khẩu khi đăng nhập: chỉ bắt buộc nhập, không áp luật độ dài (tài khoản cũ / mock có thể ngắn hơn).
-  static final loginPassword = InputRule(
-    hint: (l) => l.hintLoginPassword,
-    maxLength: 72,
-    normalize: (s) => s,
-    check: (_) => null,
+    check: (v) => v.length >= 6 ? null : (l) => l.passwordTooShort,
   );
 
   static final confirmPassword = InputRule(
@@ -415,9 +415,9 @@ abstract final class Rules {
   static final shelfCode = InputRule(
     hint: (l) => l.hintShelf,
     capitalization: TextCapitalization.characters,
-    maxLength: 8,
+    maxLength: 12,
     normalize: (s) => s.trim().toUpperCase(),
-    check: (v) => RegExp(r'^[A-Z]\d{1,2}-\d{1,3}$').hasMatch(v)
+    check: (v) => RegExp(r'^[A-Z]-?\d{1,2}-\d{1,3}(-\d{1,3})?$').hasMatch(v)
         ? null
         : (l) => l.ruleShelf,
   );

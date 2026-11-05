@@ -42,27 +42,22 @@ void main() {
   });
 
   group('wallet', () {
-    test(
-      'tạo yêu cầu rút lưu thông tin ngân hàng, giữ tiền sang Đang khoá ngay',
-      () async {
-        final repo = FakeWalletRepository(store);
-        final before = await repo.wallet();
-        final w = await repo.requestWithdrawal(
-          100000,
-          bankName: 'Vietcombank',
-          accountNumber: '0011004567890',
-          accountName: 'NGUYEN VAN A',
-          note: 'Rút thử',
-        );
-        expect(w.bankName, 'Vietcombank');
-        expect(w.bankAccountName, 'NGUYEN VAN A');
-        expect(w.note, 'Rút thử');
-        final after = await repo.wallet();
-        expect(after.available, before.available - 100000);
-        expect(after.held, before.held + 100000);
-        expect(await repo.withdrawals(), isNotEmpty);
-      },
-    );
+    test('tạo yêu cầu rút lưu thông tin ngân hàng, chưa trừ ví (trừ khi Admin duyệt)', () async {
+      final repo = FakeWalletRepository(store);
+      final before = (await repo.wallet()).available;
+      final w = await repo.requestWithdrawal(
+        100000,
+        bankName: 'Vietcombank',
+        accountNumber: '0011004567890',
+        accountName: 'NGUYEN VAN A',
+        note: 'Rút thử',
+      );
+      expect(w.bankName, 'Vietcombank');
+      expect(w.bankAccountName, 'NGUYEN VAN A');
+      expect(w.note, 'Rút thử');
+      expect((await repo.wallet()).available, before);
+      expect(await repo.withdrawals(), isNotEmpty);
+    });
 
     test('rút quá số dư → INSUFFICIENT_BALANCE', () async {
       final repo = FakeWalletRepository(store);

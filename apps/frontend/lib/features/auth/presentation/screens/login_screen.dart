@@ -31,6 +31,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _password = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Lỗi của màn trước (đăng nhập ↔ đăng ký) không được dính sang màn này.
+    Future.microtask(() {
+      if (mounted) ref.read(authControllerProvider.notifier).reset();
+    });
+  }
+
+  @override
   void dispose() {
     _email.dispose();
     _password.dispose();
@@ -67,7 +76,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 RuleField(
                   controller: _password,
-                  rule: Rules.loginPassword,
+                  rule: Rules.password,
                   label: l10n.password,
                   obscure: true,
                   autofillHints: const [AutofillHints.password],

@@ -30,9 +30,15 @@ String errorMessage(BuildContext context, Object error) {
     };
     if (byCode != null) return byCode;
   }
+  // Dữ liệu gửi lên sai: nói rõ ô nào sai theo câu của backend thay vì "Máy chủ gặp lỗi".
+  if (e is ServerException && e.fieldErrors.isNotEmpty) {
+    return e.fieldErrors.values.first;
+  }
   return switch (e) {
     NetworkException() => l10n.errorNetwork,
     UnauthorizedException() => l10n.errorUnauthorized,
+    // Xung đột nghiệp vụ (vd. xoá danh mục còn con): backend đã nói rõ lý do.
+    ServerException(statusCode: 409, message: final m?) when m.isNotEmpty => m,
     ServerException(statusCode: 409) => l10n.errorConflict,
     ServerException() => l10n.errorServer,
     UnknownException() => l10n.errorUnknown,

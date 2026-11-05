@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/shared/widgets/login_prompt.dart';
 
 /// Tiêu đề một mục của trang Khám phá: biểu tượng nhỏ, tên, và "Xem tất cả" bên phải.
 class ExploreHeader extends StatelessWidget {
@@ -433,12 +434,7 @@ class _ExplorePosterFlowState extends ConsumerState<ExplorePosterFlow> {
   Future<void> _addToCart(Listing l) async {
     final l10n = context.l10n;
     if (!ref.read(sessionControllerProvider).isSignedIn) {
-      context.go(
-        Uri(
-          path: Routes.login,
-          queryParameters: {'from': Routes.search},
-        ).toString(),
-      );
+      await showLoginRequired(context, from: Routes.search);
       return;
     }
     final ok = await ref.read(addToCartControllerProvider.notifier).add(l.id);
@@ -592,7 +588,6 @@ class _ExplorePosterFlowState extends ConsumerState<ExplorePosterFlow> {
                 itemBuilder: (context, i) => _FlowPoster(
                   controller: _pages,
                   index: i,
-                  rank: i + 1,
                   listing: items[i],
                   onTap: () {
                     if (i == _index) {
@@ -635,12 +630,11 @@ class _ExplorePosterFlowState extends ConsumerState<ExplorePosterFlow> {
   }
 }
 
-/// Một poster của băng chuyền: to dần khi tới giữa, số hạng ở góc dưới trái, nút giỏ ở góc dưới phải.
+/// Một poster của băng chuyền: to dần khi tới giữa, nút giỏ ở góc dưới phải.
 class _FlowPoster extends StatelessWidget {
   const _FlowPoster({
     required this.controller,
     required this.index,
-    required this.rank,
     required this.listing,
     required this.onTap,
     required this.onCart,
@@ -648,7 +642,6 @@ class _FlowPoster extends StatelessWidget {
 
   final PageController controller;
   final int index;
-  final int rank;
   final Listing listing;
   final VoidCallback onTap;
   final VoidCallback onCart;
@@ -656,7 +649,6 @@ class _FlowPoster extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final b = listing.book;
-    final text = context.textStyles;
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
@@ -688,26 +680,6 @@ class _FlowPoster extends StatelessWidget {
                           coverUrl: b.coverUrl,
                           seed: b.id,
                           width: 210,
-                        ),
-                        Positioned(
-                          left: 10,
-                          bottom: 4,
-                          child: Text(
-                            '$rank',
-                            style: text.displaySmall?.copyWith(
-                              fontSize: 58,
-                              height: 1,
-                              fontWeight: FontWeight.w900,
-                              fontStyle: FontStyle.italic,
-                              color: CoverPalette.onHero,
-                              shadows: const [
-                                Shadow(
-                                  color: CoverPalette.scrim,
-                                  blurRadius: 8,
-                                ),
-                              ],
-                            ),
-                          ),
                         ),
                         Positioned(
                           right: 8,
@@ -813,7 +785,7 @@ class _FlowInfo extends StatelessWidget {
   }
 }
 
-/// Dạng lưới: hai cột bìa, mỗi bìa có số hạng, bên dưới tên và giá.
+/// Dạng lưới: hai cột bìa, bên dưới tên và giá.
 class _FlowGrid extends StatelessWidget {
   const _FlowGrid({required this.items, required this.onOpen});
 
@@ -832,7 +804,7 @@ class _FlowGrid extends StatelessWidget {
             spacing: 18,
             runSpacing: 22,
             children: [
-              for (final (i, l) in items.indexed)
+              for (final l in items)
                 SizedBox(
                   width: w,
                   child: GestureDetector(
@@ -850,24 +822,6 @@ class _FlowGrid extends StatelessWidget {
                               coverUrl: l.book.coverUrl,
                               seed: l.book.id,
                               width: w,
-                            ),
-                            Positioned(
-                              left: 8,
-                              bottom: 2,
-                              child: Text(
-                                '${i + 1}',
-                                style: text.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  fontStyle: FontStyle.italic,
-                                  color: CoverPalette.onHero,
-                                  shadows: const [
-                                    Shadow(
-                                      color: CoverPalette.scrim,
-                                      blurRadius: 6,
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ],
                         ),

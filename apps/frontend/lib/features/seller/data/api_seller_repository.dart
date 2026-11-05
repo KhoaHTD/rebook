@@ -179,6 +179,14 @@ class ApiSellerRepository implements SellerRepository {
   );
 
   @override
+  Future<Order> markDeliveryFailed(String id, String reason) => guardApi(
+    () async => (await _client.orderManagement.postSellerOrdersIdDeliveryFailed(
+      id: apiId(id),
+      body: api.ReasonRequest(reason: reason),
+    )).toDomain(),
+  );
+
+  @override
   Future<Order> cancel(String id, String reason) => guardApi(
     () async => (await _client.orderManagement.postSellerOrdersIdCancel(
       id: apiId(id),

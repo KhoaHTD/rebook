@@ -280,7 +280,8 @@ class _LiveCard extends ConsumerWidget {
                 [
                   if (lot.leadingPaddle != null)
                     l10n.leadingPaddle(lot.leadingPaddle!),
-                  l10n.viewers(state?.viewerCount ?? 0),
+                  if ((state?.viewerCount ?? 0) > 0)
+                    l10n.viewers(state!.viewerCount),
                 ].join(' · '),
                 style: context.textStyles.bodySmall?.copyWith(color: dim),
               ),

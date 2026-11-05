@@ -8,6 +8,66 @@ import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('nhật ký đổi khoá cấu hình thô sang tên hiển thị', () {
+    const log = api.ActivityLogResponse(
+      id: 1,
+      action: 'UPDATE_CONFIG',
+      summary: 'Đặt fee.fixed_price_percent = 7',
+    );
+    expect(log.toDomain()!.note, 'Đặt Phí bán giá cố định (%) = 7');
+    const other = api.ActivityLogResponse(
+      id: 2,
+      action: 'UPDATE_CONFIG',
+      summary: 'Đặt khoá.lạ = 1',
+    );
+    expect(other.toDomain()!.note, 'Đặt khoá.lạ = 1');
+  });
+
+  test('lịch sử đơn đổi tên enum thanh toán sang tên thường gọi', () {
+    final order = api.OrderDetail(
+      id: 1,
+      history: [
+        api.HistoryResponse(
+          toStatus: api.OrderStatus.pendingConfirm,
+          note: 'Đã thanh toán (WALLET)',
+          createdAt: DateTime(2026, 11, 5),
+        ),
+        api.HistoryResponse(
+          toStatus: api.OrderStatus.pendingPayment,
+          note: 'Đặt hàng',
+          createdAt: DateTime(2026, 11, 5),
+        ),
+      ],
+    ).toDomain();
+    expect(order.history.first.note, 'Đã thanh toán (Ví ReBook)');
+    expect(order.history.last.note, 'Đặt hàng');
+  });
+
+  test('đơn hàng dùng bìa đóng gói sẵn thay cho ảnh giả của backend', () {
+    const summary = api.OrderSummary(
+      id: 1,
+      firstItemTitle: 'Tắt Đèn',
+      coverUrl: 'https://picsum.photos/seed/rebook-7-1/600/800',
+      itemCount: 1,
+    );
+    expect(
+      summary.toDomain().items.first.imageUrl,
+      'assets/books/tat-den-0.jpg',
+    );
+    const item = api.OrderItemResponse(
+      id: 1,
+      title: 'Tắt Đèn',
+      imageUrl: 'https://picsum.photos/seed/rebook-7-1/600/800',
+    );
+    expect(item.toDomain().imageUrl, 'assets/books/tat-den-0.jpg');
+    const other = api.OrderItemResponse(
+      id: 2,
+      title: 'Sách lạ',
+      imageUrl: 'https://example.com/a.jpg',
+    );
+    expect(other.toDomain().imageUrl, 'https://example.com/a.jpg');
+  });
+
   const cart = api.CartResponse(
     shops: [
       api.CartShopGroup(

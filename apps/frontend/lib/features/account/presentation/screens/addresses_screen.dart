@@ -4,9 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
-import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/account/presentation/providers/account_providers.dart';
-import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/widgets/address_book_list.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -19,8 +18,6 @@ class AddressesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final c = context.appColors;
-    final text = context.textStyles;
     final list = ref.watch(addressBookProvider);
     return AppPage(
       title: l10n.addresses,
@@ -49,81 +46,9 @@ class AddressesScreen extends ConsumerWidget {
                 )
               : ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
-                  child: InfoPanel(
-                    padding: EdgeInsets.zero,
-                    child: Column(
-                      children: [
-                        for (final (i, a) in items.indexed) ...[
-                          if (i > 0)
-                            Divider(height: 1, indent: 16, color: c.separator),
-                          InkWell(
-                            onTap: () => context.push(Routes.addressEdit(a.id)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(AppSpacing.lg),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text.rich(
-                                          TextSpan(
-                                            text: a.receiver,
-                                            style: text.titleMedium,
-                                            children: [
-                                              TextSpan(
-                                                text: '  |  ${a.phone}',
-                                                style: text.bodyMedium
-                                                    ?.copyWith(
-                                                      color: c.secondaryText,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          a.detail,
-                                          style: text.bodyMedium?.copyWith(
-                                            color: c.secondaryText,
-                                          ),
-                                        ),
-                                        Text(
-                                          [a.ward, a.district, a.province]
-                                              .where((s) => s.isNotEmpty)
-                                              .join(', '),
-                                          style: text.bodyMedium?.copyWith(
-                                            color: c.secondaryText,
-                                          ),
-                                        ),
-                                        if (a.isDefault ||
-                                            a.type == AddressType.office) ...[
-                                          const SizedBox(height: 8),
-                                          Wrap(
-                                            spacing: AppSpacing.sm,
-                                            children: [
-                                              if (a.isDefault)
-                                                PillBadge(l10n.defaultBadge),
-                                              if (a.type == AddressType.office)
-                                                PillBadge(l10n.addrTypeOffice),
-                                            ],
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.chevron_right_rounded,
-                                    color: c.tertiaryText,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                  child: AddressBookList(
+                    items: items,
+                    onTap: (a) => context.push(Routes.addressEdit(a.id)),
                   ),
                 ),
         ),

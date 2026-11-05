@@ -14,6 +14,8 @@ import 'package:book_marketplace/features/cart/presentation/providers/cart_provi
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/notifications/presentation/providers/notifications_providers.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/widgets/guest_views.dart';
+import 'package:book_marketplace/shared/widgets/login_prompt.dart';
 
 /// Khung app người dùng theo style Liquid Glass: nội dung phủ hết màn hình, điều hướng là một nút kính
 /// ở góc dưới (xem [NavOverlay]); bấm vào thì sidebar kính trượt ra (Khám phá · Của tôi · Kệ sách, người dùng ở đáy).
@@ -51,17 +53,24 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = GoRouterState.of(context).uri.path;
+    // Khách mở mục cần đăng nhập: giữ khung, nội dung là lời mời đăng nhập (không đẩy sang trang đăng nhập).
+    final gated =
+        ref.watch(sessionControllerProvider).status == AuthStatus.signedOut &&
+        Routes.requiresAuth(loc);
     return Scaffold(
-      body: NavOverlay(
-        icon: _icon(loc),
-        showButton: !context.windowSize.isCompact || _roots.contains(loc),
-        panel: _Sidebar(onBranch: _goBranch),
-        bar: (context, state) => _TabBar(
-          state: state,
-          index: navigationShell.currentIndex,
-          onSelect: _goBranch,
+      body: GuestWelcomeTrigger(
+        child: NavOverlay(
+          icon: _icon(loc),
+          showButton:
+              !context.windowSize.isCompact || _roots.contains(loc) || gated,
+          panel: _Sidebar(onBranch: _goBranch),
+          bar: (context, state) => _TabBar(
+            state: state,
+            index: navigationShell.currentIndex,
+            onSelect: _goBranch,
+          ),
+          child: gated ? GuestGate(location: loc) : navigationShell,
         ),
-        child: navigationShell,
       ),
     );
   }

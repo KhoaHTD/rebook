@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/settings/app_settings_controller.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -67,6 +69,22 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () =>
                       ctrl.setLocale(code == null ? null : Locale(code)),
                 ),
+              const SizedBox(height: AppSpacing.lg),
+              Text(l10n.settingsIntro, style: context.textStyles.titleMedium),
+              const SizedBox(height: AppSpacing.sm),
+              InfoPanel(
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  leading: const Icon(Icons.slideshow_rounded),
+                  title: Text(l10n.settingsIntroReplay),
+                  subtitle: Text(l10n.settingsIntroReplayHint),
+                  trailing: Icon(
+                    Icons.chevron_right_rounded,
+                    color: context.appColors.tertiaryText,
+                  ),
+                  onTap: () => context.go(Routes.intro),
+                ),
+              ),
             ],
           ),
         ),

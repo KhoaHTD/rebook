@@ -4,6 +4,12 @@ abstract final class Routes {
   /// Web: trang giới thiệu. Mobile: chuyển thẳng tới [home].
   static const landing = '/';
 
+  /// Màn loading lúc mở app (khung xương); xong thì chuyển tới [intro] / [landing] / [home].
+  static const start = '/start';
+
+  /// Giới thiệu 3 trang, chỉ hiện lần đầu mở app trên điện thoại.
+  static const intro = '/intro';
+
   // Đăng nhập
   static const login = '/login';
   static const register = '/register';
@@ -72,14 +78,17 @@ abstract final class Routes {
   static const _authPaths = [login, register, verifyOtp, forgotPassword];
   static bool isAuthPage(String location) => _authPaths.contains(location);
 
-  /// Cần đăng nhập. Chưa đăng nhập → `/login?from=<path>`.
+  /// Cần đăng nhập. Khách vào các đường này thì khung hiện [GuestGate] thay vì chuyển sang đăng nhập.
+  /// Gốc tài khoản và Cài đặt mở cho khách (khách thấy "Tài khoản khách"); còn lại hiện màn "cần đăng nhập".
   static bool requiresAuth(String location) =>
-      location.startsWith(account) ||
+      (location.startsWith(account) &&
+          location != account &&
+          location != settings) ||
       location.startsWith(notifications) ||
       location.startsWith(cart) ||
       location.startsWith('/home/payments') ||
       location == myAuctions ||
-      location.startsWith(auctionAccount) ||
+      (location.startsWith(auctionAccount) && location != auctionAccount) ||
       location.endsWith('/register');
   // Phòng `/live` mở cho khách xem (SRS 2: khách xem trực tiếp phiên, không được trả giá).
 }

@@ -70,6 +70,10 @@ class FakeSellerRepository implements SellerRepository {
       fakeCall(() => _store.markDelivered(id));
 
   @override
+  Future<Order> markDeliveryFailed(String id, String reason) =>
+      fakeCall(() => _store.markDeliveryFailed(id, reason));
+
+  @override
   Future<Order> cancel(String id, String reason) =>
       fakeCall(() => _store.sellerCancel(id, reason));
 

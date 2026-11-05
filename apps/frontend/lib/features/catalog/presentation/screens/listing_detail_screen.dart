@@ -6,6 +6,7 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/shared/widgets/login_prompt.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/catalog/presentation/widgets/favorite_button.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
@@ -106,12 +107,7 @@ Future<void> _addToCart(
   required bool goToCart,
 }) async {
   if (!ref.read(sessionControllerProvider).isSignedIn) {
-    context.go(
-      Uri(
-        path: Routes.login,
-        queryParameters: {'from': Routes.listing(listing.id)},
-      ).toString(),
-    );
+    await showLoginRequired(context, from: Routes.listing(listing.id));
     return;
   }
   final ok = await ref

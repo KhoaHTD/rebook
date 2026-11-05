@@ -6,11 +6,20 @@ import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Một dòng tiền: nhãn bên trái, số tiền bên phải. [strong]: dòng tổng.
 class MoneyLine extends StatelessWidget {
-  const MoneyLine(this.label, this.amount, {super.key, this.strong = false});
+  const MoneyLine(
+    this.label,
+    this.amount, {
+    super.key,
+    this.strong = false,
+    this.note,
+  });
 
   final String label;
   final int amount;
   final bool strong;
+
+  /// Có giá trị thì hiện chữ này thay cho số tiền (vd. "Tính khi thanh toán").
+  final String? note;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +38,10 @@ class MoneyLine extends StatelessWidget {
                   : style?.copyWith(color: context.appColors.secondaryText),
             ),
           ),
-          PriceText(amount, style: style, strong: strong),
+          if (note != null)
+            Text(note!, style: style)
+          else
+            PriceText(amount, style: style, strong: strong),
         ],
       ),
     );
@@ -45,11 +57,15 @@ class SummaryPanel extends StatelessWidget {
     required this.total,
     this.extra = const [],
     this.action,
+    this.shippingNote,
   });
 
   final int subtotal;
   final int shipping;
   final int total;
+
+  /// Có giá trị thì dòng phí ship hiện chữ này thay cho số tiền (giỏ chưa chọn địa chỉ).
+  final String? shippingNote;
 
   /// Dòng phụ: (nhãn, số tiền) — vd phí người mua, trừ cọc (số âm).
   final List<(String, int)> extra;
@@ -64,7 +80,7 @@ class SummaryPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           MoneyLine(l10n.subtotal, subtotal),
-          MoneyLine(l10n.shippingFee, shipping),
+          MoneyLine(l10n.shippingFee, shipping, note: shippingNote),
           for (final (label, amount) in extra) MoneyLine(label, amount),
           Divider(color: context.appColors.separator, height: AppSpacing.lg),
           MoneyLine(l10n.total, total, strong: true),

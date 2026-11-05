@@ -93,6 +93,7 @@ class CartScreen extends ConsumerWidget {
                   child: SummaryPanel(
                     subtotal: selectedCart.subtotal,
                     shipping: selectedCart.shippingTotal,
+                    shippingNote: l10n.shippingAtCheckout,
                     total: selectedCart.total,
                     action: FilledButton(
                       onPressed: nothing
@@ -196,7 +197,11 @@ class _CompactCart extends ConsumerWidget {
                   child: Column(
                     children: [
                       FlatMoneyRow(l10n.subtotal, sel.subtotal),
-                      FlatMoneyRow(l10n.shippingFee, sel.shippingTotal),
+                      FlatMoneyRow(
+                        l10n.shippingFee,
+                        sel.shippingTotal,
+                        note: l10n.shippingAtCheckout,
+                      ),
                       Divider(color: context.appColors.separator),
                       FlatMoneyRow(
                         l10n.bagTotal(sel.itemCount),

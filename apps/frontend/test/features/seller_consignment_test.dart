@@ -69,6 +69,38 @@ void main() {
     });
   });
 
+  group('seller · giao thất bại', () {
+    test(
+      'đơn đang giao báo giao thất bại → trạng thái giao thất bại',
+      () async {
+        store = FakeStore()..login('khoa@rebook.vn', '123456');
+        final l = store
+            .searchListings(const ListingQuery(shopId: 's1'))
+            .items
+            .first;
+        store.addToCart(l.id, 1);
+        final orderId = store
+            .checkout(
+              addressId: store.myAddresses().first.id,
+              method: PaymentMethod.cod,
+            )
+            .orders
+            .single
+            .id;
+
+        store.login('minhanh@rebook.vn', '123456');
+        final repo = FakeSellerRepository(store);
+        await repo.confirm(orderId);
+        await repo.ship(orderId, trackingCode: 'GHN2');
+        final failed = await repo.markDeliveryFailed(
+          orderId,
+          'Không liên lạc được',
+        );
+        expect(failed.status, OrderStatus.failedDelivery);
+      },
+    );
+  });
+
   group('consignment', () {
     test('giá mong muốn dưới 300k bị từ chối sơ duyệt ngay', () async {
       store = FakeStore()..login('khoa@rebook.vn', '123456');

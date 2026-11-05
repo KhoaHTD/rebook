@@ -84,7 +84,7 @@
   "noAccount": "Chưa có tài khoản?",
   "haveAccount": "Đã có tài khoản?",
   "emailInvalid": "Email không hợp lệ",
-  "passwordTooShort": "Mật khẩu 8–72 ký tự",
+  "passwordTooShort": "Mật khẩu tối thiểu 6 ký tự",
   "passwordMismatch": "Mật khẩu nhập lại không khớp",
   "phoneInvalid": "Số điện thoại không hợp lệ",
   "otpTitle": "Nhập mã xác thực",
@@ -1639,7 +1639,7 @@
   "wdNeedBank": "Chọn ngân hàng",
   "wdNeedNumber": "Nhập số tài khoản (6–19 chữ số)",
   "wdNeedName": "Nhập tên chủ tài khoản",
-  "wdDeductHint": "Số tiền rút được giữ lại (Đang khoá) ngay khi gửi yêu cầu; Admin từ chối thì trả lại số dư.",
+  "wdDeductHint": "Tiền chỉ bị trừ khỏi ví khi Admin duyệt và chuyển khoản.",
   "favTitle": "Sách yêu thích",
   "favEmpty": "Chưa có sách yêu thích",
   "favEmptyHint": "Bấm biểu tượng trái tim trên trang sách để lưu lại.",
@@ -1773,12 +1773,11 @@
       }
     }
   },
-  "ruleShelf": "Dạng A3-12 (chữ cái, số, gạch, số)",
+  "ruleShelf": "Dạng A3-12 hoặc A-02-01 (chữ cái, số, gạch)",
   "ruleBelowHigh": "Phải nhỏ hơn hoặc bằng giá ước tính cao",
   "hintEmail": "ten@example.com",
   "hintPhone": "0901234567",
-  "hintPassword": "Ít nhất 8 ký tự",
-  "hintLoginPassword": "Mật khẩu",
+  "hintPassword": "Ít nhất 6 ký tự",
   "hintConfirmPassword": "Nhập lại mật khẩu",
   "hintOtp": "6 chữ số",
   "hintFullName": "Nguyễn Văn A",
@@ -1832,5 +1831,36 @@
   "addrPickDistrictFirst": "Chọn quận / huyện trước",
   "addrSearchUnit": "Tìm theo tên",
   "addrUnitsFailed": "Không tải được danh sách. Nhập tên thủ công:",
-  "addrUnitsEmpty": "Không có kết quả"
+  "addrUnitsEmpty": "Không có kết quả",
+  "introTitle1": "Tìm sách cũ giá tốt",
+  "introBody1": "Hàng nghìn đầu sách đã qua tay người đọc, giá mềm, tình trạng được mô tả rõ ràng.",
+  "introTitle2": "Bán sách, nhận tiền",
+  "introBody2": "Mở shop hoặc ký gửi cho ReBook. Sách lên kệ là có người tìm đến.",
+  "introTitle3": "Đấu giá sách quý hiếm",
+  "introBody3": "Vào phòng trực tiếp, trả giá theo thời gian thực và mang về bản hiếm.",
+  "introSkip": "Bỏ qua",
+  "introNext": "Tiếp",
+  "introStart": "Bắt đầu",
+  "guestWelcomeTitle": "Chào mừng đến ReBook",
+  "guestWelcomeBody": "Đăng nhập hoặc đăng ký để mua sách, trả giá và theo dõi đơn hàng. Bạn vẫn có thể chỉ xem sách.",
+  "guestBrowseOnly": "Chỉ xem sách",
+  "loginRequiredTitle": "Cần đăng nhập",
+  "loginRequiredBody": "Đăng nhập hoặc đăng ký để dùng tính năng này.",
+  "loginLater": "Để sau",
+  "gateBody": "Đăng nhập hoặc đăng ký để xem {feature} của bạn.",
+  "@gateBody": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "gateFeatureGeneric": "Nội dung này",
+  "guestAccountTitle": "Tài khoản khách",
+  "guestAccountBody": "Bạn chưa đăng nhập. Đăng nhập để dùng giỏ hàng, đơn hàng và ví.",
+  "settingsIntro": "Giới thiệu",
+  "settingsIntroReplay": "Xem lại phần giới thiệu",
+  "settingsIntroReplayHint": "Phát lại các trang giới thiệu ReBook khi mở app lần đầu",
+  "hintNewPassword": "8–72 ký tự",
+  "shippingAtCheckout": "Tính khi thanh toán"
 }

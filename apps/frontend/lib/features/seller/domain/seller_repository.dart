@@ -43,6 +43,9 @@ abstract interface class SellerRepository {
   /// Đơn vị vận chuyển báo giao thành công (chế độ mock: nút giả lập).
   Future<Order> markDelivered(String id);
 
+  /// Giao thất bại: backend hoàn tiền người mua và trả hàng về kho shop.
+  Future<Order> markDeliveryFailed(String id, String reason);
+
   Future<Order> cancel(String id, String reason);
 
   Future<Order> decideReturn(String id, {required bool accept, String? note});

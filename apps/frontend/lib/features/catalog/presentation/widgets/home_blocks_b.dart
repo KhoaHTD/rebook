@@ -164,17 +164,6 @@ class HomeChart extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
-            SizedBox(
-              width: 44,
-              child: Text(
-                '${i + 1}',
-                textAlign: TextAlign.center,
-                style: context.textStyles.displaySmall?.copyWith(
-                  color: c.tertiaryText,
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
             BookPoster(
               title: l.book.title,
               author: l.book.author,
@@ -376,27 +365,31 @@ class HomeRare extends ConsumerWidget {
                     ),
                     const SizedBox(width: AppSpacing.xxl),
                     Expanded(child: info),
-                    const SizedBox(width: AppSpacing.xl),
-                    // Các cuốn nhỏ bên phải canh đáy với nhau (cao thấp theo bìa thật).
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        for (final l in rest)
-                          Padding(
-                            padding: const EdgeInsets.only(left: AppSpacing.md),
-                            child: GestureDetector(
-                              onTap: () => context.go(Routes.listing(l.id)),
-                              child: BookPoster(
-                                title: l.book.title,
-                                author: l.book.author,
-                                coverUrl: l.book.coverUrl,
-                                seed: l.book.id,
-                                width: 104,
+                    // Các cuốn nhỏ bên phải canh đáy với nhau (cao thấp theo bìa thật); chỉ đủ chỗ ở màn rộng.
+                    if (context.windowSize == WindowSize.expanded) ...[
+                      const SizedBox(width: AppSpacing.xl),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          for (final l in rest)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: AppSpacing.md,
+                              ),
+                              child: GestureDetector(
+                                onTap: () => context.go(Routes.listing(l.id)),
+                                child: BookPoster(
+                                  title: l.book.title,
+                                  author: l.book.author,
+                                  coverUrl: l.book.coverUrl,
+                                  seed: l.book.id,
+                                  width: 104,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
         ),
@@ -527,6 +520,8 @@ class HomePriceBands extends ConsumerWidget {
                 children: [
                   Text(
                     b.$1,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: context.textStyles.headlineSmall?.copyWith(
                       color: onDark,
                     ),

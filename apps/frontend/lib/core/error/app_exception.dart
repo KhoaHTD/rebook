@@ -65,14 +65,24 @@ sealed class AppException implements Exception {
           return const NetworkException();
         case DioExceptionType.badResponse:
           final status = error.response?.statusCode ?? 0;
-          if (status == 401) return const UnauthorizedException();
           final data = error.response?.data;
           final code = data is Map ? data['code'] as String? : null;
           final msg = data is Map ? data['message'] as String? : null;
+          // 401 vì sai email / mật khẩu không phải hết phiên: giữ mã để báo đúng nguyên nhân.
+          if (status == 401 && code != ErrorCodes.invalidCredentials) {
+            return const UnauthorizedException();
+          }
+          final fields = data is Map && data['fieldErrors'] is Map
+              ? {
+                  for (final e in (data['fieldErrors'] as Map).entries)
+                    '${e.key}': '${e.value}',
+                }
+              : const <String, String>{};
           return ServerException(
             status,
             code: _normalizeCode(code, msg),
             message: msg,
+            fieldErrors: fields,
           );
         case DioExceptionType.cancel:
         case DioExceptionType.badCertificate:
@@ -96,9 +106,16 @@ final class UnauthorizedException extends AppException {
 }
 
 final class ServerException extends AppException {
-  const ServerException(this.statusCode, {this.code, String? message})
-    : super(message);
+  const ServerException(
+    this.statusCode, {
+    this.code,
+    String? message,
+    this.fieldErrors = const {},
+  }) : super(message);
   final int statusCode;
+
+  /// Lỗi theo từng ô nhập (`VALIDATION_ERROR`): tên ô → câu báo lỗi của backend.
+  final Map<String, String> fieldErrors;
 
   /// Mã nghiệp vụ, xem [ErrorCodes].
   final String? code;

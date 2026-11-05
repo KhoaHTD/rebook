@@ -185,7 +185,10 @@ class _CurrentLot extends ConsumerWidget {
               ],
               const SizedBox(height: AppSpacing.md),
               Text(
-                '${l10n.viewers(state.viewerCount)} · ${l10n.registeredCount(state.session.registeredCount)}',
+                [
+                  if (state.viewerCount > 0) l10n.viewers(state.viewerCount),
+                  l10n.registeredCount(state.session.registeredCount),
+                ].join(' · '),
                 style: context.textStyles.bodySmall,
               ),
               const SizedBox(height: AppSpacing.lg),

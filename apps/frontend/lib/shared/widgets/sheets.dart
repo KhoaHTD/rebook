@@ -99,12 +99,14 @@ Future<String?> showTextSheet(
   String? hint,
   bool optional = false,
   int lines = 1,
+
+  /// Luật + chữ gợi ý của ô nhập; mặc định là ô ghi chú (một dòng) hoặc lý do (nhiều dòng).
+  InputRule? rule,
 }) {
   final l10n = context.l10n;
   final controller = TextEditingController();
-  final rule = (lines > 1 ? Rules.reason : Rules.description).copyWith(
-    optional: optional,
-  );
+  final fieldRule = (rule ?? (lines > 1 ? Rules.reason : Rules.description))
+      .copyWith(optional: optional);
   return showAppSheet<String>(
     context,
     title: title,
@@ -117,7 +119,7 @@ Future<String?> showTextSheet(
         ],
         RuleField(
           controller: controller,
-          rule: rule,
+          rule: fieldRule,
           label: label,
           minLines: lines,
           maxLines: lines == 1 ? 1 : lines + 2,
@@ -125,9 +127,9 @@ Future<String?> showTextSheet(
           onChanged: (_) => setState(() {}),
         ),
         FilledButton(
-          onPressed: !rule.isValid(controller.text)
+          onPressed: !fieldRule.isValid(controller.text)
               ? null
-              : () => Navigator.pop(c, rule.value(controller.text)),
+              : () => Navigator.pop(c, fieldRule.value(controller.text)),
           child: Text(l10n.confirm),
         ),
       ],

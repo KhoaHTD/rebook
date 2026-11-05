@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/staff/presentation/providers/staff_providers.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
@@ -33,6 +34,7 @@ class _WarehouseScreenState extends ConsumerState<WarehouseScreen> {
           context,
           title: l10n.moveShelf,
           label: l10n.shelfCode,
+          rule: Rules.shelfCode,
         );
         if (shelf == null) return;
         await actions.updateWarehouse(w.id, shelf: shelf);

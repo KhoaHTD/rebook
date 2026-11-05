@@ -127,6 +127,11 @@ class SellerActions extends _$SellerActions {
     [DataArea.orders],
   );
 
+  Future<Order?> markDeliveryFailed(String id, String reason) => _run(
+    () => ref.read(sellerRepositoryProvider).markDeliveryFailed(id, reason),
+    [DataArea.orders, DataArea.wallet, DataArea.listings],
+  );
+
   Future<Order?> cancel(String id, String reason) => _run(
     () => ref.read(sellerRepositoryProvider).cancel(id, reason),
     [DataArea.orders, DataArea.wallet, DataArea.listings],

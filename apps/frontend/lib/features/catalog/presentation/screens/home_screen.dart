@@ -19,6 +19,7 @@ import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/cover_flow_home.dart';
 import 'package:book_marketplace/shared/widgets/listing_tile.dart';
 import 'package:book_marketplace/shared/widgets/poster_grid.dart';
+import 'package:book_marketplace/shared/widgets/skeleton.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Trang "Mua sách": desktop là các khối lưới 4 poster/hàng; điện thoại là [CoverFlowHome]
@@ -46,10 +47,7 @@ class HomeScreen extends ConsumerWidget {
         AsyncValueView(
           value: feed,
           onRetry: () => ref.invalidate(homeFeedProvider),
-          loading: const Padding(
-            padding: EdgeInsets.all(80),
-            child: Center(child: CircularProgressIndicator()),
-          ),
+          loading: const SkeletonHome(),
           data: content,
         ),
       ],
@@ -159,7 +157,9 @@ class _MobileHomeState extends ConsumerState<_MobileHome> {
     final tab = _tab.clamp(0, cats.length);
 
     return feed.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const SafeArea(
+        child: SkeletonHome(padding: EdgeInsets.all(AppSpacing.lg)),
+      ),
       error: (e, _) => Center(
         child: TextButton(
           onPressed: () => ref.invalidate(homeFeedProvider),

@@ -12,13 +12,13 @@ import 'package:book_marketplace/features/cart/presentation/widgets/cart_widgets
 import 'package:book_marketplace/features/cart/presentation/widgets/flat_commerce_widgets.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
-import 'package:book_marketplace/shared/data/vietnam_geo.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/widgets/address_book_list.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/money_summary.dart';
-import 'package:book_marketplace/shared/widgets/vietnam_map.dart';
+import 'package:book_marketplace/shared/widgets/skeleton.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Xác nhận đặt hàng: chọn địa chỉ (đổi phí ship), chọn COD / ví / ZaloPay, đặt hàng.
@@ -58,12 +58,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     context.go(Routes.orders);
   }
 
-  /// Chọn địa chỉ khác (hoặc thêm địa chỉ) trong một tờ.
+  /// Chọn địa chỉ khác (hoặc thêm địa chỉ) trong một tờ, cùng kiểu với sổ địa chỉ.
   Future<void> _pickAddress(List<Address> list, String? currentId) {
     final l10n = context.l10n;
     return showModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
+      isScrollControlled: true,
       builder: (sheet) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -73,97 +74,31 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             children: [
               Text(l10n.deliveryAddress, style: sheet.textStyles.titleLarge),
               const SizedBox(height: AppSpacing.md),
-              for (final a in list)
-                SelectTile(
-                  selected: a.id == currentId,
-                  title: '${a.receiver} · ${a.phone}',
-                  subtitle: a.oneLine,
-                  onTap: () {
-                    ref.read(selectedAddressProvider.notifier).select(a.id);
-                    Navigator.pop(sheet);
-                  },
+              Flexible(
+                child: SingleChildScrollView(
+                  child: AddressBookList(
+                    items: list,
+                    selectedId: currentId,
+                    onTap: (a) {
+                      ref.read(selectedAddressProvider.notifier).select(a.id);
+                      Navigator.pop(sheet);
+                    },
+                  ),
                 ),
-              TextButton(
+              ),
+              const SizedBox(height: AppSpacing.md),
+              OutlinedButton.icon(
                 onPressed: () {
                   Navigator.pop(sheet);
-                  context.push(Routes.addresses);
+                  context.push(Routes.addressNew);
                 },
-                child: Text(l10n.addAddress),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(l10n.addrAddNew),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  /// Tờ trượt lên: sơ đồ Việt Nam (có Hoàng Sa, Trường Sa) ghim ở tỉnh / thành của địa chỉ, kèm địa chỉ đầy đủ.
-  Future<void> _showMap(Address address, VoidCallback onChange) {
-    final l10n = context.l10n;
-    return showModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (sheet) {
-        final text = sheet.textStyles;
-        final c = sheet.appColors;
-        final pin = address.hasPin
-            ? (address.latitude!, address.longitude!)
-            : null;
-        final located =
-            pin != null || VietnamGeo.province(address.province) != null;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  l10n.addressMapTitle,
-                  style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 12),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.sizeOf(sheet).height * 0.5,
-                  ),
-                  child: Center(
-                    child: VietnamMap(province: address.province, point: pin),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  '${address.receiver} · ${address.phone}',
-                  style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  address.oneLine,
-                  style: text.bodyMedium?.copyWith(color: c.secondaryText),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  pin != null
-                      ? l10n.addrPinned
-                      : located
-                      ? l10n.mapApprox
-                      : l10n.mapNoPin,
-                  style: text.bodySmall?.copyWith(color: c.tertiaryText),
-                ),
-                const SizedBox(height: 14),
-                OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(sheet);
-                    onChange();
-                  },
-                  child: Text(l10n.changeAddress),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -174,6 +109,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     required Cart? cartValue,
     required List<Address> addressList,
     required Address? address,
+    required bool addressLoading,
     required Wallet? wallet,
     required bool walletEnough,
     required bool busy,
@@ -209,7 +145,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
       children: [
         heading(l10n.checkoutShippingTo, top: 0),
-        if (address == null)
+        if (addressLoading)
+          const SkeletonList(count: 1)
+        else if (address == null)
           FlatCard(
             child: Row(
               children: [
@@ -222,11 +160,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
           )
         else
-          FlatAddressCard(
-            address: address,
-            onChange: () => _pickAddress(addressList, address.id),
-            onOpenMap: () =>
-                _showMap(address, () => _pickAddress(addressList, address.id)),
+          AddressBookList(
+            items: [address],
+            onTap: (_) => _pickAddress(addressList, address.id),
           ),
         heading(l10n.paymentMethod),
         Row(
@@ -343,6 +279,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         cartValue: cart.value,
         addressList: addressList,
         address: address,
+        addressLoading: addresses.isLoading && !addresses.hasValue,
         wallet: wallet,
         walletEnough: walletEnough,
         busy: busy,
@@ -371,15 +308,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 )
               : Column(
                   children: [
-                    for (final a in list)
-                      SelectTile(
-                        selected: a.id == address?.id,
-                        title: '${a.receiver} · ${a.phone}',
-                        subtitle: a.oneLine,
-                        onTap: () => ref
-                            .read(selectedAddressProvider.notifier)
-                            .select(a.id),
-                      ),
+                    AddressBookList(
+                      items: list,
+                      selectedId: address?.id,
+                      onTap: (a) => ref
+                          .read(selectedAddressProvider.notifier)
+                          .select(a.id),
+                    ),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton(

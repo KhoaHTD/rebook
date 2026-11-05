@@ -28,6 +28,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _confirm = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Lỗi của màn trước (đăng nhập ↔ đăng ký) không được dính sang màn này.
+    Future.microtask(() {
+      if (mounted) ref.read(authControllerProvider.notifier).reset();
+    });
+  }
+
+  @override
   void dispose() {
     for (final c in [_name, _email, _phone, _password, _confirm]) {
       c.dispose();
@@ -40,8 +49,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final ok = await ref
         .read(authControllerProvider.notifier)
         .register(
-          fullName: _name.text.trim(),
-          email: Rules.email.value(_email.text),
+          fullName: _name.text,
+          email: _email.text,
           phone: Rules.phone.value(_phone.text),
           password: _password.text,
         );
@@ -86,7 +95,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
               RuleField(
                 controller: _password,
-                rule: Rules.password,
+                rule: Rules.newPassword,
                 label: l10n.password,
                 obscure: true,
               ),

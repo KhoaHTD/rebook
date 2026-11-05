@@ -923,6 +923,13 @@ extension FakeCommerce on FakeStore {
     return orders[id]!;
   }
 
+  Order markDeliveryFailed(String id, String reason) {
+    final o = order(id);
+    _transition(id, OrderStatus.failedDelivery, note: reason);
+    _refundOrder(o, 'Giao thất bại đơn ${o.code}');
+    return orders[id]!;
+  }
+
   Order sellerCancel(String id, String reason) {
     final o = order(id);
     _transition(id, OrderStatus.cancelled, note: reason);
@@ -1003,7 +1010,7 @@ extension FakeCommerce on FakeStore {
 
   List<WalletTxn> myTxns() => List.of(txns[_uid] ?? const []);
 
-  /// Tạo yêu cầu rút: số dư khả dụng phải đủ, số tiền chuyển sang "Đang khoá" ngay (như backend); Admin duyệt thì trừ hẳn.
+  /// Tạo yêu cầu rút: chỉ kiểm tra số dư khả dụng đủ; ví bị trừ khi Admin duyệt (SRS 8.1).
   Withdrawal requestWithdrawal(
     int amount, {
     required String bankName,
@@ -1022,13 +1029,6 @@ extension FakeCommerce on FakeStore {
       bankAccountNumber: accountNumber,
       bankAccountName: accountName,
       note: note,
-    );
-    _ledger(
-      _uid,
-      WalletTxnType.withdraw,
-      availableDelta: -amount,
-      heldDelta: amount,
-      note: 'Yêu cầu rút tiền',
     );
     withdrawals.insert(0, w);
     _withdrawalOwner[w.id] = _uid;
@@ -1088,12 +1088,15 @@ extension FakeCommerce on FakeStore {
     if (receipt.amount != withdrawals[idx].amount) {
       fail(ErrorCodes.receiptMismatch, 422);
     }
-    // Tiền đã khoá lúc yêu cầu; duyệt thì trừ hẳn phần đang khoá.
+    // Trừ ví lúc duyệt: kiểm tra lại số dư vì người bán có thể đã tiêu mất tiền trong lúc chờ.
     final owner = _withdrawalOwner[id]!;
+    if (walletOf(owner).available < receipt.amount) {
+      fail(ErrorCodes.insufficientBalance);
+    }
     _ledger(
       owner,
       WalletTxnType.withdraw,
-      heldDelta: -receipt.amount,
+      availableDelta: -receipt.amount,
       note: 'Rút tiền về ${withdrawals[idx].bankName ?? 'ngân hàng'}',
     );
     withdrawals[idx] = withdrawals[idx].copyWith(

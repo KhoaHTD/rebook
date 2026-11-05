@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/shared/widgets/login_prompt.dart';
 import 'package:book_marketplace/features/auction/presentation/providers/session_watch_providers.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 
@@ -29,12 +29,7 @@ class SessionWatchButton extends ConsumerWidget {
       ),
       onPressed: () async {
         if (!ref.read(sessionControllerProvider).isSignedIn) {
-          context.go(
-            Uri(
-              path: Routes.login,
-              queryParameters: {'from': Routes.session(sessionId)},
-            ).toString(),
-          );
+          await showLoginRequired(context, from: Routes.session(sessionId));
           return;
         }
         final ok = await ref

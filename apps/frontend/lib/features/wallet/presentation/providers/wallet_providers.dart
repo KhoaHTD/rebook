@@ -34,8 +34,11 @@ Future<List<BankAccount>> bankAccounts(Ref ref) {
 /// Nạp / rút. Nạp trả về phiên thanh toán để mở ZaloPay.
 @riverpod
 class WalletController extends _$WalletController {
-  /// Số tiền tối thiểu mỗi lần nạp / rút.
+  /// Số tiền tối thiểu mỗi lần nạp.
   static const minAmount = 10000;
+
+  /// Số tiền tối thiểu mỗi lần rút (backend: "Rút tối thiểu 50.000đ").
+  static const minWithdraw = 50000;
 
   @override
   FutureOr<void> build() {}

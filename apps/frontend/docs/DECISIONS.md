@@ -215,3 +215,13 @@ và lớp API của `main`, rồi làm thêm phía backend cho các tính năng 
 - Không tin tham số trên redirect URL: backend luôn hỏi lại ZaloPay (`/v2/query`) trước khi cộng tiền / chuyển đơn.
 - Web mở trang ZaloPay ở tab mới (tab app chuyển sang màn kết quả và tự hỏi lại); màn kết quả có nút mở lại trang ZaloPay
   (backend lưu `order_url`, migration V8) phòng khi trình duyệt chặn tab mới.
+
+## 2026-11-04 — Màn giới thiệu, màn loading và chế độ khách
+
+- Mở app vào `/start`: khung xương trang chủ (`SplashScreen`) hiện trong lúc đọc phiên đăng nhập và cờ "đã xem intro", rồi router chuyển tiếp.
+  Điện thoại lần đầu → `/intro` (3 trang vuốt ngang, tranh có mép rách; tranh dùng lại `assets/banners/{picks,shop,live}.jpg`); các lần sau → `/home`.
+  Web giữ trang giới thiệu `/` cho người chưa đăng nhập, không có intro. Cờ lưu trong `flutter_secure_storage` (khoá `intro_seen`, qua `TokenStorage`), không xoá khi đăng xuất.
+- Khách (chưa đăng nhập) vào app thấy hộp thoại mời đăng nhập / đăng ký một lần mỗi lần chạy; "Chỉ xem sách" để từ chối và xem tiếp.
+- Khách không còn bị đẩy sang `/login`: mục cần đăng nhập (`Routes.requiresAuth`) giữ nguyên khung, nội dung là `GuestGate` "Cần đăng nhập".
+  Việc cần tài khoản (thêm giỏ, yêu thích, theo dõi phiên) hiện hộp thoại `showLoginRequired` thay vì chuyển trang.
+- Mục Tài khoản (mua sách và đấu giá) của khách là `GuestAccountView` ("Tài khoản khách" + Đăng nhập / Đăng ký + Cài đặt). Không có thay đổi API.

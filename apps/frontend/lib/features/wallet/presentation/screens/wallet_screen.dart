@@ -16,6 +16,7 @@ import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
+import 'package:book_marketplace/shared/widgets/skeleton.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 import 'package:book_marketplace/shared/widgets/withdrawal_receipt_view.dart';
 
@@ -147,6 +148,7 @@ class WalletScreen extends ConsumerWidget {
             children: [
               AsyncValueView(
                 value: wallet,
+                loading: const Skeleton(height: 190, radius: 24),
                 onRetry: () => ref.invalidate(myWalletProvider),
                 data: (w) => InfoPanel(
                   padding: const EdgeInsets.all(AppSpacing.lg),
@@ -223,6 +225,7 @@ class WalletScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.sm),
               AsyncValueView(
                 value: txns,
+                loading: const SkeletonList(count: 3),
                 onRetry: () => ref.invalidate(walletTransactionsProvider),
                 data: (list) => list.isEmpty
                     ? Text(

@@ -17,6 +17,7 @@ import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/form_widgets.dart';
+import 'package:book_marketplace/shared/widgets/skeleton.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 import 'package:book_marketplace/shared/widgets/osm_map.dart';
 
@@ -483,25 +484,27 @@ class _AddressFormState extends ConsumerState<_AddressForm> {
                         value: _default,
                         onChanged: (v) => setState(() => _default = v),
                       ),
-                      Row(
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: AppSpacing.sm,
                         children: [
                           Text('${l10n.addrType}:', style: text.bodyMedium),
-                          const Spacer(),
-                          for (final t in AddressType.values)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: AppSpacing.sm,
-                              ),
-                              child: ChoiceChip(
-                                label: Text(
-                                  t == AddressType.office
-                                      ? l10n.addrTypeOffice
-                                      : l10n.addrTypeHome,
+                          Wrap(
+                            spacing: AppSpacing.sm,
+                            children: [
+                              for (final t in AddressType.values)
+                                ChoiceChip(
+                                  label: Text(
+                                    t == AddressType.office
+                                        ? l10n.addrTypeOffice
+                                        : l10n.addrTypeHome,
+                                  ),
+                                  selected: _type == t,
+                                  onSelected: (_) => setState(() => _type = t),
                                 ),
-                                selected: _type == t,
-                                onSelected: (_) => setState(() => _type = t),
-                              ),
-                            ),
+                            ],
+                          ),
                         ],
                       ),
                     ],
@@ -641,9 +644,7 @@ class _UnitPickerState extends State<_UnitPicker> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   header,
-                  const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
+                  const Expanded(child: SkeletonList()),
                 ],
               );
             }

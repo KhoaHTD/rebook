@@ -11,7 +11,10 @@ import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 
 class ApiAdminRepository implements AdminRepository {
-  ApiAdminRepository(this._client);
+  ApiAdminRepository(this._client, {this.staffView = false});
+
+  /// Staff chỉ xem danh sách phiên: gọi API công khai vì API `/admin/sessions` chỉ cho Admin.
+  final bool staffView;
 
   final api.RestClient _client;
 
@@ -136,7 +139,9 @@ class ApiAdminRepository implements AdminRepository {
 
   @override
   Future<List<AuctionSession>> sessions() => guardApi(() async {
-    final res = await _client.auction.getAdminSessions(size: 100);
+    final res = staffView
+        ? await _client.auction.getSessions(size: 100)
+        : await _client.auction.getAdminSessions(size: 100);
     return [for (final s in res.items.orEmpty) s.toDomain()];
   });
 
@@ -250,7 +255,7 @@ class ApiAdminRepository implements AdminRepository {
           body: api.ProcessRequest(
             approve: true,
             senderName: receipt.senderName,
-            transferTime: receipt.transferredAt,
+            transferTime: receipt.transferredAt.toUtc(),
             transferAmount: receipt.amount,
             proofImageUrl: receipt.proofImageUrl,
           ),

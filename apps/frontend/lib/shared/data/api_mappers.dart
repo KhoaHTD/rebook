@@ -594,7 +594,7 @@ extension OrderItemMapper on api.OrderItemResponse {
     quantity: quantity ?? 1,
     listingId: listingId == null ? null : _id(listingId),
     lotId: lotId == null ? null : _id(lotId),
-    imageUrl: imageUrl,
+    imageUrl: _coverUrl(title, imageUrl),
   );
 }
 
@@ -636,7 +636,7 @@ extension OrderDetailMapper on api.OrderDetail {
           to: orderStatusToDomain(h.toStatus),
           from: h.fromStatus == null ? null : orderStatusToDomain(h.fromStatus),
           at: _t(h.createdAt),
-          note: h.note,
+          note: _historyNote(h.note),
         ),
     ],
     canReview: canReview ?? false,
@@ -676,7 +676,7 @@ extension OrderSummaryMapper on api.OrderSummary {
         title: firstItemTitle ?? '',
         unitPrice: _n(total),
         quantity: itemCount ?? 1,
-        imageUrl: coverUrl,
+        imageUrl: _coverUrl(firstItemTitle, coverUrl),
       ),
     ],
     subtotal: _n(total),
@@ -794,9 +794,31 @@ extension ActivityLogResponseMapper on api.ActivityLogResponse {
       adminName: adminName ?? '',
       action: a,
       createdAt: _t(createdAt),
-      note: summary,
+      note: _configNames(summary),
     );
   }
+}
+
+/// Tên hiển thị của các khoá cấu hình (giống màn Cấu hình phí) để nhật ký không lộ khoá thô.
+const _configLabels = {
+  ConfigKeys.fixedPriceFee: 'Phí bán giá cố định (%)',
+  ConfigKeys.buyerPremium: 'Phí người mua (%)',
+  ConfigKeys.sellerCommission: 'Hoa hồng ký gửi (%)',
+  ConfigKeys.storagePerDay: 'Phí lưu kho / ngày (đ)',
+  ConfigKeys.storageFreeDays: 'Số ngày lưu kho miễn phí',
+  ConfigKeys.paymentTimeoutMin: 'Hạn thanh toán đơn (phút)',
+  ConfigKeys.auctionPaymentHours: 'Hạn thanh toán lô thắng (giờ)',
+  ConfigKeys.bidLimitMultiplier: 'Hệ số hạn mức cọc',
+  ConfigKeys.banDays: 'Cấm đấu giá khi bỏ cọc (ngày)',
+  ConfigKeys.bidTiers: 'Bước giá theo bậc',
+  ConfigKeys.returnResponseDays: 'Hạn shop trả lời trả hàng (ngày)',
+};
+
+String? _configNames(String? note) {
+  if (note == null) return null;
+  var out = note;
+  _configLabels.forEach((key, label) => out = out.replaceAll(key, label));
+  return out;
 }
 
 extension SecondChanceMapper on api.OrderSummary {
@@ -1232,6 +1254,22 @@ List<BookImage> _cover(String? title, String? url) {
   final bundled = bundledCoversFor(title ?? '');
   if (bundled.isNotEmpty) return [for (final p in bundled) BookImage(url: p)];
   return [if (url != null) BookImage(url: url)];
+}
+
+/// Ghi chú lịch sử đơn từ backend có thể chứa tên enum kiểu "(WALLET)": đổi sang tên thường gọi.
+String? _historyNote(String? note) => note?.replaceAllMapped(
+  RegExp(r'\((WALLET|COD|ZALOPAY)\)'),
+  (m) => switch (m[1]) {
+    'WALLET' => '(Ví ReBook)',
+    'COD' => '(Tiền mặt khi nhận hàng)',
+    _ => '(ZaloPay)',
+  },
+);
+
+/// Ảnh bìa của một dòng đơn hàng: bìa đóng gói sẵn nếu có, không thì ảnh từ API.
+String? _coverUrl(String? title, String? url) {
+  final bundled = bundledCoversFor(title ?? '');
+  return bundled.isEmpty ? url : bundled.first;
 }
 
 List<BookImage> _bundledOr(String? title, List<BookImage> fallback) {

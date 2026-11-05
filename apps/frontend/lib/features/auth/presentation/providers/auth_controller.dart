@@ -14,6 +14,9 @@ class AuthController extends _$AuthController {
   @override
   FutureOr<void> build() {}
 
+  /// Xoá lỗi còn lại của lần thao tác trước (vd. sang màn khác vẫn thấy câu "sai mật khẩu").
+  void reset() => state = const AsyncData(null);
+
   Future<bool> _run(Future<void> Function() action) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(action);

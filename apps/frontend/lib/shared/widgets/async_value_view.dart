@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/skeleton.dart';
 
 /// Hiển thị AsyncValue theo một kiểu thống nhất toàn app:
 ///
@@ -29,10 +30,11 @@ class AsyncValueView<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return value.when(
+      // Tải lại (đổi dữ liệu, tải định kỳ) thì giữ nội dung cũ, không nháy lại khung xương.
+      skipLoadingOnReload: true,
       data: data,
       error: (error, _) => ErrorView(error: error, onRetry: onRetry),
-      loading: () =>
-          loading ?? const Center(child: CircularProgressIndicator()),
+      loading: () => loading ?? const SkeletonList(),
     );
   }
 }

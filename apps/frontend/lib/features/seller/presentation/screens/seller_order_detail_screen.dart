@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:book_marketplace/app/env.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/seller/presentation/providers/seller_providers.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
@@ -204,9 +204,22 @@ class _Actions extends ConsumerWidget {
         title: l10n.handToShipper,
         label: l10n.trackingCodeLabel,
         optional: true,
+        rule: Rules.trackingCode,
       );
       if (code == null) return;
       await actions.ship(order.id, trackingCode: code.isEmpty ? null : code);
+      after();
+    }
+
+    Future<void> deliveryFailed() async {
+      final reason = await showTextSheet(
+        context,
+        title: l10n.osFailedDelivery,
+        label: l10n.decisionNote,
+        lines: 3,
+      );
+      if (reason == null) return;
+      await actions.markDeliveryFailed(order.id, reason);
       after();
     }
 
@@ -243,8 +256,8 @@ class _Actions extends ConsumerWidget {
           onPressed: busy ? null : ship,
           child: Text(l10n.handToShipper),
         ),
-      // Chế độ mock: giả lập đơn vị vận chuyển báo giao thành công.
-      if (s == OrderStatus.shipping && Env.useMock)
+      // Giả lập đơn vị vận chuyển báo kết quả (backend chỉ nhận ở môi trường dev / mock).
+      if (s == OrderStatus.shipping) ...[
         FilledButton(
           onPressed: busy
               ? null
@@ -254,6 +267,11 @@ class _Actions extends ConsumerWidget {
                 },
           child: Text(l10n.markDeliveredDemo),
         ),
+        OutlinedButton(
+          onPressed: busy ? null : deliveryFailed,
+          child: Text(l10n.osFailedDelivery),
+        ),
+      ],
       if (returnPending) ...[
         FilledButton(
           onPressed: busy ? null : () => decideReturn(accept: true),

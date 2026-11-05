@@ -12,15 +12,24 @@ import 'package:book_marketplace/shared/domain/enums.dart';
 
 part 'auction_providers.g.dart';
 
+/// Tải lại định kỳ để trạng thái phiên (sắp diễn ra → đang diễn ra) không đứng yên
+/// khi Admin mở phiên lúc người dùng đang xem.
+void _refreshPeriodically(Ref ref) {
+  final timer = Timer(const Duration(seconds: 15), ref.invalidateSelf);
+  ref.onDispose(timer.cancel);
+}
+
 @riverpod
 Future<List<AuctionSession>> auctionSessions(Ref ref) {
   ref.watchArea(DataArea.auctions);
+  _refreshPeriodically(ref);
   return ref.watch(auctionRepositoryProvider).sessions();
 }
 
 @riverpod
 Future<(AuctionSession, List<Lot>)> sessionCatalogue(Ref ref, String id) {
   ref.watchArea(DataArea.auctions);
+  _refreshPeriodically(ref);
   return ref.watch(auctionRepositoryProvider).catalogue(id);
 }
 

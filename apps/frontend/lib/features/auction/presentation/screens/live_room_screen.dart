@@ -55,6 +55,8 @@ class _Room extends ConsumerWidget {
     final l10n = context.l10n;
     final s = room.snapshot;
     final compact = context.windowSize.isCompact;
+    // Máy tính bảng cũng xếp dọc: hàng ngang cần ~1000px mới đủ chỗ cho poster, thông tin và bảng trả giá.
+    final stacked = context.windowSize != WindowSize.expanded;
     final lot = s.currentLot;
     final upcoming = s.lots
         .where((l) => l.status == LotStatus.scheduled && l.id != lot?.id)
@@ -85,10 +87,11 @@ class _Room extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                   style: context.textStyles.titleLarge,
                 ),
-                Text(
-                  l10n.viewers(s.viewerCount),
-                  style: context.textStyles.bodySmall,
-                ),
+                if (s.viewerCount > 0)
+                  Text(
+                    l10n.viewers(s.viewerCount),
+                    style: context.textStyles.bodySmall,
+                  ),
               ],
             ),
           ),
@@ -125,10 +128,10 @@ class _Room extends ConsumerWidget {
         author: lot.book.author,
         coverUrl: lot.book.coverUrl,
         seed: lot.book.id,
-        width: compact ? 170 : 300,
+        width: compact ? 170 : (stacked ? 220 : 300),
       );
       final lotInfo = Column(
-        crossAxisAlignment: compact
+        crossAxisAlignment: stacked
             ? CrossAxisAlignment.center
             : CrossAxisAlignment.start,
         children: [
@@ -138,7 +141,7 @@ class _Room extends ConsumerWidget {
           ),
           Text(
             lot.book.title,
-            textAlign: compact ? TextAlign.center : TextAlign.start,
+            textAlign: stacked ? TextAlign.center : TextAlign.start,
             style: context.textStyles.headlineMedium,
           ),
           Text(
@@ -162,7 +165,7 @@ class _Room extends ConsumerWidget {
       final panel = _BidPanel(sessionId: sessionId, room: room, lot: lot);
       final feed = _Feed(bids: s.recentBids);
 
-      stage = compact
+      stage = stacked
           ? ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
               children: [

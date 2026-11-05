@@ -75,7 +75,11 @@ class CartGroupView extends StatelessWidget {
           ),
         Divider(color: c.separator),
         MoneyLine(l10n.subtotal, group.subtotal),
-        MoneyLine(l10n.shippingFee, group.shippingFee),
+        MoneyLine(
+          l10n.shippingFee,
+          group.shippingFee,
+          note: onToggleItem != null ? l10n.shippingAtCheckout : null,
+        ),
       ],
     );
   }

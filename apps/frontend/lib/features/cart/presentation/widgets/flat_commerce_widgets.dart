@@ -7,7 +7,6 @@ import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
-import 'package:book_marketplace/shared/domain/user.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
 
 /// Màu nền trang của giỏ hàng / thanh toán điện thoại: xám rất nhạt, để các thẻ trắng nổi lên.
@@ -166,11 +165,20 @@ class FlatBlackButton extends StatelessWidget {
 
 /// Một dòng tiền: nhãn xám bên trái, số tiền đậm bên phải.
 class FlatMoneyRow extends StatelessWidget {
-  const FlatMoneyRow(this.label, this.amount, {super.key, this.strong = false});
+  const FlatMoneyRow(
+    this.label,
+    this.amount, {
+    super.key,
+    this.strong = false,
+    this.note,
+  });
 
   final String label;
   final int amount;
   final bool strong;
+
+  /// Có giá trị thì hiện chữ này thay cho số tiền.
+  final String? note;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +199,7 @@ class FlatMoneyRow extends StatelessWidget {
             ),
           ),
           Text(
-            formatVnd(amount),
+            note ?? formatVnd(amount),
             style: (strong ? text.titleLarge : text.titleSmall)?.copyWith(
               fontWeight: FontWeight.w800,
             ),
@@ -291,7 +299,9 @@ class FlatCartGroup extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  formatVnd(group.shippingFee),
+                  onToggleItem != null
+                      ? l10n.shippingAtCheckout
+                      : formatVnd(group.shippingFee),
                   style: text.labelLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
@@ -516,67 +526,6 @@ class _FlatItemRow extends StatelessWidget {
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Thẻ địa chỉ đang chọn: ô ghim bản đồ, người nhận, địa chỉ một dòng, nút Đổi.
-class FlatAddressCard extends StatelessWidget {
-  const FlatAddressCard({
-    super.key,
-    required this.address,
-    required this.onChange,
-    this.onOpenMap,
-  });
-
-  final Address address;
-  final VoidCallback onChange;
-
-  /// Bấm vào thẻ thì mở sơ đồ vị trí giao hàng.
-  final VoidCallback? onOpenMap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final c = context.appColors;
-    final text = context.textStyles;
-    return FlatCard(
-      onTap: onOpenMap,
-      child: Row(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: c.fill,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.location_on_rounded, color: MapPalette.pin),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${address.receiver} · ${address.phone}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  address.oneLine,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: text.bodySmall?.copyWith(color: c.secondaryText),
-                ),
-              ],
-            ),
-          ),
-          TextButton(onPressed: onChange, child: Text(l10n.changeAddress)),
         ],
       ),
     );

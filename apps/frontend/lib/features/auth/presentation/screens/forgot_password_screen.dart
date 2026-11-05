@@ -28,6 +28,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   var _codeSent = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Lỗi của màn trước (đăng nhập ↔ đăng ký) không được dính sang màn này.
+    Future.microtask(() {
+      if (mounted) ref.read(authControllerProvider.notifier).reset();
+    });
+  }
+
+  @override
   void dispose() {
     for (final c in [_email, _code, _password]) {
       c.dispose();
@@ -85,7 +94,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 ),
                 RuleField(
                   controller: _password,
-                  rule: Rules.password,
+                  rule: Rules.newPassword,
                   label: l10n.newPassword,
                   obscure: true,
                   bottom: 0,
