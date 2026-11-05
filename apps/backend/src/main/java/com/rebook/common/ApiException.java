@@ -33,6 +33,11 @@ public class ApiException extends RuntimeException {
         return new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", message);
     }
 
+    /** 403 với mã lỗi riêng, để client không phải đoán lý do từ câu chữ. */
+    public static ApiException forbidden(String code, String message) {
+        return new ApiException(HttpStatus.FORBIDDEN, code, message);
+    }
+
     /** 429: gửi quá nhiều yêu cầu. */
     public static ApiException tooMany(String message) {
         return new ApiException(HttpStatus.TOO_MANY_REQUESTS, "TOO_MANY_REQUESTS", message);

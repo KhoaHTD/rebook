@@ -35,7 +35,7 @@ public class ReturnRequest {
     public enum Reason { WRONG_CONDITION, MISSING_PAGES, WRONG_EDITION, OTHER_NOT_AS_DESCRIBED }
 
     @Schema(name = "ReturnStatus", enumAsRef = true)
-    public enum Status { PENDING, APPROVED, DISPUTED, REJECTED }
+    public enum Status { PENDING, APPROVED, DISPUTED, REJECTED, AWAITING_GOODS, EXPIRED }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,6 +58,12 @@ public class ReturnRequest {
     private String resolution;
     private Long resolvedBy;
     private Instant resolvedAt;
+
+    /** Được đồng ý trả (AWAITING_GOODS) lúc nào; người mua gửi trả kèm mã vận đơn; shop / kho xác nhận đã nhận. */
+    private Instant approvedAt;
+    private String returnTrackingCode;
+    private Instant returnShippedAt;
+    private Instant returnReceivedAt;
 
     @CreationTimestamp
     private Instant createdAt;

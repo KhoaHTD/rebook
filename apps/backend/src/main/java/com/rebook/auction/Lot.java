@@ -56,6 +56,12 @@ public class Lot {
 
     private BigDecimal hammerPrice;
     private Long winnerId;
+
+    /** Hoa hồng (%) chụp lúc người bán chấp nhận hợp đồng ký gửi; null = lô cũ, dùng cấu hình hiện tại. */
+    private BigDecimal commissionPercent;
+
+    /** Đã nhắc người bán chọn hướng xử lý lô không bán trước hạn. */
+    private boolean decisionReminderSent;
     /** Số phiên lô đã được xếp vào (sàn giữ tối đa 2 phiên). */
     private int rounds;
 

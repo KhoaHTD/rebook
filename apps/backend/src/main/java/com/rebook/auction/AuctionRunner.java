@@ -205,6 +205,16 @@ public class AuctionRunner {
             // Trả lại ít nhất thời gian soft close để mọi người kịp vào lại
             long min = s.getSoftCloseSec() * 1000L;
             current.setEndsAt(now.plusMillis(Math.max(remaining, min)));
+            // Giá tối đa đặt trong lúc tạm dừng chưa được xét: xét ngay bây giờ
+            Set<Long> outbid = new HashSet<>();
+            if (current.getCurrentWinnerId() != null) {
+                outbid.add(current.getCurrentWinnerId());
+            }
+            int bidsBefore = current.getBidCount();
+            bidService.resolveProxies(current, s, outbid);
+            if (current.getBidCount() != bidsBefore) {
+                bidService.afterPriceChange(current, s, outbid);
+            }
         } else if (s.getNextLotAt() != null) {
             s.setNextLotAt(now.plusMillis(remaining));
         }

@@ -31,6 +31,10 @@ public class OrderManagementController {
 
     private final OrderService orderService;
 
+    /** Hai nút giả lập hãng vận chuyển của shop chỉ bật ở môi trường dev / test. */
+    @org.springframework.beans.factory.annotation.Value("${app.shipping.simulate-enabled:false}")
+    private boolean shippingSimulate;
+
     // ---- Người bán ----
 
     @GetMapping("/seller/orders")
@@ -57,6 +61,7 @@ public class OrderManagementController {
     @Operation(summary = "[Giả lập] Đã giao thành công")
     @PostMapping("/seller/orders/{id}/delivered")
     public OrderDetail sellerDelivered(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        requireShippingSimulation();
         return orderService.markDelivered(me.id(), false, id);
     }
 
@@ -64,6 +69,7 @@ public class OrderManagementController {
     @PostMapping("/seller/orders/{id}/delivery-failed")
     public OrderDetail sellerFailed(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
                                     @Valid @RequestBody CancelRequest req) {
+        requireShippingSimulation();
         return orderService.markDeliveryFailed(me.id(), false, id, req.reason());
     }
 
@@ -85,6 +91,19 @@ public class OrderManagementController {
     public OrderDetail sellerReturnDecision(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
                                             @Valid @RequestBody DecisionRequest req) {
         return orderService.respondReturn(me.id(), false, id, req.approve(), req.note());
+    }
+
+    @Operation(summary = "Xác nhận đã nhận lại sách người mua gửi trả → hoàn tiền người mua")
+    @PostMapping("/seller/orders/{id}/return-received")
+    public OrderDetail sellerReturnReceived(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return orderService.confirmReturnReceived(me.id(), false, id);
+    }
+
+    private void requireShippingSimulation() {
+        if (!shippingSimulate) {
+            throw com.rebook.common.ApiException.forbidden(
+                    "Chức năng giả lập hãng vận chuyển đã tắt: người mua xác nhận đã nhận hàng, hoặc hệ thống tự xác nhận sau thời hạn");
+        }
     }
 
     // ---- Staff kho: đơn lô đấu giá ----
@@ -126,6 +145,32 @@ public class OrderManagementController {
     public OrderDetail staffReturnDecision(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
                                            @Valid @RequestBody DecisionRequest req) {
         return orderService.respondReturn(me.id(), true, id, req.approve(), req.note());
+    }
+
+    @Operation(summary = "[Staff] Xác nhận kho đã nhận lại sách người mua gửi trả → hoàn tiền người mua")
+    @PostMapping("/staff/orders/{id}/return-received")
+    public OrderDetail staffReturnReceived(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return orderService.confirmReturnReceived(me.id(), true, id);
+    }
+
+    @Operation(summary = "[Staff] Đơn thường đang giao, cũ nhất trước, để đối chiếu với hãng vận chuyển")
+    @GetMapping("/staff/orders/in-transit")
+    public PageResponse<OrderDtos.InTransitOrder> inTransit(@RequestParam(defaultValue = "0") int page,
+                                                            @RequestParam(defaultValue = "20") int size) {
+        return orderService.inTransit(page, size);
+    }
+
+    @Operation(summary = "[Staff] Đối chiếu hãng vận chuyển: đơn thường đã giao thành công (đường chính để COD đi tiếp)")
+    @PostMapping("/staff/orders/{id}/carrier-delivered")
+    public OrderDetail carrierDelivered(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return orderService.carrierConfirm(me.id(), id, true, null);
+    }
+
+    @Operation(summary = "[Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại (người nhận từ chối, thất lạc). Hoàn tiền nếu đã trả trước")
+    @PostMapping("/staff/orders/{id}/carrier-failed")
+    public OrderDetail carrierFailed(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
+                                     @Valid @RequestBody CancelRequest req) {
+        return orderService.carrierConfirm(me.id(), id, false, req.reason());
     }
 
     // ---- Admin ----

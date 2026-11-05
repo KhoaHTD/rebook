@@ -1,5 +1,7 @@
 package com.rebook.user;
 
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.common.ApiException;
 import com.rebook.user.UserDtos.AddressRequest;
 import com.rebook.user.UserDtos.AddressResponse;
@@ -24,6 +26,7 @@ public class UserService {
     private final ShopRepository shopRepository;
     private final AddressRepository addressRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditLog audit;
 
     public User getUser(Long id) {
         return userRepository.findById(id).orElseThrow(() -> ApiException.notFound("người dùng"));
@@ -54,9 +57,11 @@ public class UserService {
     public void changePassword(Long userId, ChangePasswordRequest req) {
         User user = getUser(userId);
         if (!passwordEncoder.matches(req.currentPassword(), user.getPasswordHash())) {
+            audit.recordDenied(EventCode.AUTH_PASSWORD_CHANGED, "WRONG_PASSWORD", "USER", userId, "Đổi mật khẩu nhập sai mật khẩu hiện tại");
             throw ApiException.badRequest("WRONG_PASSWORD", "Mật khẩu hiện tại không đúng");
         }
         user.setPasswordHash(passwordEncoder.encode(req.newPassword()));
+        audit.record(EventCode.AUTH_PASSWORD_CHANGED, "USER", userId, null, "Đổi mật khẩu");
     }
 
     // ---- Sổ địa chỉ ----

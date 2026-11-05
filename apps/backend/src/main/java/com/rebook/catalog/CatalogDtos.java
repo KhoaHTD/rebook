@@ -1,5 +1,6 @@
 package com.rebook.catalog;
 
+import com.rebook.common.WholeVnd;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
@@ -68,7 +69,7 @@ public final class CatalogDtos {
 
     public record ListingRequest(
             @NotNull @Valid BookRequest book,
-            @NotNull @DecimalMin(value = "1000", message = "Giá tối thiểu 1.000đ") BigDecimal price,
+            @NotNull @WholeVnd @DecimalMin(value = "1000", message = "Giá tối thiểu 1.000đ") BigDecimal price,
             @NotNull @Min(0) Integer stock) {
     }
 

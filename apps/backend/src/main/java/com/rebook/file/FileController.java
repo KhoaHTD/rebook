@@ -37,6 +37,9 @@ public class FileController {
 
     private final Path dir;
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.rebook.audit.AuditLog audit;
+
     public FileController(@Value("${app.storage.dir:uploads}") String dir) {
         this.dir = Path.of(dir).toAbsolutePath().normalize();
     }
@@ -49,11 +52,15 @@ public class FileController {
     public FileResponse upload(@RequestParam("file") MultipartFile file) throws IOException {
         String ext = TYPES.get(file.getContentType());
         if (file.isEmpty() || ext == null) {
+            audit.recordDenied(com.rebook.audit.EventCode.FILE_REJECTED, "INVALID_FILE", "FILE", null, "Tệp tải lên bị từ chối",
+                    "contentType", file.getContentType(), "size", file.getSize());
             throw ApiException.badRequest("INVALID_FILE", "Chỉ nhận ảnh PNG, JPEG hoặc WebP");
         }
         Files.createDirectories(dir);
         String name = UUID.randomUUID() + "." + ext;
         Files.copy(file.getInputStream(), dir.resolve(name), StandardCopyOption.REPLACE_EXISTING);
+        audit.record(com.rebook.audit.EventCode.FILE_UPLOADED, "FILE", name, null, "Tải ảnh lên",
+                "contentType", file.getContentType(), "size", file.getSize());
         return new FileResponse("/files/" + name, file.getContentType(), file.getSize());
     }
 

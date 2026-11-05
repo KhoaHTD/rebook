@@ -133,6 +133,13 @@ public class OrderController {
         return orderService.requestReturn(me.id(), id, req);
     }
 
+    @Operation(summary = "Gửi hàng trả (sau khi shop đồng ý trả): nhập mã vận đơn. Tiền hoàn khi shop nhận lại sách")
+    @PostMapping("/orders/{id}/return/shipment")
+    public OrderDetail shipReturn(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
+                                  @Valid @RequestBody OrderDtos.ReturnShipmentRequest req) {
+        return orderService.buyerShipReturn(me.id(), id, req.trackingCode());
+    }
+
     @Operation(summary = "Đánh giá shop (1–5 sao, mỗi đơn một lần)")
     @PostMapping("/orders/{id}/review")
     @ResponseStatus(HttpStatus.CREATED)

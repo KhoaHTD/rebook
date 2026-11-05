@@ -30,7 +30,9 @@ public enum LotStatus implements StatusFlow<LotStatus> {
     /** Đã trả sách về cho người bán. */
     RETURNED,
     /** Đã chuyển sang bán giá cố định. */
-    CONVERTED;
+    CONVERTED,
+    /** Đã bán nhưng bị trả về kho (trả hàng / giao thất bại): chờ Staff kiểm định lại trước khi xếp phiên. */
+    INSPECTING;
 
     @Override
     public Set<LotStatus> nextStates() {
@@ -40,7 +42,8 @@ public enum LotStatus implements StatusFlow<LotStatus> {
             case OPEN -> EnumSet.of(SOLD, UNSOLD, CANCELLED);
             case SOLD -> EnumSet.of(PAID, READY);
             case UNSOLD -> EnumSet.of(READY, RETURNED, CONVERTED);
-            case PAID -> EnumSet.of(COMPLETED, READY);
+            case PAID -> EnumSet.of(COMPLETED, READY, INSPECTING);
+            case INSPECTING -> EnumSet.of(READY, RETURNED);
             case CANCELLED -> EnumSet.of(READY, RETURNED);
             case COMPLETED, RETURNED, CONVERTED -> EnumSet.noneOf(LotStatus.class);
         };

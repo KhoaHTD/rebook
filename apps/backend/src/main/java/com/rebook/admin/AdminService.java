@@ -1,6 +1,8 @@
 package com.rebook.admin;
 
 import com.rebook.audit.ActivityLogService;
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.auction.AuctionSessionRepository;
 import com.rebook.auction.LotRepository;
 import com.rebook.auction.SessionStatus;
@@ -46,6 +48,8 @@ public class AdminService {
     private final AuctionSessionRepository sessionRepository;
     private final WalletService walletService;
     private final ActivityLogService activityLog;
+    private final AccountLockService lockCleanup;
+    private final AuditLog audit;
 
     public record DashboardResponse(BigDecimal revenueThisMonth, long ordersThisMonth, long ordersInProgress,
                                     long pendingListings, long activeListings, long liveSessions,
@@ -69,7 +73,9 @@ public class AdminService {
         u.setStatus(UserStatus.LOCKED);
         u.setLockReason(reason);
         refreshTokenRepository.revokeAllForUser(userId);
+        lockCleanup.cleanUp(userId); // ẩn tin, huỷ đơn dở, hoàn cọc phiên chưa chốt
         activityLog.record(adminId, "LOCK_USER", ActivityLogService.USER, userId, "Khoá " + u.getEmail() + ": " + reason);
+        audit.record(EventCode.USER_LOCKED, "USER", userId, null, reason, "adminId", adminId);
         return UserResponse.of(u, null);
     }
 
@@ -79,6 +85,7 @@ public class AdminService {
         u.setStatus(UserStatus.ACTIVE);
         u.setLockReason(null);
         activityLog.record(adminId, "UNLOCK_USER", ActivityLogService.USER, userId, "Mở khoá " + u.getEmail());
+        audit.record(EventCode.USER_UNLOCKED, "USER", userId, null, "Mở khoá tài khoản", "adminId", adminId);
         return UserResponse.of(u, null);
     }
 
@@ -93,6 +100,7 @@ public class AdminService {
         refreshTokenRepository.revokeAllForUser(userId); // token cũ còn role cũ
         activityLog.record(adminId, "CHANGE_ROLE", ActivityLogService.USER, userId,
                 "Đổi quyền " + u.getEmail() + ": " + old + " → " + role);
+        audit.record(EventCode.USER_ROLE_CHANGED, "USER", userId, null, "Đổi vai trò", "from", old, "to", role, "adminId", adminId);
         return UserResponse.of(u, null);
     }
 
@@ -101,6 +109,7 @@ public class AdminService {
         User u = user(userId);
         u.setAuctionBannedUntil(null);
         activityLog.record(adminId, "LIFT_AUCTION_BAN", ActivityLogService.USER, userId, "Gỡ cấm đấu giá " + u.getEmail());
+        audit.record(EventCode.USER_AUCTION_BAN_LIFTED, "USER", userId, null, "Gỡ cấm đấu giá", "adminId", adminId);
         return UserResponse.of(u, null);
     }
 
@@ -111,12 +120,14 @@ public class AdminService {
         s.setTrusted(trusted);
         activityLog.record(adminId, trusted ? "TRUST_SHOP" : "UNTRUST_SHOP", ActivityLogService.SHOP, shopId,
                 (trusted ? "Đánh dấu uy tín shop " : "Bỏ uy tín shop ") + s.getName());
+        audit.record(EventCode.SHOP_TRUST_CHANGED, "SHOP", shopId, null, trusted ? "Đánh dấu uy tín" : "Bỏ uy tín", "trusted", trusted, "adminId", adminId);
         return ShopResponse.ownerView(s);
     }
 
     @Transactional
     public void logConfigChange(Long adminId, String key, String value) {
         activityLog.record(adminId, "UPDATE_CONFIG", ActivityLogService.CONFIG, key, "Đặt " + key + " = " + value);
+        audit.record(EventCode.CONFIG_UPDATED, "CONFIG", key, null, "Đổi cấu hình", "key", key, "value", value, "adminId", adminId);
     }
 
     @Transactional(readOnly = true)

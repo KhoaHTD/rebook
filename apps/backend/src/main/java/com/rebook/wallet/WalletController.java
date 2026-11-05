@@ -39,11 +39,18 @@ public class WalletController {
     private final WalletService walletService;
     private final PaymentService paymentService;
     private final AppProperties props;
+    private final DebtService debtService;
 
     @Operation(summary = "Số dư ví")
     @GetMapping("/wallet")
     public WalletResponse wallet(@AuthenticationPrincipal UserPrincipal me) {
         return walletService.summary(me.id());
+    }
+
+    @Operation(summary = "Số tiền rút được ngay (trừ tiền mới nạp còn bị khoá)")
+    @GetMapping("/wallet/withdrawable")
+    public WalletDtos.WithdrawableResponse withdrawable(@AuthenticationPrincipal UserPrincipal me) {
+        return walletService.withdrawable(me.id());
     }
 
     @Operation(summary = "Lịch sử giao dịch ví (sổ cái)")
@@ -67,6 +74,7 @@ public class WalletController {
     @PostMapping("/wallet/withdrawals")
     @ResponseStatus(HttpStatus.CREATED)
     public WithdrawResponse withdraw(@AuthenticationPrincipal UserPrincipal me, @Valid @RequestBody WithdrawCreateRequest req) {
+        debtService.collect(me.id()); // thu nợ từ số dư trước, rồi mới xét rút tiền
         return walletService.requestWithdraw(me.id(), req);
     }
 

@@ -131,6 +131,20 @@ public class ConsignmentController {
         return service.inspect(me.id(), id, req);
     }
 
+    @Operation(summary = "[Staff] Các lô bị trả về kho sau khi bán, đang chờ kiểm định lại")
+    @GetMapping("/staff/lots/inspecting")
+    public com.rebook.common.PageResponse<ConsignmentDtos.InspectingLot> inspecting(@RequestParam(defaultValue = "0") int page,
+                                                                                   @RequestParam(defaultValue = "20") int size) {
+        return service.inspectingLots(page, size);
+    }
+
+    @Operation(summary = "[Staff] Kiểm định lại lô bị trả về kho sau khi bán: đạt → chờ xếp phiên, không đạt → trả người bán")
+    @PostMapping("/staff/lots/{id}/reinspect")
+    public ConsignmentDtos.LotBrief reinspect(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
+                                              @Valid @RequestBody ConsignmentDtos.ReinspectRequest req) {
+        return service.reinspectLot(me.id(), id, req.passed(), req.report());
+    }
+
     @Operation(summary = "[Staff] Sách trong kho")
     @GetMapping("/staff/warehouse")
     public PageResponse<WarehouseResponse> warehouse(@RequestParam(required = false) WarehouseItem.Status status,

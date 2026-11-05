@@ -18,6 +18,22 @@ public interface ReturnRequestRepository extends JpaRepository<ReturnRequest, Lo
 
     Page<ReturnRequest> findByResolvedByIsNotNullOrderByResolvedAtDesc(Pageable pageable);
 
+    /** Đã được đồng ý trả từ trước thời điểm này mà người mua vẫn chưa gửi hàng về. */
+    @Query("""
+            select r.orderId from ReturnRequest r
+            where r.status = com.rebook.order.ReturnRequest.Status.AWAITING_GOODS
+              and r.returnShippedAt is null and r.approvedAt < :before
+            """)
+    List<Long> findNotShippedOrderIds(@Param("before") Instant before);
+
+    /** Người mua đã gửi hàng về từ trước thời điểm này mà shop / kho chưa xác nhận đã nhận. */
+    @Query("""
+            select r.orderId from ReturnRequest r
+            where r.status = com.rebook.order.ReturnRequest.Status.AWAITING_GOODS
+              and r.returnShippedAt is not null and r.returnShippedAt < :before
+            """)
+    List<Long> findShippedUnconfirmedOrderIds(@Param("before") Instant before);
+
     /** Đơn có yêu cầu trả hàng mà người bán chưa trả lời từ trước thời điểm này. */
     @Query("""
             select r.orderId from ReturnRequest r

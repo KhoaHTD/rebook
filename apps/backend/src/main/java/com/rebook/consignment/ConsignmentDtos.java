@@ -1,5 +1,6 @@
 package com.rebook.consignment;
 
+import com.rebook.common.WholeVnd;
 import io.swagger.v3.oas.annotations.media.Schema;
 import com.rebook.auction.Lot;
 import com.rebook.auction.LotStatus;
@@ -26,7 +27,7 @@ public final class ConsignmentDtos {
     // ---- Người bán ----
 
     public record ConsignmentCreateRequest(@NotNull @Valid BookRequest book,
-                                           @NotNull @DecimalMin("1000") BigDecimal expectedPrice,
+                                           @NotNull @WholeVnd @DecimalMin("1000") BigDecimal expectedPrice,
                                            @Size(max = 2000) String provenance) {
     }
 
@@ -40,14 +41,14 @@ public final class ConsignmentDtos {
      * ACCEPT: đồng ý hợp đồng ký gửi (bắt buộc agreeTerms = true). Có thể kèm counterReserve
      * (đề nghị giá sàn khác, không vượt mức thấp của giá ước tính).
      */
-    public record SellerDecisionRequest(@NotNull Decision decision, BigDecimal counterReserve, boolean agreeTerms) {
+    public record SellerDecisionRequest(@NotNull Decision decision, @WholeVnd BigDecimal counterReserve, boolean agreeTerms) {
     }
 
     @Schema(name = "UnsoldAction", enumAsRef = true)
     public enum UnsoldAction { RELIST, CONVERT_TO_LISTING, RETURN }
 
     /** Lô không bán được: vào phiên sau (có thể hạ giá sàn), chuyển sang bán giá cố định, hoặc nhận lại. */
-    public record UnsoldDecisionRequest(@NotNull UnsoldAction action, BigDecimal newReserve, BigDecimal listingPrice) {
+    public record UnsoldDecisionRequest(@NotNull UnsoldAction action, @WholeVnd BigDecimal newReserve, @WholeVnd BigDecimal listingPrice) {
     }
 
     // ---- Staff ----
@@ -65,10 +66,10 @@ public final class ConsignmentDtos {
             ConditionGrade conditionGrade,
             @NotBlank @Size(max = 5000) String conditionReport,
             List<@NotBlank String> photoUrls,
-            BigDecimal estimateLow,
-            BigDecimal estimateHigh,
-            BigDecimal proposedStart,
-            BigDecimal proposedReserve) {
+            @WholeVnd BigDecimal estimateLow,
+            @WholeVnd BigDecimal estimateHigh,
+            @WholeVnd BigDecimal proposedStart,
+            @WholeVnd BigDecimal proposedReserve) {
     }
 
     public record ShelfRequest(@NotBlank @Size(max = 30) String shelfCode) {
@@ -91,6 +92,15 @@ public final class ConsignmentDtos {
     }
 
     /** Thông tin lô cho người ký gửi (được xem giá sàn của chính mình). */
+    /** Lô bị trả về kho sau khi bán, chờ Staff kiểm định lại. */
+    public record InspectingLot(Long lotId, Long consignmentId, String consignmentCode, String bookTitle,
+                                BigDecimal hammerPrice, Instant closedAt) {
+    }
+
+    /** Staff kiểm định lại lô bị trả về kho: đạt hay không, kèm báo cáo. */
+    public record ReinspectRequest(boolean passed, @NotBlank @Size(min = 10, max = 1000) String report) {
+    }
+
     public record LotBrief(Long id, LotStatus status, Long sessionId, Integer lotNumber, BigDecimal startPrice,
                            BigDecimal reservePrice, BigDecimal hammerPrice, Lot.CloseResult closeResult, int rounds) {
 

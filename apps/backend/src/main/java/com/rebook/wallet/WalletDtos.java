@@ -1,5 +1,6 @@
 package com.rebook.wallet;
 
+import com.rebook.common.WholeVnd;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,11 +32,15 @@ public final class WalletDtos {
         }
     }
 
-    public record TopUpRequest(@NotNull @DecimalMin(value = "10000", message = "Nạp tối thiểu 10.000đ") BigDecimal amount) {
+    /** Số tiền rút được ngay: tiền mới nạp chưa dùng bị khoá tới {@code unlockAt} (xem WalletService.withdrawable). */
+    public record WithdrawableResponse(BigDecimal available, BigDecimal locked, BigDecimal withdrawable, Instant unlockAt) {
+    }
+
+    public record TopUpRequest(@NotNull @WholeVnd @DecimalMin(value = "10000", message = "Nạp tối thiểu 10.000đ") BigDecimal amount) {
     }
 
     public record WithdrawCreateRequest(
-            @NotNull @DecimalMin(value = "50000", message = "Rút tối thiểu 50.000đ") BigDecimal amount,
+            @NotNull @WholeVnd @DecimalMin(value = "50000", message = "Rút tối thiểu 50.000đ") BigDecimal amount,
             @NotBlank String bankName,
             @NotBlank @Pattern(regexp = "\\d{6,19}", message = "Số tài khoản gồm 6–19 chữ số") String accountNumber,
             @NotBlank String accountHolder,

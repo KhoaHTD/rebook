@@ -117,13 +117,27 @@ public final class OrderDtos {
     public record ReturnResponse(Long id, Long orderId, ReturnRequest.Reason reason, String description,
                                  List<String> images, ReturnRequest.Status status, String sellerNote,
                                  String resolution, Instant createdAt, Instant respondBy, Long resolvedBy,
-                                 String resolvedByName, Instant resolvedAt) {
+                                 String resolvedByName, Instant resolvedAt, String returnTrackingCode,
+                                 Instant returnShippedAt, Instant returnReceivedAt, Instant shipBy,
+                                 String returnToName, String returnToAddress) {
 
-        public static ReturnResponse of(ReturnRequest r, Instant respondBy, String resolvedByName) {
+        public static ReturnResponse of(ReturnRequest r, Instant respondBy, Instant shipBy, String resolvedByName,
+                                        String returnToName, String returnToAddress) {
             return new ReturnResponse(r.getId(), r.getOrderId(), r.getReason(), r.getDescription(), r.getImages(),
                     r.getStatus(), r.getSellerNote(), r.getResolution(), r.getCreatedAt(), respondBy,
-                    r.getResolvedBy(), resolvedByName, r.getResolvedAt());
+                    r.getResolvedBy(), resolvedByName, r.getResolvedAt(), r.getReturnTrackingCode(),
+                    r.getReturnShippedAt(), r.getReturnReceivedAt(), shipBy, returnToName, returnToAddress);
         }
+    }
+
+    /** Đơn thường đang giao để Staff đối chiếu với hãng vận chuyển; overdue = giao quá lâu mà chưa có kết quả. */
+    public record InTransitOrder(Long orderId, String code, Long shopId, String shopName, Long buyerId,
+                                 Payment.Method paymentMethod, BigDecimal total, String trackingCode, Instant shippedAt,
+                                 boolean overdue) {
+    }
+
+    /** Người mua gửi hàng trả: mã vận đơn. */
+    public record ReturnShipmentRequest(@NotBlank @Size(max = 50) String trackingCode) {
     }
 
     // ---- Đánh giá ----

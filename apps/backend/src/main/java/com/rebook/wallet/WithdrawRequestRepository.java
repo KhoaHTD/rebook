@@ -17,6 +17,14 @@ public interface WithdrawRequestRepository extends JpaRepository<WithdrawRequest
 
     Page<WithdrawRequest> findByStatusOrderByIdDesc(WithdrawRequest.Status status, Pageable pageable);
 
+    /** Tổng tiền người dùng đã yêu cầu rút (đang chờ hoặc đã duyệt) từ một thời điểm, để áp hạn mức mỗi ngày. */
+    @Query("""
+            select coalesce(sum(w.amount), 0) from WithdrawRequest w
+            where w.userId = :userId and w.createdAt >= :since
+              and w.status in (com.rebook.wallet.WithdrawRequest.Status.PENDING, com.rebook.wallet.WithdrawRequest.Status.APPROVED)
+            """)
+    java.math.BigDecimal sumRequestedSince(@Param("userId") Long userId, @Param("since") java.time.Instant since);
+
     /** Khoá dòng để hai Admin không cùng duyệt một yêu cầu. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select w from WithdrawRequest w where w.id = :id")

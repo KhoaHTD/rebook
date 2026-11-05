@@ -1,5 +1,7 @@
 package com.rebook.auction;
 
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.catalog.Book;
 import com.rebook.catalog.BookRepository;
 import com.rebook.common.ApiException;
@@ -23,6 +25,8 @@ import com.rebook.user.Address;
 import com.rebook.user.AddressRepository;
 import com.rebook.user.User;
 import com.rebook.user.UserService;
+import com.rebook.wallet.AccountDebt;
+import com.rebook.wallet.DebtService;
 import com.rebook.wallet.WalletService;
 import com.rebook.wallet.WalletTxType;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +69,9 @@ public class AuctionSettlement {
     private final UserService userService;
     private final SystemConfigService config;
     private final NotificationService notifications;
+    private final DebtService debts;
+    private final ProxyBidRepository proxyRepository;
+    private final AuditLog audit;
 
     // =====================================================================
     // Sau khi phiên kết thúc
@@ -73,11 +81,15 @@ public class AuctionSettlement {
         List<Lot> lots = lotRepository.findBySessionIdOrderByLotNumberAsc(session.getId());
         Set<Long> winners = new HashSet<>();
         Set<Long> depositUsed = new HashSet<>();
+        Map<Long, Integer> weightByWinner = new HashMap<>(); // gộp kiện: khối lượng các lô đã lập hoá đơn của mỗi người
         for (Lot lot : lots) {
             if (lot.getStatus() == LotStatus.SOLD) {
                 winners.add(lot.getWinnerId());
                 boolean applyDeposit = depositUsed.add(lot.getWinnerId());
-                createInvoice(lot, lot.getWinnerId(), lot.getHammerPrice(), false, applyDeposit);
+                int weight = bookRepository.findById(lot.getBookId()).orElseThrow().getWeightGram();
+                int prior = weightByWinner.getOrDefault(lot.getWinnerId(), 0);
+                weightByWinner.put(lot.getWinnerId(), prior + weight);
+                createInvoice(lot, lot.getWinnerId(), lot.getHammerPrice(), false, applyDeposit, prior);
             } else if (lot.getStatus() == LotStatus.UNSOLD) {
                 notifySeller(lot, "Lô " + lot.getLotNumber() + " không bán được. Hãy chọn: vào phiên sau, chuyển sang bán giá cố định, hoặc nhận lại sách");
             }
@@ -92,6 +104,12 @@ public class AuctionSettlement {
 
     /** Hoá đơn lô thắng: giá gõ búa + phí người mua + phí giao (hoặc nhận tại kho), trừ tiền cọc. */
     public Order createInvoice(Lot lot, Long buyerId, BigDecimal hammer, boolean secondChance, boolean applyDeposit) {
+        return createInvoice(lot, buyerId, hammer, secondChance, applyDeposit, 0);
+    }
+
+    /** priorWeightGram: khối lượng các lô cùng phiên đã lập hoá đơn cho người này, để gộp phí giao (docs/AUCTION_MONEY_FLOW.md 3.5). */
+    public Order createInvoice(Lot lot, Long buyerId, BigDecimal hammer, boolean secondChance, boolean applyDeposit,
+                               int priorWeightGram) {
         Book book = bookRepository.findById(lot.getBookId()).orElseThrow();
         Address address = addressRepository.findByUserIdOrderByDefaultAddressDescIdAsc(buyerId).stream().findFirst().orElse(null);
 
@@ -106,7 +124,11 @@ public class AuctionSettlement {
         o.setBuyerPremium(Money.percent(hammer, config.decimal(SystemConfigService.BUYER_PREMIUM)));
         if (address != null) {
             o.setAddressSnapshot(CheckoutService.snapshot(address));
-            o.setShippingFee(shipping.fee(shipping.warehouseProvince(), address.getProvince(), book.getWeightGram()));
+            BigDecimal fullFee = shipping.fee(shipping.warehouseProvince(), address.getProvince(), priorWeightGram + book.getWeightGram());
+            // Gộp kiện: lô sau chỉ trả phần phí tăng thêm so với kiện đã tính cho các lô trước
+            o.setShippingFee(priorWeightGram > 0
+                    ? fullFee.subtract(shipping.fee(shipping.warehouseProvince(), address.getProvince(), priorWeightGram))
+                    : fullFee);
         } else {
             o.setPickupAtWarehouse(true);
         }
@@ -155,12 +177,11 @@ public class AuctionSettlement {
 
         Lot lot = lotRepository.lockById(o.getLotId()).orElseThrow();
         if (!o.isSecondChance()) {
-            forfeitAndBan(lot, o.getBuyerId());
-            List<Bid> runnerUp = lot.getOpenedAt() == null ? List.of()
-                    : bidRepository.findTopExcluding(lot.getId(), lot.getOpenedAt(), o.getBuyerId(), PageRequest.of(0, 1));
-            // Giá người về nhì dưới giá sàn thì người bán chưa đồng ý bán ở mức đó → không mời
-            if (!runnerUp.isEmpty() && runnerUp.getFirst().getAmount().compareTo(lot.getReservePrice()) >= 0) {
-                Bid second = runnerUp.getFirst();
+            forfeitAndBan(lot, o.getBuyerId(), o);
+            // Giá người về nhì dưới giá sàn thì người bán chưa đồng ý bán ở mức đó → không mời.
+            // Người đang bị cấm đấu giá, đang nợ hoặc là người ký gửi cũng bị bỏ qua → mời người kế tiếp.
+            Bid second = eligibleRunnerUp(lot, o.getBuyerId());
+            if (second != null) {
                 lot.setWinnerId(second.getUserId());
                 lot.setHammerPrice(second.getAmount());
                 createInvoice(lot, second.getUserId(), second.getAmount(), true, false);
@@ -188,13 +209,53 @@ public class AuctionSettlement {
         notifySeller(lot, "Lô không có người mua, quay lại chờ xếp phiên sau");
     }
 
-    private void forfeitAndBan(Lot lot, Long userId) {
+    /** Người trả giá cao nhất (không phải người bỏ) còn đủ điều kiện nhận lời mời mua lần hai và có giá ≥ giá sàn. */
+    private Bid eligibleRunnerUp(Lot lot, Long defaultedBuyerId) {
+        if (lot.getOpenedAt() == null) {
+            return null;
+        }
+        Long sellerId = sellerOf(lot);
+        Set<Long> seen = new HashSet<>();
+        for (Bid b : bidRepository.findTopExcluding(lot.getId(), lot.getOpenedAt(), defaultedBuyerId, PageRequest.of(0, 50))) {
+            if (!seen.add(b.getUserId())) {
+                continue; // chỉ xét lượt cao nhất của mỗi người
+            }
+            if (b.getAmount().compareTo(lot.getReservePrice()) < 0) {
+                return null; // danh sách giảm dần: từ đây trở xuống đều dưới giá sàn
+            }
+            User u = userService.getUser(b.getUserId());
+            if (!u.isAuctionBanned() && !u.getId().equals(sellerId) && !debts.hasOpenDebt(u.getId())) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    /** Hoàn cọc và huỷ đăng ký ở các phiên chưa chốt khi người dùng bị khoá hoặc bị cấm đấu giá (không để họ bị kẹt vốn). */
+    @Transactional
+    public int releaseFutureRegistrations(Long userId, String reason) {
+        int released = 0;
+        for (AuctionRegistration reg : registrationRepository.findApprovedInOpenSessions(userId)) {
+            walletService.release(userId, WalletTxType.DEPOSIT_RELEASE, reg.getDepositAmount(), "REGISTRATION", reg.getId(),
+                    "Hoàn cọc: " + reason);
+            reg.setStatus(reg.getStatus().moveTo(AuctionRegistration.Status.CANCELLED));
+            proxyRepository.deactivateForUserInSession(userId, reg.getSessionId());
+            audit.record(EventCode.AUCTION_REGISTRATION_CANCELLED, "SESSION", reg.getSessionId(), null, reason,
+                    "deposit", reg.getDepositAmount(), "userId", userId);
+            released++;
+        }
+        return released;
+    }
+
+    private void forfeitAndBan(Lot lot, Long userId, Order order) {
         User user = userService.getUser(userId);
         user.setAuctionBannedUntil(Instant.now().plus(config.days(SystemConfigService.AUCTION_BAN_DAYS)));
+        BigDecimal[] forfeited = {BigDecimal.ZERO}; // cọc còn giữ đã bị thu ở lô này
         registrationRepository.lockBySessionIdAndUserId(lot.getSessionId(), userId)
                 .filter(r -> r.getStatus() == AuctionRegistration.Status.APPROVED)
                 .ifPresent(reg -> {
                     BigDecimal deposit = reg.getDepositAmount();
+                    forfeited[0] = deposit;
                     reg.setStatus(reg.getStatus().moveTo(AuctionRegistration.Status.FORFEITED));
                     walletService.removeHeld(userId, WalletTxType.DEPOSIT_FORFEIT, deposit, "REGISTRATION", reg.getId(),
                             "Mất cọc do không thanh toán lô thắng");
@@ -206,8 +267,22 @@ public class AuctionSettlement {
                     walletService.credit(null, WalletTxType.DEPOSIT_FORFEIT, deposit.subtract(sellerShare), "REGISTRATION",
                             reg.getId(), "Thu cọc người thắng bỏ thanh toán");
                 });
-        notifications.notify(userId, NotificationService.AUCTION, "Bạn đã mất tiền cọc",
-                "Do không thanh toán lô thắng đúng hạn, tiền cọc bị thu và tài khoản bị cấm đấu giá đến "
+        releaseFutureRegistrations(userId, "Tài khoản bị cấm đấu giá"); // không để cọc các phiên khác bị kẹt
+        // Phạt = % giá búa của lô; còn cọc thì mất cọc (SRS) và phạt không thấp hơn cọc. Phần vượt cọc thu từ ví, thiếu thì ghi nợ.
+        BigDecimal pct = config.decimal(SystemConfigService.DEFAULT_PENALTY_PERCENT);
+        BigDecimal penalty = Money.percent(order.getSubtotal(), pct).max(forfeited[0]);
+        BigDecimal extra = penalty.subtract(forfeited[0]);
+        if (extra.signum() > 0) {
+            debts.create(userId, AccountDebt.Type.AUCTION_PENALTY, extra, "ORDER", order.getId(), sellerOf(lot),
+                    config.decimal(SystemConfigService.FORFEIT_SELLER_PERCENT),
+                    "Phạt bỏ thanh toán lô " + lot.getLotNumber() + " (đơn " + order.getCode() + ")");
+        }
+        audit.record(EventCode.AUCTION_DEFAULT_PENALIZED, "ORDER", order.getId(), order.getCode(), "Phạt bỏ thanh toán lô thắng",
+                "hammer", order.getSubtotal(), "penaltyPercent", pct, "penalty", penalty, "fromDeposit", forfeited[0],
+                "chargedToWalletOrDebt", extra, "bannedUntil", user.getAuctionBannedUntil());
+        notifications.notify(userId, NotificationService.AUCTION, "Bạn bị phạt vì không thanh toán lô thắng",
+                "Do không thanh toán lô thắng đúng hạn, bạn bị phạt " + penalty.toPlainString()
+                        + "đ (trừ vào tiền cọc, ví hoặc ghi nợ) và bị cấm đấu giá đến "
                         + user.getAuctionBannedUntil(), Map.of("lotId", lot.getId()));
     }
 
@@ -271,7 +346,8 @@ public class AuctionSettlement {
                 }
             }
             case COMPLETED -> { // trả người bán: giá gõ búa − hoa hồng
-                BigDecimal commission = Money.percent(hammer, config.decimal(SystemConfigService.SELLER_COMMISSION));
+                BigDecimal commission = Money.percent(hammer, lot.getCommissionPercent() != null
+                        ? lot.getCommissionPercent() : config.decimal(SystemConfigService.SELLER_COMMISSION));
                 walletService.release(sellerId, WalletTxType.SALE_RELEASE, hammer, REF, o.getId(), "Giải ngân lô " + lot.getLotNumber());
                 walletService.debit(sellerId, WalletTxType.FEE, commission, REF, o.getId(), "Hoa hồng đấu giá lô " + lot.getLotNumber());
                 walletService.credit(null, WalletTxType.FEE, commission, REF, o.getId(), "Hoa hồng đấu giá đơn " + o.getCode());
@@ -290,8 +366,9 @@ public class AuctionSettlement {
                     wh.setCheckedOutAt(null);
                     wh.setCheckoutReason(null);
                 }
-                lot.resetToReady();
-                notifySeller(lot, "Lô " + lot.getLotNumber() + " bị trả lại kho, sẽ được xếp phiên sau");
+                // Sách đã qua tay người mua: phải kiểm định lại trước khi xếp phiên sau (docs/AUCTION_MONEY_FLOW.md 3.6)
+                lot.setStatus(lot.getStatus().moveTo(LotStatus.INSPECTING));
+                notifySeller(lot, "Lô " + lot.getLotNumber() + " bị trả lại kho, sẽ được kiểm định lại trước khi xếp phiên sau");
             }
             default -> {
             }
@@ -346,7 +423,36 @@ public class AuctionSettlement {
         if (o.getDepositApplied().compareTo(o.getTotal()) > 0) {
             o.setDepositApplied(o.getTotal());
         }
+        reconsolidateShipping(o);
         return orderService.toDetail(o);
+    }
+
+    /**
+     * Gộp kiện sau khi người mua đổi cách nhận: các hoá đơn giao tận nơi của cùng phiên được tính phí như một kiện,
+     * lô sau chỉ trả phần tăng thêm so với các lô trước (docs/AUCTION_MONEY_FLOW.md 3.5). Chỉ đổi hoá đơn chưa thanh toán;
+     * hoá đơn đã trả vẫn được tính vào khối lượng của kiện.
+     * shortcut: phí tính theo tỉnh nhận của từng hoá đơn, giả định cùng một nơi nhận; khác tỉnh vẫn ra số hợp lý nhưng không tối ưu.
+     */
+    private void reconsolidateShipping(Order changed) {
+        Long sessionId = lotRepository.findById(changed.getLotId()).orElseThrow().getSessionId();
+        int prior = 0;
+        for (Order x : orderRepository.findAuctionOrdersInSession(changed.getBuyerId(), sessionId)) {
+            if (x.isPickupAtWarehouse() || x.getAddressSnapshot() == null) {
+                continue;
+            }
+            Lot xl = lotRepository.findById(x.getLotId()).orElseThrow();
+            int weight = bookRepository.findById(xl.getBookId()).orElseThrow().getWeightGram();
+            if (x.getStatus() == OrderStatus.PENDING_PAYMENT) {
+                String province = String.valueOf(x.getAddressSnapshot().get("province"));
+                BigDecimal full = shipping.fee(shipping.warehouseProvince(), province, prior + weight);
+                x.setShippingFee(prior > 0 ? full.subtract(shipping.fee(shipping.warehouseProvince(), province, prior)) : full);
+                x.setTotal(x.getSubtotal().add(x.getBuyerPremium()).add(x.getShippingFee()));
+                if (x.getDepositApplied().compareTo(x.getTotal()) > 0) {
+                    x.setDepositApplied(x.getTotal());
+                }
+            }
+            prior += weight;
+        }
     }
 
     // ---- Nội bộ ----

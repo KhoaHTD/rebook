@@ -9,6 +9,8 @@ import com.rebook.auction.AuctionDtos.SessionState;
 import com.rebook.auction.AuctionDtos.SessionSummary;
 import com.rebook.catalog.BookRepository;
 import com.rebook.catalog.CatalogDtos.BookResponse;
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.common.ApiException;
 import com.rebook.common.PageResponse;
 import com.rebook.consignment.Consignment;
@@ -18,6 +20,7 @@ import com.rebook.consignment.InspectionRepository;
 import com.rebook.system.SystemConfigService;
 import com.rebook.user.User;
 import com.rebook.user.UserService;
+import com.rebook.wallet.DebtService;
 import com.rebook.wallet.WalletService;
 import com.rebook.wallet.WalletTxType;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +54,9 @@ public class AuctionService {
     private final WalletService walletService;
     private final SystemConfigService config;
     private final AuctionViews views;
+    private final ProxyBidRepository proxyRepository;
+    private final DebtService debts;
+    private final AuditLog audit;
 
     // ---- Xem ----
 
@@ -143,25 +149,52 @@ public class AuctionService {
             throw ApiException.forbidden("Cần xác thực số điện thoại trước khi tham gia đấu giá");
         }
         if (user.isAuctionBanned()) {
-            throw ApiException.forbidden("Tài khoản đang bị cấm tham gia đấu giá đến " + user.getAuctionBannedUntil());
+            throw ApiException.forbidden("AUCTION_BANNED", "Tài khoản đang bị cấm tham gia đấu giá đến " + user.getAuctionBannedUntil());
+        }
+        debts.collect(userId);
+        if (debts.hasOpenDebt(userId)) {
+            throw ApiException.conflict("DEBT_OPEN", "Bạn còn khoản nợ phạt hoặc phí kho chưa thanh toán, hãy thanh toán trước khi đăng ký");
         }
         if (!agreeRules) {
             throw ApiException.badRequest("RULES_REQUIRED", "Cần đồng ý quy chế phiên đấu giá");
         }
         AuctionRegistration existing = registrationRepository.findBySessionIdAndUserId(sessionId, userId).orElse(null);
-        if (existing != null) {
+        if (existing != null && existing.getStatus() != AuctionRegistration.Status.CANCELLED) {
             throw ApiException.conflict("ALREADY_REGISTERED", "Bạn đã đăng ký phiên này (số bài " + existing.paddle() + ")");
         }
-        AuctionRegistration reg = new AuctionRegistration();
-        reg.setSessionId(sessionId);
-        reg.setUserId(userId);
-        reg.setPaddleNumber(registrationRepository.maxPaddle(sessionId) + 1);
+        // Đăng ký lại sau khi đã huỷ: dùng lại dòng cũ và số bài cũ
+        AuctionRegistration reg = existing != null ? existing : new AuctionRegistration();
+        if (existing == null) {
+            reg.setSessionId(sessionId);
+            reg.setUserId(userId);
+            reg.setPaddleNumber(registrationRepository.maxPaddle(sessionId) + 1);
+        }
         reg.setDepositAmount(s.getDepositAmount());
         reg.setBidLimit(s.getDepositAmount().multiply(config.decimal(SystemConfigService.BID_LIMIT_MULTIPLIER)));
         reg = registrationRepository.saveAndFlush(reg);
         walletService.hold(userId, WalletTxType.DEPOSIT_HOLD, s.getDepositAmount(), "REGISTRATION", reg.getId(),
                 "Đặt cọc phiên " + s.getTitle());
         reg.setStatus(reg.getStatus().moveTo(AuctionRegistration.Status.APPROVED));
+        return views.registration(reg, null);
+    }
+
+    /** Huỷ đăng ký trước hạn đăng ký: hoàn toàn bộ cọc, huỷ giá tối đa tự động, không tính vào số người đăng ký. */
+    @Transactional
+    public RegistrationResponse cancelRegistration(Long userId, Long sessionId) {
+        AuctionSession s = sessionRepository.lockById(sessionId).orElseThrow(() -> ApiException.notFound("phiên đấu giá"));
+        boolean open = s.getStatus() == SessionStatus.PUBLISHED || s.getStatus() == SessionStatus.POSTPONED;
+        if (!open || !s.getRegistrationDeadline().isAfter(Instant.now())) {
+            throw ApiException.conflict("REGISTRATION_CLOSED", "Đã hết hạn đăng ký, không huỷ được nữa");
+        }
+        AuctionRegistration reg = registrationRepository.lockBySessionIdAndUserId(sessionId, userId)
+                .filter(r -> r.getStatus() == AuctionRegistration.Status.APPROVED)
+                .orElseThrow(() -> ApiException.notFound("lượt đăng ký"));
+        walletService.release(userId, WalletTxType.DEPOSIT_RELEASE, reg.getDepositAmount(), "REGISTRATION", reg.getId(),
+                "Hoàn cọc do huỷ đăng ký phiên " + s.getTitle());
+        reg.setStatus(reg.getStatus().moveTo(AuctionRegistration.Status.CANCELLED));
+        int proxies = proxyRepository.deactivateForUserInSession(userId, sessionId);
+        audit.record(EventCode.AUCTION_REGISTRATION_CANCELLED, "SESSION", sessionId, null, "Huỷ đăng ký, hoàn cọc",
+                "deposit", reg.getDepositAmount(), "paddle", reg.paddle(), "proxiesCancelled", proxies);
         return views.registration(reg, null);
     }
 

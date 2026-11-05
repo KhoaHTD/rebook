@@ -1,5 +1,7 @@
 package com.rebook.order;
 
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.catalog.Listing;
 import com.rebook.catalog.ListingRepository;
 import com.rebook.catalog.ListingStatus;
@@ -55,6 +57,7 @@ public class CheckoutService {
     private final PaymentService paymentService;
     private final WalletService walletService;
     private final SystemConfigService config;
+    private final AuditLog audit;
 
     private record Line(Listing listing, int quantity) {
     }
@@ -82,6 +85,7 @@ public class CheckoutService {
         if (!buyer.isEmailVerified()) {
             throw ApiException.forbidden("Cần xác thực email trước khi đặt hàng");
         }
+        walletService.lock(userId); // tuần tự hoá các lần đặt của cùng một người: bấm hai lần không tạo trùng đơn
         Address address = userService.getAddress(userId, req.addressId());
         Map<Shop, List<Line>> groups = loadCart(userId, req.listingIds());
 
@@ -97,6 +101,7 @@ public class CheckoutService {
             o.setOrderType(Order.Type.NORMAL);
             o.setPaymentMethod(req.paymentMethod());
             o.setNote(req.note());
+            o.setFeePercent(config.decimal(SystemConfigService.FIXED_PRICE_FEE)); // chụp phí lúc đặt
             o.setAddressSnapshot(snapshot(address));
 
             for (Line line : e.getValue()) {
@@ -133,7 +138,10 @@ public class CheckoutService {
 
         BigDecimal grandTotal = orders.stream().map(Order::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         PaymentResponse payment = switch (req.paymentMethod()) {
-            case COD -> null;
+            case COD -> {
+                ensureCodAllowed(userId, grandTotal);
+                yield null;
+            }
             case WALLET -> {
                 payWithWallet(userId, orders, grandTotal);
                 yield null;
@@ -147,7 +155,32 @@ public class CheckoutService {
             }
         };
         List<OrderSummary> summaries = orders.stream().map(orderService::toSummary).toList();
+        audit.record(EventCode.ORDER_CHECKOUT_CREATED, "USER", userId, null, "Đặt hàng",
+                "orderCodes", String.join(",", orders.stream().map(Order::getCode).toList()), "total", grandTotal,
+                "paymentMethod", req.paymentMethod());
         return new CheckoutResponse(summaries, payment);
+    }
+
+    /** COD có rủi ro bom hàng: chặn người từng bom hàng và giới hạn giá trị (thấp hơn với người chưa có đơn hoàn tất). */
+    private void ensureCodAllowed(Long userId, BigDecimal total) {
+        long failures = orderRepository.countCodFailuresSince(userId,
+                Instant.now().minus(config.days(SystemConfigService.COD_FAILURE_WINDOW_DAYS)));
+        if (failures >= config.integer(SystemConfigService.COD_MAX_FAILURES)) {
+            audit.recordDenied(EventCode.COD_BLOCKED, "COD_BLOCKED_FAILURES", "USER", userId,
+                    "Chặn COD vì nhiều đơn COD giao thất bại", "failures", failures, "total", total);
+            throw ApiException.conflict("COD_NOT_ALLOWED",
+                    "Bạn có nhiều đơn COD giao không thành công gần đây, vui lòng thanh toán bằng ví hoặc ZaloPay");
+        }
+        BigDecimal max = config.decimal(SystemConfigService.COD_MAX_AMOUNT);
+        if (orderRepository.countByBuyerIdAndStatus(userId, OrderStatus.COMPLETED) == 0) {
+            max = max.min(config.decimal(SystemConfigService.COD_NEW_BUYER_MAX_AMOUNT));
+        }
+        if (total.compareTo(max) > 0) {
+            audit.recordDenied(EventCode.COD_BLOCKED, "COD_LIMIT_EXCEEDED", "USER", userId,
+                    "Vượt hạn mức COD", "total", total, "max", max);
+            throw ApiException.conflict("COD_NOT_ALLOWED",
+                    "Đơn COD tối đa " + max.toPlainString() + "đ, vui lòng thanh toán bằng ví hoặc ZaloPay");
+        }
     }
 
     /** Thanh toán lại một đơn đang chờ thanh toán (đơn thường hoặc hoá đơn lô đấu giá). */

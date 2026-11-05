@@ -97,6 +97,8 @@ app:
     expose-in-response: true
   payment:
     simulate-enabled: true
+  shipping:
+    simulate-enabled: true
 
 logging:
   level:

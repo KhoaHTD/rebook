@@ -1,5 +1,6 @@
 package com.rebook.auction;
 
+import com.rebook.common.WholeVnd;
 import com.rebook.catalog.CatalogDtos.BookResponse;
 import com.rebook.catalog.ConditionGrade;
 import jakarta.validation.constraints.DecimalMin;
@@ -29,7 +30,7 @@ public final class AuctionDtos {
             @NotNull Instant startAt,
             @NotNull Instant registrationDeadline,
             @NotNull @Min(1) Integer minParticipants,
-            @NotNull @DecimalMin("0") BigDecimal depositAmount,
+            @NotNull @WholeVnd @DecimalMin("0") BigDecimal depositAmount,
             @Min(10) @Max(600) Integer lotDurationSec,
             @Min(5) @Max(120) Integer softCloseSec,
             @Min(0) @Max(60) Integer lotGapSec) {
@@ -46,13 +47,13 @@ public final class AuctionDtos {
     }
 
     /** Cọc thêm để nâng hạn mức trả giá. */
-    public record AddDepositRequest(@NotNull @DecimalMin("10000") BigDecimal amount) {
+    public record AddDepositRequest(@NotNull @WholeVnd @DecimalMin("10000") BigDecimal amount) {
     }
 
-    public record BidRequest(@NotNull BigDecimal amount) {
+    public record BidRequest(@NotNull @WholeVnd BigDecimal amount) {
     }
 
-    public record ProxyBidRequest(@NotNull BigDecimal maxAmount) {
+    public record ProxyBidRequest(@NotNull @WholeVnd BigDecimal maxAmount) {
     }
 
     /** Hoá đơn lô thắng: giao về địa chỉ (addressId) hoặc nhận tại kho. */

@@ -1,7 +1,11 @@
 package com.rebook.wallet;
 
 import com.rebook.audit.ActivityLogService;
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.common.ApiException;
+import com.rebook.common.CodeGenerator;
+import com.rebook.system.SystemConfigService;
 import com.rebook.common.PageResponse;
 import com.rebook.user.User;
 import com.rebook.user.UserRepository;
@@ -9,6 +13,7 @@ import com.rebook.wallet.WalletDtos.BankAccountResponse;
 import com.rebook.wallet.WalletDtos.ProcessRequest;
 import com.rebook.wallet.WalletDtos.TransactionResponse;
 import com.rebook.wallet.WalletDtos.WalletResponse;
+import com.rebook.wallet.WalletDtos.WithdrawableResponse;
 import com.rebook.wallet.WalletDtos.WithdrawCreateRequest;
 import com.rebook.wallet.WalletDtos.WithdrawResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +47,9 @@ public class WalletService {
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
     private final ActivityLogService activityLog;
+    private final AuditLog audit;
+    private final SystemConfigService config;
+    private final AccountDebtRepository debtRepository;
 
     @Transactional
     public Wallet createFor(Long userId) {
@@ -81,7 +91,11 @@ public class WalletService {
         tx.setRefType(refType);
         tx.setRefId(refId);
         tx.setNote(note);
-        return transactionRepository.save(tx);
+        WalletTransaction saved = transactionRepository.save(tx);
+        audit.record(EventCode.WALLET_TX_POSTED, "WALLET", wallet.getId(), null, note,
+                "ledgerId", saved.getId(), "type", type, "availableChange", availableChange, "heldChange", heldChange,
+                "availableAfter", newAvailable, "heldAfter", newHeld, "refType", refType, "refId", refId);
+        return saved;
     }
 
     // ---- Các thao tác hay dùng ----
@@ -128,6 +142,48 @@ public class WalletService {
         }
     }
 
+    /** Khoá dòng ví của người dùng trong giao dịch hiện tại (tuần tự hoá các thao tác tiền của họ). */
+    public Wallet lock(Long userId) {
+        return walletRepository.lockByUserId(userId).orElseThrow(() -> ApiException.notFound("ví"));
+    }
+
+    /**
+     * Số tiền rút được ngay = số dư dùng được − tiền mới nạp chưa dùng trong {@code wallet.topup_hold_hours} giờ gần nhất.
+     * Tiền nạp đã tiêu (thanh toán, cọc, phí) trong khoảng đó không còn bị khoá. Đặt 0 giờ để tắt khoá.
+     */
+    @Transactional(readOnly = true)
+    public WithdrawableResponse withdrawable(Long userId) {
+        Wallet wallet = get(userId);
+        BigDecimal locked = BigDecimal.ZERO;
+        Instant unlockAt = null;
+        int hours = config.integer(SystemConfigService.TOPUP_HOLD_HOURS);
+        if (hours > 0) {
+            Instant since = Instant.now().minus(Duration.ofHours(hours));
+            BigDecimal topUps = transactionRepository.sumAvailableChange(wallet.getId(), List.of(WalletTxType.TOP_UP), since);
+            if (topUps.signum() > 0) {
+                BigDecimal spent = transactionRepository.sumAvailableChange(wallet.getId(),
+                        List.of(WalletTxType.PAYMENT, WalletTxType.DEPOSIT_HOLD, WalletTxType.FEE), since).negate();
+                BigDecimal back = transactionRepository.sumAvailableChange(wallet.getId(),
+                        List.of(WalletTxType.REFUND, WalletTxType.DEPOSIT_RELEASE), since);
+                locked = topUps.subtract(spent.subtract(back).max(BigDecimal.ZERO)).max(BigDecimal.ZERO);
+                unlockAt = transactionRepository
+                        .findFirstByWalletIdAndTypeAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(wallet.getId(), WalletTxType.TOP_UP, since)
+                        .map(t -> t.getCreatedAt().plus(Duration.ofHours(hours))).orElse(null);
+            }
+        }
+        BigDecimal available = wallet.getAvailableBalance();
+        return new WithdrawableResponse(available, locked, available.subtract(locked).max(BigDecimal.ZERO),
+                locked.signum() > 0 ? unlockAt : null);
+    }
+
+    /** Che số tài khoản trong log, chỉ giữ 4 số cuối. */
+    static String mask(String accountNumber) {
+        if (accountNumber == null || accountNumber.length() <= 4) {
+            return "****";
+        }
+        return "****" + accountNumber.substring(accountNumber.length() - 4);
+    }
+
     // ---- Truy vấn ----
 
     public Wallet get(Long userId) {
@@ -152,7 +208,35 @@ public class WalletService {
 
     @Transactional
     public WithdrawResponse requestWithdraw(Long userId, WithdrawCreateRequest req) {
+        lock(userId); // hai yêu cầu cùng lúc không được lách hạn mức
+        if (debtRepository.existsByUserIdAndStatus(userId, AccountDebt.Status.OPEN)) {
+            audit.recordDenied(EventCode.WITHDRAW_BLOCKED, "DEBT_OPEN", "WALLET", userId, "Còn nợ phạt / phí kho chưa thanh toán",
+                    "amount", req.amount());
+            throw ApiException.conflict("DEBT_OPEN", "Bạn còn khoản nợ phạt hoặc phí kho chưa thanh toán, hãy thanh toán trước khi rút tiền");
+        }
+        WithdrawableResponse limit = withdrawable(userId);
+        // Đủ số dư nhưng một phần là tiền mới nạp còn bị khoá. Thiếu số dư thì để bước khoá tiền báo INSUFFICIENT_BALANCE.
+        if (req.amount().compareTo(limit.available()) <= 0 && req.amount().compareTo(limit.withdrawable()) > 0) {
+            audit.recordDenied(EventCode.WITHDRAW_BLOCKED, "TOPUP_LOCKED", "WALLET", userId,
+                    "Rút vượt phần tiền được phép rút (còn khoá tiền mới nạp)",
+                    "amount", req.amount(), "available", limit.available(), "locked", limit.locked(),
+                    "withdrawable", limit.withdrawable(), "unlockAt", limit.unlockAt());
+            throw ApiException.conflict("TOPUP_LOCKED", "Hiện rút được tối đa " + limit.withdrawable().toPlainString()
+                    + "đ. Tiền mới nạp được rút sau " + (limit.unlockAt() == null ? "ít giờ nữa"
+                    : limit.unlockAt().atZone(CodeGenerator.VN).toLocalDateTime().toString().replace('T', ' ')));
+        }
+        Instant dayStart = LocalDate.now(CodeGenerator.VN).atStartOfDay(CodeGenerator.VN).toInstant();
+        BigDecimal requestedToday = withdrawRepository.sumRequestedSince(userId, dayStart);
+        BigDecimal dailyLimit = config.decimal(SystemConfigService.WITHDRAW_DAILY_LIMIT);
+        if (requestedToday.add(req.amount()).compareTo(dailyLimit) > 0) {
+            audit.recordDenied(EventCode.WITHDRAW_BLOCKED, "WITHDRAW_DAILY_LIMIT", "WALLET", userId,
+                    "Vượt hạn mức rút trong ngày", "amount", req.amount(), "requestedToday", requestedToday,
+                    "dailyLimit", dailyLimit);
+            throw ApiException.conflict("WITHDRAW_DAILY_LIMIT", "Vượt hạn mức rút " + dailyLimit.toPlainString()
+                    + "đ mỗi ngày, hôm nay bạn đã yêu cầu " + requestedToday.toPlainString() + "đ");
+        }
         WithdrawRequest w = new WithdrawRequest();
+        w.setTopupLocked(limit.locked());
         w.setUserId(userId);
         w.setAmount(req.amount());
         w.setBankName(req.bankName());
@@ -163,6 +247,9 @@ public class WalletService {
         // Khoá tiền trong lúc chờ duyệt
         hold(userId, WalletTxType.WITHDRAW, req.amount(), "WITHDRAW", w.getId(), "Yêu cầu rút tiền");
         rememberBankAccount(userId, req);
+        audit.record(EventCode.WITHDRAW_REQUESTED, "WITHDRAW", w.getId(), null, "Yêu cầu rút tiền",
+                "amount", req.amount(), "bankName", req.bankName(), "accountMasked", mask(req.accountNumber()),
+                "topupLocked", limit.locked());
         return toResponse(List.of(w)).get(0);
     }
 
