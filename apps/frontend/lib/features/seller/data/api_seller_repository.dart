@@ -19,7 +19,8 @@ class ApiSellerRepository implements SellerRepository {
         () async => (await _client.user.getMeShop()).toDomain(),
       );
     } on ServerException catch (e) {
-      if (e.statusCode == 404) return null;
+      // Chưa có shop: backend trả 403 "Bạn cần bật Shop trước khi bán hàng" (hoặc 404) — màn Mở shop hiện form.
+      if (e.statusCode == 404 || e.statusCode == 403) return null;
       rethrow;
     }
   }

@@ -1862,5 +1862,6 @@
   "settingsIntroReplay": "Xem lại phần giới thiệu",
   "settingsIntroReplayHint": "Phát lại các trang giới thiệu ReBook khi mở app lần đầu",
   "hintNewPassword": "8–72 ký tự",
-  "shippingAtCheckout": "Tính khi thanh toán"
+  "shippingAtCheckout": "Tính khi thanh toán",
+  "hintAbout": "Viết vài dòng giới thiệu…"
 }

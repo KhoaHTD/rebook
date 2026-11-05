@@ -347,6 +347,15 @@ abstract final class Rules {
     check: _length(20, 1000),
   );
 
+  /// Giới thiệu chung (shop, phiên đấu giá): cùng luật với mô tả sách nhưng chữ gợi ý không nói về tình trạng sách.
+  static final about = InputRule(
+    hint: (l) => l.hintAbout,
+    capitalization: TextCapitalization.sentences,
+    maxLength: 2000,
+    optional: true,
+    check: _length(5, 2000),
+  );
+
   static final description = InputRule(
     hint: (l) => l.hintDescription,
     capitalization: TextCapitalization.sentences,

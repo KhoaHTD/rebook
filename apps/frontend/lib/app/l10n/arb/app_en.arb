@@ -1158,5 +1158,6 @@
   "settingsIntroReplay": "Replay the introduction",
   "settingsIntroReplayHint": "Show the ReBook intro pages again",
   "hintNewPassword": "8–72 characters",
-  "shippingAtCheckout": "Calculated at checkout"
+  "shippingAtCheckout": "Calculated at checkout",
+  "hintAbout": "Write a short introduction…"
 }

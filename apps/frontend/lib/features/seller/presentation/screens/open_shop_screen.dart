@@ -75,9 +75,9 @@ class _ShopFormState extends ConsumerState<_ShopForm> {
     if (!_form.currentState!.validate()) return;
     final draft = ShopDraft(
       name: Rules.shopName.value(_name.text),
-      description: Rules.description.value(_desc.text).isEmpty
+      description: Rules.about.value(_desc.text).isEmpty
           ? null
-          : Rules.description.value(_desc.text),
+          : Rules.about.value(_desc.text),
       pickupAddress: Rules.pickupAddress.value(_pickup.text),
       bankName: Rules.bankName.value(_bank.text),
       bankAccount: Rules.bankNumber.value(_account.text),
@@ -121,7 +121,7 @@ class _ShopFormState extends ConsumerState<_ShopForm> {
           ),
           RuleField(
             controller: _desc,
-            rule: Rules.description,
+            rule: Rules.about,
             label: l10n.shopDescription,
             minLines: 2,
             maxLines: 4,

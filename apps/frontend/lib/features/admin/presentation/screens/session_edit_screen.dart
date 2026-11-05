@@ -245,7 +245,7 @@ class _SessionFormState extends ConsumerState<_SessionForm> {
             ),
             RuleField(
               controller: _desc,
-              rule: Rules.description,
+              rule: Rules.about,
               label: l10n.description,
               enabled: widget.enabled,
               minLines: 2,
