@@ -66,7 +66,10 @@ class _FormState extends ConsumerState<_Form> {
   Future<void> _submit() async {
     final a = _book.currentState!.validate();
     final b = _form.currentState!.validate();
-    if (!a || !b) return;
+    if (!a || !b) {
+      scrollToFirstFormError(context);
+      return;
+    }
     final c = await ref
         .read(consignmentActionsProvider.notifier)
         .create(

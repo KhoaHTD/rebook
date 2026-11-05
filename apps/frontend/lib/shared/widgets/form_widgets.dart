@@ -136,3 +136,33 @@ class RuleField extends StatelessWidget {
         : LabeledField(label: label!, bottom: bottom, child: field);
   }
 }
+
+/// Sau khi `validate()` thất bại: cuộn tới ô lỗi đầu tiên trong màn [screen] để người dùng thấy lỗi đỏ
+/// (biểu mẫu dài thì ô lỗi thường nằm ngoài màn hình, nút Lưu trông như không làm gì).
+void scrollToFirstFormError(BuildContext screen) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!screen.mounted) return;
+    Element? found;
+    void visit(Element e) {
+      if (found != null) return;
+      if (e is StatefulElement) {
+        final s = e.state;
+        if (s is FormFieldState && s.hasError) {
+          found = e;
+          return;
+        }
+      }
+      e.visitChildren(visit);
+    }
+
+    (screen as Element).visitChildren(visit);
+    final target = found;
+    if (target != null) {
+      Scrollable.ensureVisible(
+        target,
+        alignment: 0.15,
+        duration: const Duration(milliseconds: 250),
+      );
+    }
+  });
+}

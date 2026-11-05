@@ -83,7 +83,10 @@ class _FormState extends ConsumerState<_Form> {
   Future<void> _submit() async {
     final bookOk = _book.currentState!.validate();
     final saleOk = _sale.currentState!.validate();
-    if (!bookOk || !saleOk) return;
+    if (!bookOk || !saleOk) {
+      scrollToFirstFormError(context);
+      return;
+    }
     final saved = await ref
         .read(sellerActionsProvider.notifier)
         .saveListing(

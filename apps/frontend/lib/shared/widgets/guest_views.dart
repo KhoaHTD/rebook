@@ -19,6 +19,7 @@ String _feature(AppLocalizations l10n, String path) {
   if (under(Routes.profile)) return l10n.profile;
   if (under(Routes.seller)) return l10n.sellerHub;
   if (under(Routes.consignments)) return l10n.myConsignments;
+  if (under(Routes.auctions)) return l10n.gateFeatureAuction;
   return l10n.gateFeatureGeneric;
 }
 
@@ -38,7 +39,7 @@ class GuestGate extends StatelessWidget {
     final feature = _feature(l10n, location);
     return AppPage(
       title: feature,
-      showBack: false,
+      showBack: context.canPop(),
       children: [
         Center(
           child: ConstrainedBox(
