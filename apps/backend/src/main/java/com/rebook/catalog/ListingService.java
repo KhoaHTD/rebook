@@ -249,6 +249,20 @@ public class ListingService {
         return PageRequest.of(page, Math.min(size, 100), s.and(Sort.by("id").descending()));
     }
 
+    /** Bỏ dấu tiếng Việt và hạ chữ thường để tìm "so do" ra "Sổ Đỏ". */
+    static String fold(String text) {
+        String n = java.text.Normalizer.normalize(text.trim(), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .replace('đ', 'd').replace('Đ', 'D');
+        return n.toLowerCase();
+    }
+
+    /** Cùng cách bỏ dấu phía cơ sở dữ liệu (extension `unaccent` của PostgreSQL, xem V9). */
+    private static jakarta.persistence.criteria.Expression<String> foldExpr(
+            jakarta.persistence.criteria.CriteriaBuilder cb, jakarta.persistence.criteria.Expression<String> column) {
+        return cb.lower(cb.function("unaccent", String.class, column));
+    }
+
     private Specification<Listing> buildSpec(ListingQuery q, List<ListingStatus> statuses, Long unused) {
         return (root, cq, cb) -> {
             List<Predicate> ps = new ArrayList<>();
@@ -257,13 +271,13 @@ public class ListingService {
                 ps.add(root.get("status").in(statuses));
             }
             if (q.q() != null && !q.q().isBlank()) {
-                String like = "%" + q.q().trim().toLowerCase() + "%";
-                ps.add(cb.or(cb.like(cb.lower(book.get("title")), like),
-                        cb.like(cb.lower(book.get("author")), like),
+                String like = "%" + fold(q.q()) + "%";
+                ps.add(cb.or(cb.like(foldExpr(cb, book.get("title")), like),
+                        cb.like(foldExpr(cb, book.get("author")), like),
                         cb.like(cb.lower(book.get("isbn")), like)));
             }
             if (q.author() != null && !q.author().isBlank()) {
-                ps.add(cb.like(cb.lower(book.get("author")), "%" + q.author().trim().toLowerCase() + "%"));
+                ps.add(cb.like(foldExpr(cb, book.get("author")), "%" + fold(q.author()) + "%"));
             }
             if (q.categoryId() != null) {
                 ps.add(book.get("categoryId").in(categoryService.withDescendants(q.categoryId())));

@@ -5,7 +5,7 @@ extension FakeCommerce on FakeStore {
   // ───────────────────────── catalog ─────────────────────────
 
   Paged<Listing> searchListings(ListingQuery q, {int page = 0, int size = 20}) {
-    final text = q.q?.trim().toLowerCase() ?? '';
+    final text = removeDiacritics(q.q?.trim() ?? '').toLowerCase();
     final childCats = q.categoryId == null
         ? <String>{}
         : {
@@ -20,8 +20,8 @@ extension FakeCommerce on FakeStore {
         .where(
           (l) =>
               text.isEmpty ||
-              l.book.title.toLowerCase().contains(text) ||
-              l.book.author.toLowerCase().contains(text),
+              removeDiacritics(l.book.title).toLowerCase().contains(text) ||
+              removeDiacritics(l.book.author).toLowerCase().contains(text),
         )
         .where(
           (l) => childCats.isEmpty || childCats.contains(l.book.categoryId),
@@ -29,7 +29,9 @@ extension FakeCommerce on FakeStore {
         .where(
           (l) =>
               q.author == null ||
-              l.book.author.toLowerCase().contains(q.author!.toLowerCase()),
+              removeDiacritics(l.book.author).toLowerCase().contains(
+                removeDiacritics(q.author!).toLowerCase(),
+              ),
         )
         .where((l) => q.condition == null || l.book.condition == q.condition)
         .where((l) => q.minPrice == null || l.price >= q.minPrice!)
