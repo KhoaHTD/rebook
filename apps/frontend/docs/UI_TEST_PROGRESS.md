@@ -10,6 +10,9 @@ Cập nhật lần cuối: 05/11/2026. File này để phiên làm việc sau đ
 - Bản backend cũ hơn (đã bỏ theo ý người dùng, gồm COD, trả hàng có bước gửi lại, mặc định không dev, test end-to-end): nhánh `backup/before-rollback-2026-11-05`.
 - Hai file audit nghiệp vụ (`AUDIT_BACKEND.md`, `AUDIT_FRONTEND.md`) **gác lại**, làm sau. Kết quả đối chiếu: gần như chưa mục nào xong. Gói 13 mục an toàn đã đề xuất (BE-32, BE-26 còn lại, BE-33, BE-35 + FE-07, BE-05, BE-13, BE-29, BE-40, FE-01, FE-02, FE-11, FE-09) chưa làm.
 
+## Lưu ý khi mở lại máy
+- Sau khi máy khởi động lại: mở Docker Desktop, `docker start rebook-db`, chạy backend `PORT=8081 ./mvnw spring-boot:run` trong `apps/backend` (KHÔNG chạy `resetdb.sh`, nó xoá dữ liệu test), bật lại máy ảo Android và cài lại app nếu cần.
+
 ## Cách chạy lại môi trường
 - Backend chạy cổng **8081** (cổng 8080 bị dịch vụ MiniTool `MTAgentService` chiếm). Database Docker `rebook-db`.
 - Công cụ trong `docs/qa-tools/` (chép từ thư mục tạm, cần sửa đường dẫn `S=` / `L=` trong `ui.sh` và `resetdb.sh` cho đúng máy):
@@ -32,7 +35,7 @@ Quy ước: ✅ đạt · ❌ lỗi (ghi lỗi bên dưới) · ⏭ bỏ qua có
 | Vai 1: khách (1.1–1.15) | ⏳ làm dở | ✅ 1.1 intro, 1.2 trang chủ, 1.3 tìm theo tác giả ("Dale" ra Đắc Nhân Tâm), 1.6 khách xem phiên đấu giá và bấm Đăng ký thì sang màn "Cần đăng nhập". ⬜ chưa làm: 1.3 lọc / sắp xếp bằng giao diện, 1.4 chi tiết sách, 1.5 tim → đăng nhập → quay lại đúng cuốn, 1.8–1.15 đăng ký / OTP / quên mật khẩu bằng giao diện (lấy OTP trong bảng `otp_codes` hoặc phản hồi `devOtp`) |
 | Vai 2A–2B: địa chỉ, hồ sơ, yêu thích, giỏ | ⬜ | |
 | Vai 2C–2E: đặt hàng, theo dõi, nhận hàng, trả hàng, ví, thông báo | ⬜ | |
-| Vai 3: mở shop → đăng tin → xử lý đơn → rút tiền | ⏳ làm dở | ✅ 3.1 Mở shop bằng giao diện (buyer3 → shop "Time Sach QA"). ✅ 3.2–3.4 đăng tin đầu tiên: chọn ảnh bìa từ thư viện + chỉnh 4 góc, thêm 3 ảnh thật, điền form, Lưu → tin "Tat Den" 60.000 ₫ trạng thái **Chờ duyệt** (đúng cho shop mới). ⬜ chưa làm: admin duyệt (6.2), ẩn / hiện / hết hàng (3.6–3.7), xử lý đơn của shop, rút tiền |
+| Vai 3: mở shop → đăng tin → xử lý đơn → rút tiền | ⏳ làm dở | ✅ 3.1 Mở shop bằng giao diện (buyer3 → shop "Time Sach QA"). ✅ 3.2–3.4 đăng tin đầu tiên: chọn ảnh bìa từ thư viện + chỉnh 4 góc, thêm 3 ảnh thật, điền form, Lưu → tin "Tat Den" 60.000 ₫ trạng thái **Chờ duyệt** (đúng cho shop mới). ✅ admin duyệt tin "Tat Den" qua API → ACTIVE (6.2 chỉ mới thử bằng API, chưa bằng giao diện Admin; lỡ duyệt luôn tin mẫu id 9 "Rừng Na Uy"). ⬜ chưa làm: thấy tin Đang bán trên giao diện, ẩn / hiện / hết hàng (3.6–3.7), xử lý đơn của shop, rút tiền |
 | Vai 4: ký gửi, đăng ký, trả giá, hoá đơn | ⬜ | |
 | Vai 5: Staff | ⬜ | |
 | Vai 6: Admin | ⬜ | |
