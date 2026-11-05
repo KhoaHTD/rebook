@@ -32,13 +32,16 @@ Quy ước: ✅ đạt · ❌ lỗi (ghi lỗi bên dưới) · ⏭ bỏ qua có
 | Vai 1: khách (1.1–1.15) | ⏳ làm dở | ✅ 1.1 intro, 1.2 trang chủ, 1.3 tìm theo tác giả ("Dale" ra Đắc Nhân Tâm), 1.6 khách xem phiên đấu giá và bấm Đăng ký thì sang màn "Cần đăng nhập". ⬜ chưa làm: 1.3 lọc / sắp xếp bằng giao diện, 1.4 chi tiết sách, 1.5 tim → đăng nhập → quay lại đúng cuốn, 1.8–1.15 đăng ký / OTP / quên mật khẩu bằng giao diện (lấy OTP trong bảng `otp_codes` hoặc phản hồi `devOtp`) |
 | Vai 2A–2B: địa chỉ, hồ sơ, yêu thích, giỏ | ⬜ | |
 | Vai 2C–2E: đặt hàng, theo dõi, nhận hàng, trả hàng, ví, thông báo | ⬜ | |
-| Vai 3: mở shop → đăng tin → xử lý đơn → rút tiền | ⬜ | |
+| Vai 3: mở shop → đăng tin → xử lý đơn → rút tiền | ⏳ làm dở | ✅ 3.1 Mở shop bằng giao diện (buyer3 → shop "Time Sach QA"). ✅ 3.2–3.4 đăng tin đầu tiên: chọn ảnh bìa từ thư viện + chỉnh 4 góc, thêm 3 ảnh thật, điền form, Lưu → tin "Tat Den" 60.000 ₫ trạng thái **Chờ duyệt** (đúng cho shop mới). ⬜ chưa làm: admin duyệt (6.2), ẩn / hiện / hết hàng (3.6–3.7), xử lý đơn của shop, rút tiền |
 | Vai 4: ký gửi, đăng ký, trả giá, hoá đơn | ⬜ | |
 | Vai 5: Staff | ⬜ | |
 | Vai 6: Admin | ⬜ | |
 
 ## Lỗi tìm thấy trong đợt này
 - **U-1 (Nhẹ, giao diện, chưa sửa):** khách bấm "Đăng ký tham gia" ở trang phiên đấu giá thì sang màn cổng đăng nhập có tiêu đề **"Nội dung này"** (chuỗi `gateFeatureGeneric` dùng làm tiêu đề) và **không có nút quay lại**. Gợi ý: tiêu đề "Đăng ký tham gia đấu giá" hoặc "Cần đăng nhập", thêm nút quay lại.
+
+- **U-2 (Nhẹ, giao diện, chưa sửa):** form Đăng sách. Ô `Khối lượng` (và `Số trang`, `NXB`…) hiện chữ mờ gợi ý trông như đã điền, nhưng `Khối lượng` bắt buộc: bấm Lưu thì nút **không làm gì nhìn thấy được**, lỗi đỏ nằm ở ô đang cuộn ra khỏi màn (ô Tên sách trống cũng vậy). Gợi ý: sau khi Lưu thất bại, cuộn tới ô lỗi đầu tiên hoặc hiện thông báo; ghi rõ ô bắt buộc.
+- **U-3 (không phải lỗi app, thao tác máy ảo):** bấm `Back` khi bàn phím không hiện sẽ thoát / làm mất form đang điền; dùng chạm vào vùng trống để ẩn bàn phím.
 
 ## Ghi chú khi test
 - Công cụ dump giao diện (`uiautomator`) đôi lúc trả cây cũ sau khi chuyển màn, nhất là khi vừa chuyển giữa khu mua sách và khu đấu giá: tin ảnh chụp màn hình (`shot`) hơn tin `ls_ui`, và bấm theo toạ độ khi nghi ngờ. Đây cũng là dấu hiệu cho điểm V2-7 (trình đọc màn hình) chưa kết luận.
