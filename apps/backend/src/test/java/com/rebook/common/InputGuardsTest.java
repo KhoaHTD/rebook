@@ -32,6 +32,26 @@ class InputGuardsTest extends IntegrationTest {
     }
 
     @Test
+    void otpIsLockedAfterFiveWrongGuessesEvenIfTheNextOneIsRight() throws Exception {
+        long me = createUser(Role.USER, "Người nhập OTP", 0);
+        jdbc.update("UPDATE users SET email_verified = FALSE WHERE id = ?", me);
+        String sent = mvc.perform(post("/auth/send-otp").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"purpose\":\"VERIFY_EMAIL\"}"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String code = jdbc.queryForObject("SELECT code FROM otp_codes WHERE user_id = ? ORDER BY id DESC LIMIT 1", String.class, me);
+        String wrong = code.equals("000000") ? "111111" : "000000";
+        for (int i = 0; i < 5; i++) {
+            mvc.perform(post("/auth/verify-otp").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"purpose\":\"VERIFY_EMAIL\",\"code\":\"" + wrong + "\"}"))
+                    .andExpect(status().isBadRequest());
+        }
+        // Số lần sai phải được lưu lại, nên mã đúng cũng bị từ chối.
+        mvc.perform(post("/auth/verify-otp").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"purpose\":\"VERIFY_EMAIL\",\"code\":\"" + code + "\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void wrongMethodAnswers405NotAServerError() throws Exception {
         long me = createUser(Role.USER, "Người dùng", 0);
         mvc.perform(get("/lots/1/bids").with(as(me, Role.USER)))

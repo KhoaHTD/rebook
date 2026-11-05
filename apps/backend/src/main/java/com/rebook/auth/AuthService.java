@@ -51,6 +51,7 @@ public class AuthService {
     private final WalletService walletService;
     private final AppProperties props;
     private final RateLimiter limiter;
+    private final OtpAttempts otpAttempts;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
@@ -175,8 +176,8 @@ public class AuthService {
             throw ApiException.badRequest("INVALID_OTP", "Mã OTP đã hết hạn, vui lòng yêu cầu mã mới");
         }
         if (!MessageDigest.isEqual(otp.getCode().getBytes(StandardCharsets.UTF_8), code.trim().getBytes(StandardCharsets.UTF_8))) {
-            otp.setAttempts(otp.getAttempts() + 1);
-            otpRepository.saveAndFlush(otp);
+            // Lưu trong giao dịch riêng: lỗi ném ra bên dưới sẽ hoàn lại giao dịch hiện tại.
+            otpAttempts.increment(otp.getId());
             throw ApiException.badRequest("INVALID_OTP", "Mã OTP không đúng");
         }
         otp.setUsedAt(Instant.now());
