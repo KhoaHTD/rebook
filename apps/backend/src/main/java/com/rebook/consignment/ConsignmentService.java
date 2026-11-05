@@ -254,6 +254,9 @@ public class ConsignmentService {
     /** Sơ duyệt online (48h). */
     @Transactional
     public ConsignmentResponse review(Long staffId, Long id, boolean approve, String note) {
+        if (!approve && (note == null || note.isBlank())) {
+            throw ApiException.badRequest("REASON_REQUIRED", "Cần nhập lý do khi sơ duyệt không đạt");
+        }
         Consignment c = lock(id);
         c.setReviewNote(note);
         if (approve) {

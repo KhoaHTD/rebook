@@ -95,9 +95,9 @@ class FrontendExtrasTest extends IntegrationTest {
         long me = createUser(Role.USER, "Người rút", 1_000_000);
         long other = createUser(Role.USER, "Người khác", 0);
         String vcb = """
-                {"amount":100000,"bankName":"VCB","accountNumber":"0123","accountHolder":"NGUYEN A"}""";
+                {"amount":100000,"bankName":"VCB","accountNumber":"0123456","accountHolder":"NGUYEN A"}""";
         String acb = """
-                {"amount":100000,"bankName":"ACB","accountNumber":"9999","accountHolder":"NGUYEN A"}""";
+                {"amount":100000,"bankName":"ACB","accountNumber":"9999999","accountHolder":"NGUYEN A"}""";
         mvc.perform(post("/wallet/withdrawals").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON).content(vcb))
                 .andExpect(status().isCreated());
         mvc.perform(post("/wallet/withdrawals").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON).content(acb))
@@ -211,7 +211,7 @@ class FrontendExtrasTest extends IntegrationTest {
         long me = createUser(Role.USER, "Người rút", 500_000);
         mvc.perform(post("/wallet/withdrawals").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"amount":100000,"bankName":"VCB","accountNumber":"0123","accountHolder":"NGUYEN A",
+                                {"amount":100000,"bankName":"VCB","accountNumber":"0123456","accountHolder":"NGUYEN A",
                                  "note":"  Rut tien ban sach thang 11  "}"""))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userNote").value("Rut tien ban sach thang 11"))
@@ -219,7 +219,7 @@ class FrontendExtrasTest extends IntegrationTest {
         // Không ghi chú vẫn tạo được.
         mvc.perform(post("/wallet/withdrawals").with(as(me, Role.USER)).contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"amount":100000,"bankName":"VCB","accountNumber":"0123","accountHolder":"NGUYEN A"}"""))
+                                {"amount":100000,"bankName":"VCB","accountNumber":"0123456","accountHolder":"NGUYEN A"}"""))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userNote").doesNotExist());
     }

@@ -3,6 +3,7 @@ package com.rebook.wallet;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
@@ -36,7 +37,7 @@ public final class WalletDtos {
     public record WithdrawCreateRequest(
             @NotNull @DecimalMin(value = "50000", message = "Rút tối thiểu 50.000đ") BigDecimal amount,
             @NotBlank String bankName,
-            @NotBlank String accountNumber,
+            @NotBlank @Pattern(regexp = "\\d{6,19}", message = "Số tài khoản gồm 6–19 chữ số") String accountNumber,
             @NotBlank String accountHolder,
             @Size(max = 200) String note) {
     }

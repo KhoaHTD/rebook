@@ -7,6 +7,7 @@ import com.rebook.auth.AuthDtos.RegisterRequest;
 import com.rebook.auth.AuthDtos.ResetPasswordRequest;
 import com.rebook.common.ApiException;
 import com.rebook.common.CodeGenerator;
+import com.rebook.common.RateLimiter;
 import com.rebook.config.AppProperties;
 import com.rebook.security.JwtService;
 import com.rebook.user.User;
@@ -38,6 +39,9 @@ public class AuthService {
     private static final int MAX_OTP_ATTEMPTS = 5;
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    private static final int MAX_LOGIN_FAILURES = 10;
+    private static final Duration LOGIN_WINDOW = Duration.ofMinutes(15);
+
     private final UserRepository userRepository;
     private final UserService userService;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -46,6 +50,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final WalletService walletService;
     private final AppProperties props;
+    private final RateLimiter limiter;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
@@ -70,9 +75,18 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest req) {
+        String key = "login:" + req.email().trim().toLowerCase();
+        if (limiter.count(key) >= MAX_LOGIN_FAILURES) {
+            throw ApiException.tooMany("Sai mật khẩu quá nhiều lần, vui lòng thử lại sau 15 phút");
+        }
         User user = userRepository.findByEmailIgnoreCase(req.email().trim())
                 .filter(u -> passwordEncoder.matches(req.password(), u.getPasswordHash()))
-                .orElseThrow(() -> new BadCredentialsException("bad credentials"));
+                .orElse(null);
+        if (user == null) {
+            limiter.hit(key, LOGIN_WINDOW);
+            throw new BadCredentialsException("bad credentials");
+        }
+        limiter.reset(key);
         ensureActive(user);
         return tokens(user, null);
     }

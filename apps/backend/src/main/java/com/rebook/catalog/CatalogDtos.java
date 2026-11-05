@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
@@ -37,7 +38,7 @@ public final class CatalogDtos {
             @NotBlank @Size(max = 200) String author,
             @Size(max = 200) String publisher,
             @Min(1500) @Max(2100) Integer publishYear,
-            @Size(max = 20) String isbn,
+            @Pattern(regexp = "^$|^(\\d{9}[\\dXx]|\\d{13})$", message = "ISBN gồm 10 hoặc 13 ký tự") String isbn,
             @Size(max = 50) String language,
             @Min(1) Integer pages,
             @NotNull Long categoryId,
