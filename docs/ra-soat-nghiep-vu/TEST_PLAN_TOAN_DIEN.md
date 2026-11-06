@@ -368,7 +368,7 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 4. Trước khi demo, đăng nhập thử cả 4 tài khoản một lần để chắc chắn chạy.
 
 **Mẹo:**
-- Dữ liệu mẫu chỉ có **một phiên đấu giá đã kết thúc**. Muốn demo đấu giá live thì **phải tạo phiên mới** (mục 3.5). Tập trước ít nhất một lần.
+- Dữ liệu mẫu (DB vừa làm sạch) có sẵn **phiên #1 "Sách cổ Việt Nam trước 1975"**: đã công bố, 3 lô, `buyer1`, `buyer2`, `buyer3` đã đăng ký và cọc 500.000đ. Mở ngay bằng Swagger (mục 3.5), không phải tạo phiên. Muốn tạo phiên mới thì dùng lô "sẵn sàng" có sẵn (dữ liệu mẫu có 1 lô, hiện ở bước **Xếp lô** của màn Phiên đấu giá). Tập trước ít nhất một lần; chạy xong phải làm sạch DB mới chạy lại được.
 - Dùng **hai cửa sổ**: Chrome cho admin, máy ảo (hoặc cửa sổ ẩn danh) cho người mua. Như vậy không phải đăng xuất liên tục.
 - Cắm sạc, tắt thông báo hệ thống, phóng to chữ nếu chiếu lên máy chiếu.
 
@@ -384,24 +384,45 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 4. Bấm vào một cuốn → **chi tiết**: ảnh bìa, tình trạng, giá, shop (điểm đánh giá), mô tả → **Thêm vào giỏ**.
 5. **Giỏ hàng**: giỏ chia theo shop, đổi số lượng, xóa. Nhớ: tin chỉ còn 1 cuốn thì không tăng được.
 6. **Thanh toán**: chọn địa chỉ nhận → app hiện **phí ship** (nội tỉnh rẻ hơn liên tỉnh, tính theo khối lượng) → chọn phương thức:
-   - **COD** (trả khi nhận), **Ví ReBook**, hoặc **VNPay**.
+   - **COD** (trả khi nhận), **Ví ReBook**, hoặc **ZaloPay** (sandbox).
    - Demo nên chọn **Ví ReBook** (nhanh, không cần cổng ngoài). buyer1 có ví khoảng 4,9 triệu.
 7. Đặt xong, hệ thống **tách đơn theo shop**. Vào **Đơn mua** xem trạng thái.
 
 > Điểm nói: "Giỏ nhiều shop thì tự tách thành nhiều đơn, mỗi shop giao riêng."
 
-#### 3.2. Người bán xử lý đơn (`seller1`)
+#### 3.1b. Đăng sách lên bán và duyệt tin (`seller2` → `admin`), có thể trình bày trước 3.1
+
+Dùng `seller2@rebook.vn` (shop "Tiệm Sách Hà Nội Xưa", **chưa uy tín**) để khán giả thấy bước duyệt. `seller1` là shop uy tín nên tin tự duyệt, không có bước này.
+
+1. `seller2` → **Bán sách** → **Tin đăng** → **Đăng sách**. Nhập:
+   - Bắt buộc: tên, tác giả, danh mục, **tình trạng** (5 bậc: Mới, Như mới, Tốt, Khá, Trung bình), cân nặng, **ít nhất 3 ảnh**, giá (≥ 1.000đ), số lượng.
+   - Tuỳ chọn: NXB, năm xuất bản, **ISBN**, ngôn ngữ, số trang, mô tả.
+2. Minh hoạ luật ISBN (nói khi gõ):
+   - Gõ ISBN có dấu gạch hoặc ISBN-10 vẫn nhận; hệ thống kiểm **số kiểm tra**, gõ sai một số là báo "ISBN không hợp lệ".
+   - ISBN-10 được đổi và lưu thành ISBN-13; ô tìm kiếm gõ kiểu nào cũng ra.
+   - Sách cũ trước 1970 thường **không có ISBN**: để trống vẫn đăng được. Có ISBN mà năm < 1970 thì hệ thống gắn cờ cảnh báo cho người duyệt (app chưa hiện cờ này).
+3. Lưu → app báo "Đã lưu. Tin đăng chờ ReBook duyệt." Tin ở trạng thái **Chờ duyệt**, người mua chưa thấy.
+4. `admin` → **Duyệt tin đăng**: mở tin vừa đăng (dữ liệu mẫu có sẵn một tin chờ duyệt của seller2) → **Duyệt**, hoặc **Từ chối** kèm lý do ("Ảnh không đạt", "Sai thông tin sách", "Nội dung bị cấm"). Shop nhận thông báo.
+5. Quay lại `seller2`: tin đã **Đang bán**. Sửa **giá / số lượng** thì vẫn đang bán; sửa **tên, tác giả, ISBN, NXB, năm, tình trạng, mô tả hoặc ảnh** thì tin quay lại Chờ duyệt. **Ẩn tin** / **Hiện lại** không phải duyệt lại.
+
+> Điểm nói: "Shop mới phải qua duyệt; shop uy tín được tự duyệt, nhưng tỷ lệ đơn lỗi vượt 10% thì tự mất uy tín."
+
+#### 3.2. Người bán xử lý và giao đơn (`seller1`)
 
 1. Đăng nhập `seller1`. **Kênh người bán**: thống kê (doanh thu, đơn chờ xác nhận, đang giao…).
-2. **Đơn của shop**: đơn mới ở trạng thái *Chờ xác nhận* → **Xác nhận** → **Giao hàng** (nhập mã vận đơn) → **Đã giao**.
-3. **Tin đăng**: xem 6 tin, thêm tin mới (cần tối thiểu 3 ảnh), sửa tồn kho, ẩn / hiện tin.
-   - Shop **uy tín** (seller1) thì tin **tự duyệt**. Shop mới thì tin vào hàng chờ admin duyệt.
+2. Mở đơn `buyer1` vừa đặt (mục 3.1), trạng thái **Chờ xác nhận** (shop có 24 giờ):
+   1. **Xác nhận đặt hàng** → đơn **Đang chuẩn bị**, bắt đầu hạn 3 ngày giao cho vận chuyển.
+   2. **Giao cho shipper** → ô "Mã vận đơn (không bắt buộc)", để trống thì hệ thống tự sinh mã `RB…` → đơn **Đang giao**.
+   3. **Giả lập: đã giao thành công** → đơn **Đã giao**. Nút này chỉ có ở môi trường dev (thay cho hãng vận chuyển báo về); môi trường thật nút trả lỗi, Staff đối chiếu với hãng.
+3. **Tin đăng**: xem tin, sửa tồn kho, ẩn / hiện tin. Tin về 0 cuốn tự chuyển **Hết hàng**.
 
 > Vòng đời đơn: `Chờ thanh toán → Chờ xác nhận → Đang chuẩn bị → Đang giao → Đã giao → Hoàn tất`. Có nhánh Hủy, Trả hàng, Giao thất bại.
+> Đơn COD: tiền chỉ về ví shop sau khi Admin xác nhận đã nhận tiền thu hộ, mà màn này **chưa có trên app** (gọi `POST /admin/cod/{orderId}/remit` bằng Swagger). Vì vậy demo nên trả bằng **Ví ReBook**.
 
 #### 3.3. Hoàn tất đơn, đánh giá, trả hàng (quay lại `buyer1`)
 
-1. **Đơn mua** → mở đơn đã giao → **Xác nhận đã nhận hàng**. Đơn hoàn tất, **tiền mới chuyển từ "giữ" sang ví người bán** (trừ phí sàn 5%).
+1. **Đơn mua** → mở đơn **Đã giao** → **Đã nhận hàng** → xác nhận. Đơn hoàn tất, **tiền mới chuyển từ "giữ" sang ví người bán** (trừ phí sàn 5%). Nút chỉ hiện sau khi shop bấm "Giả lập: đã giao thành công".
+   - Shop uy tín (`seller1`) rút được tiền này ngay. Shop mới (chưa uy tín, mở dưới 30 ngày hoặc dưới 10 đơn hoàn tất) bị giữ tiền bán **7 ngày** trước khi rút (chống rửa tiền qua shop phụ).
 2. **Đánh giá** shop (sao + nhận xét) sau khi hoàn tất.
 3. Hoặc **Yêu cầu trả hàng** (kèm lý do, ảnh) khi hàng không đúng mô tả. Người bán đồng ý / từ chối; không đồng thuận thì **admin phân xử** ở mục Khiếu nại.
 4. Nếu không bấm gì, đơn **tự hoàn tất sau 3 ngày**.
@@ -411,7 +432,7 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 #### 3.4. Ví ReBook (`buyer1`)
 
 - **Ví ReBook**: số dư khả dụng và số dư đang bị giữ (đặt cọc đấu giá, tiền chờ giải ngân).
-- **Nạp tiền**: tạo giao dịch nạp; môi trường dev có nút **giả lập thanh toán thành công** (không cần VNPay thật).
+- **Nạp tiền**: tạo giao dịch nạp; môi trường dev có nút **giả lập thanh toán thành công** (không cần ZaloPay thật). Tiền mới nạp bị khoá **24 giờ** trước khi rút.
 - **Lịch sử giao dịch**: mỗi dòng là một bút toán (nạp, thanh toán, hoàn tiền, cọc, phí…). Sổ cái **chỉ ghi thêm, không sửa**.
 - Người bán có thêm **Rút tiền** (dùng tài khoản ngân hàng đã khai khi mở shop), admin duyệt sau.
 
@@ -431,7 +452,13 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 - Người thắng trả thêm **phí người mua 10%**, người bán trả **hoa hồng 15%**.
 - Đồng hồ do **server giữ**, app chỉ đếm ngược theo giờ server (nên chạy máy nào cũng khớp).
 
-**Cách chuẩn bị một phiên LIVE (làm trước khi demo vài phút):**
+**Cách nhanh nhất: dùng phiên #1 có sẵn trong dữ liệu mẫu** (3 lô sách trước 1975, `buyer1/2/3` đã đăng ký):
+
+1. Mở `http://localhost:8080/swagger-ui.html` → `POST /auth/login` với `admin@rebook.vn` / `Rebook@123` → chép `accessToken` → **Authorize** (dán token).
+2. Gọi `POST /admin/sessions/1/start`: phiên chuyển sang chạy ngay (chỉ chạy ở profile `dev`).
+3. Mở `buyer1` và `buyer2` ở hai cửa sổ để tranh nhau (hạn mức mỗi người 5.000.000đ = cọc × 10). Mỗi lô 60 giây, nghỉ 7 giây giữa hai lô.
+
+**Hoặc tự tạo một phiên LIVE (làm trước khi demo vài phút):**
 
 1. Đăng nhập `admin@rebook.vn` → **Phiên đấu giá** → **Tạo phiên**:
    - Tên, mô tả; **giờ bắt đầu** là vài phút nữa; **hạn đăng ký** trước giờ bắt đầu; số người tối thiểu **1**; tiền cọc ví dụ **500.000**; thời gian mỗi lô **30 giây** cho nhanh.
@@ -451,6 +478,27 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 7. Admin có thể **Tạm dừng / Tiếp tục** phiên (nhắc: dùng khi có sự cố).
 
 > Nếu bị hỏi "hai người cùng trả đúng một mức thì sao": người đến sau nhận lỗi *giá đã thay đổi* (khóa lạc quan trong DB), không bao giờ bán trùng.
+
+#### 3.5b. Sau phiên: thanh toán hoá đơn và kho giao lô (`buyer1` → `staff` → `buyer1`)
+
+Sách đấu giá nằm ở **kho của sàn**, nên **nhân viên kho giao**, không phải người bán.
+
+1. **`buyer1` thắng một lô** → nhận thông báo (và mail nếu bật `MAIL_ENABLED`) "Bạn đã thắng đấu giá!" kèm hạn **48 giờ**. Người không thắng lô nào được hoàn cọc ngay khi phiên kết thúc.
+2. `buyer1` → **Đơn mua** → mở **Hóa đơn đấu giá**: hoá đơn = giá búa + **phí người mua 10%** + phí giao − **cọc 500.000đ** (cọc trừ vào hoá đơn đầu tiên).
+3. **Thanh toán hóa đơn** → chọn **Cách nhận sách**:
+   - **Giao tận nơi**: chọn địa chỉ; phí giao tính từ tỉnh của kho tới tỉnh người nhận. Thắng nhiều lô cùng phiên thì phí giao gộp thành một kiện.
+   - **Nhận tại kho ReBook**: phí giao 0đ.
+   - Trả bằng **Ví ReBook** (nhanh nhất) hoặc ZaloPay. Trả xong: hoá đơn **Chờ xác nhận**, sách trong kho được giữ cho người thắng, **giá búa vào túi "đang giữ" của người bán**.
+4. **`staff` → Giao lô đấu giá**:
+   1. **Xác nhận hoá đơn** (đơn Chờ xác nhận → Đang chuẩn bị). Màn này **chưa có nút cho bước này**: dùng Swagger, đăng nhập `staff@rebook.vn`, gọi `GET /staff/orders?status=PENDING_CONFIRM` lấy `id`, rồi `POST /staff/orders/{id}/confirm`. Hạn thật là 24 giờ, quá hạn hệ thống báo Staff và Admin.
+   2. **Xuất kho giao** → đơn **Đang giao**, mã vận đơn tự sinh, sách trong kho chuyển "đã xuất".
+   3. **Đã giao** → đơn **Đã giao**.
+   - Đơn **nhận tại kho**: không bấm "Xuất kho giao" (sẽ báo lỗi đơn nhận tại kho); khi người thắng tới lấy, gọi `POST /staff/orders/{id}/delivered` bằng Swagger (app chưa có nút bàn giao tại kho).
+5. **`buyer1` → Đã nhận hàng** → hoá đơn **Hoàn tất**. Lúc này người ký gửi mới nhận **giá búa − hoa hồng 15%**; sàn giữ phí người mua và phí giao. Không bấm thì tự hoàn tất sau 3 ngày.
+6. Đăng nhập người ký gửi của lô (lô "Truyện Kiều" và lô số 3 là của `seller1`, lô số 1 là của `seller2`) → **Ví**: thấy dòng giải ngân và dòng hoa hồng.
+
+> Điểm nói: "Người mua trả tiền vào sàn, sàn giữ tới khi người mua nhận sách. Vì sàn đã kiểm định, nếu sách khác báo cáo tình trạng thì **sàn chịu trách nhiệm**: Staff xử lý trả hàng, hoàn đủ cho người mua, lô quay về kiểm định lại."
+> Nếu bị hỏi "người thắng nhận rồi từ chối hàng": Staff báo giao thất bại do người mua → hoàn tiền nhưng **phạt như bỏ thanh toán** và thu phí giao chiều đi.
 
 #### 3.6. Ký gửi sách đi đấu giá (`seller1` → `staff`) — luồng nghiệp vụ dài, kể bằng lời kết hợp 2-3 màn hình
 
@@ -498,12 +546,14 @@ Mở bằng `admin@rebook.vn`, giao diện quản trị riêng:
 | Phút | Nội dung |
 |---|---|
 | 0–1 | Giới thiệu app + 3 vai trò |
-| 1–4 | **3.1 + 3.2 + 3.3**: mua, người bán xử lý, hoàn tất (nhấn escrow) |
-| 4–9 | **3.5 Đấu giá live** (admin Chrome + buyer máy ảo cạnh nhau) |
-| 9–11 | **3.6 Ký gửi** (kể ngắn, chỉ mở 2–3 màn của staff và seller) |
-| 11–12 | **3.7 Admin**: cấu hình phí, duyệt tin; kết luận |
+| 1–3 | **3.1b**: `seller2` đăng sách (nói luật ISBN, tình trạng, 3 ảnh) → `admin` duyệt |
+| 3–6 | **3.1 + 3.2 + 3.3**: `buyer1` mua bằng ví → `seller1` xác nhận, giao cho shipper, giả lập đã giao → `buyer1` đã nhận hàng, đánh giá (nhấn escrow) |
+| 6–10 | **3.5 Đấu giá live** trên phiên #1 có sẵn (`buyer1` và `buyer2` hai cửa sổ cạnh nhau) |
+| 10–12 | **3.5b**: `buyer1` thanh toán hoá đơn (giao tận nơi) → `staff` xác nhận (Swagger), xuất kho giao, đã giao → `buyer1` đã nhận hàng → ví người ký gửi |
+| 12–13 | **3.6 Ký gửi** (kể ngắn, chỉ mở 2–3 màn của staff và seller) |
+| 13–14 | **3.7 Admin**: cấu hình phí; kết luận |
 
-Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
+Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá và 3.5b. Mở sẵn Swagger đã Authorize bằng tài khoản `staff` trước khi demo để bước xác nhận hoá đơn không bị chậm.
 
 ---
 
@@ -531,7 +581,9 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 
 ### 6. Những điều KHÔNG nên hứa / nên nói thật (tránh bị hỏi vặn)
 
-- **VNPay** chưa nối cổng thật: dùng nút giả lập thanh toán thành công (chế độ dev).
+- **ZaloPay** chỉ là sandbox (không trừ tiền thật); demo thường dùng ví hoặc nút giả lập thanh toán thành công (chế độ dev).
+- **Màn Staff chưa đủ nút** cho hoá đơn đấu giá vừa thanh toán và cho bàn giao tại kho; **chưa có màn đối chiếu hãng vận chuyển và đối soát COD**. Các bước này đang gọi bằng Swagger.
+- **Bộ sách** (nhiều tập) chưa có khái niệm riêng: đăng thành một tin / một lô đặt tên "Bộ X (n tập)".
 - **Email**: gửi thật qua SMTP khi bật `MAIL_ENABLED` (OTP, thắng đấu giá, nhắc hạn). **SMS** chưa có: mã xác thực SĐT tạm gửi qua email. Không bật mail thì mã nằm trong phản hồi dev (`devOtp`).
 - **Upload ảnh**: backend chưa có dịch vụ lưu ảnh (Cloudinary). Ảnh người dùng chọn hiện được trên máy nhưng gửi lên server là **ảnh mẫu thay thế**.
 - **Vận chuyển**: giả lập bằng nút bấm (đã giao / giao thất bại), chưa nối hãng vận chuyển.
