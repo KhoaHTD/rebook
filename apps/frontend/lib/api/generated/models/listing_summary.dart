@@ -28,6 +28,11 @@ class ListingSummary {
     this.reviewedBy,
     this.reviewedByName,
     this.reviewedAt,
+    this.categoryId,
+    this.publishYear,
+    this.pages,
+    this.publisher,
+    this.language,
   });
 
   factory ListingSummary.fromJson(Map<String, Object?> json) =>
@@ -48,6 +53,11 @@ class ListingSummary {
   final int? reviewedBy;
   final String? reviewedByName;
   final DateTime? reviewedAt;
+  final int? categoryId;
+  final int? publishYear;
+  final int? pages;
+  final String? publisher;
+  final String? language;
 
   Map<String, Object?> toJson() => _$ListingSummaryToJson(this);
 }

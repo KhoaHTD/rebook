@@ -2158,5 +2158,129 @@
         "type": "int"
       }
     }
+  },
+  "evTopTag": "Top 10",
+  "evTopTitle": "Top 10 được yêu thích",
+  "evTopSub": "Những cuốn được thả tim nhiều nhất",
+  "evForYouTag": "Dành cho bạn",
+  "evForYouTitle": "Dành cho bạn",
+  "evForYouSub": "{count} gợi ý cùng thể loại với sách bạn đã thích",
+  "@evForYouSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "evNewTag": "Mới ra mắt",
+  "evNewTitle": "Mới ra mắt",
+  "evNewSub": "{count} cuốn xuất bản từ năm {year}",
+  "@evNewSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "evClassicsTag": "Kinh điển",
+  "evClassicsTitle": "Kinh điển để đời",
+  "evClassicsSub": "{count} tác phẩm kinh điển",
+  "@evClassicsSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "evThemeTag": "Chủ đề",
+  "evThemeSub": "{count} cuốn cho chủ đề này",
+  "@evThemeSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "evThemeHumor": "Cười để thở",
+  "evThemeMemoir": "Hồi ký & những cuộc đời",
+  "evThemeGothic": "Đêm gothic & kinh dị",
+  "evThemeFood": "Vào bếp cùng sách",
+  "evThemeSelfHelp": "Tốt hơn mỗi ngày",
+  "evQuickTag": "Đọc nhanh",
+  "evQuickTitle": "Đọc nhanh trong một buổi",
+  "evQuickSub": "{count} cuốn dưới {pages} trang",
+  "@evQuickSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "evThickTag": "Dày dặn",
+  "evThickTitle": "Những cuốn dày dặn",
+  "evThickSub": "{count} cuốn từ {pages} trang",
+  "@evThickSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "int"
+      }
+    }
+  },
+  "evPublisherTag": "Nhà xuất bản",
+  "evPublisherTitle": "Nhà xuất bản {name}",
+  "@evPublisherTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "evPublisherSub": "{count} cuốn đang bán",
+  "@evPublisherSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exploreBlockTop": "Top 10 được yêu thích",
+  "exploreBlockCollections": "Bộ sưu tập",
+  "exploreBlockAuthors": "Tác giả nổi bật",
+  "exploreBlockPublishers": "Nhà xuất bản",
+  "exploreBlockThemes": "Chủ đề",
+  "exploreBlockCategories": "Theo thể loại",
+  "exploreBookCount": "{count} cuốn",
+  "@exploreBookCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "exploreViewCollection": "Xem bộ sưu tập",
+  "exploreAuctionTeaserTitle": "Sách hiếm sắp lên sàn đấu giá",
+  "exploreAuctionTeaserSub": "Ấn bản đầu, sách sưu tầm trăm tuổi. Sang sàn đấu giá để xem phiên sắp diễn ra.",
+  "exploreAuctionTeaserCta": "Sang sàn đấu giá",
+  "suggestBooks": "Sách",
+  "suggestAuthors": "Tác giả",
+  "suggestCategories": "Thể loại",
+  "pickCategoryTitle": "Chọn thể loại",
+  "pickCategoryAllBooks": "Tất cả thể loại",
+  "collectionBooks": "{count} cuốn",
+  "@collectionBooks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

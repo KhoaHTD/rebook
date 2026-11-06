@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/features/catalog/data/catalog_repository_provider.dart';
+import 'package:book_marketplace/features/catalog/presentation/providers/favorites_providers.dart';
 import 'package:book_marketplace/features/catalog/domain/catalog_repository.dart';
 import 'package:book_marketplace/features/catalog/domain/explore_event.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
@@ -30,7 +31,31 @@ Future<List<Listing>> allListings(Ref ref) {
 @riverpod
 Future<List<ExploreEvent>> exploreEvents(Ref ref) async {
   final listings = await ref.watch(allListingsProvider.future);
-  return buildExploreEvents(listings);
+  final categories = await ref.watch(categoriesProvider.future);
+  // "Dành cho bạn" cần sách yêu thích; chưa đăng nhập thì rỗng.
+  final favorites = await ref.watch(favoriteListingsProvider.future);
+  return buildExploreEvents(
+    listings,
+    categories: categories,
+    favorites: favorites,
+  );
+}
+
+/// Số sách đang bán của từng thể loại (cha = tổng của chính nó và các con), để ghi "N cuốn" ở bảng chọn thể loại.
+@riverpod
+Future<Map<String, int>> categoryCounts(Ref ref) async {
+  final listings = await ref.watch(allListingsProvider.future);
+  final cats = await ref.watch(categoriesProvider.future);
+  final parentOf = {for (final c in cats) c.id: c.parentId};
+  final counts = <String, int>{};
+  for (final l in listings) {
+    final id = l.book.categoryId;
+    if (id == null) continue;
+    counts[id] = (counts[id] ?? 0) + 1;
+    final parent = parentOf[id];
+    if (parent != null) counts[parent] = (counts[parent] ?? 0) + 1;
+  }
+  return counts;
 }
 
 @riverpod

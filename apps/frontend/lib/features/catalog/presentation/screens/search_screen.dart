@@ -7,7 +7,9 @@ import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/recent_searches.dart';
-import 'package:book_marketplace/features/catalog/presentation/widgets/explore_events.dart';
+import 'package:book_marketplace/core/utils/vietnamese.dart';
+import 'package:book_marketplace/features/catalog/presentation/widgets/category_picker.dart';
+import 'package:book_marketplace/features/catalog/presentation/widgets/explore_magazine.dart';
 import 'package:book_marketplace/features/catalog/presentation/widgets/explore_sections.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
@@ -190,20 +192,32 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         if (query.categoryId != null)
           _SubCategoryChips(
             cats: cats,
+            counts: ref.watch(categoryCountsProvider).value ?? const {},
             selectedId: query.categoryId!,
             onSelected: (id) => notifier.update(query.copyWith(categoryId: id)),
           ),
         const SizedBox(height: AppSpacing.lg),
         if (idle) ...[
-          const ExploreEvents(),
-          RecentSearchChips(
-            onPick: (q) {
-              _text.text = q;
-              _search(q);
-            },
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          ExplorePosterFlow(onOpen: (l) => context.go(Routes.listing(l.id))),
+          if (_text.text.trim().isNotEmpty)
+            _Suggestions(
+              text: _text.text,
+              onBook: (id) => context.go(Routes.listing(id)),
+              onAuthor: (name) {
+                _text.text = name;
+                _search(name);
+              },
+              onCategory: (id) => context.go(Routes.searchCategory(id)),
+            )
+          else ...[
+            RecentSearchChips(
+              onPick: (q) {
+                _text.text = q;
+                _search(q);
+              },
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            const ExploreMagazine(),
+          ],
           const SizedBox(height: 110),
         ] else
           AsyncValueView(
@@ -279,20 +293,47 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 Wrap(
                   runSpacing: AppSpacing.sm,
                   children: [
-                    _MenuChip<String?>(
-                      label:
+                    Padding(
+                      padding: const EdgeInsets.only(right: AppSpacing.sm),
+                      child: ActionChip(
+                        avatar: Icon(
+                          Icons.expand_more_rounded,
+                          size: 16,
+                          color: query.categoryId != null
+                              ? context.appColors.onSelected
+                              : null,
+                        ),
+                        backgroundColor: query.categoryId != null
+                            ? context.appColors.selected
+                            : null,
+                        labelStyle: query.categoryId != null
+                            ? context.textStyles.labelMedium?.copyWith(
+                                color: context.appColors.onSelected,
+                              )
+                            : null,
+                        label: Text(
                           cats
-                              .where((c) => c.id == query.categoryId)
-                              .firstOrNull
-                              ?.name ??
-                          l10n.category,
-                      active: query.categoryId != null,
-                      options: [
-                        (null, l10n.allCategories),
-                        for (final c in cats) (c.id, c.name),
-                      ],
-                      onSelected: (id) =>
-                          notifier.update(query.copyWith(categoryId: id)),
+                                  .where((c) => c.id == query.categoryId)
+                                  .firstOrNull
+                                  ?.name ??
+                              l10n.category,
+                        ),
+                        onPressed: () async {
+                          final picked = await showCategoryPicker(
+                            context,
+                            categories: cats,
+                            counts:
+                                ref.read(categoryCountsProvider).value ??
+                                const {},
+                            selectedId: query.categoryId,
+                          );
+                          if (picked != null) {
+                            notifier.update(
+                              query.copyWith(categoryId: picked.id),
+                            );
+                          }
+                        },
+                      ),
                     ),
                     _MenuChip<ConditionGrade?>(
                       label: query.condition?.label(l10n) ?? l10n.condition,
@@ -474,11 +515,15 @@ class _MenuChip<T> extends StatelessWidget {
 class _SubCategoryChips extends StatelessWidget {
   const _SubCategoryChips({
     required this.cats,
+    required this.counts,
     required this.selectedId,
     required this.onSelected,
   });
 
   final List<Category> cats;
+
+  /// Số sách của từng thể loại: thể loại con chưa có sách thì không hiện chip.
+  final Map<String, int> counts;
   final String selectedId;
   final ValueChanged<String> onSelected;
 
@@ -487,7 +532,12 @@ class _SubCategoryChips extends StatelessWidget {
     final current = cats.where((c) => c.id == selectedId).firstOrNull;
     if (current == null) return const SizedBox.shrink();
     final rootId = current.parentId ?? current.id;
-    final children = cats.where((c) => c.parentId == rootId).toList();
+    final children = [
+      for (final c in cats)
+        if (c.parentId == rootId &&
+            ((counts[c.id] ?? 0) > 0 || c.id == selectedId))
+          c,
+    ];
     if (children.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.md),
@@ -515,6 +565,128 @@ class _SubCategoryChips extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Gợi ý khi đang gõ (chưa bấm tìm): sách, tác giả và thể loại khớp, không phân biệt dấu. Bấm một dòng là đi thẳng tới đó.
+class _Suggestions extends ConsumerWidget {
+  const _Suggestions({
+    required this.text,
+    required this.onBook,
+    required this.onAuthor,
+    required this.onCategory,
+  });
+
+  final String text;
+  final ValueChanged<String> onBook;
+  final ValueChanged<String> onAuthor;
+  final ValueChanged<String> onCategory;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final c = context.appColors;
+    final q = removeDiacritics(text.trim()).toLowerCase();
+    bool hit(String s) => removeDiacritics(s).toLowerCase().contains(q);
+    final listings = ref.watch(allListingsProvider).value ?? const <Listing>[];
+    final cats = ref.watch(categoriesProvider).value ?? const <Category>[];
+    final counts = ref.watch(categoryCountsProvider).value ?? const {};
+
+    final books = [
+      for (final l in listings)
+        if (hit(l.book.title)) l,
+    ].take(4).toList();
+    final authors = <String>{
+      for (final l in listings)
+        if (hit(l.book.author)) l.book.author.trim(),
+    }.take(3).toList();
+    final matchCats = [
+      for (final x in cats)
+        if (hit(x.name) && (counts[x.id] ?? 0) > 0) x,
+    ].take(3).toList();
+
+    if (books.isEmpty && authors.isEmpty && matchCats.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+        child: Text(
+          l10n.noResults,
+          textAlign: TextAlign.center,
+          style: context.textStyles.bodyMedium?.copyWith(
+            color: c.secondaryText,
+          ),
+        ),
+      );
+    }
+
+    Widget section(String title, List<Widget> rows) => rows.isEmpty
+        ? const SizedBox.shrink()
+        : Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 4),
+                  child: Text(
+                    title,
+                    style: context.textStyles.labelMedium?.copyWith(
+                      color: c.secondaryText,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+                ...rows,
+              ],
+            ),
+          );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        section(l10n.suggestBooks, [
+          for (final l in books)
+            ListTile(
+              dense: true,
+              leading: const Icon(Icons.menu_book_rounded),
+              title: Text(
+                l.book.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                l.book.author,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () => onBook(l.id),
+            ),
+        ]),
+        section(l10n.suggestAuthors, [
+          for (final a in authors)
+            ListTile(
+              dense: true,
+              leading: const Icon(Icons.edit_note_rounded),
+              title: Text(a, maxLines: 1, overflow: TextOverflow.ellipsis),
+              onTap: () => onAuthor(a),
+            ),
+        ]),
+        section(l10n.suggestCategories, [
+          for (final x in matchCats)
+            ListTile(
+              dense: true,
+              leading: const Icon(Icons.category_rounded),
+              title: Text(x.name),
+              trailing: Text(
+                l10n.exploreBookCount(counts[x.id] ?? 0),
+                style: context.textStyles.bodySmall?.copyWith(
+                  color: c.secondaryText,
+                ),
+              ),
+              onTap: () => onCategory(x.id),
+            ),
+        ]),
+      ],
     );
   }
 }

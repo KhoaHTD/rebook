@@ -1,85 +1,208 @@
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 
-/// Các sự kiện hiện ở đầu trang Khám phá. Tất cả dựng từ danh sách tin đang bán, không cần backend riêng.
+/// Các bộ sưu tập ("sự kiện") ở trang Khám phá. Tất cả dựng từ danh sách tin đang bán, không cần backend riêng.
 enum ExploreEventKind {
-  /// Đồng giá: sách từ [cheapEventMaxPrice] trở xuống.
-  cheap,
+  /// Top yêu thích: nhiều lượt thả tim nhất.
+  top,
 
-  /// Sách xuất bản trước [rareEventBeforeYear].
-  rare,
+  /// Dành cho bạn: cùng thể loại với sách đã thả tim (chỉ khi đã đăng nhập và có sách yêu thích).
+  forYou,
+
+  /// Xuất bản từ [newReleaseFromYear].
+  newRelease,
+
+  /// Giá tốt: từ [cheapEventMaxPrice] trở xuống.
+  cheap,
 
   /// Sách tình trạng Mới / Như mới.
   likeNew,
 
-  /// Tiểu thuyết Việt Nam (thể loại [vietnameseNovelCategory]).
-  vnClassics,
+  /// Thể loại [classicsCategory].
+  classics,
 
-  /// Tác giả có nhiều sách đang bán nhất (từ [authorEventMinBooks] cuốn).
+  /// Bộ theo chủ đề ([ExploreTheme]).
+  theme,
+
+  /// Đọc nhanh: dưới [quickReadMaxPages] trang.
+  quickRead,
+
+  /// Sách dày: từ [thickMinPages] trang.
+  thick,
+
+  /// Tác giả có nhiều sách đang bán.
   author,
+
+  /// Nhà xuất bản có nhiều sách đang bán.
+  publisher,
 }
 
-/// Mức giá "đồng giá" của sự kiện giá tốt.
-const cheapEventMaxPrice = 50000;
+/// Chủ đề của sự kiện [ExploreEventKind.theme]; mỗi chủ đề gom theo tên thể loại (cả sách thuộc thể loại con).
+enum ExploreTheme {
+  humor({'Hài hước'}),
+  memoir({'Hồi ký – Tự truyện', 'Chân dung nhân vật'}),
+  gothic({'Trinh thám – Kinh dị'}),
+  food({'Ẩm thực – Nấu ăn'}),
+  selfHelp({'Phát triển bản thân', 'Tâm lý học'});
 
-/// Sách xuất bản trước năm này thuộc sự kiện "Sách hiếm".
-const rareEventBeforeYear = 1975;
+  const ExploreTheme(this.categoryNames);
 
-/// Tên thể loại của sự kiện "Văn học Việt Nam kinh điển".
-const vietnameseNovelCategory = 'Tiểu thuyết Việt Nam';
+  /// Sách thuộc thể loại có tên này (hoặc thể loại con của nó) thì thuộc chủ đề.
+  final Set<String> categoryNames;
+}
 
-/// Tác giả phải có ít nhất bấy nhiêu cuốn đang bán mới thành sự kiện.
+/// Mức giá của bộ "Giá tốt".
+const cheapEventMaxPrice = 200000;
+
+/// Sách xuất bản từ năm này thuộc bộ "Mới ra mắt".
+const newReleaseFromYear = 2025;
+
+/// "Đọc nhanh" (dưới số trang này) và "Sách dày" (từ số trang này).
+const quickReadMaxPages = 250;
+const thickMinPages = 500;
+
+/// Tên thể loại của bộ "Kinh điển".
+const classicsCategory = 'Văn học kinh điển';
+
+/// Tác giả / nhà xuất bản phải có ít nhất bấy nhiêu cuốn mới thành bộ, và hiện tối đa bấy nhiêu bộ.
 const authorEventMinBooks = 2;
+const authorEventMax = 3;
+const publisherEventMinBooks = 4;
+const publisherEventMax = 2;
 
-/// Số tin tối đa mỗi sự kiện.
-const exploreEventLimit = 12;
+/// Các bộ khác phải có ít nhất bấy nhiêu cuốn mới hiện (bộ quá ít sách trông lẻ loi).
+const exploreEventMinBooks = 3;
+
+/// Số cuốn của Top yêu thích.
+const topEventSize = 10;
+
+/// Số tin tối đa giữ trong mỗi bộ.
+const exploreEventLimit = 30;
 
 class ExploreEvent {
   const ExploreEvent({
     required this.kind,
     required this.listings,
-    this.authorName,
+    this.subject,
+    this.theme,
   });
 
   final ExploreEventKind kind;
   final List<Listing> listings;
 
-  /// Chỉ có ở sự kiện [ExploreEventKind.author].
-  final String? authorName;
+  /// Tên tác giả / nhà xuất bản của bộ [ExploreEventKind.author] / [ExploreEventKind.publisher].
+  final String? subject;
+
+  /// Chủ đề của bộ [ExploreEventKind.theme].
+  final ExploreTheme? theme;
 
   int get count => listings.length;
 
-  /// Giá thấp nhất trong các tin của sự kiện.
+  /// Giá thấp nhất trong các tin của bộ.
   int get minPrice =>
       listings.map((l) => l.price).reduce((a, b) => a < b ? a : b);
+
+  /// Khoá duy nhất của bộ, dùng trong đường dẫn: `top`, `author:John Steinbeck`, `theme:humor`…
+  String get key => switch (kind) {
+    ExploreEventKind.author ||
+    ExploreEventKind.publisher => '${kind.name}:$subject',
+    ExploreEventKind.theme => 'theme:${theme!.name}',
+    _ => kind.name,
+  };
 }
 
-/// Dựng danh sách sự kiện từ các tin đang bán. Sự kiện không có tin nào thì bỏ qua.
-/// Thứ tự: đồng giá, sách hiếm, như mới, văn học Việt Nam, tác giả nổi bật.
-List<ExploreEvent> buildExploreEvents(List<Listing> listings) {
+/// Dựng các bộ sưu tập từ tin đang bán. Bộ không đủ sách thì bỏ qua.
+///
+/// [categories]: cây thể loại (để gom theo chủ đề / thể loại cha). [favorites]: sách người dùng đã thả tim (cho "Dành cho bạn").
+/// Thứ tự: Top yêu thích, Dành cho bạn, Mới ra mắt, Giá tốt, Như mới, Kinh điển, các chủ đề, Đọc nhanh, Sách dày,
+/// tác giả nổi bật, nhà xuất bản nổi bật.
+List<ExploreEvent> buildExploreEvents(
+  List<Listing> listings, {
+  List<Category> categories = const [],
+  List<Listing> favorites = const [],
+}) {
   final buyable = [
     for (final l in listings)
       if (l.purchasable) l,
   ];
-  final events = <ExploreEvent>[];
+  final byId = {for (final c in categories) c.id: c};
 
+  /// Tên thể loại của sách và của thể loại cha (nếu có).
+  Set<String> namesOf(Listing l) {
+    final c = byId[l.book.categoryId];
+    if (c == null) return const {};
+    final parent = c.parentId == null ? null : byId[c.parentId];
+    return {c.name, ?parent?.name};
+  }
+
+  int byPopular(Listing a, Listing b) {
+    final fav = b.favoriteCount.compareTo(a.favoriteCount);
+    return fav != 0 ? fav : b.createdAt.compareTo(a.createdAt);
+  }
+
+  final events = <ExploreEvent>[];
   void add(
     ExploreEventKind kind,
     List<Listing> items, {
-    String? authorName,
-    int minItems = 1,
+    String? subject,
+    ExploreTheme? theme,
+    int minItems = exploreEventMinBooks,
   }) {
     if (items.length < minItems) return;
     events.add(
       ExploreEvent(
         kind: kind,
         listings: items.take(exploreEventLimit).toList(),
-        authorName: authorName,
+        subject: subject,
+        theme: theme,
       ),
     );
   }
 
-  // A3. Đồng giá: rẻ nhất trước.
+  // Top yêu thích: chỉ tính sách đã có người thả tim.
+  add(
+    ExploreEventKind.top,
+    ([
+      for (final l in buyable)
+        if (l.favoriteCount > 0) l,
+    ]..sort(byPopular)).take(topEventSize).toList(),
+  );
+
+  // Dành cho bạn: cùng thể loại (hoặc cùng nhóm cha) với sách đã thả tim, trừ chính các sách đó.
+  if (favorites.isNotEmpty) {
+    final likedIds = {for (final f in favorites) f.id};
+    final likedCats = <String>{};
+    for (final f in favorites) {
+      final id = f.book.categoryId;
+      if (id == null) continue;
+      likedCats.add(id);
+      final parent = byId[id]?.parentId;
+      if (parent != null) likedCats.add(parent);
+    }
+    add(
+      ExploreEventKind.forYou,
+      [
+        for (final l in buyable)
+          if (!likedIds.contains(l.id) &&
+              l.book.categoryId != null &&
+              (likedCats.contains(l.book.categoryId) ||
+                  likedCats.contains(byId[l.book.categoryId]?.parentId)))
+            l,
+      ]..sort(byPopular),
+    );
+  }
+
+  add(
+    ExploreEventKind.newRelease,
+    [
+      for (final l in buyable)
+        if ((l.book.publishYear ?? 0) >= newReleaseFromYear) l,
+    ]..sort((a, b) {
+      final y = (b.book.publishYear ?? 0).compareTo(a.book.publishYear ?? 0);
+      return y != 0 ? y : b.createdAt.compareTo(a.createdAt);
+    }),
+  );
+
   add(
     ExploreEventKind.cheap,
     [
@@ -88,18 +211,6 @@ List<ExploreEvent> buildExploreEvents(List<Listing> listings) {
     ]..sort((a, b) => a.price.compareTo(b.price)),
   );
 
-  // A4. Sách hiếm: có năm xuất bản trước 1975, cũ nhất trước.
-  add(
-    ExploreEventKind.rare,
-    [
-      for (final l in buyable)
-        if (l.book.publishYear != null &&
-            l.book.publishYear! < rareEventBeforeYear)
-          l,
-    ]..sort((a, b) => a.book.publishYear!.compareTo(b.book.publishYear!)),
-  );
-
-  // A7. Như mới: tình trạng Mới hoặc Như mới, mới lên kệ trước.
   add(
     ExploreEventKind.likeNew,
     [
@@ -107,37 +218,79 @@ List<ExploreEvent> buildExploreEvents(List<Listing> listings) {
         if (l.book.condition == ConditionGrade.brandNew ||
             l.book.condition == ConditionGrade.likeNew)
           l,
-    ]..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
+    ]..sort(byPopular),
   );
 
-  // A9. Văn học Việt Nam.
-  add(ExploreEventKind.vnClassics, [
-    for (final l in buyable)
-      if (l.book.categoryName == vietnameseNovelCategory) l,
-  ]);
+  add(
+    ExploreEventKind.classics,
+    [
+      for (final l in buyable)
+        if (namesOf(l).contains(classicsCategory)) l,
+    ]..sort(byPopular),
+  );
 
-  // A11. Tác giả có nhiều sách đang bán nhất (hoà thì theo tên cho ổn định).
-  final byAuthor = <String, List<Listing>>{};
-  for (final l in buyable) {
-    final name = l.book.author.trim();
-    if (name.isEmpty) continue;
-    byAuthor.putIfAbsent(name, () => []).add(l);
-  }
-  final authors =
-      byAuthor.entries
-          .where((e) => e.value.length >= authorEventMinBooks)
-          .toList()
-        ..sort((a, b) {
-          final byCount = b.value.length.compareTo(a.value.length);
-          return byCount != 0 ? byCount : a.key.compareTo(b.key);
-        });
-  if (authors.isNotEmpty) {
+  for (final theme in ExploreTheme.values) {
     add(
-      ExploreEventKind.author,
-      authors.first.value,
-      authorName: authors.first.key,
+      ExploreEventKind.theme,
+      [
+        for (final l in buyable)
+          if (namesOf(l).any(theme.categoryNames.contains)) l,
+      ]..sort(byPopular),
+      theme: theme,
     );
   }
+
+  add(
+    ExploreEventKind.quickRead,
+    [
+      for (final l in buyable)
+        if (l.book.pages != null && l.book.pages! < quickReadMaxPages) l,
+    ]..sort((a, b) => a.book.pages!.compareTo(b.book.pages!)),
+  );
+
+  add(
+    ExploreEventKind.thick,
+    [
+      for (final l in buyable)
+        if (l.book.pages != null && l.book.pages! >= thickMinPages) l,
+    ]..sort((a, b) => b.book.pages!.compareTo(a.book.pages!)),
+  );
+
+  // Tác giả / nhà xuất bản có nhiều sách nhất (hoà thì theo tên cho ổn định).
+  void addGroups(
+    ExploreEventKind kind,
+    String? Function(Listing) nameOf,
+    int minBooks,
+    int max,
+  ) {
+    final groups = <String, List<Listing>>{};
+    for (final l in buyable) {
+      final name = nameOf(l)?.trim();
+      if (name == null || name.isEmpty) continue;
+      groups.putIfAbsent(name, () => []).add(l);
+    }
+    final top = groups.entries.where((e) => e.value.length >= minBooks).toList()
+      ..sort((a, b) {
+        final n = b.value.length.compareTo(a.value.length);
+        return n != 0 ? n : a.key.compareTo(b.key);
+      });
+    for (final e in top.take(max)) {
+      add(kind, [...e.value]..sort(byPopular), subject: e.key, minItems: 1);
+    }
+  }
+
+  addGroups(
+    ExploreEventKind.author,
+    (l) => l.book.author,
+    authorEventMinBooks,
+    authorEventMax,
+  );
+  addGroups(
+    ExploreEventKind.publisher,
+    (l) => l.book.publisher,
+    publisherEventMinBooks,
+    publisherEventMax,
+  );
 
   return events;
 }

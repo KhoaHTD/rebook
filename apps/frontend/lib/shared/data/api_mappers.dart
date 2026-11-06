@@ -474,6 +474,11 @@ extension ListingSummaryMapper on api.ListingSummary {
       author: author ?? '',
       condition: conditionToDomain(conditionGrade),
       images: _cover(title, coverUrl),
+      publisher: publisher,
+      publishYear: publishYear,
+      language: language,
+      pages: pages,
+      categoryId: categoryId == null ? null : _id(categoryId),
     ),
     shop:
         shop?.toDomain() ??

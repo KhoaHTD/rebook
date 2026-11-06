@@ -24,7 +24,10 @@ abstract final class Routes {
   static String searchCategory(String categoryId) =>
       '/home/search?category=$categoryId&sort=popular';
   static String listing(String id) => '/home/listings/$id';
-  static String exploreEvent(String kind) => '/home/events/$kind';
+
+  /// [key] là `ExploreEvent.key` (vd. `top`, `author:John Steinbeck`, `theme:humor`), được mã hoá URL.
+  static String exploreEvent(String key) =>
+      '/home/events/${Uri.encodeComponent(key)}';
   static String shop(String id) => '/home/shops/$id';
   static const cart = '/home/cart';
   static const checkout = '/home/cart/checkout';

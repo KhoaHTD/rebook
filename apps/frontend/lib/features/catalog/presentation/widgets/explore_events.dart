@@ -1,5 +1,6 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
@@ -7,13 +8,11 @@ import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/catalog/domain/explore_event.dart';
-import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
-import 'package:book_marketplace/features/catalog/presentation/widgets/explore_sections.dart';
-import 'package:book_marketplace/shared/layout/breakpoints.dart';
+import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
-import 'package:book_marketplace/shared/widgets/ui.dart';
+import 'package:book_marketplace/shared/widgets/cover_color.dart';
 
-/// Tiêu đề, mô tả ngắn, biểu tượng và nhãn của từng sự kiện (dùng cho thẻ và trang danh sách).
+/// Tiêu đề, mô tả ngắn, biểu tượng và nhãn của từng bộ sưu tập (dùng cho thẻ và trang bộ sưu tập).
 class ExploreEventText {
   const ExploreEventText({
     required this.title,
@@ -31,17 +30,29 @@ class ExploreEventText {
 ExploreEventText exploreEventText(BuildContext context, ExploreEvent e) {
   final l10n = context.l10n;
   return switch (e.kind) {
+    ExploreEventKind.top => ExploreEventText(
+      title: l10n.evTopTitle,
+      subtitle: l10n.evTopSub,
+      tag: l10n.evTopTag,
+      icon: Icons.emoji_events_rounded,
+    ),
+    ExploreEventKind.forYou => ExploreEventText(
+      title: l10n.evForYouTitle,
+      subtitle: l10n.evForYouSub(e.count),
+      tag: l10n.evForYouTag,
+      icon: Icons.favorite_rounded,
+    ),
+    ExploreEventKind.newRelease => ExploreEventText(
+      title: l10n.evNewTitle,
+      subtitle: l10n.evNewSub(e.count, newReleaseFromYear),
+      tag: l10n.evNewTag,
+      icon: Icons.new_releases_rounded,
+    ),
     ExploreEventKind.cheap => ExploreEventText(
       title: l10n.evCheapTitle(formatVnd(cheapEventMaxPrice)),
       subtitle: l10n.evCheapSub(e.count, formatVnd(e.minPrice)),
       tag: l10n.evTagDeal,
       icon: Icons.sell_rounded,
-    ),
-    ExploreEventKind.rare => ExploreEventText(
-      title: l10n.evRareTitle(rareEventBeforeYear),
-      subtitle: l10n.evRareSub(e.count),
-      tag: l10n.evTagRare,
-      icon: Icons.auto_stories_rounded,
     ),
     ExploreEventKind.likeNew => ExploreEventText(
       title: l10n.evLikeNewTitle,
@@ -49,146 +60,325 @@ ExploreEventText exploreEventText(BuildContext context, ExploreEvent e) {
       tag: l10n.evTagLikeNew,
       icon: Icons.auto_awesome_rounded,
     ),
-    ExploreEventKind.vnClassics => ExploreEventText(
-      title: l10n.evClassicTitle,
-      subtitle: l10n.evClassicSub(e.count),
-      tag: l10n.evTagClassic,
+    ExploreEventKind.classics => ExploreEventText(
+      title: l10n.evClassicsTitle,
+      subtitle: l10n.evClassicsSub(e.count),
+      tag: l10n.evClassicsTag,
       icon: Icons.menu_book_rounded,
     ),
+    ExploreEventKind.theme => switch (e.theme!) {
+      ExploreTheme.humor => ExploreEventText(
+        title: l10n.evThemeHumor,
+        subtitle: l10n.evThemeSub(e.count),
+        tag: l10n.evThemeTag,
+        icon: Icons.sentiment_very_satisfied_rounded,
+      ),
+      ExploreTheme.memoir => ExploreEventText(
+        title: l10n.evThemeMemoir,
+        subtitle: l10n.evThemeSub(e.count),
+        tag: l10n.evThemeTag,
+        icon: Icons.history_edu_rounded,
+      ),
+      ExploreTheme.gothic => ExploreEventText(
+        title: l10n.evThemeGothic,
+        subtitle: l10n.evThemeSub(e.count),
+        tag: l10n.evThemeTag,
+        icon: Icons.nightlight_round,
+      ),
+      ExploreTheme.food => ExploreEventText(
+        title: l10n.evThemeFood,
+        subtitle: l10n.evThemeSub(e.count),
+        tag: l10n.evThemeTag,
+        icon: Icons.restaurant_rounded,
+      ),
+      ExploreTheme.selfHelp => ExploreEventText(
+        title: l10n.evThemeSelfHelp,
+        subtitle: l10n.evThemeSub(e.count),
+        tag: l10n.evThemeTag,
+        icon: Icons.self_improvement_rounded,
+      ),
+    },
+    ExploreEventKind.quickRead => ExploreEventText(
+      title: l10n.evQuickTitle,
+      subtitle: l10n.evQuickSub(e.count, quickReadMaxPages),
+      tag: l10n.evQuickTag,
+      icon: Icons.bolt_rounded,
+    ),
+    ExploreEventKind.thick => ExploreEventText(
+      title: l10n.evThickTitle,
+      subtitle: l10n.evThickSub(e.count, thickMinPages),
+      tag: l10n.evThickTag,
+      icon: Icons.auto_stories_rounded,
+    ),
     ExploreEventKind.author => ExploreEventText(
-      title: l10n.evAuthorTitle(e.authorName ?? ''),
+      title: l10n.evAuthorTitle(e.subject ?? ''),
       subtitle: l10n.evAuthorSub(e.count),
       tag: l10n.evTagAuthor,
       icon: Icons.edit_note_rounded,
     ),
+    ExploreEventKind.publisher => ExploreEventText(
+      title: l10n.evPublisherTitle(e.subject ?? ''),
+      subtitle: l10n.evPublisherSub(e.count),
+      tag: l10n.evPublisherTag,
+      icon: Icons.apartment_rounded,
+    ),
   };
 }
 
-/// Băng chuyền sự kiện ở đầu trang Khám phá. Không có sự kiện nào thì không chiếm chỗ.
-class ExploreEvents extends ConsumerWidget {
-  const ExploreEvents({super.key});
+/// Màu nền của một bộ sưu tập: cố định theo khoá của bộ, lấy từ bảng màu bìa.
+Color exploreEventColor(ExploreEvent e) => CoverColor.fallback(e.key);
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final events = ref.watch(exploreEventsProvider).value;
-    if (events == null || events.isEmpty) return const SizedBox.shrink();
-    final compact = context.windowSize.isCompact;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ExploreHeader(
-          icon: Icons.celebration_rounded,
-          title: context.l10n.exploreEventsTitle,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        SizedBox(
-          height: 160,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: events.length,
-            separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
-            itemBuilder: (context, i) => SizedBox(
-              width: compact ? 290 : 340,
-              child: ExploreEventCard(event: events[i]),
-            ),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xl),
-      ],
-    );
-  }
+/// Gradient nền thẻ bộ sưu tập (đậm dần xuống dưới).
+LinearGradient exploreEventGradient(Color base) {
+  final hsl = HSLColor.fromColor(base);
+  return LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      base,
+      hsl.withLightness((hsl.lightness - 0.12).clamp(0.05, 1.0)).toColor(),
+    ],
+  );
 }
 
+/// Kiểu thẻ bộ sưu tập: [hero] banner lớn, [tall] ô cao (hai bìa), [short] ô thấp (một bìa).
+enum EventCardStyle { hero, tall, short }
+
+/// Thẻ một bộ sưu tập: nền màu, nhãn, tên, mô tả và các bìa xếp chồng; bấm để mở trang bộ sưu tập.
 class ExploreEventCard extends StatelessWidget {
-  const ExploreEventCard({super.key, required this.event});
+  const ExploreEventCard({
+    super.key,
+    required this.event,
+    this.style = EventCardStyle.short,
+    this.height,
+    this.tappable = true,
+  });
 
   final ExploreEvent event;
+  final EventCardStyle style;
+  final double? height;
+
+  /// Bấm thẻ thì mở trang bộ sưu tập (tắt ở chính trang bộ sưu tập).
+  final bool tappable;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.appColors;
-    final text = context.textStyles;
     final t = exploreEventText(context, event);
-    final covers = event.listings.take(1).toList();
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
-      onTap: () => context.go(Routes.exploreEvent(event.kind.name)),
-      child: InfoPanel(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+    final text = context.textStyles;
+    final base = exploreEventColor(event);
+    final books = event.listings.take(3).toList();
+    const onColor = CoverPalette.onHero;
+    final hero = style == EventCardStyle.hero;
+    // Banner thấp (điện thoại): chữ nhỏ hơn để vừa khung.
+    final small = hero && (height ?? 999) < 280;
+    final tall = style == EventCardStyle.tall;
+
+    final pill = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: onColor.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(t.icon, size: 14, color: onColor),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              t.tag,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: text.labelSmall?.copyWith(
+                color: onColor,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final titleText = Text(
+      t.title,
+      maxLines: hero ? (small ? 2 : 3) : (tall ? 3 : 2),
+      overflow: TextOverflow.ellipsis,
+      style:
+          (hero
+                  ? (small ? text.headlineSmall : text.headlineMedium)
+                  : text.titleMedium)
+              ?.copyWith(
+                color: onColor,
+                fontWeight: FontWeight.w800,
+                height: 1.15,
+              ),
+    );
+    final sub = Text(
+      t.subtitle,
+      maxLines: hero ? (small ? 2 : 3) : 2,
+      overflow: TextOverflow.ellipsis,
+      style: text.bodySmall?.copyWith(color: onColor.withValues(alpha: 0.82)),
+    );
+
+    Widget body;
+    if (hero) {
+      body = Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                pill,
+                const SizedBox(height: AppSpacing.md),
+                titleText,
+                const SizedBox(height: 6),
+                sub,
+                const Spacer(),
+                if (tappable)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
+                      horizontal: 14,
+                      vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: c.tintSoft,
+                      color: onColor,
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(t.icon, size: 14, color: c.tint),
-                        const SizedBox(width: 4),
-                        Text(
-                          t.tag,
-                          style: text.labelSmall?.copyWith(
-                            color: c.tint,
-                            fontWeight: FontWeight.w700,
+                        Flexible(
+                          child: Text(
+                            context.l10n.exploreViewCollection,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: text.labelLarge?.copyWith(
+                              color: base,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 16,
+                          color: base,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    t.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: text.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    t.subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: text.bodySmall?.copyWith(color: c.secondaryText),
-                  ),
-                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(flex: 4, child: ExploreCoverFan(books: books, big: true)),
+        ],
+      );
+    } else if (tall) {
+      body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          pill,
+          const SizedBox(height: AppSpacing.sm),
+          titleText,
+          const Spacer(),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: SizedBox(
+              height: 78,
+              child: ExploreCoverFan(books: books.take(2).toList(), big: false),
+            ),
+          ),
+        ],
+      );
+    } else {
+      body = Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [pill, const SizedBox(height: 6), titleText],
+            ),
+          ),
+          if (books.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: BookPoster(
+                title: books.first.book.title,
+                author: books.first.book.author,
+                coverUrl: books.first.book.coverUrl,
+                seed: books.first.book.id,
+                width: 46,
+                shadow: false,
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            SizedBox(
-              width: 72,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (final l in covers)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: BookPoster(
-                        title: l.book.title,
-                        author: l.book.author,
-                        coverUrl: l.book.coverUrl,
-                        seed: l.book.id,
-                        width: 64,
-                        shadow: false,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
+        ],
+      );
+    }
+
+    return GestureDetector(
+      onTap: tappable ? () => context.go(Routes.exploreEvent(event.key)) : null,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          height: height,
+          padding: EdgeInsets.all(hero ? AppSpacing.lg : AppSpacing.md),
+          decoration: BoxDecoration(
+            gradient: exploreEventGradient(base),
+            borderRadius: BorderRadius.circular(hero ? 28 : 22),
+          ),
+          child: body,
         ),
       ),
+    );
+  }
+}
+
+/// Các bìa xếp chồng của một bộ sưu tập (dùng cả ở thẻ tác giả / nhà xuất bản).
+class ExploreCoverFan extends StatelessWidget {
+  const ExploreCoverFan({super.key, required this.books, required this.big});
+
+  final List<Listing> books;
+  final bool big;
+
+  @override
+  Widget build(BuildContext context) {
+    if (books.isEmpty) return const SizedBox.shrink();
+    return LayoutBuilder(
+      builder: (context, box) {
+        final w = big ? math.min(box.maxWidth * 0.52, 120.0) : 46.0;
+        final shift = big ? box.maxWidth * 0.22 : 24.0;
+        // Vẽ từ cuốn cuối đến cuốn đầu để cuốn đầu nằm trên cùng.
+        final order = [for (var i = books.length - 1; i >= 0; i--) i];
+        return Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            for (final i in order)
+              Transform.translate(
+                offset: Offset(
+                  (i - (books.length - 1) / 2) * shift,
+                  big ? i * 4.0 : 0,
+                ),
+                child: Transform.rotate(
+                  angle: (i - (books.length - 1) / 2) * 0.12,
+                  child: BookPoster(
+                    title: books[i].book.title,
+                    author: books[i].book.author,
+                    coverUrl: books[i].book.coverUrl,
+                    seed: books[i].book.id,
+                    width: w,
+                    shadow: true,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
