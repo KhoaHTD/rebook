@@ -1266,14 +1266,26 @@ List<BookImage> _cover(String? title, String? url) {
 }
 
 /// Ghi chú lịch sử đơn từ backend có thể chứa tên enum kiểu "(WALLET)": đổi sang tên thường gọi.
-String? _historyNote(String? note) => note?.replaceAllMapped(
-  RegExp(r'\((WALLET|COD|ZALOPAY)\)'),
-  (m) => switch (m[1]) {
-    'WALLET' => '(Ví ReBook)',
-    'COD' => '(Tiền mặt khi nhận hàng)',
-    _ => '(ZaloPay)',
-  },
-);
+String? _historyNote(String? note) => note
+    ?.replaceAllMapped(
+      RegExp(r'\((WALLET|COD|ZALOPAY)\)'),
+      (m) => switch (m[1]) {
+        'WALLET' => '(Ví ReBook)',
+        'COD' => '(Tiền mặt khi nhận hàng)',
+        _ => '(ZaloPay)',
+      },
+    )
+    .replaceAllMapped(
+      RegExp(
+        r'WRONG_CONDITION|MISSING_PAGES|WRONG_EDITION|OTHER_NOT_AS_DESCRIBED',
+      ),
+      (m) => switch (m[0]) {
+        'WRONG_CONDITION' => 'sai tình trạng sách',
+        'MISSING_PAGES' => 'thiếu trang',
+        'WRONG_EDITION' => 'sai ấn bản',
+        _ => 'không đúng mô tả',
+      },
+    );
 
 /// Ảnh bìa của một dòng đơn hàng: bìa đóng gói sẵn nếu có, không thì ảnh từ API.
 String? _coverUrl(String? title, String? url) {

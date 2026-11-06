@@ -27,6 +27,22 @@ Việc làm bám bảng "Việc frontend phải làm" trong `docs/AUDIT_FRONTEND
 - Ẩn nút giả lập giao hàng ở bản production (FE-12): chỉ chạy được khi backend bật chế độ giả lập (profile dev).
 - Cảnh báo ở hoá đơn lô thắng: quá 48 giờ bị phạt 10% giá búa và cấm đấu giá.
 
-## Test tay (cần Docker, backend nhánh này, máy ảo)
+## Test tay trên máy ảo Android (06/11/2026, backend nhánh này, database riêng , cổng 8081)
 
-Chưa chạy. Điều kiện: bật Docker Desktop, tạo lại database `rebook_dev` (migration V9–V14 khác bản cũ), chạy backend ở nhánh này, cài lại app lên máy ảo bằng `android.8081.json`.
+| Luồng | Kết quả |
+|---|---|
+| Ví người mua: hiện tiền mới nạp đang khoá và giờ mở khoá | Đạt |
+| Màn Rút tiền: "Rút được ngay", ghi chú tiền khoá, nút chọn nhanh chỉ tới mức rút được, chữ giải thích đã sửa | Đạt |
+| Đơn đang giao: người mua thấy nút "Đã nhận hàng" | Đạt |
+| Trả hàng nhiều bước: người mua yêu cầu → shop đồng ý (giao diện) → người mua thấy nơi gửi, hạn gửi, nhập mã vận đơn (giao diện) → shop bấm "Đã nhận lại sách, hoàn tiền" (giao diện) → đơn "Đã trả hàng", người mua được hoàn 70.000 ₫ | Đạt |
+| COD: shop giao → Staff đánh dấu "Đã giao thành công" ở màn Đối chiếu vận chuyển (giao diện) → người mua nhận → Admin bấm "Đã nhận tiền COD" (giao diện) → tiền về ví shop | Đạt |
+| Huỷ đăng ký đấu giá trước hạn: hoàn đủ cọc, nút quay lại "Đăng ký tham gia", có thông báo | Đạt sau khi sửa lỗi (bên dưới) |
+| Khoản nợ trong ví: hiện khung nợ, "Thu nợ từ ví" thu đủ 250.000 ₫, khung biến mất | Đạt (nợ chèn thẳng vào database test) |
+
+Lỗi tìm thấy khi test và đã sửa:
+- Huỷ đăng ký xong màn hình vẫn hiện "Đã đăng ký": provider hành động bị huỷ giữa lúc gọi API (log: "Cannot use the Ref … after it has been disposed"). Sửa: màn phiên theo dõi .
+- Lịch sử đơn hiện mã thô : nay dịch sang "sai tình trạng sách", "thiếu trang", "sai ấn bản", "không đúng mô tả".
+
+Còn thấy nhưng chưa sửa: dòng sổ cái của khoản thu nợ vẫn mang nhãn chung "Thanh toán".
+
+Cách chạy lại: bật Docker Desktop, , tạo database mới (), chạy backend ở  với  (nếu báo trùng migration V9 thì xoá  cũ), build app bằng file env .

@@ -82,6 +82,8 @@ class _Header extends ConsumerWidget {
     // Đã huỷ đăng ký thì coi như chưa đăng ký.
     final reg = regRaw?.status == RegistrationStatus.cancelled ? null : regRaw;
     final compact = context.windowSize.isCompact;
+    // Theo dõi để provider hành động không bị huỷ giữa lúc đang gọi API (huỷ đăng ký).
+    final busy = ref.watch(auctionActionsProvider).isLoading;
 
     final actions = Wrap(
       spacing: AppSpacing.sm,
@@ -102,25 +104,27 @@ class _Header extends ConsumerWidget {
           ),
           if (session.acceptsRegistration && !session.isLive)
             TextButton(
-              onPressed: () async {
-                final ok = await confirmDialog(
-                  context,
-                  l10n.cancelRegistrationQuestion,
-                );
-                if (!ok || !context.mounted) return;
-                final done = await ref
-                    .read(auctionActionsProvider.notifier)
-                    .cancelRegistration(session.id);
-                if (!context.mounted) return;
-                if (done) {
-                  showInfoSnack(context, l10n.cancelRegistrationDone);
-                } else {
-                  showErrorSnack(
-                    context,
-                    ref.read(auctionActionsProvider).error!,
-                  );
-                }
-              },
+              onPressed: busy
+                  ? null
+                  : () async {
+                      final ok = await confirmDialog(
+                        context,
+                        l10n.cancelRegistrationQuestion,
+                      );
+                      if (!ok || !context.mounted) return;
+                      final done = await ref
+                          .read(auctionActionsProvider.notifier)
+                          .cancelRegistration(session.id);
+                      if (!context.mounted) return;
+                      if (done) {
+                        showInfoSnack(context, l10n.cancelRegistrationDone);
+                      } else {
+                        showErrorSnack(
+                          context,
+                          ref.read(auctionActionsProvider).error!,
+                        );
+                      }
+                    },
               child: Text(l10n.cancelRegistration),
             ),
         ] else if (session.acceptsRegistration || session.isLive)
