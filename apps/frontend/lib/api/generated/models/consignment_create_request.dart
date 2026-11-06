@@ -15,10 +15,9 @@ class ConsignmentCreateRequest {
     required this.expectedPrice,
     this.provenance,
   });
-
-  factory ConsignmentCreateRequest.fromJson(Map<String, Object?> json) =>
-      _$ConsignmentCreateRequestFromJson(json);
-
+  
+  factory ConsignmentCreateRequest.fromJson(Map<String, Object?> json) => _$ConsignmentCreateRequestFromJson(json);
+  
   final BookRequest book;
   final num expectedPrice;
   final String? provenance;

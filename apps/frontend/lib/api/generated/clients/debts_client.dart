@@ -5,6 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/chargeback_request.dart';
 import '../models/collect_result.dart';
 import '../models/debt_response.dart';
 import '../models/waive_request.dart';
@@ -24,6 +25,12 @@ abstract class DebtsClient {
   Future<DebtResponse> postAdminDebtsIdWaive({
     @Path('id') required int id,
     @Body() required WaiveRequest body,
+  });
+
+  /// [Admin] Ghi nợ khi ngân hàng đòi lại tiền nạp (chargeback); thu ngay phần ví đang có
+  @POST('/admin/debts/chargeback')
+  Future<DebtResponse> postAdminDebtsChargeback({
+    @Body() required ChargebackRequest body,
   });
 
   /// Nợ phạt / phí kho của tôi

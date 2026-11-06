@@ -18,10 +18,9 @@ class ActivityLogResponse {
     this.summary,
     this.createdAt,
   });
-
-  factory ActivityLogResponse.fromJson(Map<String, Object?> json) =>
-      _$ActivityLogResponseFromJson(json);
-
+  
+  factory ActivityLogResponse.fromJson(Map<String, Object?> json) => _$ActivityLogResponseFromJson(json);
+  
   final int? id;
   final int? adminId;
   final String? adminName;

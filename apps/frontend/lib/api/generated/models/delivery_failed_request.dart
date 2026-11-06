@@ -10,11 +10,13 @@ part 'delivery_failed_request.g.dart';
 
 @JsonSerializable()
 class DeliveryFailedRequest {
-  const DeliveryFailedRequest({required this.reason, this.fault});
-
-  factory DeliveryFailedRequest.fromJson(Map<String, Object?> json) =>
-      _$DeliveryFailedRequestFromJson(json);
-
+  const DeliveryFailedRequest({
+    required this.reason,
+    this.fault,
+  });
+  
+  factory DeliveryFailedRequest.fromJson(Map<String, Object?> json) => _$DeliveryFailedRequestFromJson(json);
+  
   final String reason;
   final DeliveryFault? fault;
 

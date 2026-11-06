@@ -199,6 +199,18 @@ class ApiAdminRepository implements AdminRepository {
   );
 
   @override
+  Future<void> chargeback(String userId, int amount, String reason) =>
+      guardApi(() async {
+        await _client.debts.postAdminDebtsChargeback(
+          body: api.ChargebackRequest(
+            userId: apiId(userId),
+            amount: amount,
+            reason: reason,
+          ),
+        );
+      });
+
+  @override
   Future<AppUser> liftAuctionBan(String id) => guardApi(
     () async =>
         (await _client.admin.postAdminUsersIdLiftAuctionBan(id: apiId(id)))

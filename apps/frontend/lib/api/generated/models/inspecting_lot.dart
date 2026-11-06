@@ -16,10 +16,9 @@ class InspectingLot {
     this.hammerPrice,
     this.closedAt,
   });
-
-  factory InspectingLot.fromJson(Map<String, Object?> json) =>
-      _$InspectingLotFromJson(json);
-
+  
+  factory InspectingLot.fromJson(Map<String, Object?> json) => _$InspectingLotFromJson(json);
+  
   final int? lotId;
   final int? consignmentId;
   final String? consignmentCode;

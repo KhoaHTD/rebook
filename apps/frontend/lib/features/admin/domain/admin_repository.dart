@@ -25,6 +25,10 @@ abstract interface class AdminRepository {
   /// Đổi vai trò (người dùng / nhân viên / quản trị).
   Future<AppUser> setRole(String id, UserRole role);
 
+  /// Ghi nợ chargeback: ngân hàng / cổng thanh toán đòi lại tiền nạp. Thu ngay phần ví đang có, phần còn lại là nợ
+  /// (chặn rút tiền và đấu giá).
+  Future<void> chargeback(String userId, int amount, String reason);
+
   /// Gỡ lệnh cấm đấu giá (sau khi bị phạt bỏ thanh toán nhiều lần).
   Future<AppUser> liftAuctionBan(String id);
 

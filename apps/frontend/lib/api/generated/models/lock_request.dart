@@ -8,11 +8,12 @@ part 'lock_request.g.dart';
 
 @JsonSerializable()
 class LockRequest {
-  const LockRequest({required this.reason});
-
-  factory LockRequest.fromJson(Map<String, Object?> json) =>
-      _$LockRequestFromJson(json);
-
+  const LockRequest({
+    required this.reason,
+  });
+  
+  factory LockRequest.fromJson(Map<String, Object?> json) => _$LockRequestFromJson(json);
+  
   final String reason;
 
   Map<String, Object?> toJson() => _$LockRequestToJson(this);

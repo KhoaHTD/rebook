@@ -17,10 +17,9 @@ class PageResponseWarehouseResponse {
     this.totalItems,
     this.totalPages,
   });
-
-  factory PageResponseWarehouseResponse.fromJson(Map<String, Object?> json) =>
-      _$PageResponseWarehouseResponseFromJson(json);
-
+  
+  factory PageResponseWarehouseResponse.fromJson(Map<String, Object?> json) => _$PageResponseWarehouseResponseFromJson(json);
+  
   final List<WarehouseResponse>? items;
   final int? page;
   final int? size;

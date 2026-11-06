@@ -17,6 +17,8 @@ class ApiWalletRepository implements WalletRepository {
     return w.copyWith(
       locked: info.locked?.toInt() ?? 0,
       unlockAt: info.unlockAt,
+      saleHeld: info.saleHeld?.toInt() ?? 0,
+      saleUnlockAt: info.saleUnlockAt,
     );
   });
 
@@ -90,9 +92,11 @@ class ApiWalletRepository implements WalletRepository {
         if (d.status == api.DebtStatus.open)
           Debt(
             id: '${d.id ?? 0}',
-            kind: d.type == api.DebtType.storageFee
-                ? DebtKind.storageFee
-                : DebtKind.auctionPenalty,
+            kind: switch (d.type) {
+              api.DebtType.storageFee => DebtKind.storageFee,
+              api.DebtType.chargeback => DebtKind.chargeback,
+              _ => DebtKind.auctionPenalty,
+            },
             amount: d.amount?.round() ?? 0,
             remaining: d.remaining?.round() ?? 0,
             note: d.note,

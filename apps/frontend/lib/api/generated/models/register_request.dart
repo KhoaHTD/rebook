@@ -14,10 +14,9 @@ class RegisterRequest {
     required this.fullName,
     this.phone,
   });
-
-  factory RegisterRequest.fromJson(Map<String, Object?> json) =>
-      _$RegisterRequestFromJson(json);
-
+  
+  factory RegisterRequest.fromJson(Map<String, Object?> json) => _$RegisterRequestFromJson(json);
+  
   final String email;
   final String password;
   final String fullName;

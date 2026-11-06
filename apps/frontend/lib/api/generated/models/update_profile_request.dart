@@ -13,10 +13,9 @@ class UpdateProfileRequest {
     this.phone,
     this.avatarUrl,
   });
-
-  factory UpdateProfileRequest.fromJson(Map<String, Object?> json) =>
-      _$UpdateProfileRequestFromJson(json);
-
+  
+  factory UpdateProfileRequest.fromJson(Map<String, Object?> json) => _$UpdateProfileRequestFromJson(json);
+  
   final String fullName;
   final String? phone;
   final String? avatarUrl;

@@ -91,6 +91,10 @@ class FakeAdminRepository implements AdminRepository {
       fakeCall(() => _store.setRole(id, role));
 
   @override
+  Future<void> chargeback(String userId, int amount, String reason) =>
+      fakeCall(() {});
+
+  @override
   Future<AppUser> liftAuctionBan(String id) =>
       fakeCall(() => _store.liftAuctionBan(id));
 

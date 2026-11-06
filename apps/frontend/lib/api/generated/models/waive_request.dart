@@ -8,11 +8,12 @@ part 'waive_request.g.dart';
 
 @JsonSerializable()
 class WaiveRequest {
-  const WaiveRequest({required this.reason});
-
-  factory WaiveRequest.fromJson(Map<String, Object?> json) =>
-      _$WaiveRequestFromJson(json);
-
+  const WaiveRequest({
+    required this.reason,
+  });
+  
+  factory WaiveRequest.fromJson(Map<String, Object?> json) => _$WaiveRequestFromJson(json);
+  
   final String reason;
 
   Map<String, Object?> toJson() => _$WaiveRequestToJson(this);

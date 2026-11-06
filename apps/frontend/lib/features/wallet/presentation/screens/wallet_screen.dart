@@ -178,6 +178,16 @@ class WalletScreen extends ConsumerWidget {
                           style: context.textStyles.bodySmall,
                         ),
                       ],
+                      if (w.saleHeld > 0 && w.saleUnlockAt != null) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          l10n.walletSaleHeldNote(
+                            formatVnd(w.saleHeld),
+                            formatShortDateTime(w.saleUnlockAt!),
+                          ),
+                          style: context.textStyles.bodySmall,
+                        ),
+                      ],
                       const SizedBox(height: AppSpacing.lg),
                       Wrap(
                         spacing: AppSpacing.sm,

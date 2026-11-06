@@ -32,10 +32,9 @@ class LotPublic {
     this.winnerPaddle,
     this.watching,
   });
-
-  factory LotPublic.fromJson(Map<String, Object?> json) =>
-      _$LotPublicFromJson(json);
-
+  
+  factory LotPublic.fromJson(Map<String, Object?> json) => _$LotPublicFromJson(json);
+  
   final int? id;
   final int? sessionId;
   final int? lotNumber;

@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -21,10 +20,20 @@ abstract class FilesClient {
   @POST('/files')
   Future<FileResponse> postFiles({
     @Part(name: 'file') required MultipartFile file,
+    @Query('folder') String? folder,
   });
 
   /// Xem ảnh đã tải lên
   @GET('/files/{name}')
   @DioResponseType(ResponseType.stream)
-  Stream<String> getFilesName({@Path('name') required String name});
+  Stream<String> getFilesName({
+    @Path('name') required String name,
+  });
+
+  /// Xem ảnh biên lai chuyển khoản (cần đăng nhập: người rút hoặc Admin / Staff)
+  @GET('/files/private/{name}')
+  @DioResponseType(ResponseType.stream)
+  Stream<String> getFilesPrivateName({
+    @Path('name') required String name,
+  });
 }

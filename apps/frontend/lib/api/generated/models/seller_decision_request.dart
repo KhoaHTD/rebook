@@ -15,10 +15,9 @@ class SellerDecisionRequest {
     this.counterReserve,
     this.agreeTerms,
   });
-
-  factory SellerDecisionRequest.fromJson(Map<String, Object?> json) =>
-      _$SellerDecisionRequestFromJson(json);
-
+  
+  factory SellerDecisionRequest.fromJson(Map<String, Object?> json) => _$SellerDecisionRequestFromJson(json);
+  
   final SellerDecisionAction decision;
   final num? counterReserve;
   final bool? agreeTerms;

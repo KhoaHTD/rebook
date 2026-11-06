@@ -22,7 +22,11 @@ import 'clients/cod_client.dart';
 ///
 /// Chợ sách cũ: bán giá cố định + đấu giá. Realtime đấu giá qua WebSocket ws://<host>/ws/sessions/{id}.
 class RestClient {
-  RestClient(Dio dio, {String? baseUrl}) : _dio = dio, _baseUrl = baseUrl;
+  RestClient(
+    Dio dio, {
+    String? baseUrl,
+  })  : _dio = dio,
+        _baseUrl = baseUrl;
 
   final Dio _dio;
   final String? _baseUrl;
@@ -43,16 +47,13 @@ class RestClient {
   AuthClient? _auth;
   CodClient? _cod;
 
-  ConsignmentClient get consignment =>
-      _consignment ??= ConsignmentClient(_dio, baseUrl: _baseUrl);
+  ConsignmentClient get consignment => _consignment ??= ConsignmentClient(_dio, baseUrl: _baseUrl);
 
-  CatalogClient get catalog =>
-      _catalog ??= CatalogClient(_dio, baseUrl: _baseUrl);
+  CatalogClient get catalog => _catalog ??= CatalogClient(_dio, baseUrl: _baseUrl);
 
   UserClient get user => _user ??= UserClient(_dio, baseUrl: _baseUrl);
 
-  AuctionClient get auction =>
-      _auction ??= AuctionClient(_dio, baseUrl: _baseUrl);
+  AuctionClient get auction => _auction ??= AuctionClient(_dio, baseUrl: _baseUrl);
 
   OrderClient get order => _order ??= OrderClient(_dio, baseUrl: _baseUrl);
 
@@ -60,11 +61,9 @@ class RestClient {
 
   WalletClient get wallet => _wallet ??= WalletClient(_dio, baseUrl: _baseUrl);
 
-  OrderManagementClient get orderManagement =>
-      _orderManagement ??= OrderManagementClient(_dio, baseUrl: _baseUrl);
+  OrderManagementClient get orderManagement => _orderManagement ??= OrderManagementClient(_dio, baseUrl: _baseUrl);
 
-  NotificationClient get notification =>
-      _notification ??= NotificationClient(_dio, baseUrl: _baseUrl);
+  NotificationClient get notification => _notification ??= NotificationClient(_dio, baseUrl: _baseUrl);
 
   DebtsClient get debts => _debts ??= DebtsClient(_dio, baseUrl: _baseUrl);
 

@@ -8,11 +8,13 @@ part 'checkout_preview_request.g.dart';
 
 @JsonSerializable()
 class CheckoutPreviewRequest {
-  const CheckoutPreviewRequest({required this.addressId, this.listingIds});
-
-  factory CheckoutPreviewRequest.fromJson(Map<String, Object?> json) =>
-      _$CheckoutPreviewRequestFromJson(json);
-
+  const CheckoutPreviewRequest({
+    required this.addressId,
+    this.listingIds,
+  });
+  
+  factory CheckoutPreviewRequest.fromJson(Map<String, Object?> json) => _$CheckoutPreviewRequestFromJson(json);
+  
   final int addressId;
   final List<int>? listingIds;
 

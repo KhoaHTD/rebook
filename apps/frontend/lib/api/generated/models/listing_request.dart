@@ -15,10 +15,9 @@ class ListingRequest {
     required this.price,
     required this.stock,
   });
-
-  factory ListingRequest.fromJson(Map<String, Object?> json) =>
-      _$ListingRequestFromJson(json);
-
+  
+  factory ListingRequest.fromJson(Map<String, Object?> json) => _$ListingRequestFromJson(json);
+  
   final BookRequest book;
   final num price;
   final int stock;

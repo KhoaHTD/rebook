@@ -24,7 +24,9 @@ abstract class UserClient {
   Future<UserResponse> getMe();
 
   @PUT('/me')
-  Future<UserResponse> putMe({@Body() required UpdateProfileRequest body});
+  Future<UserResponse> putMe({
+    @Body() required UpdateProfileRequest body,
+  });
 
   /// Shop của tôi (kèm thông tin nhận tiền)
   @GET('/me/shop')
@@ -32,7 +34,9 @@ abstract class UserClient {
 
   /// Bật shop / cập nhật thông tin shop
   @PUT('/me/shop')
-  Future<ShopResponse> putMeShop({@Body() required ShopRequest body});
+  Future<ShopResponse> putMeShop({
+    @Body() required ShopRequest body,
+  });
 
   @PUT('/me/addresses/{id}')
   Future<AddressResponse> putMeAddressesId({
@@ -41,10 +45,14 @@ abstract class UserClient {
   });
 
   @DELETE('/me/addresses/{id}')
-  Future<void> deleteMeAddressesId({@Path('id') required int id});
+  Future<void> deleteMeAddressesId({
+    @Path('id') required int id,
+  });
 
   @POST('/me/password')
-  Future<void> postMePassword({@Body() required ChangePasswordRequest body});
+  Future<void> postMePassword({
+    @Body() required ChangePasswordRequest body,
+  });
 
   /// Sổ địa chỉ
   @GET('/me/addresses')
@@ -57,5 +65,7 @@ abstract class UserClient {
 
   /// Trang shop công khai
   @GET('/shops/{id}')
-  Future<ShopResponse> getShopsId({@Path('id') required int id});
+  Future<ShopResponse> getShopsId({
+    @Path('id') required int id,
+  });
 }

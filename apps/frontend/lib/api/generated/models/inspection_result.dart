@@ -10,21 +10,20 @@ enum InspectionResult {
   pass('PASS'),
   @JsonValue('FAIL')
   fail('FAIL'),
-
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const InspectionResult(this.json);
 
-  factory InspectionResult.fromJson(String json) =>
-      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
+  factory InspectionResult.fromJson(String json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
-
   /// Returns all defined enum values excluding the $unknown value.
-  static List<InspectionResult> get $valuesDefined =>
-      values.where((value) => value != $unknown).toList();
+  static List<InspectionResult> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }

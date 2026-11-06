@@ -8,11 +8,12 @@ part 'incident_reject_request.g.dart';
 
 @JsonSerializable()
 class IncidentRejectRequest {
-  const IncidentRejectRequest({required this.reason});
-
-  factory IncidentRejectRequest.fromJson(Map<String, Object?> json) =>
-      _$IncidentRejectRequestFromJson(json);
-
+  const IncidentRejectRequest({
+    required this.reason,
+  });
+  
+  factory IncidentRejectRequest.fromJson(Map<String, Object?> json) => _$IncidentRejectRequestFromJson(json);
+  
   final String reason;
 
   Map<String, Object?> toJson() => _$IncidentRejectRequestToJson(this);

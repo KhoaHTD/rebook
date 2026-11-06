@@ -8,11 +8,12 @@ part 'config_request.g.dart';
 
 @JsonSerializable()
 class ConfigRequest {
-  const ConfigRequest({required this.value});
-
-  factory ConfigRequest.fromJson(Map<String, Object?> json) =>
-      _$ConfigRequestFromJson(json);
-
+  const ConfigRequest({
+    required this.value,
+  });
+  
+  factory ConfigRequest.fromJson(Map<String, Object?> json) => _$ConfigRequestFromJson(json);
+  
   final String value;
 
   Map<String, Object?> toJson() => _$ConfigRequestToJson(this);

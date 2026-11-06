@@ -67,3 +67,12 @@ Còn thấy nhưng chưa sửa: dòng sổ cái của khoản thu nợ vẫn man
 Cách chạy lại: bật Docker Desktop, `docker start rebook-db`, tạo database mới (`CREATE DATABASE rebook_ui OWNER rebook ENCODING 'UTF8' TEMPLATE template0`), chạy backend ở `apps/backend` với `DB_URL=jdbc:postgresql://localhost:5432/rebook_ui PORT=8081 ./mvnw spring-boot:run` (nếu báo trùng migration V9 thì xoá file cũ `target/classes/db/migration/V9__unaccent_search.sql`), build app bằng file env trỏ `10.0.2.2:8081`.
 
 Chưa test tay trên máy ảo (đã có test tự động và analyze sạch): Hủy phiên, kiểm định lại lô, nút giao thất bại / trả hàng ở màn Giao lô đấu giá của Staff, gỡ cấm đấu giá, hủy đặt giá tự động.
+
+## Đồng bộ lần 2 (sau khi merge `improve_bussinessrule`: mail outbox, giữ tiền bán hàng, chargeback)
+
+- Ví: `Wallet.saleHeld` / `saleUnlockAt` (tiền bán hàng của shop mới bị giữ); "Rút được ngay" đã trừ phần này; màn Ví và màn Rút tiền có dòng ghi chú ngày mở khoá.
+- Nợ: thêm loại `chargeback` (nhãn "Tiền nạp bị ngân hàng đòi lại").
+- Admin: menu người dùng có "Ghi nợ chargeback" (số tiền + lý do ≥ 5 ký tự) gọi `POST /admin/debts/chargeback`.
+- Mã lỗi mới `SALE_HELD`, `EMAIL_SEND_FAILED` (app hiện thông báo của backend / chuỗi dịch).
+- Tải ảnh gửi kèm `folder`: biên lai rút tiền (`withdrawal-receipts`) ở lại máy chủ, không lên Cloudinary (BE-34).
+- Backend nay mặc định profile `prod`: muốn có dữ liệu mẫu chạy với `SPRING_PROFILES_ACTIVE=dev`.

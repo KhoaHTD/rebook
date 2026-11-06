@@ -24,10 +24,9 @@ class PaymentResponse {
     this.expiresAt,
     this.paidAt,
   });
-
-  factory PaymentResponse.fromJson(Map<String, Object?> json) =>
-      _$PaymentResponseFromJson(json);
-
+  
+  factory PaymentResponse.fromJson(Map<String, Object?> json) => _$PaymentResponseFromJson(json);
+  
   final int? id;
   final String? code;
   final PaymentPurpose? purpose;

@@ -508,6 +508,17 @@ class _WithdrawAmountScreenState extends ConsumerState<WithdrawAmountScreen> {
                                 color: c.secondaryText,
                               ),
                             ),
+                          if ((wallet?.saleHeld ?? 0) > 0 &&
+                              wallet?.saleUnlockAt != null)
+                            Text(
+                              l10n.walletSaleHeldNote(
+                                formatVnd(wallet!.saleHeld),
+                                formatShortDateTime(wallet.saleUnlockAt!),
+                              ),
+                              style: text.bodySmall?.copyWith(
+                                color: c.secondaryText,
+                              ),
+                            ),
                         ],
                       ),
                     ),

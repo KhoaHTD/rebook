@@ -8,11 +8,12 @@ part 'add_deposit_request.g.dart';
 
 @JsonSerializable()
 class AddDepositRequest {
-  const AddDepositRequest({required this.amount});
-
-  factory AddDepositRequest.fromJson(Map<String, Object?> json) =>
-      _$AddDepositRequestFromJson(json);
-
+  const AddDepositRequest({
+    required this.amount,
+  });
+  
+  factory AddDepositRequest.fromJson(Map<String, Object?> json) => _$AddDepositRequestFromJson(json);
+  
   final num amount;
 
   Map<String, Object?> toJson() => _$AddDepositRequestToJson(this);

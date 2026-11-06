@@ -12,21 +12,20 @@ enum WithdrawStatus {
   approved('APPROVED'),
   @JsonValue('REJECTED')
   rejected('REJECTED'),
-
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const WithdrawStatus(this.json);
 
-  factory WithdrawStatus.fromJson(String json) =>
-      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
+  factory WithdrawStatus.fromJson(String json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
-
   /// Returns all defined enum values excluding the $unknown value.
-  static List<WithdrawStatus> get $valuesDefined =>
-      values.where((value) => value != $unknown).toList();
+  static List<WithdrawStatus> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }

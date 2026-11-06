@@ -101,7 +101,9 @@ abstract class OrderClient {
   Future<CartResponse> getCart();
 
   @POST('/cart')
-  Future<CartResponse> postCart({@Body() required AddCartRequest body});
+  Future<CartResponse> postCart({
+    @Body() required AddCartRequest body,
+  });
 
   @DELETE('/cart')
   Future<void> deleteCart();
@@ -123,5 +125,7 @@ abstract class OrderClient {
 
   /// Chi tiết đơn + lịch sử trạng thái
   @GET('/orders/{id}')
-  Future<OrderDetail> getOrdersId({@Path('id') required int id});
+  Future<OrderDetail> getOrdersId({
+    @Path('id') required int id,
+  });
 }

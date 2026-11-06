@@ -8,11 +8,13 @@ part 'otp_sent_response.g.dart';
 
 @JsonSerializable()
 class OtpSentResponse {
-  const OtpSentResponse({this.message, this.devOtp});
-
-  factory OtpSentResponse.fromJson(Map<String, Object?> json) =>
-      _$OtpSentResponseFromJson(json);
-
+  const OtpSentResponse({
+    this.message,
+    this.devOtp,
+  });
+  
+  factory OtpSentResponse.fromJson(Map<String, Object?> json) => _$OtpSentResponseFromJson(json);
+  
   final String? message;
   final String? devOtp;
 

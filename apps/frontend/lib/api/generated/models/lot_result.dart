@@ -18,10 +18,9 @@ class LotResult {
     this.hammerPrice,
     this.winnerPaddle,
   });
-
-  factory LotResult.fromJson(Map<String, Object?> json) =>
-      _$LotResultFromJson(json);
-
+  
+  factory LotResult.fromJson(Map<String, Object?> json) => _$LotResultFromJson(json);
+  
   final int? lotNumber;
   final int? lotId;
   final String? title;

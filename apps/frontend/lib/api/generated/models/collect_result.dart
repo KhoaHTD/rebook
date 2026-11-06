@@ -8,11 +8,13 @@ part 'collect_result.g.dart';
 
 @JsonSerializable()
 class CollectResult {
-  const CollectResult({this.collected, this.stillOwed});
-
-  factory CollectResult.fromJson(Map<String, Object?> json) =>
-      _$CollectResultFromJson(json);
-
+  const CollectResult({
+    this.collected,
+    this.stillOwed,
+  });
+  
+  factory CollectResult.fromJson(Map<String, Object?> json) => _$CollectResultFromJson(json);
+  
   final num? collected;
   final num? stillOwed;
 

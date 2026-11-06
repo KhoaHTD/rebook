@@ -886,6 +886,11 @@
   "admLiftBanQuestion": "Lift this person's auction ban?",
   "admBanLifted": "Auction ban lifted.",
   "admAuctionBanned": "Auction banned",
+  "admChargeback": "Record chargeback",
+  "admChargebackTitle": "Bank reversed a top-up",
+  "admChargebackAmount": "Amount reversed (VND)",
+  "admChargebackReason": "Reason / dispute reference (min 5 characters)",
+  "admChargebackDone": "Recorded. What the wallet holds is collected now; the rest stays as the user's debt.",
   "modeBooks": "Books",
   "modeAuction": "Auction",
   "modeBackToBooks": "Back to books",
@@ -1330,5 +1335,8 @@
   "suggestCategories": "Genres",
   "pickCategoryTitle": "Choose a genre",
   "pickCategoryAllBooks": "All genres",
-  "collectionBooks": "{count} books"
+  "collectionBooks": "{count} books",
+  "walletSaleHeldNote": "Sales proceeds of a new shop are held: {amount}, withdrawable from {date}.",
+  "walletDebtChargeback": "Top-up reversed by the bank (chargeback)",
+  "errEmailSendFailed": "Could not send the verification email. Try again in a few minutes."
 }

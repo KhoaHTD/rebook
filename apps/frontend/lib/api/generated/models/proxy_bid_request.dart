@@ -8,11 +8,12 @@ part 'proxy_bid_request.g.dart';
 
 @JsonSerializable()
 class ProxyBidRequest {
-  const ProxyBidRequest({required this.maxAmount});
-
-  factory ProxyBidRequest.fromJson(Map<String, Object?> json) =>
-      _$ProxyBidRequestFromJson(json);
-
+  const ProxyBidRequest({
+    required this.maxAmount,
+  });
+  
+  factory ProxyBidRequest.fromJson(Map<String, Object?> json) => _$ProxyBidRequestFromJson(json);
+  
   final num maxAmount;
 
   Map<String, Object?> toJson() => _$ProxyBidRequestToJson(this);

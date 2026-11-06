@@ -32,10 +32,9 @@ class ReturnResponse {
     this.returnToName,
     this.returnToAddress,
   });
-
-  factory ReturnResponse.fromJson(Map<String, Object?> json) =>
-      _$ReturnResponseFromJson(json);
-
+  
+  factory ReturnResponse.fromJson(Map<String, Object?> json) => _$ReturnResponseFromJson(json);
+  
   final int? id;
   final int? orderId;
   final ReturnReason? reason;

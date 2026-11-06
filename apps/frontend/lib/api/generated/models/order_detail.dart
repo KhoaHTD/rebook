@@ -52,10 +52,9 @@ class OrderDetail {
     this.canReview,
     this.cancelRequested,
   });
-
-  factory OrderDetail.fromJson(Map<String, Object?> json) =>
-      _$OrderDetailFromJson(json);
-
+  
+  factory OrderDetail.fromJson(Map<String, Object?> json) => _$OrderDetailFromJson(json);
+  
   final int? id;
   final String? code;
   final OrderType? orderType;

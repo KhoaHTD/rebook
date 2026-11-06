@@ -29,6 +29,8 @@ abstract final class ErrorCodes {
   static const invalidPrice = 'INVALID_PRICE';
   static const bookInWarehouse = 'BOOK_IN_WAREHOUSE';
   static const tooManyRequests = 'TOO_MANY_REQUESTS';
+  static const saleHeld = 'SALE_HELD';
+  static const emailSendFailed = 'EMAIL_SEND_FAILED';
 }
 
 /// Lỗi chuẩn hoá của app. Tầng data bắt mọi exception và ném lại dạng này

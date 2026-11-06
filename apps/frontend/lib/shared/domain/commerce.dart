@@ -172,12 +172,16 @@ abstract class Wallet with _$Wallet {
 
     /// Lúc khoản khoá sớm nhất mở ra.
     DateTime? unlockAt,
+
+    /// Tiền bán hàng của shop mới còn bị giữ (chưa rút được), nằm trong [available]; mở ra lúc [saleUnlockAt].
+    @Default(0) int saleHeld,
+    DateTime? saleUnlockAt,
   }) = _Wallet;
 
   int get total => available + held;
 
-  /// Rút được ngay: số dư dùng được trừ phần tiền mới nạp còn khoá.
-  int get withdrawable => (available - locked).clamp(0, available);
+  /// Rút được ngay: số dư dùng được trừ tiền mới nạp còn khoá và tiền bán hàng đang giữ.
+  int get withdrawable => (available - locked - saleHeld).clamp(0, available);
 }
 
 @freezed

@@ -30,21 +30,20 @@ enum ConsignmentStatus {
   returned('RETURNED'),
   @JsonValue('LOST')
   lost('LOST'),
-
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const ConsignmentStatus(this.json);
 
-  factory ConsignmentStatus.fromJson(String json) =>
-      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
+  factory ConsignmentStatus.fromJson(String json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
-
   /// Returns all defined enum values excluding the $unknown value.
-  static List<ConsignmentStatus> get $valuesDefined =>
-      values.where((value) => value != $unknown).toList();
+  static List<ConsignmentStatus> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }

@@ -22,10 +22,9 @@ class TransactionResponse {
     this.note,
     this.createdAt,
   });
-
-  factory TransactionResponse.fromJson(Map<String, Object?> json) =>
-      _$TransactionResponseFromJson(json);
-
+  
+  factory TransactionResponse.fromJson(Map<String, Object?> json) => _$TransactionResponseFromJson(json);
+  
   final int? id;
   final WalletTxType? type;
   final num? availableChange;

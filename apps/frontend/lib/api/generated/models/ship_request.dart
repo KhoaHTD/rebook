@@ -8,11 +8,12 @@ part 'ship_request.g.dart';
 
 @JsonSerializable()
 class ShipRequest {
-  const ShipRequest({this.trackingCode});
-
-  factory ShipRequest.fromJson(Map<String, Object?> json) =>
-      _$ShipRequestFromJson(json);
-
+  const ShipRequest({
+    this.trackingCode,
+  });
+  
+  factory ShipRequest.fromJson(Map<String, Object?> json) => _$ShipRequestFromJson(json);
+  
   final String? trackingCode;
 
   Map<String, Object?> toJson() => _$ShipRequestToJson(this);

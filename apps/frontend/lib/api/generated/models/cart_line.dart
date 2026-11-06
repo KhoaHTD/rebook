@@ -19,10 +19,9 @@ class CartLine {
     this.available,
     this.lineTotal,
   });
-
-  factory CartLine.fromJson(Map<String, Object?> json) =>
-      _$CartLineFromJson(json);
-
+  
+  factory CartLine.fromJson(Map<String, Object?> json) => _$CartLineFromJson(json);
+  
   final int? listingId;
   final String? title;
   final String? author;

@@ -22,10 +22,9 @@ class LotBrief {
     this.closeResult,
     this.rounds,
   });
-
-  factory LotBrief.fromJson(Map<String, Object?> json) =>
-      _$LotBriefFromJson(json);
-
+  
+  factory LotBrief.fromJson(Map<String, Object?> json) => _$LotBriefFromJson(json);
+  
   final int? id;
   final LotStatus? status;
   final int? sessionId;

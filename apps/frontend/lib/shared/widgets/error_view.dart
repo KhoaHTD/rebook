@@ -35,6 +35,7 @@ String errorMessage(BuildContext context, Object error) {
       ErrorCodes.invalidPrice => l10n.errInvalidPrice,
       ErrorCodes.bookInWarehouse => l10n.errBookInWarehouse,
       ErrorCodes.tooManyRequests => l10n.errTooManyRequests,
+      ErrorCodes.emailSendFailed => l10n.errEmailSendFailed,
       _ => null,
     };
     if (byCode != null) return byCode;

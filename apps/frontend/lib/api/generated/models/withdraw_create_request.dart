@@ -15,10 +15,9 @@ class WithdrawCreateRequest {
     required this.accountHolder,
     this.note,
   });
-
-  factory WithdrawCreateRequest.fromJson(Map<String, Object?> json) =>
-      _$WithdrawCreateRequestFromJson(json);
-
+  
+  factory WithdrawCreateRequest.fromJson(Map<String, Object?> json) => _$WithdrawCreateRequestFromJson(json);
+  
   final num amount;
   final String bankName;
   final String accountNumber;

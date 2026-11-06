@@ -8,11 +8,12 @@ part 'top_up_request.g.dart';
 
 @JsonSerializable()
 class TopUpRequest {
-  const TopUpRequest({required this.amount});
-
-  factory TopUpRequest.fromJson(Map<String, Object?> json) =>
-      _$TopUpRequestFromJson(json);
-
+  const TopUpRequest({
+    required this.amount,
+  });
+  
+  factory TopUpRequest.fromJson(Map<String, Object?> json) => _$TopUpRequestFromJson(json);
+  
   final num amount;
 
   Map<String, Object?> toJson() => _$TopUpRequestToJson(this);

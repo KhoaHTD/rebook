@@ -146,6 +146,7 @@ export 'models/waive_request.dart';
 export 'models/debt_response.dart';
 export 'models/debt_status.dart';
 export 'models/debt_type.dart';
+export 'models/chargeback_request.dart';
 export 'models/cod_remit_request.dart';
 export 'models/wallet_response.dart';
 export 'models/withdrawable_response.dart';
@@ -181,3 +182,4 @@ export 'models/page_response_activity_log_response.dart';
 export 'models/auction_event.dart';
 // Root client
 export 'rest_client.dart';
+

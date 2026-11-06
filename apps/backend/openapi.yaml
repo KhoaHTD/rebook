@@ -1812,6 +1812,12 @@ paths:
       summary: "Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL (tương đố\
         i khi lưu cục bộ, https đầy đủ khi bật Cloudinary) để gắn vào nghiệp vụ"
       operationId: upload
+      parameters:
+      - name: folder
+        in: query
+        required: false
+        schema:
+          type: string
       requestBody:
         content:
           multipart/form-data:
@@ -2473,6 +2479,26 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/WaiveRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/DebtResponse"
+  /admin/debts/chargeback:
+    post:
+      tags:
+      - Debts
+      summary: "[Admin] Ghi nợ khi ngân hàng đòi lại tiền nạp (chargeback); thu ngay\
+        \ phần ví đang có"
+      operationId: chargeback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChargebackRequest"
         required: true
       responses:
         "200":
@@ -3343,6 +3369,27 @@ paths:
       - Files
       summary: Xem ảnh đã tải lên
       operationId: download
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+  /files/private/{name}:
+    get:
+      tags:
+      - Files
+      summary: "Xem ảnh biên lai chuyển khoản (cần đăng nhập: người rút hoặc Admin\
+        \ / Staff)"
+      operationId: downloadPrivate
       parameters:
       - name: name
         in: path
@@ -5836,6 +5883,24 @@ components:
       enum:
       - AUCTION_PENALTY
       - STORAGE_FEE
+      - CHARGEBACK
+    ChargebackRequest:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+          minimum: 1
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 5
+      required:
+      - amount
+      - reason
+      - userId
     CodRemitRequest:
       type: object
       properties:
@@ -5864,6 +5929,11 @@ components:
         withdrawable:
           type: number
         unlockAt:
+          type: string
+          format: date-time
+        saleHeld:
+          type: number
+        saleUnlockAt:
           type: string
           format: date-time
     PageResponseTransactionResponse:

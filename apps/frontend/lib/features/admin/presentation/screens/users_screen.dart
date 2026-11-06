@@ -5,6 +5,7 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/features/admin/domain/admin_repository.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
@@ -80,6 +81,28 @@ class UsersScreen extends ConsumerWidget {
       );
       if (role == null || role == u.role) return;
       await run((r) => r.setRole(u.id, role), l10n.admRoleChanged);
+    }
+
+    Future<void> chargeback(AppUser u) async {
+      final amount = await showTextSheet(
+        context,
+        title: l10n.admChargebackTitle,
+        label: l10n.admChargebackAmount,
+        rule: Rules.amount,
+      );
+      if (amount == null || !context.mounted) return;
+      final reason = await showTextSheet(
+        context,
+        title: l10n.admChargebackTitle,
+        label: l10n.admChargebackReason,
+        lines: 3,
+        rule: Rules.reason,
+      );
+      if (reason == null) return;
+      await run(
+        (r) => r.chargeback(u.id, int.tryParse(amount) ?? 0, reason),
+        l10n.admChargebackDone,
+      );
     }
 
     Future<void> liftBan(AppUser u) async {
@@ -164,13 +187,21 @@ class UsersScreen extends ConsumerWidget {
                               if (u.id != meId)
                                 PopupMenuButton<String>(
                                   enabled: !busy,
-                                  onSelected: (v) =>
-                                      v == 'role' ? changeRole(u) : liftBan(u),
+                                  onSelected: (v) => switch (v) {
+                                    'role' => changeRole(u),
+                                    'chargeback' => chargeback(u),
+                                    _ => liftBan(u),
+                                  },
                                   itemBuilder: (_) => [
                                     PopupMenuItem(
                                       value: 'role',
                                       child: Text(l10n.admChangeRole),
                                     ),
+                                    if (u.role == UserRole.user)
+                                      PopupMenuItem(
+                                        value: 'chargeback',
+                                        child: Text(l10n.admChargeback),
+                                      ),
                                     if (u.auctionBannedUntil != null &&
                                         u.auctionBannedUntil!.isAfter(
                                           DateTime.now(),

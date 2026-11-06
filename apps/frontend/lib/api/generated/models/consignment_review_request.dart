@@ -8,11 +8,13 @@ part 'consignment_review_request.g.dart';
 
 @JsonSerializable()
 class ConsignmentReviewRequest {
-  const ConsignmentReviewRequest({this.approve, this.note});
-
-  factory ConsignmentReviewRequest.fromJson(Map<String, Object?> json) =>
-      _$ConsignmentReviewRequestFromJson(json);
-
+  const ConsignmentReviewRequest({
+    this.approve,
+    this.note,
+  });
+  
+  factory ConsignmentReviewRequest.fromJson(Map<String, Object?> json) => _$ConsignmentReviewRequestFromJson(json);
+  
   final bool? approve;
   final String? note;
 

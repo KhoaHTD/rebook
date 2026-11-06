@@ -1,5 +1,5 @@
-/// Nợ phạt bỏ thanh toán lô thắng hoặc phí lưu kho chưa thu đủ.
-enum DebtKind { auctionPenalty, storageFee }
+/// Nợ phạt bỏ thanh toán lô thắng, phí lưu kho chưa thu đủ, hoặc tiền nạp bị ngân hàng đòi lại (chargeback).
+enum DebtKind { auctionPenalty, storageFee, chargeback }
 
 class Debt {
   const Debt({

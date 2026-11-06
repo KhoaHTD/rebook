@@ -17,16 +17,14 @@ class PageResponseConsignmentResponse {
     this.totalItems,
     this.totalPages,
   });
-
-  factory PageResponseConsignmentResponse.fromJson(Map<String, Object?> json) =>
-      _$PageResponseConsignmentResponseFromJson(json);
-
+  
+  factory PageResponseConsignmentResponse.fromJson(Map<String, Object?> json) => _$PageResponseConsignmentResponseFromJson(json);
+  
   final List<ConsignmentResponse>? items;
   final int? page;
   final int? size;
   final int? totalItems;
   final int? totalPages;
 
-  Map<String, Object?> toJson() =>
-      _$PageResponseConsignmentResponseToJson(this);
+  Map<String, Object?> toJson() => _$PageResponseConsignmentResponseToJson(this);
 }

@@ -10,21 +10,20 @@ enum PaymentPurpose {
   order('ORDER'),
   @JsonValue('TOP_UP')
   topUp('TOP_UP'),
-
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const PaymentPurpose(this.json);
 
-  factory PaymentPurpose.fromJson(String json) =>
-      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
+  factory PaymentPurpose.fromJson(String json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
-
   /// Returns all defined enum values excluding the $unknown value.
-  static List<PaymentPurpose> get $valuesDefined =>
-      values.where((value) => value != $unknown).toList();
+  static List<PaymentPurpose> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }

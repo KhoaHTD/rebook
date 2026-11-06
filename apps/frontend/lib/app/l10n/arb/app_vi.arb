@@ -1429,6 +1429,11 @@
   "admLiftBanQuestion": "Gỡ lệnh cấm đấu giá của người này?",
   "admBanLifted": "Đã gỡ cấm đấu giá.",
   "admAuctionBanned": "Bị cấm đấu giá",
+  "admChargeback": "Ghi nợ chargeback",
+  "admChargebackTitle": "Ngân hàng đòi lại tiền nạp",
+  "admChargebackAmount": "Số tiền bị đòi lại (đồng)",
+  "admChargebackReason": "Lý do / mã tra soát (từ 5 ký tự)",
+  "admChargebackDone": "Đã ghi nợ. Phần ví đang có được thu ngay, phần còn lại là nợ của người dùng.",
   "modeBooks": "Mua sách",
   "modeAuction": "Đấu giá",
   "modeBackToBooks": "Về Mua sách",
@@ -2282,5 +2287,18 @@
         "type": "int"
       }
     }
-  }
+  },
+  "walletSaleHeldNote": "Tiền bán hàng của shop mới đang được giữ {amount}, rút được từ {date}.",
+  "@walletSaleHeldNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "walletDebtChargeback": "Tiền nạp bị ngân hàng đòi lại (chargeback)",
+  "errEmailSendFailed": "Không gửi được email mã xác thực. Thử lại sau ít phút."
 }

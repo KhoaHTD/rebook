@@ -10,11 +10,12 @@ part 'pay_request.g.dart';
 
 @JsonSerializable()
 class PayRequest {
-  const PayRequest({required this.method});
-
-  factory PayRequest.fromJson(Map<String, Object?> json) =>
-      _$PayRequestFromJson(json);
-
+  const PayRequest({
+    required this.method,
+  });
+  
+  factory PayRequest.fromJson(Map<String, Object?> json) => _$PayRequestFromJson(json);
+  
   final PaymentMethod method;
 
   Map<String, Object?> toJson() => _$PayRequestToJson(this);

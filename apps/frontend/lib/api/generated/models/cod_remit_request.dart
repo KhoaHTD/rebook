@@ -8,11 +8,13 @@ part 'cod_remit_request.g.dart';
 
 @JsonSerializable()
 class CodRemitRequest {
-  const CodRemitRequest({required this.amount, this.reference});
-
-  factory CodRemitRequest.fromJson(Map<String, Object?> json) =>
-      _$CodRemitRequestFromJson(json);
-
+  const CodRemitRequest({
+    required this.amount,
+    this.reference,
+  });
+  
+  factory CodRemitRequest.fromJson(Map<String, Object?> json) => _$CodRemitRequestFromJson(json);
+  
   final num amount;
   final String? reference;
 

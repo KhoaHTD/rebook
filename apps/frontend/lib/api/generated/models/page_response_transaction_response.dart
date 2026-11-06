@@ -17,16 +17,14 @@ class PageResponseTransactionResponse {
     this.totalItems,
     this.totalPages,
   });
-
-  factory PageResponseTransactionResponse.fromJson(Map<String, Object?> json) =>
-      _$PageResponseTransactionResponseFromJson(json);
-
+  
+  factory PageResponseTransactionResponse.fromJson(Map<String, Object?> json) => _$PageResponseTransactionResponseFromJson(json);
+  
   final List<TransactionResponse>? items;
   final int? page;
   final int? size;
   final int? totalItems;
   final int? totalPages;
 
-  Map<String, Object?> toJson() =>
-      _$PageResponseTransactionResponseToJson(this);
+  Map<String, Object?> toJson() => _$PageResponseTransactionResponseToJson(this);
 }

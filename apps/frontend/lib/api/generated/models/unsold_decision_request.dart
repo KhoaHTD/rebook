@@ -15,10 +15,9 @@ class UnsoldDecisionRequest {
     this.newReserve,
     this.listingPrice,
   });
-
-  factory UnsoldDecisionRequest.fromJson(Map<String, Object?> json) =>
-      _$UnsoldDecisionRequestFromJson(json);
-
+  
+  factory UnsoldDecisionRequest.fromJson(Map<String, Object?> json) => _$UnsoldDecisionRequestFromJson(json);
+  
   final UnsoldAction action;
   final num? newReserve;
   final num? listingPrice;

@@ -67,7 +67,8 @@ class FakeImageUploader implements ImageUploader {
 }
 
 /// Upload thật lên backend (`POST /files`, PNG / JPEG / WebP, tối đa 5MB).
-/// `folder` chỉ để phân loại phía app; backend lưu chung một chỗ.
+/// `folder` gửi kèm để backend biết ảnh nhạy cảm: `withdrawal-receipts` luôn ở lại máy chủ (không lên Cloudinary) vì
+/// khi hoàn tất rút tiền nó được chuyển vào thư mục riêng cần đăng nhập mới xem.
 class ApiImageUploader implements ImageUploader {
   ApiImageUploader(this._client);
 
@@ -85,6 +86,7 @@ class ApiImageUploader implements ImageUploader {
               file.mimeType ?? _guessType(file.name),
             ),
           ),
+          folder: folder,
         );
         return res.url ?? '';
       });
