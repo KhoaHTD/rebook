@@ -43,4 +43,12 @@ public interface ConsignmentRepository extends JpaRepository<Consignment, Long> 
               and (c.appointmentAt is null or c.appointmentAt < :now)
             """)
     List<Long> findExpiredAppointments(@Param("approvedBefore") Instant approvedBefore, @Param("now") Instant now);
+
+    /** Kiểm định đạt từ trước mốc này mà người bán chưa chấp nhận hay rút. */
+    @Query("""
+            select c.id from Consignment c, Inspection i
+            where i.consignmentId = c.id and c.status = com.rebook.consignment.ConsignmentStatus.AWAITING_SELLER
+              and i.createdAt < :before
+            """)
+    List<Long> findSellerDecisionOverdueIds(@Param("before") Instant before);
 }

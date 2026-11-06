@@ -18,7 +18,7 @@ import java.time.Instant;
 
 /**
  * Nợ của người dùng với sàn: phạt bỏ thanh toán lô đấu giá hoặc phí lưu kho chưa thu đủ.
- * Còn nợ OPEN thì không đăng ký phiên, không trả giá, không rút tiền (docs/AUCTION_MONEY_FLOW.md mục 3.2).
+ * Còn nợ OPEN thì không đăng ký phiên, không trả giá, không rút tiền (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần B mục 3.2).
  */
 @Entity
 @Table(name = "account_debts")

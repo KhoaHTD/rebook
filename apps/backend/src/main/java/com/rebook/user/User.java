@@ -41,6 +41,9 @@ public class User {
     private boolean emailVerified;
     private boolean phoneVerified;
     private Instant auctionBannedUntil;
+    /** Số lần vi phạm đấu giá (bỏ thanh toán, từ chối nhận) tính cấm luỹ tiến, và lần gần nhất (BR-6.4). */
+    private int auctionStrikes;
+    private Instant auctionLastStrikeAt;
     private String lockReason;
 
     @CreationTimestamp

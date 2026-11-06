@@ -32,7 +32,8 @@ import java.util.List;
 public class ReturnRequest {
 
     @Schema(name = "ReturnReason", enumAsRef = true)
-    public enum Reason { WRONG_CONDITION, MISSING_PAGES, WRONG_EDITION, OTHER_NOT_AS_DESCRIBED }
+    /** NOT_RECEIVED: đơn bị coi là đã giao mà người mua không nhận được sách; không có hàng để gửi trả. */
+    public enum Reason { WRONG_CONDITION, MISSING_PAGES, WRONG_EDITION, OTHER_NOT_AS_DESCRIBED, NOT_RECEIVED }
 
     @Schema(name = "ReturnStatus", enumAsRef = true)
     public enum Status { PENDING, APPROVED, DISPUTED, REJECTED, AWAITING_GOODS, EXPIRED }

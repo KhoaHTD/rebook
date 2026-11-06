@@ -19,6 +19,11 @@ public interface ProxyBidRepository extends JpaRepository<ProxyBid, Long> {
     @Query("update ProxyBid p set p.active = false where p.lotId = :lotId and p.active = true")
     int deactivateAll(@Param("lotId") Long lotId);
 
+    /** Huỷ mọi giá tối đa tự động còn hiệu lực của một người (khi khoá tài khoản, kể cả phiên đang chạy). */
+    @Modifying
+    @Query("update ProxyBid p set p.active = false where p.userId = :userId and p.active = true")
+    int deactivateAllForUser(@Param("userId") Long userId);
+
     /** Huỷ giá tối đa tự động của một người ở mọi lô của một phiên (khi huỷ đăng ký). */
     @Modifying
     @Query("update ProxyBid p set p.active = false where p.userId = :userId and p.active = true "

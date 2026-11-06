@@ -19,6 +19,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> lockByCode(@Param("code") String code);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Payment p where p.id = :id")
+    Optional<Payment> lockById(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Payment p where p.gatewayRef = :ref")
     Optional<Payment> lockByGatewayRef(@Param("ref") String ref);
 

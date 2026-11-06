@@ -45,6 +45,8 @@ public class OrderJobs {
         each(returnRepository.findShippedUnconfirmedOrderIds(now.minus(config.days(SystemConfigService.RETURN_CONFIRM_DAYS))),
                 orderService::autoEscalateGoods, "chuyển Admin hàng trả shop không xác nhận");
         each(orderRepository.findOverdueToShipIds(now), orderService::autoCancelUnshipped, "huỷ đơn shop không giao đúng hạn");
+        each(orderRepository.findWarehouseSlaBreachIds(now.minus(config.hours(SystemConfigService.CONFIRM_TIMEOUT_HOURS)),
+                now.minus(config.days(SystemConfigService.SHIP_DEADLINE_DAYS))), orderService::alertWarehouseSla, "báo kho quá hạn xử lý");
         each(orderRepository.findUnansweredCancelRequestIds(now.minus(config.hours(SystemConfigService.CANCEL_RESPONSE_HOURS))),
                 orderService::autoApproveCancelRequest, "tự đồng ý huỷ đơn shop không trả lời");
         Instant remindBefore = now.plus(config.hours(SystemConfigService.REMINDER_HOURS));

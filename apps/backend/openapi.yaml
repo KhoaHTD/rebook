@@ -726,6 +726,7 @@ paths:
     post:
       tags:
       - Order management
+      summary: "[Staff] Giao lô đấu giá thất bại. fault=BUYER: phạt như bỏ thanh toán và thu phí giao chiều đi"
       operationId: staffFailed
       parameters:
       - name: id
@@ -738,7 +739,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReasonRequest"
+              $ref: "#/components/schemas/DeliveryFailedRequest"
         required: true
       responses:
         "200":
@@ -804,7 +805,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReasonRequest"
+              $ref: "#/components/schemas/DeliveryFailedRequest"
         required: true
       responses:
         "200":
@@ -4942,6 +4943,7 @@ components:
       - MISSING_PAGES
       - WRONG_EDITION
       - OTHER_NOT_AS_DESCRIBED
+      - NOT_RECEIVED
     ReturnResponse:
       type: object
       properties:
@@ -5019,6 +5021,24 @@ components:
           type: string
           maxLength: 500
           minLength: 0
+      required:
+      - reason
+    DeliveryFault:
+      type: string
+      description: "Ai gây giao thất bại. BUYER = người mua từ chối nhận, sai địa chỉ, không liên lạc được"
+      enum:
+      - BUYER
+      - CARRIER
+      - SHOP
+    DeliveryFailedRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 0
+        fault:
+          $ref: "#/components/schemas/DeliveryFault"
       required:
       - reason
     ReinspectRequest:
@@ -5275,10 +5295,9 @@ components:
             type: string
             minLength: 1
           maxItems: 10
-          minItems: 1
+          minItems: 0
       required:
       - description
-      - images
       - reason
     ReturnShipmentRequest:
       type: object
@@ -5376,6 +5395,9 @@ components:
           type: string
           maxLength: 500
           minLength: 0
+        expectedTotal:
+          type: number
+          description: "Tổng tiền người mua thấy ở bước xem trước; gửi kèm thì giá đổi bị từ chối với PRICE_CHANGED (409)"
       required:
       - addressId
       - paymentMethod

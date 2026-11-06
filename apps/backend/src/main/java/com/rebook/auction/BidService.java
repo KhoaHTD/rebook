@@ -2,6 +2,8 @@ package com.rebook.auction;
 
 import com.rebook.auction.AuctionDtos.BidResponse;
 import com.rebook.common.ApiException;
+import com.rebook.common.Money;
+import com.rebook.system.SystemConfigService;
 import com.rebook.consignment.ConsignmentRepository;
 import com.rebook.notification.NotificationService;
 import com.rebook.user.User;
@@ -48,12 +50,14 @@ public class BidService {
     private final NotificationService notifications;
     private final EntityManager em;
     private final DebtService debts;
+    private final SystemConfigService config;
 
     @Transactional
     public BidResponse placeBid(Long userId, Long lotId, BigDecimal amount) {
         Lot lot = lotRepository.findById(lotId).orElseThrow(() -> ApiException.notFound("lô"));
         AuctionSession session = requireLiveSession(lot);
         AuctionRegistration reg = requireBidder(userId, lot, session);
+        requireLotDeposit(reg, lot, session);
         Instant now = Instant.now();
         if (lot.getStatus() != LotStatus.OPEN || lot.getEndsAt() == null || !lot.getEndsAt().isAfter(now)) {
             throw ApiException.conflict("LOT_NOT_OPEN", "Lô không còn nhận trả giá");
@@ -105,6 +109,7 @@ public class BidService {
             throw ApiException.conflict("LOT_NOT_OPEN", "Lô đã hết giờ trả giá");
         }
         AuctionRegistration reg = requireBidder(userId, lot, session);
+        requireLotDeposit(reg, lot, session);
         BigDecimal min = views.nextMinBid(lot);
         if (maxAmount.compareTo(min) < 0) {
             throw ApiException.badRequest("PROXY_TOO_LOW", "Giá tối đa phải từ " + min.toPlainString() + "đ");
@@ -181,6 +186,7 @@ public class BidService {
                 p.setActive(false); // không còn vượt được mức tối thiểu → hết hiệu lực
             }
             if (challenger == null) {
+                liftLeaderToReserve(lot, session, winner, proxies);
                 return;
             }
             ProxyBid winnerProxy = winner == null ? null
@@ -219,6 +225,20 @@ public class BidService {
             }
         }
         log.warn("Proxy resolution dừng sau 50 vòng ở lô {}", lot.getId());
+    }
+
+    /**
+     * Người dẫn có giá tối đa ≥ giá sàn mà giá hiện tại còn dưới giá sàn: trả hộ lên đúng giá sàn.
+     * Không làm thế thì lô chốt "Không đạt giá" dù người dẫn sẵn sàng trả cao hơn giá sàn.
+     */
+    private void liftLeaderToReserve(Lot lot, AuctionSession session, Long winner, List<ProxyBid> proxies) {
+        BigDecimal reserve = lot.getReservePrice();
+        if (winner == null || reserve == null || lot.getCurrentPrice() == null || lot.getCurrentPrice().compareTo(reserve) >= 0) {
+            return;
+        }
+        proxies.stream().filter(p -> p.getUserId().equals(winner)).findFirst()
+                .filter(p -> effectiveMax(p, lot, session).compareTo(reserve) >= 0)
+                .ifPresent(p -> autoBid(lot, session, winner, reserve, true));
     }
 
     /** Giá tối đa thực tế của proxy, không vượt hạn mức còn lại của người dùng. */
@@ -315,6 +335,24 @@ public class BidService {
             throw ApiException.forbidden("Không thể trả giá lô do chính bạn ký gửi");
         }
         return reg;
+    }
+
+    /**
+     * Lô cao giá (ước tính cao ≥ ngưỡng): chỉ trả giá / đặt giá tối đa khi tổng cọc ≥ cọc phiên + % mức thấp ước tính (BR-5.6).
+     * shortcut: ngưỡng và % đọc cấu hình hiện tại, chưa chốt vào phiên lúc công bố như phí và bước giá.
+     */
+    private void requireLotDeposit(AuctionRegistration reg, Lot lot, AuctionSession session) {
+        if (lot.getEstimateHigh() == null || lot.getEstimateLow() == null
+                || lot.getEstimateHigh().compareTo(config.decimal(SystemConfigService.HIGH_VALUE_LOT_THRESHOLD)) < 0) {
+            return;
+        }
+        BigDecimal required = session.getDepositAmount()
+                .add(Money.percent(lot.getEstimateLow(), config.decimal(SystemConfigService.HIGH_VALUE_DEPOSIT_PERCENT)));
+        BigDecimal missing = required.subtract(reg.getDepositAmount());
+        if (missing.signum() > 0) {
+            throw ApiException.conflict("LOT_DEPOSIT_REQUIRED", "Lô " + lot.getLotNumber() + " là lô cao giá, cần tổng cọc "
+                    + required.toPlainString() + "đ. Hãy cọc thêm " + missing.toPlainString() + "đ để trả giá");
+        }
     }
 
     private void checkLimit(AuctionRegistration reg, BigDecimal amount) {

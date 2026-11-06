@@ -193,7 +193,7 @@ class MultiBidderTest extends IntegrationTest {
     @Test
     void competingMaxBidsEndAtOneStepAboveTheLoser() throws Exception {
         assertThat(proxy(users[0], lot, 300_000)).isEqualTo(200);
-        assertThat(price(lot)).as("proxy đầu tiên mở ở giá khởi điểm").isEqualTo(50_000);
+        assertThat(price(lot)).as("giá tối đa vượt giá sàn: trả hộ lên đúng giá sàn 100.000").isEqualTo(100_000);
         assertThat(proxy(users[1], lot, 200_000)).isEqualTo(200);
         assertThat(leader(lot)).isEqualTo(users[0]);
         assertThat(price(lot)).as("thua ở 200.000 thì người dẫn giữ ở 200.000 + 1 bước").isEqualTo(250_000);
@@ -213,18 +213,63 @@ class MultiBidderTest extends IntegrationTest {
     }
 
     @Test
+    void maxBidAboveReserveSellsTheLotInsteadOfReserveNotMet() throws Exception {
+        // Trước đây: một người đặt giá tối đa 300.000 (giá sàn 100.000) thì lô đứng ở 50.000 và chốt "Không đạt giá"
+        assertThat(proxy(users[0], lot, 300_000)).isEqualTo(200);
+        assertThat(price(lot)).isEqualTo(100_000);
+        assertThat(leader(lot)).isEqualTo(users[0]);
+
+        jdbc.update("UPDATE lots SET ends_at = now() - interval '1 second' WHERE id = ?", lot);
+        runner.tick(session);
+
+        assertThat(jdbc.queryForMap("SELECT status, close_result, hammer_price::bigint AS hammer FROM lots WHERE id = ?", lot))
+                .containsEntry("status", "SOLD").containsEntry("close_result", "SOLD").containsEntry("hammer", 100_000L);
+    }
+
+    @Test
+    void lotThatExpiredWhileTheBackendWasDownIsExtendedInsteadOfClosed() throws Exception {
+        assertThat(bid(users[0], lot, 50_000)).isEqualTo(200);
+        // Backend tắt 30 giây quá giờ chốt của lô: không ai trả giá được trong lúc đó
+        jdbc.update("UPDATE lots SET ends_at = now() - interval '30 seconds' WHERE id = ?", lot);
+
+        runner.recoverAfterRestart(session);
+        runner.tick(session);
+
+        assertThat(lotRow(lot).get("status")).as("không bị chốt ngay khi bật lại").isEqualTo("OPEN");
+        long left = jdbc.queryForObject("SELECT extract(epoch FROM ends_at - now())::bigint FROM lots WHERE id = ?", Long.class, lot);
+        assertThat(left).as("còn ít nhất thời gian soft close").isGreaterThanOrEqualTo(10);
+        assertThat(bid(users[1], lot, 60_000)).as("trả giá tiếp được").isEqualTo(200);
+    }
+
+    @Test
+    void lotWithEnoughTimeLeftIsNotTouchedOnRestart() {
+        Object before = lotRow(lot).get("ends_at");
+        runner.recoverAfterRestart(session);
+        assertThat(lotRow(lot).get("ends_at")).isEqualTo(before);
+    }
+
+    @Test
+    void maxBidBelowReserveIsNotLifted() throws Exception {
+        assertThat(proxy(users[0], lot, 90_000)).isEqualTo(200);
+        assertThat(price(lot)).as("giá tối đa dưới giá sàn: giữ ở giá khởi điểm").isEqualTo(50_000);
+    }
+
+    @Test
     void proxyAnswersAManualBidWithoutExceedingItsMax() throws Exception {
         assertThat(proxy(users[0], lot, 200_000)).isEqualTo(200);
-        assertThat(bid(users[1], lot, 100_000)).isEqualTo(200);
+        assertThat(price(lot)).as("đã được trả hộ lên giá sàn").isEqualTo(100_000);
+        assertThat(bid(users[1], lot, 110_000)).isEqualTo(200);
 
         assertThat(leader(lot)).as("proxy trả lời lại").isEqualTo(users[0]);
-        assertThat(price(lot)).isEqualTo(110_000);
+        assertThat(price(lot)).isEqualTo(120_000);
         assertThat(outbidNotices(users[1])).isEqualTo(1);
     }
 
     @Test
     void manualBidEqualToTheLeadersMaxDoesNotStealTheLead() throws Exception {
+        jdbc.update("UPDATE lots SET reserve_price = 200000 WHERE id = ?", lot); // giá tối đa dưới giá sàn: không trả hộ lên giá sàn
         assertThat(proxy(users[0], lot, 100_000)).isEqualTo(200);
+        assertThat(price(lot)).isEqualTo(50_000);
         assertThat(bid(users[1], lot, 100_000)).isEqualTo(200);
 
         // Quy tắc của hệ thống (BidService.resolveProxies): bằng giá tối đa thì người đặt trước giữ giá
@@ -245,7 +290,7 @@ class MultiBidderTest extends IntegrationTest {
         runner.resume(session);
 
         assertThat(leader(lot)).isEqualTo(users[1]);
-        assertThat(price(lot)).isEqualTo(60_000);
+        assertThat(price(lot)).as("vượt người dẫn rồi trả hộ lên giá sàn").isEqualTo(100_000);
         assertThat(outbidNotices(users[0])).isEqualTo(1);
         long left = jdbc.queryForObject("SELECT extract(epoch FROM ends_at - now())::bigint FROM lots WHERE id = ?", Long.class, lot);
         assertThat(left).as("đồng hồ được đặt lại").isGreaterThanOrEqualTo(10);

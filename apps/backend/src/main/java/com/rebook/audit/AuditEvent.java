@@ -15,7 +15,7 @@ import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.Map;
 
-/** Một sự kiện nghiệp vụ / bảo mật. Chỉ thêm, không sửa, không xoá (xem docs/LOGGING_DESIGN.md). */
+/** Một sự kiện nghiệp vụ / bảo mật. Chỉ thêm, không sửa, không xoá (xem docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần D). */
 @Entity
 @Table(name = "audit_events")
 @Getter

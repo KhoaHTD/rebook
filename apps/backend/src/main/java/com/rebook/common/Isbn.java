@@ -1,7 +1,7 @@
 package com.rebook.common;
 
 /**
- * Chuẩn hoá và kiểm ISBN (docs/SRS_BO_SUNG_NGHIEP_VU.md BR-2.2, BR-2.3).
+ * Chuẩn hoá và kiểm ISBN (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần C BR-2.2, BR-2.3).
  * Bỏ dấu gạch / khoảng trắng; ISBN-10 đổi sang ISBN-13 (thêm 978, tính lại số kiểm tra) để lưu và tìm kiếm thống nhất.
  */
 public final class Isbn {

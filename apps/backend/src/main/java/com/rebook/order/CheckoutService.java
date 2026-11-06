@@ -137,6 +137,11 @@ public class CheckoutService {
         cartRepository.deleteByUserIdAndListingIdIn(userId, orderedListingIds);
 
         BigDecimal grandTotal = orders.stream().map(Order::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        // shortcut: chỉ kiểm khi app gửi expectedTotal (bản app cũ chưa gửi); bắt buộc khi mọi bản app đã gửi
+        if (req.expectedTotal() != null && req.expectedTotal().compareTo(grandTotal) != 0) {
+            throw ApiException.conflict("PRICE_CHANGED", "Giá hoặc phí giao vừa thay đổi: tổng mới là " + grandTotal.toPlainString()
+                    + "đ (bạn thấy " + req.expectedTotal().toPlainString() + "đ). Vui lòng xem lại đơn");
+        }
         PaymentResponse payment = switch (req.paymentMethod()) {
             case COD -> {
                 ensureCodAllowed(userId, grandTotal);

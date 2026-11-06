@@ -30,11 +30,17 @@ public class AuctionEngine {
     private final AuctionRunner runner;
     private final AuctionSettlement settlement;
     private final AppProperties props;
+    /** Nhịp đầu tiên sau khi khởi động thì kéo dài lô đang mở trước khi chạy (xem AuctionRunner.recoverAfterRestart). */
+    private volatile boolean recovered;
 
     @Scheduled(fixedRate = 1000, initialDelay = 5000)
     public void tick() {
         if (!props.auction().engineEnabled()) {
             return;
+        }
+        if (!recovered) {
+            each(sessionRepository.findLiveIds(), runner::recoverAfterRestart, "khôi phục sau khởi động lại");
+            recovered = true;
         }
         Instant now = Instant.now();
         each(sessionRepository.findRegistrationClosed(now), runner::checkQuorum, "kiểm đủ người");
