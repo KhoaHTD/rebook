@@ -28,7 +28,9 @@ public enum ConsignmentStatus implements StatusFlow<ConsignmentStatus> {
     /** Người bán rút sách. */
     WITHDRAWN,
     /** Sách đã trả lại người bán. */
-    RETURNED;
+    RETURNED,
+    /** Kho làm mất sách, sàn đã bồi thường (BR-4.2). */
+    LOST;
 
     @Override
     public Set<ConsignmentStatus> nextStates() {
@@ -36,12 +38,13 @@ public enum ConsignmentStatus implements StatusFlow<ConsignmentStatus> {
             case SUBMITTED -> EnumSet.of(APPROVED, REJECTED, WITHDRAWN);
             case APPROVED -> EnumSet.of(APPOINTMENT_BOOKED, EXPIRED, WITHDRAWN);
             case APPOINTMENT_BOOKED -> EnumSet.of(RECEIVED, EXPIRED, WITHDRAWN);
-            case RECEIVED -> EnumSet.of(INSPECTION_FAILED, AWAITING_SELLER);
-            case INSPECTION_FAILED -> EnumSet.of(RETURNED);
-            case AWAITING_SELLER -> EnumSet.of(ACCEPTED, WITHDRAWN);
-            case ACCEPTED -> EnumSet.of(RETURNED);
-            case WITHDRAWN -> EnumSet.of(RETURNED);
-            case REJECTED, EXPIRED, RETURNED -> EnumSet.noneOf(ConsignmentStatus.class);
+            // RECEIVED → WITHDRAWN: kho làm hỏng sách trước kiểm định, trả lại người bán kèm bồi thường
+            case RECEIVED -> EnumSet.of(INSPECTION_FAILED, AWAITING_SELLER, WITHDRAWN, LOST);
+            case INSPECTION_FAILED -> EnumSet.of(RETURNED, LOST);
+            case AWAITING_SELLER -> EnumSet.of(ACCEPTED, WITHDRAWN, LOST);
+            case ACCEPTED -> EnumSet.of(RETURNED, LOST);
+            case WITHDRAWN -> EnumSet.of(RETURNED, LOST);
+            case REJECTED, EXPIRED, RETURNED, LOST -> EnumSet.noneOf(ConsignmentStatus.class);
         };
     }
 }

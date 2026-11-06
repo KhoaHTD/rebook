@@ -30,6 +30,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AppProperties props;
     private final ObjectMapper objectMapper;
+    private final com.rebook.audit.AuditLog audit;
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -54,7 +55,15 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> writeError(res, 401, "UNAUTHORIZED", "Cần đăng nhập"))
-                        .accessDeniedHandler((req, res, ex) -> writeError(res, 403, "FORBIDDEN", "Không có quyền truy cập")))
+                        .accessDeniedHandler((req, res, ex) -> {
+                            try { // ghi nhật ký không bao giờ được làm hỏng phản hồi 403
+                                audit.recordDenied(com.rebook.audit.EventCode.ACCESS_DENIED, "FORBIDDEN", "PATH", null,
+                                        "Truy cập bị từ chối", "method", req.getMethod(), "path", req.getRequestURI());
+                            } catch (Exception ignored) {
+                                // bỏ qua
+                            }
+                            writeError(res, 403, "FORBIDDEN", "Không có quyền truy cập");
+                        }))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

@@ -30,6 +30,13 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
 
     long countBySessionId(Long sessionId);
 
+    /** Lô không bán / bị huỷ sắp tới hạn người bán phải chọn hướng xử lý mà chưa được nhắc. */
+    @Query("select l.id from Lot l where l.status in :statuses and l.decisionReminderSent = false and l.closedAt < :before")
+    List<Long> findDecisionReminderIds(@Param("statuses") java.util.Collection<LotStatus> statuses, @Param("before") Instant before);
+
+    /** Lô ở các trạng thái này đã đóng từ trước thời điểm cho trước (để tự xử lý lô người bán không quyết định). */
+    List<Lot> findByStatusInAndClosedAtBefore(java.util.Collection<LotStatus> statuses, Instant before);
+
     long countByStatus(LotStatus status);
 
     /**

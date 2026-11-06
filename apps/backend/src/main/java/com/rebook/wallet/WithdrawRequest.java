@@ -43,6 +43,10 @@ public class WithdrawRequest {
     private Status status = Status.PENDING;
 
     private String note;
+
+    /** Số tiền mới nạp đang bị khoá lúc yêu cầu, để Admin thấy nguồn tiền. */
+    private BigDecimal topupLocked = BigDecimal.ZERO;
+
     private Long processedBy;
     private Instant processedAt;
 

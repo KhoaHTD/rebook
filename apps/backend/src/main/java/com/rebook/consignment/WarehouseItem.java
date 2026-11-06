@@ -26,7 +26,7 @@ import java.time.Instant;
 public class WarehouseItem {
 
     @Schema(name = "WarehouseStatus", enumAsRef = true)
-    public enum Status { IN_STOCK, RESERVED, SHIPPED, RETURNED }
+    public enum Status { IN_STOCK, RESERVED, SHIPPED, RETURNED, LOST }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +47,8 @@ public class WarehouseItem {
     private String checkoutReason;
     private Instant returnNotifiedAt;
     private BigDecimal storageFee;
+    /** Kho làm hỏng sách rồi trả lại người bán: không tính phí lưu kho (BR-4.2). */
+    private boolean storageFeeWaived;
 
     @UpdateTimestamp
     private Instant updatedAt;

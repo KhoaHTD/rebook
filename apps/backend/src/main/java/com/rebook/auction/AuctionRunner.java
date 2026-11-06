@@ -36,6 +36,7 @@ public class AuctionRunner {
     private final AuctionViews views;
     private final SystemConfigService config;
     private final NotificationService notifications;
+    private final com.rebook.config.AppProperties props;
 
     // ---- Giai đoạn D: hết hạn đăng ký → đủ người? ----
 
@@ -205,6 +206,16 @@ public class AuctionRunner {
             // Trả lại ít nhất thời gian soft close để mọi người kịp vào lại
             long min = s.getSoftCloseSec() * 1000L;
             current.setEndsAt(now.plusMillis(Math.max(remaining, min)));
+            // Giá tối đa đặt trong lúc tạm dừng chưa được xét: xét ngay bây giờ
+            Set<Long> outbid = new HashSet<>();
+            if (current.getCurrentWinnerId() != null) {
+                outbid.add(current.getCurrentWinnerId());
+            }
+            int bidsBefore = current.getBidCount();
+            bidService.resolveProxies(current, s, outbid);
+            if (current.getBidCount() != bidsBefore) {
+                bidService.afterPriceChange(current, s, outbid);
+            }
         } else if (s.getNextLotAt() != null) {
             s.setNextLotAt(now.plusMillis(remaining));
         }
@@ -252,6 +263,9 @@ public class AuctionRunner {
     /** Demo: mở phiên ngay (bỏ qua chờ tới giờ). Phiên PUBLISHED sẽ kiểm tra đủ người trước. */
     @Transactional
     public AuctionSession startNow(Long sessionId) {
+        if (!props.auction().demoEnabled()) {
+            throw ApiException.forbidden("DEMO_ONLY", "Chỉ mở phiên ngay ở môi trường demo; phiên tự mở đúng giờ");
+        }
         AuctionSession s = lock(sessionId);
         Instant now = Instant.now();
         if (s.getStatus() == SessionStatus.PUBLISHED) {

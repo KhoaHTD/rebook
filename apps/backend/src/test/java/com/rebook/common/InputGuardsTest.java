@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -100,23 +101,33 @@ class InputGuardsTest extends IntegrationTest {
     }
 
     @Test
-    void bookIsbnMustBeTenOrThirteenCharactersWhenGiven() throws Exception {
+    void bookIsbnIsCheckedAndStoredAsIsbn13() throws Exception {
         long owner = createUser(Role.USER, "Chủ shop", 0);
         jdbc.update("""
                 INSERT INTO shops (user_id, name, pickup_address, pickup_province, bank_name, bank_account_number, bank_account_holder)
                 VALUES (?, ?, 'Kho', 'Hà Nội', 'VCB', '123456', 'X')""", owner, "Shop " + UUID.randomUUID());
         long category = jdbc.queryForObject("INSERT INTO categories (name, slug) VALUES ('Test', ?) RETURNING id",
                 Long.class, "isbn-" + UUID.randomUUID());
-        for (String bad : new String[]{"\"abc\"", "\"12345\""}) {
+        // Ký tự lạ: chặn ở tầng kiểm dữ liệu
+        mvc.perform(post("/seller/listings").with(as(owner, Role.USER)).contentType(MediaType.APPLICATION_JSON)
+                        .content(listingBody("\"abc\"").formatted(category, "\"abc\"")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors['book.isbn']").exists());
+        // Sai độ dài / sai số kiểm tra: INVALID_ISBN
+        for (String bad : new String[]{"\"12345\"", "\"9786041234568\"", "\"0306406151\""}) {
             mvc.perform(post("/seller/listings").with(as(owner, Role.USER)).contentType(MediaType.APPLICATION_JSON)
                             .content(listingBody(bad).formatted(category, bad)))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.fieldErrors['book.isbn']").exists());
+                    .andExpect(jsonPath("$.code").value("INVALID_ISBN"));
         }
-        for (String good : new String[]{"\"9786041234567\"", "\"080442957X\"", "\"\"", "null"}) {
+        for (String good : new String[]{"\"978-0-306-40615-7\"", "\"0-306-40615-2\"", "\"080442957X\"", "\"\"", "null"}) {
             mvc.perform(post("/seller/listings").with(as(owner, Role.USER)).contentType(MediaType.APPLICATION_JSON)
                             .content(listingBody(good).formatted(category, good)))
                     .andExpect(status().isCreated());
         }
+        assertThat(jdbc.queryForList("""
+                SELECT b.isbn FROM books b JOIN listings l ON l.book_id = b.id JOIN shops s ON s.id = l.shop_id
+                WHERE s.user_id = ? AND b.isbn IS NOT NULL ORDER BY b.id""", String.class, owner))
+                .containsExactly("9780306406157", "9780306406157", "9780804429573");
     }
 }

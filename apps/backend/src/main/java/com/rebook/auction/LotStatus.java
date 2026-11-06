@@ -30,19 +30,25 @@ public enum LotStatus implements StatusFlow<LotStatus> {
     /** Đã trả sách về cho người bán. */
     RETURNED,
     /** Đã chuyển sang bán giá cố định. */
-    CONVERTED;
+    CONVERTED,
+    /** Đã bán nhưng bị trả về kho (trả hàng / giao thất bại): chờ Staff kiểm định lại trước khi xếp phiên. */
+    INSPECTING,
+    /** Kho làm mất sách, sàn đã bồi thường (BR-4.2). */
+    LOST;
 
     @Override
     public Set<LotStatus> nextStates() {
         return switch (this) {
-            case READY -> EnumSet.of(SCHEDULED, RETURNED, CONVERTED);
+            case READY -> EnumSet.of(SCHEDULED, RETURNED, CONVERTED, LOST);
             case SCHEDULED -> EnumSet.of(READY, OPEN, CANCELLED);
             case OPEN -> EnumSet.of(SOLD, UNSOLD, CANCELLED);
             case SOLD -> EnumSet.of(PAID, READY);
-            case UNSOLD -> EnumSet.of(READY, RETURNED, CONVERTED);
-            case PAID -> EnumSet.of(COMPLETED, READY);
-            case CANCELLED -> EnumSet.of(READY, RETURNED);
-            case COMPLETED, RETURNED, CONVERTED -> EnumSet.noneOf(LotStatus.class);
+            case UNSOLD -> EnumSet.of(READY, RETURNED, CONVERTED, LOST);
+            // PAID → RETURNED / LOST: kho làm hỏng / mất sách sau khi người thắng đã trả tiền (BR-4.2)
+            case PAID -> EnumSet.of(COMPLETED, READY, INSPECTING, RETURNED, LOST);
+            case INSPECTING -> EnumSet.of(READY, RETURNED, LOST);
+            case CANCELLED -> EnumSet.of(READY, RETURNED, LOST);
+            case COMPLETED, RETURNED, CONVERTED, LOST -> EnumSet.noneOf(LotStatus.class);
         };
     }
 }

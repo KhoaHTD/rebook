@@ -82,6 +82,27 @@ public class Order {
     private Instant completedAt;
     private Instant cancelledAt;
 
+    /** Lúc giao cho vận chuyển: mốc để tự coi là đã giao nếu người mua không xác nhận. */
+    private Instant shippedAt;
+
+    /** Hạn shop giao cho vận chuyển sau khi xác nhận; lúc người mua gửi yêu cầu huỷ; đơn hỏng do lỗi của shop. */
+    private Instant shipDueAt;
+    private Instant cancelRequestedAt;
+    private boolean sellerFault;
+
+    /** Đã gửi nhắc trước hạn (mỗi loại một lần). */
+    private boolean shipReminderSent;
+    private boolean cancelReminderSent;
+    private boolean paymentReminderSent;
+
+    /** Phí sàn (%) chụp lúc đặt; null = đơn cũ, dùng cấu hình hiện tại. */
+    private BigDecimal feePercent;
+
+    /** COD: lúc sàn nhận tiền đối soát từ hãng vận chuyển / lúc đã trả shop / trả hàng đang chờ tiền đối soát. */
+    private Instant codRemittedAt;
+    private Instant codPaidOutAt;
+    private boolean codRefundPending;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 

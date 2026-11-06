@@ -7,6 +7,9 @@ import com.rebook.catalog.CatalogDtos.ListingRequest;
 import com.rebook.catalog.CatalogDtos.ListingSummary;
 import com.rebook.common.ApiException;
 import com.rebook.common.PageResponse;
+import com.rebook.consignment.ConsignmentRepository;
+import com.rebook.consignment.WarehouseItem;
+import com.rebook.consignment.WarehouseItemRepository;
 import com.rebook.notification.NotificationService;
 import com.rebook.system.SystemConfigService;
 import com.rebook.user.Shop;
@@ -40,6 +43,8 @@ public class ListingService {
     private final SystemConfigService config;
     private final NotificationService notifications;
     private final ActivityLogService activityLog;
+    private final ConsignmentRepository consignmentRepository;
+    private final WarehouseItemRepository warehouseRepository;
 
     // ---- Người mua / khách ----
 
@@ -170,6 +175,12 @@ public class ListingService {
     @Transactional
     public ListingDetail approve(Long adminId, Long id) {
         Listing l = getDetailed(id);
+        // Tin chuyển từ lô đấu giá không bán: chỉ duyệt khi người bán đã nhận lại sách, tránh bán cuốn còn nằm trong kho
+        consignmentRepository.findByBookId(l.getBook().getId()).flatMap(c -> warehouseRepository.findByConsignmentId(c.getId()))
+                .filter(w -> w.getStatus() != WarehouseItem.Status.RETURNED)
+                .ifPresent(w -> {
+                    throw ApiException.conflict("BOOK_IN_WAREHOUSE", "Sách còn nằm trong kho của sàn, chỉ duyệt tin sau khi người bán đã nhận lại sách");
+                });
         l.setStatus(l.getStatus().moveTo(activeOrOut(l.getStock())));
         l.setRejectReason(null);
         markReviewed(l, adminId);
@@ -272,9 +283,12 @@ public class ListingService {
             }
             if (q.q() != null && !q.q().isBlank()) {
                 String like = "%" + fold(q.q()) + "%";
+                // Gõ ISBN có gạch hoặc ISBN-10 vẫn ra sách (ISBN lưu dạng 13 số, BR-2.3)
+                String isbn13 = com.rebook.common.Isbn.toIsbn13(q.q());
                 ps.add(cb.or(cb.like(foldExpr(cb, book.get("title")), like),
                         cb.like(foldExpr(cb, book.get("author")), like),
-                        cb.like(cb.lower(book.get("isbn")), like)));
+                        cb.like(cb.lower(book.get("isbn")), like),
+                        isbn13 == null ? cb.disjunction() : cb.equal(book.get("isbn"), isbn13)));
             }
             if (q.author() != null && !q.author().isBlank()) {
                 ps.add(cb.like(foldExpr(cb, book.get("author")), "%" + fold(q.author()) + "%"));

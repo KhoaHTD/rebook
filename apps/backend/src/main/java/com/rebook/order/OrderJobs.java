@@ -38,6 +38,20 @@ public class OrderJobs {
                 orderService::autoComplete, "tự hoàn tất đơn");
         each(returnRepository.findUnansweredOrderIds(now.minus(config.days(SystemConfigService.RETURN_RESPONSE_DAYS))),
                 orderService::autoEscalateReturn, "chuyển Admin yêu cầu trả hàng quá hạn");
+        each(orderRepository.findShippedBefore(now.minus(config.days(SystemConfigService.AUTO_DELIVER_DAYS))),
+                orderService::autoDeliver, "tự coi là đã giao");
+        each(returnRepository.findNotShippedOrderIds(now.minus(config.days(SystemConfigService.RETURN_SHIP_DAYS))),
+                orderService::autoExpireReturn, "đóng yêu cầu trả hàng không gửi hàng về");
+        each(returnRepository.findShippedUnconfirmedOrderIds(now.minus(config.days(SystemConfigService.RETURN_CONFIRM_DAYS))),
+                orderService::autoEscalateGoods, "chuyển Admin hàng trả shop không xác nhận");
+        each(orderRepository.findOverdueToShipIds(now), orderService::autoCancelUnshipped, "huỷ đơn shop không giao đúng hạn");
+        each(orderRepository.findUnansweredCancelRequestIds(now.minus(config.hours(SystemConfigService.CANCEL_RESPONSE_HOURS))),
+                orderService::autoApproveCancelRequest, "tự đồng ý huỷ đơn shop không trả lời");
+        Instant remindBefore = now.plus(config.hours(SystemConfigService.REMINDER_HOURS));
+        each(orderRepository.findShipReminderIds(now, remindBefore), orderService::sendShipReminder, "nhắc shop sắp quá hạn giao");
+        each(orderRepository.findCancelReminderIds(now.minus(config.hours(SystemConfigService.CANCEL_RESPONSE_HOURS).dividedBy(2))),
+                orderService::sendCancelReminder, "nhắc shop trả lời yêu cầu huỷ");
+        each(orderRepository.findPaymentReminderIds(now, remindBefore), orderService::sendPaymentReminder, "nhắc người thắng thanh toán");
     }
 
     private void each(List<Long> ids, Consumer<Long> action, String label) {

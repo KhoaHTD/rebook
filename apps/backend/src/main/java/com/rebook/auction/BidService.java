@@ -6,6 +6,7 @@ import com.rebook.consignment.ConsignmentRepository;
 import com.rebook.notification.NotificationService;
 import com.rebook.user.User;
 import com.rebook.user.UserService;
+import com.rebook.wallet.DebtService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,7 @@ public class BidService {
     private final AuctionViews views;
     private final NotificationService notifications;
     private final EntityManager em;
+    private final DebtService debts;
 
     @Transactional
     public BidResponse placeBid(Long userId, Long lotId, BigDecimal amount) {
@@ -96,6 +98,11 @@ public class BidService {
         if (session.getStatus() == SessionStatus.DRAFT || session.getStatus() == SessionStatus.ENDED
                 || session.getStatus() == SessionStatus.CANCELLED) {
             throw ApiException.conflict("SESSION_NOT_ACTIVE", "Phiên không còn hoạt động");
+        }
+        // Khi tạm dừng, ends_at của lô là giá trị cũ (được đặt lại lúc tiếp tục) nên chỉ kiểm lúc phiên đang chạy
+        if (session.getStatus() == SessionStatus.LIVE && lot.getStatus() == LotStatus.OPEN
+                && (lot.getEndsAt() == null || !lot.getEndsAt().isAfter(Instant.now()))) {
+            throw ApiException.conflict("LOT_NOT_OPEN", "Lô đã hết giờ trả giá");
         }
         AuctionRegistration reg = requireBidder(userId, lot, session);
         BigDecimal min = views.nextMinBid(lot);
@@ -158,6 +165,14 @@ public class BidService {
                     continue;
                 }
                 BigDecimal eff = effectiveMax(p, lot, session);
+                if (winner != null && eff.compareTo(lot.getCurrentPrice()) == 0
+                        && proxies.stream().noneMatch(q -> q.getUserId().equals(winner))) {
+                    // Lượt trả giá tay đúng bằng giá tối đa đã đặt trước: người đặt trước giữ giá (cùng luật với hai proxy bằng nhau)
+                    takeLeadAtSamePrice(lot, session, p.getUserId());
+                    outbid.add(winner);
+                    p.setActive(false);
+                    return;
+                }
                 if (eff.compareTo(nextMin) >= 0) {
                     challenger = p;
                     cMax = eff;
@@ -179,7 +194,7 @@ public class BidService {
                     autoBid(lot, session, winner, cMax, true); // bằng giá tối đa: người đặt trước giữ giá ở mức này
                 } else {
                     autoBid(lot, session, challenger.getUserId(), cMax);
-                    BigDecimal answer = cMax.add(views.increment(cMax)).min(wMax);
+                    BigDecimal answer = cMax.add(views.increment(lot, cMax)).min(wMax);
                     autoBid(lot, session, winner, answer, true);
                 }
                 outbid.add(challenger.getUserId());
@@ -193,7 +208,7 @@ public class BidService {
                     winnerProxy.setActive(false);
                 }
                 BigDecimal target = winner == null ? nextMin
-                        : wMax.add(views.increment(wMax)).min(cMax).max(views.nextMinBid(lot));
+                        : wMax.add(views.increment(lot, wMax)).min(cMax).max(views.nextMinBid(lot));
                 if (target.compareTo(cMax) > 0) {
                     target = cMax;
                 }
@@ -236,6 +251,14 @@ public class BidService {
         saveBid(lot.getId(), userId, regId, amount, true);
     }
 
+    /** Đổi người dẫn mà không đổi giá: ghi một lượt tự động bằng đúng giá hiện tại. */
+    private void takeLeadAtSamePrice(Lot lot, AuctionSession session, Long userId) {
+        lot.setCurrentWinnerId(userId);
+        lot.setBidCount(lot.getBidCount() + 1);
+        Long regId = registrationRepository.findBySessionIdAndUserId(session.getId(), userId).orElseThrow().getId();
+        saveBid(lot.getId(), userId, regId, lot.getCurrentPrice(), true);
+    }
+
     private void saveBid(Long lotId, Long userId, Long regId, BigDecimal amount, boolean auto) {
         Bid bid = new Bid();
         bid.setLotId(lotId);
@@ -247,7 +270,7 @@ public class BidService {
     }
 
     /** Phát BID_PLACED cho cả phòng, báo "bị trả giá cao hơn" cho người vừa mất vị trí dẫn đầu. */
-    private void afterPriceChange(Lot lot, AuctionSession session, Set<Long> outbid) {
+    void afterPriceChange(Lot lot, AuctionSession session, Set<Long> outbid) {
         lotRepository.flush();
         views.broadcast(session, "BID_PLACED", lot, null);
         Map<Long, String> paddles = views.paddles(session.getId());
@@ -275,12 +298,18 @@ public class BidService {
 
     private AuctionRegistration requireBidder(Long userId, Lot lot, AuctionSession session) {
         User user = userService.getUser(userId);
+        if (user.isPlatformOperator()) {
+            throw ApiException.forbidden("STAFF_CANNOT_BID", "Tài khoản nhân viên sàn không được tham gia đấu giá");
+        }
         if (user.isAuctionBanned()) {
-            throw ApiException.forbidden("Tài khoản đang bị cấm tham gia đấu giá đến " + user.getAuctionBannedUntil());
+            throw ApiException.forbidden("AUCTION_BANNED", "Tài khoản đang bị cấm tham gia đấu giá đến " + user.getAuctionBannedUntil());
+        }
+        if (debts.hasOpenDebt(userId)) {
+            throw ApiException.conflict("DEBT_OPEN", "Bạn còn khoản nợ phạt hoặc phí kho chưa thanh toán");
         }
         AuctionRegistration reg = registrationRepository.findBySessionIdAndUserId(session.getId(), userId)
                 .filter(r -> r.getStatus() == AuctionRegistration.Status.APPROVED)
-                .orElseThrow(() -> ApiException.forbidden("Bạn chưa đăng ký và đặt cọc cho phiên này"));
+                .orElseThrow(() -> ApiException.forbidden("NOT_REGISTERED", "Bạn chưa đăng ký và đặt cọc cho phiên này"));
         Long sellerId = consignmentRepository.findById(lot.getConsignmentId()).orElseThrow().getSellerId();
         if (sellerId.equals(userId)) {
             throw ApiException.forbidden("Không thể trả giá lô do chính bạn ký gửi");

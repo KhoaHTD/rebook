@@ -53,4 +53,12 @@ public interface ListingRepository extends JpaRepository<Listing, Long>, JpaSpec
     int restoreStock(@Param("id") Long id, @Param("qty") int qty);
 
     long countByStatus(ListingStatus status);
+
+    /** Ẩn mọi tin đang bán của shop (khoá tài khoản). Tin chờ duyệt giữ nguyên để không bỏ qua bước duyệt khi hiện lại. */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+            update Listing l set l.status = com.rebook.catalog.ListingStatus.HIDDEN
+            where l.shop.id = :shopId and l.status in (com.rebook.catalog.ListingStatus.ACTIVE, com.rebook.catalog.ListingStatus.OUT_OF_STOCK)
+            """)
+    int hideLiveListings(@Param("shopId") Long shopId);
 }

@@ -20,6 +20,8 @@ public interface ConsignmentRepository extends JpaRepository<Consignment, Long> 
 
     Optional<Consignment> findByAppointmentCode(String appointmentCode);
 
+    Optional<Consignment> findByBookId(Long bookId);
+
     List<Consignment> findBySellerIdOrderByIdDesc(Long sellerId);
 
     @Query("""

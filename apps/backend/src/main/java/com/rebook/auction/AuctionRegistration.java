@@ -31,13 +31,14 @@ public class AuctionRegistration {
     /** PENDING_DEPOSIT → APPROVED (đã khoá cọc) → REFUNDED | APPLIED | FORFEITED. */
     @Schema(name = "RegistrationStatus", enumAsRef = true)
     public enum Status implements StatusFlow<Status> {
-        PENDING_DEPOSIT, APPROVED, REFUNDED, APPLIED, FORFEITED;
+        PENDING_DEPOSIT, APPROVED, REFUNDED, APPLIED, FORFEITED, CANCELLED;
 
         @Override
         public Set<Status> nextStates() {
             return switch (this) {
                 case PENDING_DEPOSIT -> EnumSet.of(APPROVED, REFUNDED);
-                case APPROVED -> EnumSet.of(REFUNDED, APPLIED, FORFEITED);
+                case APPROVED -> EnumSet.of(REFUNDED, APPLIED, FORFEITED, CANCELLED);
+                case CANCELLED -> EnumSet.of(APPROVED); // đăng ký lại trong hạn
                 case REFUNDED, APPLIED, FORFEITED -> EnumSet.noneOf(Status.class);
             };
         }

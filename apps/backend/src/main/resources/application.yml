@@ -69,6 +69,8 @@ app:
     allowed-origins: ${CORS_ORIGINS:http://localhost:*,http://127.0.0.1:*}
   auction:
     engine-enabled: true
+    # Nút "mở phiên ngay" (bỏ qua chờ tới giờ) chỉ dùng cho demo; môi trường thật để false
+    demo-enabled: false
   payment:
     # true = cho phép gọi /payments/{code}/simulate để giả lập cổng thanh toán trả về thành công
     simulate-enabled: false
@@ -95,7 +97,11 @@ spring:
 app:
   otp:
     expose-in-response: true
+  auction:
+    demo-enabled: true
   payment:
+    simulate-enabled: true
+  shipping:
     simulate-enabled: true
 
 logging:

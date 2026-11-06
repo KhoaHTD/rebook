@@ -1602,7 +1602,7 @@
   "receiptNoImage": "Không có ảnh chứng từ",
   "offersTitle": "Lời mời mua lần hai",
   "offersEmpty": "Chưa có lời mời nào",
-  "offersHint": "Khi người thắng bỏ thanh toán, bạn (người trả giá cao thứ hai, giá từ giá sàn trở lên) được mời mua với giá đã trả trong 24 giờ.",
+  "offersHint": "Khi người thắng bỏ thanh toán, bạn (người trả giá cao thứ hai, giá từ giá sàn trở lên) được mời mua trong 24 giờ, với giá bạn lẽ ra phải trả nếu không có người bỏ: hơn người trả giá kế tiếp một bước giá, không cao hơn giá bạn đã trả, không thấp hơn giá sàn.",
   "offerLotLine": "Lô {n} · {price}",
   "@offerLotLine": {
     "placeholders": {

@@ -99,6 +99,12 @@ public class AuctionController {
         return auctionService.register(me.id(), id, req.agreeRules());
     }
 
+    @Operation(summary = "Huỷ đăng ký (trước hạn đăng ký của phiên), hoàn toàn bộ cọc")
+    @DeleteMapping("/sessions/{id}/register")
+    public RegistrationResponse cancelRegistration(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
+        return auctionService.cancelRegistration(me.id(), id);
+    }
+
     @Operation(summary = "Cọc thêm để nâng hạn mức trả giá")
     @PostMapping("/sessions/{id}/deposit")
     public RegistrationResponse addDeposit(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,

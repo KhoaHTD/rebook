@@ -16,7 +16,8 @@ public record AppProperties(Jwt jwt, Otp otp, Cors cors, Auction auction, Paymen
     public record Cors(List<String> allowedOrigins) {
     }
 
-    public record Auction(boolean engineEnabled) {
+    /** demoEnabled: cho nút "mở phiên ngay" (chỉ bật ở dev / demo, BR-5.4). */
+    public record Auction(boolean engineEnabled, boolean demoEnabled) {
     }
 
     /** appUrl: địa chỉ bản web của app; trang ZaloPay quay về đưa người dùng về `appUrl/home/payments/{mã}`. */

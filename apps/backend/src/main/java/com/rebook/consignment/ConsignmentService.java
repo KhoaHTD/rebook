@@ -1,5 +1,7 @@
 package com.rebook.consignment;
 
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.auction.Lot;
 import com.rebook.auction.LotRepository;
 import com.rebook.auction.LotStatus;
@@ -27,6 +29,8 @@ import com.rebook.system.SystemConfigService;
 import com.rebook.user.Shop;
 import com.rebook.user.User;
 import com.rebook.user.UserService;
+import com.rebook.wallet.AccountDebt;
+import com.rebook.wallet.DebtService;
 import com.rebook.wallet.WalletService;
 import com.rebook.wallet.WalletTxType;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +63,8 @@ public class ConsignmentService {
     private final WalletService walletService;
     private final SystemConfigService config;
     private final NotificationService notifications;
+    private final DebtService debts;
+    private final AuditLog audit;
 
     // =====================================================================
     // Người bán
@@ -175,6 +181,7 @@ public class ConsignmentService {
         lot.setBookId(c.getBookId());
         lot.setStartPrice(insp.getProposedStart());
         lot.setReservePrice(reserve);
+        lot.setCommissionPercent(config.decimal(SystemConfigService.SELLER_COMMISSION)); // chụp hoa hồng lúc chấp nhận hợp đồng
         lot.setEstimateLow(insp.getEstimateLow());
         lot.setEstimateHigh(insp.getEstimateHigh());
         lotRepository.save(lot);
@@ -336,6 +343,9 @@ public class ConsignmentService {
         if (req.estimateLow() == null || req.estimateHigh() == null || req.proposedStart() == null || req.proposedReserve() == null) {
             throw ApiException.badRequest("PRICING_REQUIRED", "Kiểm định đạt cần giá ước tính, giá khởi điểm, giá sàn");
         }
+        if (req.estimateLow().signum() <= 0 || req.proposedStart().signum() <= 0) {
+            throw ApiException.badRequest("INVALID_PRICE", "Giá ước tính và giá khởi điểm phải lớn hơn 0");
+        }
         if (req.estimateLow().compareTo(req.estimateHigh()) > 0) {
             throw ApiException.badRequest("INVALID_ESTIMATE", "Giá ước tính thấp phải ≤ giá ước tính cao");
         }
@@ -369,10 +379,14 @@ public class ConsignmentService {
         Consignment c = lock(w.getConsignmentId());
         long days = Duration.between(w.getReturnNotifiedAt(), Instant.now()).toDays();
         long chargeable = Math.max(0, days - config.integer(SystemConfigService.STORAGE_FREE_DAYS));
-        BigDecimal fee = config.decimal(SystemConfigService.STORAGE_PER_DAY).multiply(BigDecimal.valueOf(chargeable));
+        BigDecimal fee = w.isStorageFeeWaived() ? BigDecimal.ZERO
+                : config.decimal(SystemConfigService.STORAGE_PER_DAY).multiply(BigDecimal.valueOf(chargeable));
         if (fee.signum() > 0) {
-            walletService.debit(c.getSellerId(), WalletTxType.FEE, fee, "WAREHOUSE", w.getId(), "Phí lưu kho quá hạn " + chargeable + " ngày");
-            walletService.credit(null, WalletTxType.FEE, fee, "WAREHOUSE", w.getId(), "Phí lưu kho " + c.getCode());
+            // Thu từ ví nếu có; thiếu thì ghi nợ nhưng vẫn trả sách (docs/AUCTION_MONEY_FLOW.md 3.2)
+            debts.create(c.getSellerId(), AccountDebt.Type.STORAGE_FEE, fee, "WAREHOUSE", w.getId(), null, BigDecimal.ZERO,
+                    "Phí lưu kho quá hạn " + chargeable + " ngày (" + c.getCode() + ")");
+            audit.record(EventCode.WAREHOUSE_STORAGE_FEE_CHARGED, "WAREHOUSE", w.getId(), c.getCode(), "Phí lưu kho quá hạn",
+                    "days", chargeable, "fee", fee);
         }
         w.setStorageFee(fee);
         w.setStatus(WarehouseItem.Status.RETURNED);
@@ -381,6 +395,66 @@ public class ConsignmentService {
         c.setStatus(c.getStatus().moveTo(ConsignmentStatus.RETURNED));
         notifySeller(c, "Bạn đã nhận lại sách của yêu cầu " + c.getCode());
         return toWarehouse(w);
+    }
+
+    /** Job: lô không bán / bị huỷ mà người bán không chọn hướng xử lý đúng hạn → tự chuyển sang trả sách. */
+    @Transactional
+    public void autoReturnUnsold(Long lotId) {
+        Lot lot = lotRepository.lockById(lotId).orElseThrow(() -> ApiException.notFound("lô"));
+        if (lot.getStatus() != LotStatus.UNSOLD && lot.getStatus() != LotStatus.CANCELLED) {
+            return;
+        }
+        Consignment c = lock(lot.getConsignmentId());
+        lot.setStatus(lot.getStatus().moveTo(LotStatus.RETURNED));
+        markReturnPending(c);
+        notifySeller(c, "Bạn chưa chọn hướng xử lý cho lô của yêu cầu " + c.getCode() + " nên sàn chuyển sang trả sách. Hãy đến kho nhận trong "
+                + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày, sau đó tính phí lưu kho");
+        audit.record(EventCode.AUCTION_LOT_AUTO_RETURNED, "LOT", lotId, c.getCode(), "Tự chuyển sang trả sách vì người bán không quyết định",
+                "afterDays", config.integer(SystemConfigService.UNSOLD_DECISION_DAYS));
+    }
+
+    /** Staff kiểm định lại lô bị trả về kho sau khi bán: đạt thì quay lại chờ xếp phiên, không đạt thì trả người bán. */
+    @Transactional
+    public LotBrief reinspectLot(Long staffId, Long lotId, boolean passed, String report) {
+        Lot lot = lotRepository.lockById(lotId).orElseThrow(() -> ApiException.notFound("lô"));
+        if (lot.getStatus() != LotStatus.INSPECTING) {
+            throw ApiException.conflict("LOT_NOT_INSPECTING", "Lô không ở trạng thái chờ kiểm định lại");
+        }
+        Consignment c = lock(lot.getConsignmentId());
+        if (passed) {
+            lot.resetToReady();
+            notifySeller(c, "Lô của yêu cầu " + c.getCode() + " đã được kiểm định lại và quay về chờ xếp phiên");
+        } else {
+            lot.setStatus(lot.getStatus().moveTo(LotStatus.RETURNED));
+            markReturnPending(c);
+            notifySeller(c, "Sau khi kiểm định lại, sách của yêu cầu " + c.getCode() + " không còn phù hợp để đấu giá. Hãy đến kho nhận lại trong "
+                    + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày");
+        }
+        audit.record(EventCode.AUCTION_LOT_REINSPECTED, "LOT", lotId, c.getCode(), report,
+                "passed", passed, "inspectorId", staffId);
+        return LotBrief.of(lot);
+    }
+
+    /** Job: nhắc người bán chọn hướng xử lý lô không bán trước khi sàn tự chuyển sang trả sách (một lần). */
+    @Transactional
+    public void sendDecisionReminder(Long lotId) {
+        Lot lot = lotRepository.lockById(lotId).orElseThrow(() -> ApiException.notFound("lô"));
+        if ((lot.getStatus() == LotStatus.UNSOLD || lot.getStatus() == LotStatus.CANCELLED) && !lot.isDecisionReminderSent()) {
+            lot.setDecisionReminderSent(true);
+            Consignment c = lock(lot.getConsignmentId());
+            notifySeller(c, "Lô của yêu cầu " + c.getCode() + " chưa có hướng xử lý. Hãy chọn: vào phiên sau, bán giá cố định hoặc nhận lại sách. "
+                    + "Sắp quá hạn " + config.integer(SystemConfigService.UNSOLD_DECISION_DAYS) + " ngày, sàn sẽ chuyển sang trả sách và tính hạn lưu kho");
+        }
+    }
+
+    /** Staff: lô bị trả về kho sau khi bán, đang chờ kiểm định lại (cũ nhất trước). */
+    @Transactional(readOnly = true)
+    public PageResponse<ConsignmentDtos.InspectingLot> inspectingLots(int page, int size) {
+        return PageResponse.of(lotRepository.findByStatusOrderByCreatedAtAsc(LotStatus.INSPECTING, PageRequest.of(page, size)), l -> {
+            Consignment c = get(l.getConsignmentId());
+            return new ConsignmentDtos.InspectingLot(l.getId(), c.getId(), c.getCode(), bookService.get(l.getBookId()).getTitle(),
+                    l.getHammerPrice(), l.getClosedAt());
+        });
     }
 
     /** Job: hết hạn yêu cầu không mang sách tới. */

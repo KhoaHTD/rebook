@@ -45,6 +45,28 @@ public class SystemConfigService {
     public static final String FORFEIT_SELLER_PERCENT = "auction.forfeit_seller_percent";
     public static final String POSTPONE_DAYS = "auction.postpone_days";
     public static final String AUTO_APPROVE_TRUSTED = "listing.auto_approve_trusted";
+    public static final String COD_MAX_AMOUNT = "order.cod_max_amount";
+    public static final String COD_NEW_BUYER_MAX_AMOUNT = "order.cod_new_buyer_max_amount";
+    public static final String COD_MAX_FAILURES = "order.cod_max_failures";
+    public static final String COD_FAILURE_WINDOW_DAYS = "order.cod_failure_window_days";
+    public static final String AUTO_DELIVER_DAYS = "order.auto_deliver_days";
+    public static final String RETURN_SHIP_DAYS = "order.return_ship_days";
+    public static final String RETURN_CONFIRM_DAYS = "order.return_confirm_days";
+    public static final String TOPUP_HOLD_HOURS = "wallet.topup_hold_hours";
+    public static final String WITHDRAW_DAILY_LIMIT = "wallet.withdraw_daily_limit";
+    public static final String DEFAULT_PENALTY_PERCENT = "auction.default_penalty_percent";
+    public static final String UNSOLD_DECISION_DAYS = "auction.unsold_decision_days";
+    public static final String SHIP_DEADLINE_DAYS = "order.ship_deadline_days";
+    public static final String CANCEL_RESPONSE_HOURS = "order.cancel_response_hours";
+    public static final String SHOP_FAULT_RATE_PERCENT = "shop.fault_rate_percent";
+    public static final String SHOP_FAULT_MIN_ORDERS = "shop.fault_min_orders";
+    public static final String SHOP_REPUTATION_WINDOW_DAYS = "shop.reputation_window_days";
+    public static final String REMINDER_HOURS = "notify.reminder_hours";
+    public static final String WAREHOUSE_ADDRESS = "shipping.warehouse_address";
+    public static final String MIN_PUBLISH_LEAD_HOURS = "auction.min_publish_lead_hours";
+    public static final String MIN_REGISTRATION_CLOSE_HOURS = "auction.min_registration_close_hours";
+    public static final String COMPENSATION_CAP_UNINSPECTED = "warehouse.compensation_cap_uninspected";
+    public static final String COMPENSATION_BUYER_PERCENT = "warehouse.compensation_buyer_percent";
 
     private final SystemConfigRepository repository;
     private final Map<String, String> cache = new ConcurrentHashMap<>();
@@ -81,8 +103,13 @@ public class SystemConfigService {
 
     /** Bước giá theo bậc, ví dụ "0:10000,200000:50000" → {0: 10000, 200000: 50000}. */
     public BigDecimal bidIncrement(BigDecimal currentPrice) {
+        return bidIncrement(get(BID_TIERS), currentPrice);
+    }
+
+    /** Bước giá theo một bảng bậc cụ thể (bảng đã chốt vào phiên lúc công bố). */
+    public static BigDecimal bidIncrement(String tierSpec, BigDecimal currentPrice) {
         TreeMap<BigDecimal, BigDecimal> tiers = new TreeMap<>();
-        for (String part : get(BID_TIERS).split(",")) {
+        for (String part : tierSpec.split(",")) {
             String[] kv = part.trim().split(":");
             tiers.put(new BigDecimal(kv[0].trim()), new BigDecimal(kv[1].trim()));
         }
@@ -100,7 +127,7 @@ public class SystemConfigService {
         try {
             if (key.equals(AUTO_APPROVE_TRUSTED)) {
                 if (!v.equals("true") && !v.equals("false")) throw new IllegalArgumentException("true/false");
-            } else if (key.equals(WAREHOUSE_PROVINCE)) {
+            } else if (key.equals(WAREHOUSE_PROVINCE) || key.equals(WAREHOUSE_ADDRESS)) {
                 if (v.isEmpty()) throw new IllegalArgumentException("không được rỗng");
             } else if (key.equals(BID_TIERS)) {
                 BigDecimal prev = null;

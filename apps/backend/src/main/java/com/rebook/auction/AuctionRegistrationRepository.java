@@ -22,6 +22,15 @@ public interface AuctionRegistrationRepository extends JpaRepository<AuctionRegi
 
     List<AuctionRegistration> findBySessionId(Long sessionId);
 
+    /** Đăng ký còn cọc ở các phiên chưa chốt (PUBLISHED / POSTPONED), để hoàn khi người dùng bị khoá hoặc bị cấm đấu giá. */
+    @Query("""
+            select r from AuctionRegistration r
+            where r.userId = :userId and r.status = com.rebook.auction.AuctionRegistration.Status.APPROVED
+              and r.sessionId in (select s.id from AuctionSession s
+                                  where s.status in (com.rebook.auction.SessionStatus.PUBLISHED, com.rebook.auction.SessionStatus.POSTPONED))
+            """)
+    List<AuctionRegistration> findApprovedInOpenSessions(@Param("userId") Long userId);
+
     List<AuctionRegistration> findByUserIdOrderByIdDesc(Long userId);
 
     long countBySessionIdAndStatusIn(Long sessionId, Collection<AuctionRegistration.Status> statuses);

@@ -1,10 +1,13 @@
 package com.rebook.order;
 
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.common.ApiException;
 import com.rebook.common.CodeGenerator;
 import com.rebook.common.PageResponse;
 import com.rebook.notification.NotificationService;
 import com.rebook.order.OrderDtos.HistoryResponse;
+import com.rebook.order.OrderDtos.InTransitOrder;
 import com.rebook.order.OrderDtos.OrderDetail;
 import com.rebook.order.OrderDtos.OrderItemResponse;
 import com.rebook.order.OrderDtos.OrderSummary;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
@@ -53,6 +57,8 @@ public class OrderService {
     private final SystemConfigService config;
     private final NotificationService notifications;
     private final ApplicationEventPublisher events;
+    private final AuditLog audit;
+    private final ShopReputation reputation;
 
     private static final Set<OrderStatus> STAFF_HANDLED = EnumSet.of(OrderStatus.PENDING_CONFIRM, OrderStatus.PREPARING,
             OrderStatus.SHIPPING);
@@ -67,6 +73,7 @@ public class OrderService {
         o.setStatus(from.moveTo(to));
         Instant now = Instant.now();
         switch (to) {
+            case SHIPPING -> o.setShippedAt(now);
             case DELIVERED -> o.setDeliveredAt(now);
             case COMPLETED -> o.setCompletedAt(now);
             case CANCELLED, FAILED_DELIVERY, RETURNED -> o.setCancelledAt(now);
@@ -74,6 +81,9 @@ public class OrderService {
             }
         }
         recordHistory(o, from, to, actorId, note);
+        audit.record(EventCode.ORDER_STATUS_CHANGED, "ORDER", o.getId(), o.getCode(), note,
+                "from", from, "to", to, "orderType", o.getOrderType(), "paymentMethod", o.getPaymentMethod(),
+                "total", o.getTotal());
         events.publishEvent(new OrderStatusChangedEvent(o, from, to, actorId));
         notifyBuyer(o, to);
         return o;
@@ -220,6 +230,7 @@ public class OrderService {
                     throw ApiException.conflict("ALREADY_REQUESTED", "Đã gửi yêu cầu huỷ, chờ shop phản hồi");
                 }
                 o.setCancelRequested(true);
+                o.setCancelRequestedAt(Instant.now());
                 o.setCancelReason(reason);
                 recordHistory(o, o.getStatus(), o.getStatus(), userId, "Người mua yêu cầu huỷ: " + reason);
                 notifyShop(o, "Người mua yêu cầu huỷ đơn " + o.getCode() + ": " + reason);
@@ -235,11 +246,18 @@ public class OrderService {
         if (o.getStatus() == OrderStatus.RETURN_REQUESTED) {
             // Người mua rút yêu cầu trả hàng: đóng yêu cầu để không còn treo chờ người bán / Admin
             returnRepository.findByOrderId(orderId)
-                    .filter(x -> x.getStatus() == ReturnRequest.Status.PENDING || x.getStatus() == ReturnRequest.Status.DISPUTED)
+                    .filter(x -> x.getStatus() == ReturnRequest.Status.PENDING || x.getStatus() == ReturnRequest.Status.DISPUTED
+                            || x.getStatus() == ReturnRequest.Status.AWAITING_GOODS)
                     .ifPresent(x -> {
                         x.setStatus(ReturnRequest.Status.REJECTED);
                         x.setResolution("Người mua rút yêu cầu, đã xác nhận nhận hàng");
                     });
+        }
+        if (o.getStatus() == OrderStatus.SHIPPING) {
+            // Chưa có hãng vận chuyển thật: người mua xác nhận đã nhận thì coi là giao thành công rồi hoàn tất
+            transition(o, OrderStatus.DELIVERED, userId, "Người mua xác nhận đã nhận hàng");
+            audit.record(EventCode.ORDER_DELIVERY_CONFIRMED, "ORDER", o.getId(), o.getCode(), "Người mua xác nhận đã nhận hàng khi đang giao",
+                    "shipToConfirmSec", o.getShippedAt() == null ? null : Duration.between(o.getShippedAt(), Instant.now()).toSeconds());
         }
         transition(o, OrderStatus.COMPLETED, userId, "Người mua xác nhận đã nhận hàng");
         return toDetail(o);
@@ -340,6 +358,9 @@ public class OrderService {
     public OrderDetail confirm(Long userId, boolean staff, Long orderId) {
         Order o = requireHandlerOrder(userId, staff, orderId);
         transition(o, OrderStatus.PREPARING, userId, "Đã xác nhận, đang chuẩn bị hàng");
+        if (o.getOrderType() == Order.Type.NORMAL) {
+            o.setShipDueAt(Instant.now().plus(config.days(SystemConfigService.SHIP_DEADLINE_DAYS))); // hạn giao cho vận chuyển
+        }
         return toDetail(o);
     }
 
@@ -365,6 +386,9 @@ public class OrderService {
             throw ApiException.conflict("INVALID_STATUS_TRANSITION", "Đơn chưa được giao cho vận chuyển");
         }
         transition(o, OrderStatus.DELIVERED, userId, o.isPickupAtWarehouse() ? "Người mua đã nhận tại kho" : "Giao hàng thành công");
+        audit.record(EventCode.ORDER_DELIVERY_MARKED, "ORDER", o.getId(), o.getCode(), "Đánh dấu giao thành công",
+                "outcome", "DELIVERED", "byStaff", staff, "simulated", !staff && !o.isPickupAtWarehouse(),
+                "shipToDeliverSec", o.getShippedAt() == null ? null : Duration.between(o.getShippedAt(), Instant.now()).toSeconds());
         return toDetail(o);
     }
 
@@ -373,6 +397,8 @@ public class OrderService {
         Order o = requireHandlerOrder(userId, staff, orderId);
         o.setCancelReason(reason);
         transition(o, OrderStatus.FAILED_DELIVERY, userId, "Giao thất bại: " + reason);
+        audit.record(EventCode.ORDER_DELIVERY_MARKED, "ORDER", o.getId(), o.getCode(), "Đánh dấu giao thất bại",
+                "outcome", "FAILED", "byStaff", staff, "simulated", !staff, "reason", reason);
         return toDetail(o);
     }
 
@@ -384,6 +410,7 @@ public class OrderService {
         }
         o.setCancelReason(reason);
         transition(o, OrderStatus.CANCELLED, userId, "Shop huỷ: " + reason);
+        markSellerFault(o);
         return toDetail(o);
     }
 
@@ -413,9 +440,7 @@ public class OrderService {
                 .orElseThrow(() -> ApiException.conflict("NO_RETURN_REQUEST", "Không có yêu cầu trả hàng đang chờ"));
         r.setSellerNote(note);
         if (approve) {
-            r.setStatus(ReturnRequest.Status.APPROVED);
-            r.setResolution("Người bán đồng ý trả hàng");
-            transition(o, OrderStatus.RETURNED, userId, "Đồng ý trả hàng");
+            approveReturn(o, r, userId, "Người bán đồng ý trả hàng");
         } else {
             r.setStatus(ReturnRequest.Status.DISPUTED);
             recordHistory(o, o.getStatus(), o.getStatus(), userId, "Từ chối trả hàng, chờ Admin phân xử");
@@ -440,9 +465,12 @@ public class OrderService {
     private ReturnResponse returnView(ReturnRequest r) {
         Instant respondBy = r.getStatus() == ReturnRequest.Status.PENDING && r.getCreatedAt() != null
                 ? r.getCreatedAt().plus(config.days(SystemConfigService.RETURN_RESPONSE_DAYS)) : null;
+        Instant shipBy = r.getStatus() == ReturnRequest.Status.AWAITING_GOODS && r.getReturnShippedAt() == null
+                && r.getApprovedAt() != null ? r.getApprovedAt().plus(config.days(SystemConfigService.RETURN_SHIP_DAYS)) : null;
         String resolvedByName = r.getResolvedBy() == null ? null
                 : userRepository.findById(r.getResolvedBy()).map(User::getFullName).orElse(null);
-        return ReturnResponse.of(r, respondBy, resolvedByName);
+        String[] dest = orderRepository.findById(r.getOrderId()).map(this::returnDestination).orElse(new String[]{null, null});
+        return ReturnResponse.of(r, respondBy, shipBy, resolvedByName, dest[0], dest[1]);
     }
 
     @Transactional
@@ -455,8 +483,12 @@ public class OrderService {
         r.setResolvedBy(adminId);
         r.setResolvedAt(Instant.now());
         if (refundBuyer) {
-            r.setStatus(ReturnRequest.Status.APPROVED);
-            transition(o, OrderStatus.RETURNED, adminId, "Admin chấp nhận trả hàng: " + resolution);
+            if (r.getReturnShippedAt() != null) {
+                // Người mua đã gửi hàng về mà shop không xác nhận: Admin quyết hoàn tiền ngay
+                completeReturn(o, r, adminId, "Admin chấp nhận trả hàng: " + resolution);
+            } else {
+                approveReturn(o, r, adminId, resolution);
+            }
         } else {
             r.setStatus(ReturnRequest.Status.REJECTED);
             transition(o, OrderStatus.COMPLETED, adminId, "Admin từ chối trả hàng: " + resolution);
@@ -502,6 +534,7 @@ public class OrderService {
             o.setCancelReason("Shop không xác nhận đúng hạn");
             transition(o, OrderStatus.CANCELLED, null, "Tự huỷ: shop không xác nhận trong hạn");
             notifyShop(o, "Đơn " + o.getCode() + " bị huỷ vì không xác nhận đúng hạn");
+            markSellerFault(o);
         }
     }
 
@@ -510,6 +543,255 @@ public class OrderService {
         Order o = lock(orderId);
         if (o.getStatus() == OrderStatus.DELIVERED) {
             transition(o, OrderStatus.COMPLETED, null, "Tự hoàn tất sau thời hạn khiếu nại");
+        }
+    }
+
+    // =====================================================================
+    // Trả hàng theo bước: được đồng ý → người mua gửi hàng về → shop / kho xác nhận đã nhận → hoàn tiền
+    // =====================================================================
+
+    private void approveReturn(Order o, ReturnRequest r, Long actorId, String resolution) {
+        r.setStatus(ReturnRequest.Status.AWAITING_GOODS);
+        r.setApprovedAt(Instant.now());
+        r.setResolution(resolution);
+        int days = config.integer(SystemConfigService.RETURN_SHIP_DAYS);
+        recordHistory(o, o.getStatus(), o.getStatus(), actorId, "Đồng ý trả hàng, chờ người mua gửi sách về");
+        String[] dest = returnDestination(o);
+        notifications.notify(o.getBuyerId(), NotificationService.ORDER, "Yêu cầu trả hàng được đồng ý",
+                "Hãy gửi sách về trong " + days + " ngày và nhập mã vận đơn. Địa chỉ nhận: " + dest[0] + ", " + dest[1]
+                        + ". Tiền hoàn vào ví khi hàng trả được xác nhận đã nhận (đơn " + o.getCode() + ")", Map.of("orderId", o.getId()));
+        audit.record(EventCode.ORDER_RETURN_APPROVED, "ORDER", o.getId(), o.getCode(), "Đồng ý trả hàng",
+                "shipWithinDays", days, "decidedBy", actorId);
+    }
+
+    /** Hàng trả đã về tay shop / kho (hoặc Admin quyết): hoàn tiền người mua. Tồn kho không tự cộng lại. */
+    private void completeReturn(Order o, ReturnRequest r, Long actorId, String note) {
+        r.setStatus(ReturnRequest.Status.APPROVED);
+        r.setReturnReceivedAt(Instant.now());
+        transition(o, OrderStatus.RETURNED, actorId, note);
+        audit.record(EventCode.ORDER_RETURN_RECEIVED, "ORDER", o.getId(), o.getCode(), note,
+                "refund", o.getTotal(), "paymentMethod", o.getPaymentMethod(), "confirmedBy", actorId);
+    }
+
+    @Transactional
+    public OrderDetail buyerShipReturn(Long userId, Long orderId, String trackingCode) {
+        Order o = requireBuyerOrder(userId, orderId);
+        ReturnRequest r = returnRepository.findByOrderId(orderId)
+                .filter(x -> x.getStatus() == ReturnRequest.Status.AWAITING_GOODS && o.getStatus() == OrderStatus.RETURN_REQUESTED)
+                .orElseThrow(() -> ApiException.conflict("NO_RETURN_TO_SHIP", "Không có yêu cầu trả hàng đang chờ bạn gửi hàng về"));
+        if (r.getReturnShippedAt() != null) {
+            throw ApiException.conflict("ALREADY_SHIPPED", "Bạn đã gửi hàng trả cho đơn này");
+        }
+        r.setReturnTrackingCode(trackingCode.trim());
+        r.setReturnShippedAt(Instant.now());
+        recordHistory(o, o.getStatus(), o.getStatus(), userId, "Người mua đã gửi hàng trả, mã vận đơn " + r.getReturnTrackingCode());
+        notifyShop(o, "Người mua đã gửi hàng trả đơn " + o.getCode() + ", mã vận đơn " + r.getReturnTrackingCode());
+        audit.record(EventCode.ORDER_RETURN_SHIPPED, "ORDER", o.getId(), o.getCode(), "Người mua gửi hàng trả",
+                "trackingCode", r.getReturnTrackingCode());
+        return toDetail(o);
+    }
+
+    /** Shop (hoặc kho với đơn đấu giá) xác nhận đã nhận lại sách → hoàn tiền người mua. */
+    @Transactional
+    public OrderDetail confirmReturnReceived(Long userId, boolean staff, Long orderId) {
+        Order o = requireHandlerOrder(userId, staff, orderId);
+        ReturnRequest r = returnRepository.findByOrderId(orderId)
+                .filter(x -> x.getStatus() == ReturnRequest.Status.AWAITING_GOODS && o.getStatus() == OrderStatus.RETURN_REQUESTED)
+                .orElseThrow(() -> ApiException.conflict("NO_RETURN_TO_RECEIVE", "Không có hàng trả nào đang chờ xác nhận"));
+        if (r.getReturnShippedAt() == null) {
+            throw ApiException.conflict("RETURN_NOT_SHIPPED", "Người mua chưa gửi hàng trả");
+        }
+        completeReturn(o, r, userId, "Shop (hoặc kho) xác nhận đã nhận hàng trả");
+        return toDetail(o);
+    }
+
+    /** Job: người mua không bấm xác nhận sau N ngày kể từ lúc giao cho vận chuyển → tự coi là đã giao, bắt đầu hạn khiếu nại. */
+    @Transactional
+    public void autoDeliver(Long orderId) {
+        Order o = lock(orderId);
+        if (o.getStatus() == OrderStatus.SHIPPING) {
+            transition(o, OrderStatus.DELIVERED, null, "Tự coi là đã giao sau "
+                    + config.integer(SystemConfigService.AUTO_DELIVER_DAYS) + " ngày kể từ lúc giao cho vận chuyển");
+            audit.record(EventCode.ORDER_DELIVERY_AUTO, "ORDER", o.getId(), o.getCode(), "Tự coi là đã giao",
+                    "autoDeliverDays", config.integer(SystemConfigService.AUTO_DELIVER_DAYS));
+        }
+    }
+
+    /** Job: được đồng ý trả nhưng người mua không gửi hàng về đúng hạn → đóng yêu cầu, đơn hoàn tất, shop nhận tiền. */
+    @Transactional
+    public void autoExpireReturn(Long orderId) {
+        Order o = lock(orderId);
+        ReturnRequest r = returnRepository.findByOrderId(orderId)
+                .filter(x -> x.getStatus() == ReturnRequest.Status.AWAITING_GOODS && x.getReturnShippedAt() == null)
+                .orElse(null);
+        if (r == null || o.getStatus() != OrderStatus.RETURN_REQUESTED) {
+            return;
+        }
+        r.setStatus(ReturnRequest.Status.EXPIRED);
+        r.setResolution("Người mua không gửi hàng trả đúng hạn");
+        audit.record(EventCode.ORDER_RETURN_EXPIRED, "ORDER", o.getId(), o.getCode(), "Quá hạn gửi hàng trả");
+        transition(o, OrderStatus.COMPLETED, null, "Tự hoàn tất: người mua không gửi hàng trả đúng hạn");
+    }
+
+    /** Job: người mua đã gửi hàng về nhưng shop / kho không xác nhận đúng hạn → chuyển Admin phân xử. */
+    @Transactional
+    public void autoEscalateGoods(Long orderId) {
+        Order o = lock(orderId);
+        ReturnRequest r = returnRepository.findByOrderId(orderId)
+                .filter(x -> x.getStatus() == ReturnRequest.Status.AWAITING_GOODS && x.getReturnShippedAt() != null)
+                .orElse(null);
+        if (r == null || o.getStatus() != OrderStatus.RETURN_REQUESTED) {
+            return;
+        }
+        r.setStatus(ReturnRequest.Status.DISPUTED);
+        r.setSellerNote("Shop không xác nhận đã nhận hàng trả đúng hạn");
+        recordHistory(o, o.getStatus(), o.getStatus(), null, "Shop không xác nhận hàng trả đúng hạn, chuyển Admin phân xử");
+        notifications.notify(o.getBuyerId(), NotificationService.ORDER, "Hàng trả chuyển Admin",
+                "Shop chưa xác nhận nhận hàng trả đơn " + o.getCode() + ", Admin sẽ phân xử", Map.of("orderId", o.getId()));
+        notifyShop(o, "Bạn chưa xác nhận hàng trả đơn " + o.getCode() + " đúng hạn, Admin sẽ phân xử");
+        audit.record(EventCode.ORDER_RETURN_ESCALATED, "ORDER", o.getId(), o.getCode(), "Chuyển Admin vì shop không xác nhận hàng trả");
+    }
+
+    // =====================================================================
+    // Hạn xử lý của shop và điểm uy tín
+    // =====================================================================
+
+    /** Đơn hỏng do lỗi của shop: tính vào điểm uy tín, vượt ngưỡng thì gỡ uy tín shop. */
+    private void markSellerFault(Order o) {
+        o.setSellerFault(true);
+        if (o.getShopId() != null) {
+            reputation.review(o.getShopId());
+        }
+    }
+
+    /** Job: shop xác nhận rồi nhưng quá hạn không giao cho vận chuyển → huỷ, hoàn tiền người mua, tính lỗi cho shop. */
+    @Transactional
+    public void autoCancelUnshipped(Long orderId) {
+        Order o = lock(orderId);
+        if (o.getStatus() == OrderStatus.PREPARING && !o.isCancelRequested() && !o.isPickupAtWarehouse()) {
+            o.setCancelReason("Shop không giao hàng cho vận chuyển đúng hạn");
+            transition(o, OrderStatus.CANCELLED, null, "Tự huỷ: shop không giao cho vận chuyển trong "
+                    + config.integer(SystemConfigService.SHIP_DEADLINE_DAYS) + " ngày");
+            notifyShop(o, "Đơn " + o.getCode() + " bị huỷ vì bạn không giao cho vận chuyển đúng hạn");
+            audit.record(EventCode.ORDER_AUTO_CANCELLED, "ORDER", o.getId(), o.getCode(), "Quá hạn giao cho vận chuyển",
+                    "reason", "SHIP_DEADLINE", "shopId", o.getShopId());
+            markSellerFault(o);
+        }
+    }
+
+    /** Job: người mua xin huỷ đơn đang chuẩn bị mà shop không trả lời đúng hạn → coi như đồng ý huỷ (không tính lỗi shop). */
+    @Transactional
+    public void autoApproveCancelRequest(Long orderId) {
+        Order o = lock(orderId);
+        if (o.getStatus() == OrderStatus.PREPARING && o.isCancelRequested()) {
+            o.setCancelRequested(false);
+            transition(o, OrderStatus.CANCELLED, null, "Tự đồng ý huỷ: shop không trả lời yêu cầu huỷ trong "
+                    + config.integer(SystemConfigService.CANCEL_RESPONSE_HOURS) + " giờ");
+            notifyShop(o, "Đơn " + o.getCode() + " được huỷ theo yêu cầu của người mua vì bạn không trả lời đúng hạn");
+            audit.record(EventCode.ORDER_AUTO_CANCELLED, "ORDER", o.getId(), o.getCode(), "Shop không trả lời yêu cầu huỷ",
+                    "reason", "CANCEL_REQUEST_UNANSWERED", "shopId", o.getShopId());
+        }
+    }
+
+    /** Hệ thống huỷ đơn chưa giao cho vận chuyển (vd khoá tài khoản): hoàn tiền, trả tồn kho, không tính lỗi shop. */
+    @Transactional
+    public void cancelBySystem(Long orderId, String reason) {
+        Order o = lock(orderId);
+        if (EnumSet.of(OrderStatus.PENDING_PAYMENT, OrderStatus.PENDING_CONFIRM, OrderStatus.PREPARING).contains(o.getStatus())) {
+            o.setCancelReason(reason);
+            transition(o, OrderStatus.CANCELLED, null, "Hệ thống huỷ: " + reason);
+            audit.record(EventCode.ORDER_AUTO_CANCELLED, "ORDER", o.getId(), o.getCode(), reason, "reason", "SYSTEM");
+        }
+    }
+
+    // =====================================================================
+    // Vận hành khi chưa có hãng vận chuyển tích hợp, nhắc trước hạn, địa chỉ nhận hàng trả
+    // =====================================================================
+
+    /** Nơi người mua gửi hàng trả: shop với đơn thường, kho của sàn với đơn đấu giá. [tên, địa chỉ] */
+    private String[] returnDestination(Order o) {
+        if (o.getShopId() != null) {
+            return shopRepository.findById(o.getShopId()).map(s -> new String[]{s.getName(), s.getPickupAddress()})
+                    .orElse(new String[]{null, null});
+        }
+        return new String[]{"Kho ReBook", config.get(SystemConfigService.WAREHOUSE_ADDRESS)};
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<InTransitOrder> inTransit(int page, int size) {
+        Instant overdueBefore = Instant.now().minus(config.days(SystemConfigService.AUTO_DELIVER_DAYS));
+        Page<Order> orders = orderRepository.findNormalInTransit(PageRequest.of(page, size));
+        Map<Long, String> names = shopRepository.findAllById(orders.map(Order::getShopId).toSet()).stream()
+                .collect(Collectors.toMap(Shop::getId, Shop::getName));
+        return PageResponse.of(orders, o -> new InTransitOrder(o.getId(), o.getCode(), o.getShopId(), names.get(o.getShopId()),
+                o.getBuyerId(), o.getPaymentMethod(), o.getTotal(), o.getTrackingCode(), o.getShippedAt(),
+                o.getShippedAt() != null && o.getShippedAt().isBefore(overdueBefore)));
+    }
+
+    /**
+     * Staff / Admin xác nhận kết quả giao của đơn thường sau khi đối chiếu với hãng vận chuyển (chưa có tích hợp tự động).
+     * Đơn COD không tự coi là đã giao nên đây là đường duy nhất để đơn đi tiếp hoặc để ghi nhận người nhận bom hàng.
+     */
+    @Transactional
+    public OrderDetail carrierConfirm(Long staffId, Long orderId, boolean delivered, String reason) {
+        Order o = lock(orderId);
+        if (o.getOrderType() != Order.Type.NORMAL) {
+            throw ApiException.conflict("NOT_NORMAL_ORDER", "Đơn đấu giá do kho xử lý bằng thao tác giao của kho");
+        }
+        if (o.getStatus() != OrderStatus.SHIPPING) {
+            throw ApiException.conflict("INVALID_STATUS_TRANSITION", "Đơn không ở trạng thái đang giao");
+        }
+        Long shipToConfirmSec = o.getShippedAt() == null ? null : Duration.between(o.getShippedAt(), Instant.now()).toSeconds();
+        if (delivered) {
+            transition(o, OrderStatus.DELIVERED, staffId, "Đối chiếu hãng vận chuyển: giao thành công");
+        } else {
+            o.setCancelReason(reason);
+            transition(o, OrderStatus.FAILED_DELIVERY, staffId, "Đối chiếu hãng vận chuyển: giao thất bại: " + reason);
+        }
+        audit.record(EventCode.ORDER_DELIVERY_MARKED, "ORDER", o.getId(), o.getCode(), "Staff xác nhận kết quả giao theo hãng vận chuyển",
+                "outcome", delivered ? "DELIVERED" : "FAILED", "source", "CARRIER_CHECK", "byStaff", true, "simulated", false,
+                "shipToDeliverSec", shipToConfirmSec, "reason", reason);
+        return toDetail(o);
+    }
+
+    private static String vn(Instant t) {
+        return t.atZone(CodeGenerator.VN).toLocalDateTime().toString().replace('T', ' ');
+    }
+
+    /** Job: nhắc shop trước khi quá hạn giao cho vận chuyển (một lần). */
+    @Transactional
+    public void sendShipReminder(Long orderId) {
+        Order o = lock(orderId);
+        if (o.getStatus() == OrderStatus.PREPARING && !o.isCancelRequested() && !o.isShipReminderSent() && o.getShipDueAt() != null) {
+            o.setShipReminderSent(true);
+            notifyShop(o, "Đơn " + o.getCode() + " cần giao cho vận chuyển trước " + vn(o.getShipDueAt())
+                    + ". Quá hạn đơn tự huỷ, hoàn tiền người mua và tính vào điểm uy tín của shop");
+        }
+    }
+
+    /** Job: nhắc shop trả lời yêu cầu huỷ của người mua (một lần). */
+    @Transactional
+    public void sendCancelReminder(Long orderId) {
+        Order o = lock(orderId);
+        if (o.getStatus() == OrderStatus.PREPARING && o.isCancelRequested() && !o.isCancelReminderSent()) {
+            o.setCancelReminderSent(true);
+            notifyShop(o, "Người mua đang chờ bạn trả lời yêu cầu huỷ đơn " + o.getCode() + ". Sau "
+                    + config.integer(SystemConfigService.CANCEL_RESPONSE_HOURS) + " giờ không trả lời đơn sẽ tự huỷ");
+        }
+    }
+
+    /** Job: nhắc người thắng thanh toán hoá đơn lô trước hạn, nói rõ hậu quả nếu quá hạn (một lần). */
+    @Transactional
+    public void sendPaymentReminder(Long orderId) {
+        Order o = lock(orderId);
+        if (o.getOrderType() == Order.Type.AUCTION && o.getStatus() == OrderStatus.PENDING_PAYMENT && !o.isPaymentReminderSent()
+                && o.getPaymentDueAt() != null) {
+            o.setPaymentReminderSent(true);
+            notifications.notify(o.getBuyerId(), NotificationService.AUCTION, "Sắp hết hạn thanh toán lô thắng",
+                    "Hoá đơn " + o.getCode() + " hết hạn lúc " + vn(o.getPaymentDueAt()) + ". Quá hạn bạn bị phạt "
+                            + config.decimal(SystemConfigService.DEFAULT_PENALTY_PERCENT).toPlainString()
+                            + "% giá búa (mất cọc nếu cọc lớn hơn) và bị cấm đấu giá " + config.integer(SystemConfigService.AUCTION_BAN_DAYS) + " ngày",
+                    Map.of("orderId", o.getId()));
         }
     }
 

@@ -5,6 +5,8 @@ import com.rebook.auth.AuthDtos.LoginRequest;
 import com.rebook.auth.AuthDtos.OtpSentResponse;
 import com.rebook.auth.AuthDtos.RegisterRequest;
 import com.rebook.auth.AuthDtos.ResetPasswordRequest;
+import com.rebook.audit.AuditLog;
+import com.rebook.audit.EventCode;
 import com.rebook.common.ApiException;
 import com.rebook.common.CodeGenerator;
 import com.rebook.common.RateLimiter;
@@ -52,6 +54,7 @@ public class AuthService {
     private final AppProperties props;
     private final RateLimiter limiter;
     private final OtpAttempts otpAttempts;
+    private final AuditLog audit;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
@@ -69,6 +72,8 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(req.password()));
         user = userRepository.save(user);
         walletService.createFor(user.getId());
+        audit.recordBy(user.getId(), user.getRole(), EventCode.AUTH_REGISTER_SUCCESS, "USER", user.getId(), null,
+                "Đăng ký tài khoản", "emailDomain", email.substring(email.indexOf('@') + 1));
 
         String otp = issueOtp(user, OtpCode.Purpose.VERIFY_EMAIL);
         return tokens(user, otp);
@@ -78,6 +83,8 @@ public class AuthService {
     public AuthResponse login(LoginRequest req) {
         String key = "login:" + req.email().trim().toLowerCase();
         if (limiter.count(key) >= MAX_LOGIN_FAILURES) {
+            audit.recordDeniedBy(null, null, EventCode.AUTH_LOGIN_THROTTLED, "THROTTLED", "USER", null, "Đăng nhập bị chặn tạm vì sai quá nhiều lần",
+                    "emailHash", emailHash(req.email()), "windowMinutes", LOGIN_WINDOW.toMinutes());
             throw ApiException.tooMany("Sai mật khẩu quá nhiều lần, vui lòng thử lại sau 15 phút");
         }
         User user = userRepository.findByEmailIgnoreCase(req.email().trim())
@@ -85,10 +92,17 @@ public class AuthService {
                 .orElse(null);
         if (user == null) {
             limiter.hit(key, LOGIN_WINDOW);
+            audit.recordDeniedBy(null, null, EventCode.AUTH_LOGIN_FAILED, "BAD_CREDENTIALS", "USER", null, "Đăng nhập sai",
+                    "emailHash", emailHash(req.email()), "failuresInWindow", limiter.count(key));
             throw new BadCredentialsException("bad credentials");
         }
         limiter.reset(key);
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            audit.recordDeniedBy(user.getId(), user.getRole(), EventCode.AUTH_LOGIN_FAILED, "ACCOUNT_LOCKED", "USER", user.getId(),
+                    "Đăng nhập vào tài khoản bị khoá");
+        }
         ensureActive(user);
+        audit.recordBy(user.getId(), user.getRole(), EventCode.AUTH_LOGIN_SUCCESS, "USER", user.getId(), null, "Đăng nhập");
         return tokens(user, null);
     }
 
@@ -108,7 +122,10 @@ public class AuthService {
 
     @Transactional
     public void logout(String refreshToken) {
-        refreshTokenRepository.findByTokenHash(sha256(refreshToken)).ifPresent(t -> t.setRevoked(true));
+        refreshTokenRepository.findByTokenHash(sha256(refreshToken)).ifPresent(t -> {
+            t.setRevoked(true);
+            audit.recordBy(t.getUserId(), userService.getUser(t.getUserId()).getRole(), EventCode.AUTH_LOGOUT, "USER", t.getUserId(), null, "Đăng xuất");
+        });
     }
 
     // ---- OTP ----
@@ -130,6 +147,7 @@ public class AuthService {
     public void verifyOtp(Long userId, OtpCode.Purpose purpose, String code) {
         User user = userService.getUser(userId);
         consumeOtp(user, purpose, code);
+        audit.recordBy(user.getId(), user.getRole(), EventCode.AUTH_OTP_VERIFIED, "USER", user.getId(), null, "Xác thực OTP", "purpose", purpose);
         switch (purpose) {
             case VERIFY_EMAIL -> user.setEmailVerified(true);
             case VERIFY_PHONE -> user.setPhoneVerified(true);
@@ -140,9 +158,11 @@ public class AuthService {
     /** Luôn trả về thành công để không lộ email nào đã đăng ký. */
     @Transactional
     public OtpSentResponse forgotPassword(String email) {
-        String code = userRepository.findByEmailIgnoreCase(email.trim())
-                .map(u -> issueOtp(u, OtpCode.Purpose.RESET_PASSWORD))
-                .orElse(null);
+        User known = userRepository.findByEmailIgnoreCase(email.trim()).orElse(null);
+        String code = known == null ? null : issueOtp(known, OtpCode.Purpose.RESET_PASSWORD);
+        audit.recordBy(known == null ? null : known.getId(), known == null ? null : known.getRole(), EventCode.AUTH_PASSWORD_RESET_REQUESTED,
+                "USER", known == null ? null : known.getId(), null, "Yêu cầu đặt lại mật khẩu",
+                "known", known != null, "emailHash", emailHash(email));
         return new OtpSentResponse("Nếu email tồn tại, mã OTP đã được gửi",
                 props.otp().exposeInResponse() ? code : null);
     }
@@ -155,6 +175,7 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(req.newPassword()));
         user.setEmailVerified(true); // nhận được OTP qua email nghĩa là email đúng
         refreshTokenRepository.revokeAllForUser(user.getId());
+        audit.recordBy(user.getId(), user.getRole(), EventCode.AUTH_PASSWORD_RESET, "USER", user.getId(), null, "Đặt lại mật khẩu");
     }
 
     private String issueOtp(User user, OtpCode.Purpose purpose) {
@@ -164,20 +185,30 @@ public class AuthService {
         otp.setCode(CodeGenerator.digits(6));
         otp.setExpiresAt(Instant.now().plus(Duration.ofMinutes(props.otp().ttlMinutes())));
         otpRepository.save(otp);
+        audit.recordBy(user.getId(), user.getRole(), EventCode.AUTH_OTP_SENT, "USER", user.getId(), null, "Gửi OTP", "purpose", purpose);
         // Chưa tích hợp dịch vụ gửi email/SMS: ghi log để dev lấy mã.
         log.info("[OTP] {} cho {}: {}", purpose, user.getEmail(), otp.getCode());
         return otp.getCode();
     }
 
     private void consumeOtp(User user, OtpCode.Purpose purpose, String code) {
-        OtpCode otp = otpRepository.findFirstByUserIdAndPurposeAndUsedAtIsNullOrderByIdDesc(user.getId(), purpose)
-                .orElseThrow(() -> ApiException.badRequest("INVALID_OTP", "Mã OTP không đúng hoặc đã hết hạn"));
-        if (otp.getExpiresAt().isBefore(Instant.now()) || otp.getAttempts() >= MAX_OTP_ATTEMPTS) {
+        OtpCode otp = otpRepository.findFirstByUserIdAndPurposeAndUsedAtIsNullOrderByIdDesc(user.getId(), purpose).orElse(null);
+        if (otp == null) {
+            audit.recordDeniedBy(user.getId(), user.getRole(), EventCode.AUTH_OTP_FAILED, "NO_ACTIVE_OTP", "USER", user.getId(), "Không có mã OTP đang hiệu lực", "purpose", purpose);
+            throw ApiException.badRequest("INVALID_OTP", "Mã OTP không đúng hoặc đã hết hạn");
+        }
+        if (otp.getAttempts() >= MAX_OTP_ATTEMPTS || otp.getExpiresAt().isBefore(Instant.now())) {
+            boolean locked = otp.getAttempts() >= MAX_OTP_ATTEMPTS;
+            audit.recordDeniedBy(user.getId(), user.getRole(), locked ? EventCode.AUTH_OTP_LOCKED : EventCode.AUTH_OTP_FAILED,
+                    locked ? "TOO_MANY_ATTEMPTS" : "EXPIRED", "USER", user.getId(), locked ? "Mã OTP bị khoá vì nhập sai quá nhiều lần" : "Mã OTP hết hạn",
+                    "purpose", purpose);
             throw ApiException.badRequest("INVALID_OTP", "Mã OTP đã hết hạn, vui lòng yêu cầu mã mới");
         }
         if (!MessageDigest.isEqual(otp.getCode().getBytes(StandardCharsets.UTF_8), code.trim().getBytes(StandardCharsets.UTF_8))) {
             // Lưu trong giao dịch riêng: lỗi ném ra bên dưới sẽ hoàn lại giao dịch hiện tại.
             otpAttempts.increment(otp.getId());
+            audit.recordDeniedBy(user.getId(), user.getRole(), EventCode.AUTH_OTP_FAILED, "WRONG_CODE", "USER", user.getId(), "Nhập sai mã OTP",
+                    "purpose", purpose, "attempt", otp.getAttempts() + 1);
             throw ApiException.badRequest("INVALID_OTP", "Mã OTP không đúng");
         }
         otp.setUsedAt(Instant.now());
@@ -206,6 +237,11 @@ public class AuthService {
             throw ApiException.forbidden("Tài khoản đã bị khoá"
                     + (user.getLockReason() != null ? ": " + user.getLockReason() : ""));
         }
+    }
+
+    /** Băm ngắn của email để đối chiếu nhiều lần thử mà không lưu email vào nhật ký. */
+    private static String emailHash(String email) {
+        return sha256(email.trim().toLowerCase()).substring(0, 16);
     }
 
     private static String sha256(String value) {
