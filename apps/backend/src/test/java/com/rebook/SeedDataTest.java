@@ -33,4 +33,18 @@ class SeedDataTest {
         assertThat(jdbc.queryForObject("SELECT count(*) FROM listings WHERE status = 'ACTIVE' AND stock >= 3", Long.class))
                 .isGreaterThanOrEqualTo(8);
     }
+
+    /** Thể loại chia hai cấp (nhóm cha → thể loại con) và có đủ các thể loại sách phổ biến. */
+    @Test
+    void categoriesAreAFullTwoLevelTree() {
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM categories WHERE parent_id IS NULL", Long.class))
+                .isGreaterThanOrEqualTo(10);
+        // Văn học và Giáo trình có thể loại con; không có cấp thứ ba.
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM categories c WHERE c.parent_id = (SELECT id FROM categories WHERE slug = 'van-hoc')", Long.class))
+                .isGreaterThanOrEqualTo(6);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM categories c WHERE c.parent_id = (SELECT id FROM categories WHERE slug = 'giao-trinh')", Long.class))
+                .isGreaterThanOrEqualTo(6);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM categories c JOIN categories p ON p.id = c.parent_id WHERE p.parent_id IS NOT NULL", Long.class))
+                .isZero();
+    }
 }

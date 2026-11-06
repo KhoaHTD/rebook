@@ -66,6 +66,26 @@ class BookFormState extends ConsumerState<BookForm> {
   ];
   late ConditionGrade? _condition = widget.initial?.condition;
   late String? _categoryId = widget.initial?.categoryId;
+
+  /// Thể loại cha đang chọn (ô thứ nhất). Chọn cha có thể loại con thì hiện ô thứ hai để chọn con.
+  late String? _parentCategoryId = _initialParent();
+
+  String? _initialParent() {
+    final id = widget.initial?.categoryId;
+    if (id == null) return null;
+    final c = widget.categories.where((x) => x.id == id).firstOrNull;
+    return c?.parentId ?? c?.id;
+  }
+
+  List<Category> get _rootCategories => [
+    for (final c in widget.categories)
+      if (c.parentId == null) c,
+  ];
+
+  List<Category> get _childCategories => [
+    for (final c in widget.categories)
+      if (c.parentId != null && c.parentId == _parentCategoryId) c,
+  ];
   var _showPhotoError = false;
 
   /// Ảnh bìa đại diện đã làm phẳng (đứng đầu danh sách ảnh); null = lấy ảnh thật đầu tiên như trước.
@@ -284,19 +304,36 @@ class BookFormState extends ConsumerState<BookForm> {
                 field(_author, l10n.author, Rules.author),
                 gap,
                 GlassDropdownField<String>(
-                  value: _categoryId,
+                  value: _parentCategoryId,
                   label: l10n.category,
                   hint: l10n.pickCategory,
                   items: [
-                    for (final c in widget.categories)
-                      GlassMenuItem(
-                        value: c.id,
-                        label: c.parentId == null ? c.name : '  ${c.name}',
-                      ),
+                    for (final c in _rootCategories)
+                      GlassMenuItem(value: c.id, label: c.name),
                   ],
-                  onChanged: (v) => setState(() => _categoryId = v),
+                  onChanged: (v) => setState(() {
+                    _parentCategoryId = v;
+                    // Cha không có thể loại con thì chính cha là thể loại của sách.
+                    _categoryId = _childCategories.isEmpty ? v : null;
+                  }),
                   validator: (v) => v == null ? l10n.fieldRequired : null,
                 ),
+                if (_childCategories.isNotEmpty) ...[
+                  gap,
+                  GlassDropdownField<String>(
+                    value: _childCategories.any((c) => c.id == _categoryId)
+                        ? _categoryId
+                        : null,
+                    label: l10n.subCategory,
+                    hint: l10n.pickSubCategory,
+                    items: [
+                      for (final c in _childCategories)
+                        GlassMenuItem(value: c.id, label: c.name),
+                    ],
+                    onChanged: (v) => setState(() => _categoryId = v),
+                    validator: (v) => v == null ? l10n.fieldRequired : null,
+                  ),
+                ],
                 gap,
                 Text(l10n.pickCondition, style: context.textStyles.titleSmall),
                 const SizedBox(height: AppSpacing.sm),

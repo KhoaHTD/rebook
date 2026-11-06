@@ -1233,5 +1233,7 @@
   "evClassicTitle": "Vietnamese literature classics",
   "evClassicSub": "{count} Vietnamese novels",
   "evAuthorTitle": "Books by {author}",
-  "evAuthorSub": "{count} books by the same author"
+  "evAuthorSub": "{count} books by the same author",
+  "subCategory": "Subcategory",
+  "pickSubCategory": "Pick a subcategory"
 }
