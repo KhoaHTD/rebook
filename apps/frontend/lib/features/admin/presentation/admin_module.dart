@@ -6,6 +6,7 @@ import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/activity_log_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/categories_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/cod_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/config_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/dashboard_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/disputes_screen.dart';
@@ -31,6 +32,7 @@ final adminModule = AdminModule(
     AdminRoutes.withdrawals,
     AdminRoutes.disputes,
     AdminRoutes.activity,
+    AdminRoutes.cod,
   ],
   // Staff chỉ xem danh sách phiên và màn giám sát; tạo / sửa phiên chỉ Admin (SRS 2).
   staffCanOpen: (location) =>
@@ -72,6 +74,7 @@ final adminModule = AdminModule(
     adminPage(AdminRoutes.config, (_) => const ConfigScreen()),
     adminPage(AdminRoutes.withdrawals, (_) => const WithdrawalsScreen()),
     adminPage(AdminRoutes.disputes, (_) => const DisputesScreen()),
+    adminPage(AdminRoutes.cod, (_) => const CodScreen()),
     adminPage(AdminRoutes.activity, (_) => const ActivityLogScreen()),
   ],
   nav: [
@@ -87,6 +90,13 @@ final adminModule = AdminModule(
       path: AdminRoutes.listings,
       group: AdminNavGroup.review,
       badge: (ref) => ref.watch(pendingListingsProvider).value?.length ?? 0,
+    ),
+    AdminNavItem(
+      icon: Icons.payments_outlined,
+      label: (l) => l.admNavCod,
+      path: AdminRoutes.cod,
+      group: AdminNavGroup.review,
+      badge: (ref) => ref.watch(adminCodPendingProvider).value?.length ?? 0,
     ),
     AdminNavItem(
       icon: Icons.gpp_maybe_outlined,

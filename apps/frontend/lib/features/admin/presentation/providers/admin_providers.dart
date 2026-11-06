@@ -1,3 +1,5 @@
+import 'package:book_marketplace/features/admin/domain/cod_pending.dart';
+
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -128,6 +130,12 @@ Future<List<Order>> adminDisputes(Ref ref) {
 
 /// Mọi thao tác ghi của quản trị.
 @riverpod
+Future<List<CodPending>> adminCodPending(Ref ref) {
+  ref.watchArea(DataArea.orders);
+  return ref.watch(adminRepositoryProvider).codPending();
+}
+
+@riverpod
 class AdminActions extends _$AdminActions {
   @override
   FutureOr<void> build() {}
@@ -148,5 +156,18 @@ class AdminActions extends _$AdminActions {
       }
     }
     return result;
+  }
+
+  Future<bool> remitCod(String orderId, int amount) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(adminRepositoryProvider).remitCod(orderId, amount),
+    );
+    if (state.hasError) return false;
+    final changes = ref.read(dataChangesProvider.notifier);
+    for (final area in [DataArea.orders, DataArea.wallet]) {
+      changes.bump(area);
+    }
+    return true;
   }
 }

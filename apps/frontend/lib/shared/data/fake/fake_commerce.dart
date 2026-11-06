@@ -1006,6 +1006,20 @@ extension FakeCommerce on FakeStore {
     return orders[id]!;
   }
 
+  /// Đơn đang giao (mọi loại thanh toán) để Staff đối chiếu với hãng vận chuyển.
+  List<TransitOrder> transitOrders() => [
+    for (final o in orders.values)
+      if (o.status == OrderStatus.shipping && o.type == OrderType.normal)
+        TransitOrder(
+          id: o.id,
+          code: o.code,
+          shopName: o.shop?.name ?? '',
+          isCod: o.paymentMethod == PaymentMethod.cod,
+          total: o.total,
+          trackingCode: o.trackingCode,
+        ),
+  ];
+
   List<Order> disputes() {
     _escalateOverdueReturns();
     return orders.values

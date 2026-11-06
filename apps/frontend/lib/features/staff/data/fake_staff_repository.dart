@@ -1,3 +1,4 @@
+import 'package:book_marketplace/shared/domain/transit_order.dart';
 import 'package:book_marketplace/features/staff/domain/staff_repository.dart';
 import 'package:book_marketplace/shared/data/fake/fake_store.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
@@ -57,4 +58,15 @@ class FakeStaffRepository implements StaffRepository {
   @override
   Future<Order> advanceOrder(String id, {String? trackingCode}) =>
       fakeCall(() => _store.advanceAuctionOrder(id, trackingCode));
+
+  @override
+  Future<List<TransitOrder>> inTransit() => fakeCall(_store.transitOrders);
+
+  @override
+  Future<void> carrierDelivered(String id) =>
+      fakeCall(() => _store.markDelivered(id));
+
+  @override
+  Future<void> carrierFailed(String id, String reason) =>
+      fakeCall(() => _store.markDeliveryFailed(id, reason));
 }

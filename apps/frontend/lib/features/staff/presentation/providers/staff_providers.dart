@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/features/staff/data/staff_repository_provider.dart';
+import 'package:book_marketplace/shared/domain/transit_order.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
@@ -38,6 +39,12 @@ Future<List<WarehouseItem>> warehouseItems(Ref ref) {
 Future<List<Order>> staffAuctionOrders(Ref ref) {
   ref.watchArea(DataArea.orders);
   return ref.watch(staffRepositoryProvider).auctionOrders();
+}
+
+@riverpod
+Future<List<TransitOrder>> staffInTransit(Ref ref) {
+  ref.watchArea(DataArea.orders);
+  return ref.watch(staffRepositoryProvider).inTransit();
 }
 
 @riverpod
@@ -105,4 +112,24 @@ class StaffActions extends _$StaffActions {
         .advanceOrder(id, trackingCode: tracking),
     [DataArea.orders],
   );
+
+  Future<bool> carrierDelivered(String id) async =>
+      await _run(
+        () => ref
+            .read(staffRepositoryProvider)
+            .carrierDelivered(id)
+            .then((_) => true),
+        [DataArea.orders, DataArea.wallet],
+      ) ??
+      false;
+
+  Future<bool> carrierFailed(String id, String reason) async =>
+      await _run(
+        () => ref
+            .read(staffRepositoryProvider)
+            .carrierFailed(id, reason)
+            .then((_) => true),
+        [DataArea.orders, DataArea.wallet],
+      ) ??
+      false;
 }

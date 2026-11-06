@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/admin/domain/cod_pending.dart';
 import 'package:book_marketplace/features/admin/domain/admin_repository.dart';
 import 'package:book_marketplace/shared/data/fake/fake_store.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
@@ -135,4 +136,11 @@ class FakeAdminRepository implements AdminRepository {
     required bool refund,
     String? note,
   }) => fakeCall(() => _store.resolveDispute(id, refund: refund, note: note));
+
+  // Dữ liệu giả không có đối soát COD với hãng vận chuyển.
+  @override
+  Future<List<CodPending>> codPending() => fakeCall(() => <CodPending>[]);
+
+  @override
+  Future<void> remitCod(String orderId, int amount) async {}
 }

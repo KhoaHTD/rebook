@@ -27,6 +27,7 @@ import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/rules.dart';
+import 'package:book_marketplace/shared/domain/transit_order.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
 
 part 'fake_store.g.dart';

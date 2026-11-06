@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/admin/domain/cod_pending.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
@@ -53,4 +54,10 @@ abstract interface class AdminRepository {
   /// Các yêu cầu trả hàng đã phân xử, kèm Admin phân xử và thời điểm.
   Future<List<Order>> resolvedDisputes();
   Future<Order> resolveDispute(String id, {required bool refund, String? note});
+
+  /// Đơn COD đã giao nhưng sàn chưa nhận tiền đối soát.
+  Future<List<CodPending>> codPending();
+
+  /// Xác nhận sàn đã nhận đúng số tiền COD; sau đó tiền mới về shop (hoặc hoàn người mua).
+  Future<void> remitCod(String orderId, int amount);
 }

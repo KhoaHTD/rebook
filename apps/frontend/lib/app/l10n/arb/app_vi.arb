@@ -1394,6 +1394,28 @@
   },
   "admReviewedListingsTitle": "Đã xử lý gần đây",
   "admResolvedDisputesTitle": "Đã phân xử",
+  "admNavCod": "Đối soát COD",
+  "admCodTitle": "Đơn COD chờ đối soát",
+  "admCodHint": "Hãng vận chuyển đã giao hàng và thu hộ tiền. Chỉ bấm xác nhận khi sàn đã nhận đúng số tiền của đơn; sau đó tiền mới về ví shop.",
+  "admCodConfirm": "Đã nhận tiền COD",
+  "admCodConfirmQuestion": "Xác nhận sàn đã nhận đủ {amount} của đơn này từ hãng vận chuyển?",
+  "@admCodConfirmQuestion": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "admCodRefundPending": "Đơn trả hàng, chờ nhận tiền để hoàn",
+  "admCodDeliveredAt": "Giao lúc {time}",
+  "@admCodDeliveredAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "admCodDone": "Đã xác nhận nhận tiền COD.",
   "modeBooks": "Mua sách",
   "modeAuction": "Đấu giá",
   "modeBackToBooks": "Về Mua sách",
@@ -1949,5 +1971,34 @@
   "regCancelled": "Đã huỷ đăng ký",
   "cancelRegistration": "Huỷ đăng ký",
   "cancelRegistrationQuestion": "Huỷ đăng ký phiên này? Cọc sẽ được hoàn đủ vào ví.",
-  "cancelRegistrationDone": "Đã huỷ đăng ký và hoàn cọc."
+  "cancelRegistrationDone": "Đã huỷ đăng ký và hoàn cọc.",
+  "stfNavCarrier": "Đối chiếu vận chuyển",
+  "stfCarrierTitle": "Đơn đang giao",
+  "stfCarrierHint": "Đối chiếu với hãng vận chuyển: đơn đã giao thành công hay thất bại. Đơn COD chỉ đi tiếp khi có kết quả này.",
+  "stfCarrierDelivered": "Đã giao thành công",
+  "stfCarrierFailed": "Giao thất bại",
+  "stfCarrierFailedReason": "Lý do giao thất bại (người nhận từ chối, thất lạc…)",
+  "stfCarrierOverdue": "Quá hạn, cần đối chiếu",
+  "stfCarrierCod": "COD",
+  "stfCarrierPrepaid": "Đã trả trước",
+  "stfCarrierShopLine": "{shop} · {code}",
+  "@stfCarrierShopLine": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "stfCarrierTracking": "Mã vận đơn: {code}",
+  "@stfCarrierTracking": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "stfCarrierDone": "Đã ghi nhận kết quả từ hãng vận chuyển."
 }

@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/admin/domain/cod_pending.dart';
 import 'package:book_marketplace/api/generated/export.dart' as api;
 import 'package:book_marketplace/core/error/app_exception.dart';
 import 'package:book_marketplace/features/admin/domain/admin_repository.dart';
@@ -296,6 +297,29 @@ class ApiAdminRepository implements AdminRepository {
       orderId: apiId(id),
       body: api.DecisionRequest(approve: refund, note: note),
     )).toDomain(),
+  );
+
+  @override
+  Future<List<CodPending>> codPending() => guardApi(() async {
+    final res = await _client.cod.getAdminCodPending(size: 100);
+    return [
+      for (final o in res.items.orEmpty)
+        CodPending(
+          orderId: '${o.orderId ?? 0}',
+          code: o.code ?? '',
+          total: o.total?.round() ?? 0,
+          deliveredAt: o.deliveredAt,
+          refundPending: o.refundPending ?? false,
+        ),
+    ];
+  });
+
+  @override
+  Future<void> remitCod(String orderId, int amount) => guardApi(
+    () => _client.cod.postAdminCodOrderIdRemit(
+      orderId: apiId(orderId),
+      body: api.CodRemitRequest(amount: amount),
+    ),
   );
 }
 

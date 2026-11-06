@@ -102,6 +102,8 @@ abstract final class AdminRoutes {
   static const appointments = '/appointments';
   static const warehouse = '/warehouse';
   static const auctionOrders = '/auction-orders';
+  static const carrier = '/carrier';
+  static const cod = '/cod';
   static const sessions = '/sessions';
   static const newSession = '/sessions/new';
   static String session(String id) => '/sessions/$id';

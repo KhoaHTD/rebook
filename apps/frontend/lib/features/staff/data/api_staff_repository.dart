@@ -1,6 +1,7 @@
 import 'package:book_marketplace/api/generated/export.dart' as api;
 import 'package:book_marketplace/core/error/app_exception.dart';
 import 'package:book_marketplace/features/staff/domain/staff_repository.dart';
+import 'package:book_marketplace/shared/domain/transit_order.dart';
 import 'package:book_marketplace/shared/data/api_mappers.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
@@ -144,4 +145,39 @@ class ApiStaffRepository implements StaffRepository {
     };
     return (await next).toDomain();
   });
+
+  @override
+  Future<List<TransitOrder>> inTransit() => guardApi(() async {
+    final res = await _client.orderManagement.getStaffOrdersInTransit(
+      size: 100,
+    );
+    return [
+      for (final o in res.items.orEmpty)
+        TransitOrder(
+          id: '${o.orderId ?? 0}',
+          code: o.code ?? '',
+          shopName: o.shopName ?? '',
+          isCod: o.paymentMethod == api.PaymentMethod.cod,
+          total: o.total?.round() ?? 0,
+          trackingCode: o.trackingCode,
+          shippedAt: o.shippedAt,
+          overdue: o.overdue ?? false,
+        ),
+    ];
+  });
+
+  @override
+  Future<void> carrierDelivered(String id) => guardApi(
+    () => _client.orderManagement.postStaffOrdersIdCarrierDelivered(
+      id: apiId(id),
+    ),
+  );
+
+  @override
+  Future<void> carrierFailed(String id, String reason) => guardApi(
+    () => _client.orderManagement.postStaffOrdersIdCarrierFailed(
+      id: apiId(id),
+      body: api.ReasonRequest(reason: reason),
+    ),
+  );
 }
