@@ -137,6 +137,12 @@ class SellerActions extends _$SellerActions {
     [DataArea.orders, DataArea.wallet, DataArea.listings],
   );
 
+  Future<Order?> respondCancel(String id, {required bool approve}) => _run(
+    () =>
+        ref.read(sellerRepositoryProvider).respondCancel(id, approve: approve),
+    [DataArea.orders, DataArea.wallet, DataArea.listings],
+  );
+
   Future<Order?> decideReturn(
     String id, {
     required bool accept,

@@ -22,6 +22,12 @@ abstract interface class AdminRepository {
   Future<List<AppUser>> users({String? q});
   Future<AppUser> setLocked(String id, {required bool locked, String? reason});
 
+  /// Đổi vai trò (người dùng / nhân viên / quản trị).
+  Future<AppUser> setRole(String id, UserRole role);
+
+  /// Gỡ lệnh cấm đấu giá (sau khi bị phạt bỏ thanh toán nhiều lần).
+  Future<AppUser> liftAuctionBan(String id);
+
   // Danh mục
   Future<List<Category>> categories();
   Future<Category> saveCategory(String? id, String name, String? parentId);
@@ -36,6 +42,9 @@ abstract interface class AdminRepository {
 
   /// Mở phiên ngay (chỉ môi trường demo; bình thường phiên tự mở đúng giờ).
   Future<AuctionSession> startNow(String id);
+
+  /// Huỷ phiên chưa diễn ra; hoàn cọc cho người đã đăng ký.
+  Future<AuctionSession> cancelSession(String id, String reason);
   Future<AuctionSession> pause(String id);
   Future<AuctionSession> resume(String id);
   Future<List<Lot>> lots({LotStatus? status});

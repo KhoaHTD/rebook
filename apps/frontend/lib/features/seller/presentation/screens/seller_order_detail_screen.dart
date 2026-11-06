@@ -198,17 +198,23 @@ class _Actions extends ConsumerWidget {
     }
 
     Future<void> cancel() async {
-      final reason = order.cancelRequested
-          ? (await confirmDialog(context, l10n.acceptCancel)
-                ? l10n.acceptCancel
-                : null)
-          : await showCancelSheet(
-              context,
-              l10n.shopCancelReasons,
-              title: l10n.shopCancel,
-            );
+      final reason = await showCancelSheet(
+        context,
+        l10n.shopCancelReasons,
+        title: l10n.shopCancel,
+      );
       if (reason == null) return;
       await actions.cancel(order.id, reason);
+      after();
+    }
+
+    Future<void> respondCancel({required bool approve}) async {
+      final ok = await confirmDialog(
+        context,
+        approve ? l10n.acceptCancelQuestion : l10n.rejectCancelQuestion,
+      );
+      if (!ok) return;
+      await actions.respondCancel(order.id, approve: approve);
       after();
     }
 
@@ -316,12 +322,20 @@ class _Actions extends ConsumerWidget {
                 },
           child: Text(l10n.returnReceivedButton),
         ),
-      if (s == OrderStatus.pendingConfirm || s == OrderStatus.preparing)
+      if (order.cancelRequested &&
+          (s == OrderStatus.pendingConfirm || s == OrderStatus.preparing)) ...[
+        FilledButton(
+          onPressed: busy ? null : () => respondCancel(approve: true),
+          child: Text(l10n.acceptCancel),
+        ),
+        OutlinedButton(
+          onPressed: busy ? null : () => respondCancel(approve: false),
+          child: Text(l10n.rejectCancel),
+        ),
+      ] else if (s == OrderStatus.pendingConfirm || s == OrderStatus.preparing)
         OutlinedButton(
           onPressed: busy ? null : cancel,
-          child: Text(
-            order.cancelRequested ? l10n.acceptCancel : l10n.shopCancel,
-          ),
+          child: Text(l10n.shopCancel),
         ),
     ];
     return Column(

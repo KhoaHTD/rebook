@@ -51,4 +51,21 @@ class ApiAccountRepository implements AccountRepository {
   @override
   Future<void> deleteAddress(String id) =>
       guardApi(() => _client.user.deleteMeAddressesId(id: apiId(id)));
+
+  @override
+  Future<void> changePassword(String current, String next) => guardApi(
+    () => _client.user.postMePassword(
+      body: api.ChangePasswordRequest(
+        currentPassword: current,
+        newPassword: next,
+      ),
+    ),
+  );
+
+  @override
+  Future<void> logout(String refreshToken) => guardApi(
+    () => _client.auth.postAuthLogout(
+      body: api.RefreshRequest(refreshToken: refreshToken),
+    ),
+  );
 }

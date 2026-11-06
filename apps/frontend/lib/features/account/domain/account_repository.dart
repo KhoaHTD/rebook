@@ -16,4 +16,10 @@ abstract interface class AccountRepository {
   Future<Address> saveAddress(Address address);
 
   Future<void> deleteAddress(String id);
+
+  /// Đổi mật khẩu: sai mật khẩu hiện tại → lỗi từ backend.
+  Future<void> changePassword(String current, String next);
+
+  /// Báo backend huỷ refresh token khi đăng xuất.
+  Future<void> logout(String refreshToken);
 }

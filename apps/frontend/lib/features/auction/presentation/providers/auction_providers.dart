@@ -152,6 +152,14 @@ class BidAction extends _$BidAction {
     return !state.hasError;
   }
 
+  Future<bool> clearProxy(String lotId) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(auctionRepositoryProvider).clearProxyBid(lotId),
+    );
+    return !state.hasError;
+  }
+
   Future<bool> setProxy(String lotId, int max) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(

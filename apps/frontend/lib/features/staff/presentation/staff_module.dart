@@ -7,6 +7,7 @@ import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/features/staff/presentation/screens/appointments_screen.dart';
 import 'package:book_marketplace/features/staff/presentation/screens/auction_orders_screen.dart';
 import 'package:book_marketplace/features/staff/presentation/screens/carrier_screen.dart';
+import 'package:book_marketplace/features/staff/presentation/screens/incidents_screen.dart';
 import 'package:book_marketplace/features/staff/presentation/screens/inspection_screen.dart';
 import 'package:book_marketplace/features/staff/presentation/screens/staff_consignments_screen.dart';
 import 'package:book_marketplace/features/staff/presentation/screens/warehouse_screen.dart';
@@ -21,6 +22,7 @@ final AdminModule staffModule = AdminModule(
     AdminRoutes.warehouse,
     AdminRoutes.auctionOrders,
     AdminRoutes.carrier,
+    AdminRoutes.incidents,
   ],
   staffCanOpen: (location) => staffModule.owns(location),
   // Mở cả phiếu "chờ sơ duyệt" lẫn phiếu "đã nhận sách" (form kiểm định dài nhất).
@@ -52,6 +54,7 @@ final AdminModule staffModule = AdminModule(
     adminPage(AdminRoutes.warehouse, (_) => const WarehouseScreen()),
     adminPage(AdminRoutes.auctionOrders, (_) => const AuctionOrdersScreen()),
     adminPage(AdminRoutes.carrier, (_) => const CarrierScreen()),
+    adminPage(AdminRoutes.incidents, (_) => const IncidentsScreen()),
   ],
   nav: [
     AdminNavItem(
@@ -79,6 +82,13 @@ final AdminModule staffModule = AdminModule(
       icon: Icons.fact_check_outlined,
       label: (l) => l.stfNavCarrier,
       path: AdminRoutes.carrier,
+      group: AdminNavGroup.warehouse,
+      staff: true,
+    ),
+    AdminNavItem(
+      icon: Icons.report_problem_outlined,
+      label: (l) => l.stfNavIncidents,
+      path: AdminRoutes.incidents,
       group: AdminNavGroup.warehouse,
       staff: true,
     ),

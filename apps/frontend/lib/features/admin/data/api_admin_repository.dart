@@ -185,6 +185,35 @@ class ApiAdminRepository implements AdminRepository {
   );
 
   @override
+  Future<AppUser> setRole(String id, UserRole role) => guardApi(
+    () async => (await _client.admin.putAdminUsersIdRole(
+      id: apiId(id),
+      body: api.RoleRequest(
+        role: switch (role) {
+          UserRole.user => api.Role.user,
+          UserRole.staff => api.Role.staff,
+          UserRole.admin => api.Role.admin,
+        },
+      ),
+    )).toDomain(),
+  );
+
+  @override
+  Future<AppUser> liftAuctionBan(String id) => guardApi(
+    () async =>
+        (await _client.admin.postAdminUsersIdLiftAuctionBan(id: apiId(id)))
+            .toDomain(),
+  );
+
+  @override
+  Future<AuctionSession> cancelSession(String id, String reason) => guardApi(
+    () async => (await _client.auction.postAdminSessionsIdCancel(
+      id: apiId(id),
+      body: api.ReasonRequest(reason: reason),
+    )).toDomain(),
+  );
+
+  @override
   Future<AuctionSession> startNow(String id) => guardApi(
     () async =>
         (await _client.auction.postAdminSessionsIdStart(id: apiId(id)))

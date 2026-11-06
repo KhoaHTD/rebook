@@ -118,6 +118,10 @@ class ApiAuctionRepository implements AuctionRepository {
   });
 
   @override
+  Future<void> clearProxyBid(String lotId) =>
+      guardApi(() => _client.auction.deleteLotsIdProxyBid(id: apiId(lotId)));
+
+  @override
   Future<void> setProxyBid(String lotId, int maxAmount) => guardApi(
     () => _client.auction.putLotsIdProxyBid(
       id: apiId(lotId),

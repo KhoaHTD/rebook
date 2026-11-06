@@ -78,6 +78,13 @@ class FakeSellerRepository implements SellerRepository {
       fakeCall(() => _store.sellerCancel(id, reason));
 
   @override
+  Future<Order> respondCancel(String id, {required bool approve}) => fakeCall(
+    () => approve
+        ? _store.sellerCancel(id, 'Đồng ý yêu cầu hủy của người mua')
+        : _store.declineCancel(id),
+  );
+
+  @override
   Future<Order> confirmReturnReceived(String id) =>
       fakeCall(() => _store.confirmReturnReceived(id));
 

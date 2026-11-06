@@ -104,6 +104,7 @@ abstract final class AdminRoutes {
   static const warehouse = '/warehouse';
   static const auctionOrders = '/auction-orders';
   static const carrier = '/carrier';
+  static const incidents = '/incidents';
   static const cod = '/cod';
   static const sessions = '/sessions';
   static const newSession = '/sessions/new';

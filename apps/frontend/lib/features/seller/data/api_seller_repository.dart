@@ -196,6 +196,14 @@ class ApiSellerRepository implements SellerRepository {
   );
 
   @override
+  Future<Order> respondCancel(String id, {required bool approve}) => guardApi(
+    () async => (await _client.orderManagement.postSellerOrdersIdCancelRequest(
+      id: apiId(id),
+      body: api.DecisionRequest(approve: approve),
+    )).toDomain(),
+  );
+
+  @override
   Future<Order> decideReturn(String id, {required bool accept, String? note}) =>
       guardApi(
         () async =>

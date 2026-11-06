@@ -57,6 +57,10 @@ class FakeAuctionRepository implements AuctionRepository {
       fakeCall(() => _store.watch(lotId, on: on), ms: 80);
 
   @override
+  Future<void> clearProxyBid(String lotId) =>
+      fakeCall(() => _store.clearProxy(lotId));
+
+  @override
   Future<void> setProxyBid(String lotId, int maxAmount) =>
       fakeCall(() => _store.setProxy(lotId, maxAmount));
 

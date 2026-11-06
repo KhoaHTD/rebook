@@ -6,6 +6,7 @@ import 'package:book_marketplace/shared/data/api_mappers.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/domain/incident.dart';
 
 class ApiStaffRepository implements StaffRepository {
   ApiStaffRepository(this._client);
@@ -191,4 +192,137 @@ class ApiStaffRepository implements StaffRepository {
       ),
     ),
   );
+
+  @override
+  Future<void> auctionDeliveryFailed(
+    String id,
+    String reason,
+    DeliveryFaultKind fault,
+  ) => guardApi(
+    () => _client.orderManagement.postStaffOrdersIdDeliveryFailed(
+      id: apiId(id),
+      body: api.DeliveryFailedRequest(
+        reason: reason,
+        fault: switch (fault) {
+          DeliveryFaultKind.buyer => api.DeliveryFault.buyer,
+          DeliveryFaultKind.carrier => api.DeliveryFault.carrier,
+          DeliveryFaultKind.shop => api.DeliveryFault.shop,
+        },
+      ),
+    ),
+  );
+
+  @override
+  Future<void> auctionReturnDecision(
+    String id, {
+    required bool accept,
+    String? note,
+  }) => guardApi(
+    () => _client.orderManagement.postStaffOrdersIdReturnDecision(
+      id: apiId(id),
+      body: api.DecisionRequest(approve: accept, note: note),
+    ),
+  );
+
+  @override
+  Future<void> auctionReturnReceived(String id) => guardApi(
+    () =>
+        _client.orderManagement.postStaffOrdersIdReturnReceived(id: apiId(id)),
+  );
+
+  WarehouseIncident _incident(api.IncidentResponse i) => WarehouseIncident(
+    id: '${i.id ?? 0}',
+    bookTitle: i.bookTitle ?? '',
+    consignmentCode: i.consignmentCode,
+    type: i.type == api.IncidentType.damaged
+        ? IncidentType.damaged
+        : IncidentType.lost,
+    description: i.description ?? '',
+    status: switch (i.status) {
+      api.IncidentStatus.approved => IncidentStatus.approved,
+      api.IncidentStatus.rejected => IncidentStatus.rejected,
+      _ => IncidentStatus.pending,
+    },
+    createdAt: i.createdAt ?? DateTime.now(),
+    sellerPercent: i.sellerPercent,
+    sellerAmount: i.sellerAmount?.round(),
+    buyerAmount: i.buyerAmount?.round(),
+    decisionNote: i.decisionNote,
+  );
+
+  @override
+  Future<WarehouseIncident> reportIncident(
+    String warehouseItemId,
+    IncidentType type,
+    String description,
+  ) => guardApi(
+    () async => _incident(
+      await _client.consignment.postStaffWarehouseIdIncidents(
+        id: apiId(warehouseItemId),
+        body: api.IncidentRequest(
+          type: type == IncidentType.damaged
+              ? api.IncidentType.damaged
+              : api.IncidentType.lost,
+          description: description,
+        ),
+      ),
+    ),
+  );
+
+  @override
+  Future<List<WarehouseIncident>> incidents() => guardApi(() async {
+    final res = await _client.consignment.getStaffWarehouseIncidents(size: 100);
+    return [for (final i in res.items.orEmpty) _incident(i)];
+  });
+
+  @override
+  Future<WarehouseIncident> approveIncident(
+    String id, {
+    int sellerPercent = 100,
+  }) => guardApi(
+    () async => _incident(
+      await _client.consignment.postAdminWarehouseIncidentsIdApprove(
+        id: apiId(id),
+        body: api.IncidentDecisionRequest(sellerPercent: sellerPercent),
+      ),
+    ),
+  );
+
+  @override
+  Future<WarehouseIncident> rejectIncident(String id, String reason) =>
+      guardApi(
+        () async => _incident(
+          await _client.consignment.postAdminWarehouseIncidentsIdReject(
+            id: apiId(id),
+            body: api.IncidentRejectRequest(reason: reason),
+          ),
+        ),
+      );
+
+  @override
+  Future<List<InspectingLot>> inspectingLots() => guardApi(() async {
+    final res = await _client.consignment.getStaffLotsInspecting(size: 100);
+    return [
+      for (final l in res.items.orEmpty)
+        InspectingLot(
+          lotId: '${l.lotId ?? 0}',
+          bookTitle: l.bookTitle ?? '',
+          consignmentCode: l.consignmentCode,
+          hammerPrice: l.hammerPrice?.round(),
+          closedAt: l.closedAt,
+        ),
+    ];
+  });
+
+  @override
+  Future<void> reinspect(
+    String lotId, {
+    required bool passed,
+    required String report,
+  }) => guardApi(() async {
+    await _client.consignment.postStaffLotsIdReinspect(
+      id: apiId(lotId),
+      body: api.ReinspectRequest(passed: passed, report: report),
+    );
+  });
 }

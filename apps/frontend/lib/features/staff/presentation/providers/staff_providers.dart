@@ -6,6 +6,7 @@ import 'package:book_marketplace/shared/domain/transit_order.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/domain/incident.dart';
 
 part 'staff_providers.g.dart';
 
@@ -45,6 +46,18 @@ Future<List<Order>> staffAuctionOrders(Ref ref) {
 Future<List<TransitOrder>> staffInTransit(Ref ref) {
   ref.watchArea(DataArea.orders);
   return ref.watch(staffRepositoryProvider).inTransit();
+}
+
+@riverpod
+Future<List<WarehouseIncident>> warehouseIncidents(Ref ref) {
+  ref.watchArea(DataArea.warehouse);
+  return ref.watch(staffRepositoryProvider).incidents();
+}
+
+@riverpod
+Future<List<InspectingLot>> inspectingLots(Ref ref) {
+  ref.watchArea(DataArea.warehouse);
+  return ref.watch(staffRepositoryProvider).inspectingLots();
 }
 
 @riverpod
@@ -104,6 +117,81 @@ class StaffActions extends _$StaffActions {
         .read(staffRepositoryProvider)
         .updateWarehouse(id, shelfCode: shelf, status: status),
     [DataArea.warehouse],
+  );
+
+  Future<bool> auctionDeliveryFailed(
+    String id,
+    String reason,
+    DeliveryFaultKind fault,
+  ) async =>
+      await _run(
+        () => ref
+            .read(staffRepositoryProvider)
+            .auctionDeliveryFailed(id, reason, fault)
+            .then((_) => true),
+        [DataArea.orders, DataArea.wallet],
+      ) ??
+      false;
+
+  Future<bool> auctionReturnDecision(
+    String id, {
+    required bool accept,
+    String? note,
+  }) async =>
+      await _run(
+        () => ref
+            .read(staffRepositoryProvider)
+            .auctionReturnDecision(id, accept: accept, note: note)
+            .then((_) => true),
+        [DataArea.orders],
+      ) ??
+      false;
+
+  Future<bool> auctionReturnReceived(String id) async =>
+      await _run(
+        () => ref
+            .read(staffRepositoryProvider)
+            .auctionReturnReceived(id)
+            .then((_) => true),
+        [DataArea.orders, DataArea.wallet],
+      ) ??
+      false;
+
+  Future<WarehouseIncident?> reportIncident(
+    String itemId,
+    IncidentType type,
+    String description,
+  ) => _run(
+    () => ref
+        .read(staffRepositoryProvider)
+        .reportIncident(itemId, type, description),
+    [DataArea.warehouse],
+  );
+
+  Future<WarehouseIncident?> approveIncident(
+    String id, {
+    int sellerPercent = 100,
+  }) => _run(
+    () => ref
+        .read(staffRepositoryProvider)
+        .approveIncident(id, sellerPercent: sellerPercent),
+    [DataArea.warehouse, DataArea.wallet],
+  );
+
+  Future<WarehouseIncident?> rejectIncident(String id, String reason) => _run(
+    () => ref.read(staffRepositoryProvider).rejectIncident(id, reason),
+    [DataArea.warehouse],
+  );
+
+  Future<void> reinspect(
+    String lotId, {
+    required bool passed,
+    required String report,
+  }) => _run(
+    () => ref
+        .read(staffRepositoryProvider)
+        .reinspect(lotId, passed: passed, report: report),
+    [DataArea.warehouse, DataArea.auctions],
   );
 
   Future<Order?> advanceOrder(String id, {String? tracking}) => _run(

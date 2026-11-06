@@ -932,6 +932,21 @@ extension FakeCommerce on FakeStore {
     return orders[id]!;
   }
 
+  /// Shop từ chối yêu cầu huỷ: đơn đi tiếp, người mua được báo.
+  Order declineCancel(String id) {
+    final o = order(id);
+    if (!o.cancelRequested) fail(ErrorCodes.invalidTransition);
+    orders[id] = o.copyWith(cancelRequested: false);
+    notify(
+      _orderBuyer[id] ?? currentUserId!,
+      NotificationType.order,
+      'Shop từ chối hủy đơn ${o.code}',
+      'Đơn vẫn được chuẩn bị và giao như bình thường.',
+      '/account/orders',
+    );
+    return orders[id]!;
+  }
+
   Order sellerCancel(String id, String reason) {
     final o = order(id);
     _transition(id, OrderStatus.cancelled, note: reason);

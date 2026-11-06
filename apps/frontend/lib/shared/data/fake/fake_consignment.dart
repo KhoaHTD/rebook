@@ -282,6 +282,51 @@ extension FakeConsignment on FakeStore {
     return next;
   }
 
+  WarehouseIncident reportIncident(
+    String warehouseItemId,
+    IncidentType type,
+    String description,
+  ) {
+    final w = warehouse.values.firstWhere(
+      (x) => x.id == warehouseItemId,
+      orElse: () => fail(ErrorCodes.notFound, 404),
+    );
+    final i = WarehouseIncident(
+      id: _id('inc'),
+      bookTitle: w.bookTitle,
+      type: type,
+      description: description,
+      status: IncidentStatus.pending,
+      createdAt: DateTime.now(),
+    );
+    incidents.add(i);
+    return i;
+  }
+
+  WarehouseIncident decideIncident(
+    String id,
+    bool approve,
+    int sellerPercent,
+    String? note,
+  ) {
+    final idx = incidents.indexWhere((x) => x.id == id);
+    if (idx < 0) fail(ErrorCodes.notFound, 404);
+    final o = incidents[idx];
+    if (o.status != IncidentStatus.pending) fail(ErrorCodes.invalidTransition);
+    final next = WarehouseIncident(
+      id: o.id,
+      bookTitle: o.bookTitle,
+      type: o.type,
+      description: o.description,
+      status: approve ? IncidentStatus.approved : IncidentStatus.rejected,
+      createdAt: o.createdAt,
+      sellerPercent: approve ? sellerPercent : null,
+      decisionNote: note,
+    );
+    incidents[idx] = next;
+    return next;
+  }
+
   Consignment submitInspection(String id, InspectionDraft d) {
     final c = consignment(id);
     if (c.status != ConsignmentStatus.received) {

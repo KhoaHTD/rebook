@@ -26,6 +26,7 @@ import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/domain/incident.dart';
 import 'package:book_marketplace/shared/domain/rules.dart';
 import 'package:book_marketplace/shared/domain/transit_order.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
@@ -125,6 +126,8 @@ class FakeStore {
       <String, ({String userId, List<String> orderIds, bool topUp})>{};
   final consignments = <String, Consignment>{};
   final warehouse = <String, WarehouseItem>{};
+  final incidents = <WarehouseIncident>[];
+  final inspectingLots = <InspectingLot>[];
   final sessions = <String, AuctionSession>{};
   final _lots = <String, _LotRow>{};
   final registrations = <String, Registration>{}; // id -> reg
@@ -236,6 +239,20 @@ class FakeStore {
       locked ? AdminAction.userLocked : AdminAction.userUnlocked,
       target: acc.user.email,
     );
+    return acc.user;
+  }
+
+  AppUser setRole(String userId, UserRole role) {
+    final acc = _accountById(userId);
+    acc.user = acc.user.copyWith(role: role);
+    _log(AdminAction.roleChanged, target: acc.user.email);
+    return acc.user;
+  }
+
+  AppUser liftAuctionBan(String userId) {
+    final acc = _accountById(userId);
+    acc.user = acc.user.copyWith(auctionBannedUntil: null);
+    _log(AdminAction.auctionBanLifted, target: acc.user.email);
     return acc.user;
   }
 

@@ -4,6 +4,7 @@ import 'package:book_marketplace/shared/data/fake/fake_store.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/domain/incident.dart';
 
 class FakeStaffRepository implements StaffRepository {
   FakeStaffRepository(this._store);
@@ -72,4 +73,57 @@ class FakeStaffRepository implements StaffRepository {
     String reason,
     DeliveryFaultKind fault,
   ) => fakeCall(() => _store.markDeliveryFailed(id, reason));
+
+  @override
+  Future<void> auctionDeliveryFailed(
+    String id,
+    String reason,
+    DeliveryFaultKind fault,
+  ) => fakeCall(() => _store.markDeliveryFailed(id, reason));
+
+  @override
+  Future<void> auctionReturnDecision(
+    String id, {
+    required bool accept,
+    String? note,
+  }) => fakeCall(() => _store.decideReturn(id, accept: accept, note: note));
+
+  @override
+  Future<void> auctionReturnReceived(String id) =>
+      fakeCall(() => _store.confirmReturnReceived(id));
+
+  @override
+  Future<WarehouseIncident> reportIncident(
+    String warehouseItemId,
+    IncidentType type,
+    String description,
+  ) =>
+      fakeCall(() => _store.reportIncident(warehouseItemId, type, description));
+
+  @override
+  Future<List<WarehouseIncident>> incidents() =>
+      fakeCall(() => List.of(_store.incidents.reversed));
+
+  @override
+  Future<WarehouseIncident> approveIncident(
+    String id, {
+    int sellerPercent = 100,
+  }) => fakeCall(() => _store.decideIncident(id, true, sellerPercent, null));
+
+  @override
+  Future<WarehouseIncident> rejectIncident(String id, String reason) =>
+      fakeCall(() => _store.decideIncident(id, false, 0, reason));
+
+  @override
+  Future<List<InspectingLot>> inspectingLots() =>
+      fakeCall(() => List.of(_store.inspectingLots));
+
+  @override
+  Future<void> reinspect(
+    String lotId, {
+    required bool passed,
+    required String report,
+  }) => fakeCall(
+    () => _store.inspectingLots.removeWhere((l) => l.lotId == lotId),
+  );
 }

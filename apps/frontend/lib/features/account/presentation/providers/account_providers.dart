@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/core/auth/token_storage.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/features/account/data/account_repository_provider.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
@@ -53,6 +54,20 @@ class AccountController extends _$AccountController {
   Future<bool> deleteAddress(String id) =>
       _run(() => ref.read(accountRepositoryProvider).deleteAddress(id));
 
-  Future<void> signOut() =>
-      ref.read(sessionControllerProvider.notifier).signOut();
+  Future<bool> changePassword(String current, String next) => _run(
+    () => ref.read(accountRepositoryProvider).changePassword(current, next),
+  );
+
+  Future<void> signOut() async {
+    // Báo backend huỷ refresh token; lỗi mạng không được chặn việc đăng xuất.
+    try {
+      final tokens = await ref.read(tokenStorageProvider).read();
+      if (tokens != null) {
+        await ref.read(accountRepositoryProvider).logout(tokens.refreshToken);
+      }
+    } on Object {
+      // bỏ qua
+    }
+    await ref.read(sessionControllerProvider.notifier).signOut();
+  }
 }

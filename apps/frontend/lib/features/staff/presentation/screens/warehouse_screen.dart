@@ -8,8 +8,10 @@ import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/staff/presentation/providers/staff_providers.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/domain/incident.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/shared/widgets/sheets.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
@@ -42,10 +44,74 @@ class _WarehouseScreenState extends ConsumerState<WarehouseScreen> {
         await actions.updateWarehouse(w.id, status: WarehouseStatus.shipped);
       case 'return':
         await actions.updateWarehouse(w.id, status: WarehouseStatus.returned);
+      case 'incident':
+        await _reportIncident(w);
+        return;
     }
     if (!mounted) return;
     final error = ref.read(staffActionsProvider).error;
     if (error != null) showErrorSnack(context, error);
+  }
+
+  Future<void> _reportIncident(WarehouseItem w) async {
+    final l10n = context.l10n;
+    var type = IncidentType.lost;
+    final description = TextEditingController();
+    final ok = await showAppSheet<bool>(
+      context,
+      title: l10n.stfReportIncident,
+      body: (c, setState) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(w.bookTitle, style: c.textStyles.titleSmall),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            children: [
+              ChoiceChip(
+                label: Text(l10n.stfIncidentLost),
+                selected: type == IncidentType.lost,
+                onSelected: (_) => setState(() => type = IncidentType.lost),
+              ),
+              ChoiceChip(
+                label: Text(l10n.stfIncidentDamaged),
+                selected: type == IncidentType.damaged,
+                onSelected: (_) => setState(() => type = IncidentType.damaged),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          RuleField(
+            controller: description,
+            rule: Rules.reason,
+            label: l10n.stfIncidentDescription,
+            minLines: 3,
+            maxLines: 4,
+            showCounter: true,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          FilledButton(
+            onPressed: () {
+              if (description.text.trim().length < 10) return;
+              Navigator.pop(c, true);
+            },
+            child: Text(l10n.submit),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    await ref
+        .read(staffActionsProvider.notifier)
+        .reportIncident(w.id, type, description.text.trim());
+    if (!mounted) return;
+    final error = ref.read(staffActionsProvider).error;
+    if (error != null) {
+      showErrorSnack(context, error);
+    } else {
+      showInfoSnack(context, l10n.stfIncidentReported);
+    }
   }
 
   @override
@@ -135,6 +201,10 @@ class _WarehouseScreenState extends ConsumerState<WarehouseScreen> {
                                 PopupMenuItem(
                                   value: 'return',
                                   child: Text(l10n.markReturned),
+                                ),
+                                PopupMenuItem(
+                                  value: 'incident',
+                                  child: Text(l10n.stfReportIncident),
                                 ),
                               ],
                             )

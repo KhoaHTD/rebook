@@ -2,6 +2,7 @@ import 'package:book_marketplace/shared/domain/transit_order.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/consignment.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/domain/incident.dart';
 
 /// Nghiệp vụ nhân viên kho / kiểm định (SRS 6.1, 6.2, 6.6).
 abstract interface class StaffRepository {
@@ -49,4 +50,46 @@ abstract interface class StaffRepository {
 
   /// Hãng báo giao thất bại (người nhận từ chối, thất lạc…): hoàn tiền nếu đã trả trước.
   Future<void> carrierFailed(String id, String reason, DeliveryFaultKind fault);
+
+  /// Đơn lô đấu giá: giao thất bại (kèm bên có lỗi), xử lý yêu cầu trả hàng, xác nhận kho nhận lại sách.
+  Future<void> auctionDeliveryFailed(
+    String id,
+    String reason,
+    DeliveryFaultKind fault,
+  );
+
+  Future<void> auctionReturnDecision(
+    String id, {
+    required bool accept,
+    String? note,
+  });
+
+  Future<void> auctionReturnReceived(String id);
+
+  /// Khai báo sự cố mất / hỏng sách trong kho; chờ Admin duyệt.
+  Future<WarehouseIncident> reportIncident(
+    String warehouseItemId,
+    IncidentType type,
+    String description,
+  );
+
+  Future<List<WarehouseIncident>> incidents();
+
+  /// Admin duyệt sự cố: [sellerPercent] là phần bồi thường cho người bán (hỏng sách).
+  Future<WarehouseIncident> approveIncident(
+    String id, {
+    int sellerPercent = 100,
+  });
+
+  Future<WarehouseIncident> rejectIncident(String id, String reason);
+
+  /// Lô bị trả về kho sau khi bán, chờ kiểm định lại.
+  Future<List<InspectingLot>> inspectingLots();
+
+  /// Đạt → chờ xếp phiên; không đạt → trả người bán.
+  Future<void> reinspect(
+    String lotId, {
+    required bool passed,
+    required String report,
+  });
 }

@@ -300,11 +300,28 @@ class _BidPanel extends ConsumerWidget {
                 },
                 child: Text(l10n.confirm),
               ),
+              TextButton(
+                onPressed: () => Navigator.pop(c, -1),
+                child: Text(l10n.proxyCancel),
+              ),
             ],
           ),
         ),
       ),
     );
+    if (max == -1) {
+      final ok = await ref
+          .read(bidActionProvider(sessionId).notifier)
+          .clearProxy(lot.id);
+      if (!context.mounted) return;
+      ok
+          ? showInfoSnack(context, l10n.proxyCleared)
+          : showErrorSnack(
+              context,
+              ref.read(bidActionProvider(sessionId)).error!,
+            );
+      return;
+    }
     if (max == null || max < minAmount) return;
     final ok = await ref
         .read(bidActionProvider(sessionId).notifier)

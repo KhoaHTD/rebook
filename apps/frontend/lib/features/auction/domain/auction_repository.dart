@@ -33,6 +33,9 @@ abstract interface class AuctionRepository {
   /// Trả giá tự động tới [maxAmount].
   Future<void> setProxyBid(String lotId, int maxAmount);
 
+  /// Huỷ đặt giá tự động của mình ở lô này.
+  Future<void> clearProxyBid(String lotId);
+
   Future<Bid> placeBid(String lotId, int amount);
 
   /// Ảnh chụp trạng thái — gọi khi vào phòng và mỗi lần kết nối lại.

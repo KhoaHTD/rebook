@@ -682,6 +682,11 @@ extension FakeAuction on FakeStore {
     _proxies[lotId] = (userId: _uid, max: max);
   }
 
+  void clearProxy(String lotId) {
+    final p = _proxies[lotId];
+    if (p != null && p.userId == _uid) _proxies.remove(lotId);
+  }
+
   /// Kiểm tra một lượt trả giá phía server (SRS 6.5).
   Bid placeBid(String lotId, int amount) => _bid(lotId, amount, userId: _uid);
 
@@ -1296,6 +1301,21 @@ extension FakeAuction on FakeStore {
       fail(ErrorCodes.invalidTransition);
     }
     sessions[id] = s.copyWith(startAt: DateTime.now());
+    _changed('auctions');
+    return sessions[id]!;
+  }
+
+  /// Admin huỷ phiên chưa diễn ra.
+  AuctionSession cancelSessionByAdmin(String id, String reason) {
+    final s = sessions[id] ?? fail(ErrorCodes.notFound, 404);
+    const cancellable = {
+      SessionStatus.draft,
+      SessionStatus.published,
+      SessionStatus.postponed,
+      SessionStatus.confirmed,
+    };
+    if (!cancellable.contains(s.status)) fail(ErrorCodes.invalidTransition);
+    sessions[id] = s.copyWith(status: SessionStatus.cancelled);
     _changed('auctions');
     return sessions[id]!;
   }

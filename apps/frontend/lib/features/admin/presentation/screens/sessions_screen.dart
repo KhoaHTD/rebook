@@ -10,6 +10,7 @@ import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
@@ -30,6 +31,28 @@ class SessionsScreen extends ConsumerWidget {
     final isAdmin = ref.watch(currentUserProvider)?.role == AuthRole.admin;
     // watch giữ notifier sống trong lúc đang gọi API (mở phiên).
     final busy = ref.watch(adminActionsProvider).isLoading;
+
+    Future<void> cancelSession(String id) async {
+      final reason = await showTextSheet(
+        context,
+        title: l10n.admSessionCancelTitle,
+        label: l10n.decisionNote,
+        lines: 3,
+        rule: Rules.reason,
+      );
+      if (reason == null) return;
+      await ref.read(adminActionsProvider.notifier).run(
+        (r) => r.cancelSession(id, reason),
+        [DataArea.auctions, DataArea.wallet],
+      );
+      if (!context.mounted) return;
+      final error = ref.read(adminActionsProvider).error;
+      if (error != null) {
+        showErrorSnack(context, error);
+      } else {
+        showInfoSnack(context, l10n.admSessionCancelled);
+      }
+    }
 
     Future<void> startNow(String id) async {
       final ok = await confirmDialog(context, l10n.admSessionStartQuestion);
@@ -97,6 +120,17 @@ class SessionsScreen extends ConsumerWidget {
                                   onPressed: () =>
                                       context.go(AdminRoutes.monitor(s.id)),
                                   child: Text(l10n.monitor),
+                                ),
+                              if (isAdmin &&
+                                  (s.status == SessionStatus.draft ||
+                                      s.status == SessionStatus.published ||
+                                      s.status == SessionStatus.postponed ||
+                                      s.status == SessionStatus.confirmed))
+                                TextButton(
+                                  onPressed: busy
+                                      ? null
+                                      : () => cancelSession(s.id),
+                                  child: Text(l10n.admSessionCancel),
                                 ),
                               if (isAdmin &&
                                   (s.status == SessionStatus.published ||

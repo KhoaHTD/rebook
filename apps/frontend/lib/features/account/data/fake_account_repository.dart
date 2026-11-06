@@ -33,4 +33,10 @@ class FakeAccountRepository implements AccountRepository {
   @override
   Future<void> deleteAddress(String id) =>
       fakeCall(() => _store.deleteAddress(id));
+
+  @override
+  Future<void> changePassword(String current, String next) async {}
+
+  @override
+  Future<void> logout(String refreshToken) async {}
 }

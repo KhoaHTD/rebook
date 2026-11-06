@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
+import 'package:book_marketplace/features/admin/domain/admin_repository.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
@@ -36,6 +38,53 @@ class UsersScreen extends ConsumerWidget {
       if (!context.mounted) return;
       final error = ref.read(adminActionsProvider).error;
       if (error != null) showErrorSnack(context, error);
+    }
+
+    final meId = ref.watch(currentUserProvider)?.id;
+
+    Future<void> run(
+      Future<Object?> Function(AdminRepository r) action,
+      String done,
+    ) async {
+      await ref.read(adminActionsProvider.notifier).run((r) => action(r), [
+        DataArea.profile,
+      ]);
+      if (!context.mounted) return;
+      final error = ref.read(adminActionsProvider).error;
+      if (error != null) {
+        showErrorSnack(context, error);
+      } else {
+        showInfoSnack(context, done);
+      }
+    }
+
+    Future<void> changeRole(AppUser u) async {
+      final role = await showAppSheet<UserRole>(
+        context,
+        title: l10n.admChangeRole,
+        body: (c, _) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final r in UserRole.values)
+              ListTile(
+                title: Text(switch (r) {
+                  UserRole.user => l10n.admRoleUser,
+                  UserRole.staff => l10n.staffRole,
+                  UserRole.admin => l10n.adminRole,
+                }),
+                trailing: r == u.role ? const Icon(Icons.check_rounded) : null,
+                onTap: () => Navigator.pop(c, r),
+              ),
+          ],
+        ),
+      );
+      if (role == null || role == u.role) return;
+      await run((r) => r.setRole(u.id, role), l10n.admRoleChanged);
+    }
+
+    Future<void> liftBan(AppUser u) async {
+      if (!await confirmDialog(context, l10n.admLiftBanQuestion)) return;
+      await run((r) => r.liftAuctionBan(u.id), l10n.admBanLifted);
     }
 
     return AppPage(
@@ -99,12 +148,38 @@ class UsersScreen extends ConsumerWidget {
                                   l10n.locked,
                                   tone: StatusTone.danger,
                                 ),
+                              if (u.auctionBannedUntil != null &&
+                                  u.auctionBannedUntil!.isAfter(DateTime.now()))
+                                StatusPill(
+                                  l10n.admAuctionBanned,
+                                  tone: StatusTone.warning,
+                                ),
                               if (u.role == UserRole.user)
                                 OutlinedButton(
                                   onPressed: busy ? null : () => toggleLock(u),
                                   child: Text(
                                     u.locked ? l10n.unlock : l10n.lock,
                                   ),
+                                ),
+                              if (u.id != meId)
+                                PopupMenuButton<String>(
+                                  enabled: !busy,
+                                  onSelected: (v) =>
+                                      v == 'role' ? changeRole(u) : liftBan(u),
+                                  itemBuilder: (_) => [
+                                    PopupMenuItem(
+                                      value: 'role',
+                                      child: Text(l10n.admChangeRole),
+                                    ),
+                                    if (u.auctionBannedUntil != null &&
+                                        u.auctionBannedUntil!.isAfter(
+                                          DateTime.now(),
+                                        ))
+                                      PopupMenuItem(
+                                        value: 'ban',
+                                        child: Text(l10n.admLiftBan),
+                                      ),
+                                  ],
                                 ),
                             ],
                           ),
