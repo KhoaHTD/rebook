@@ -47,4 +47,37 @@ class SeedDataTest {
         assertThat(jdbc.queryForObject("SELECT count(*) FROM categories c JOIN categories p ON p.id = c.parent_id WHERE p.parent_id IS NOT NULL", Long.class))
                 .isZero();
     }
+
+    /** 66 sách từ file Excel thành tin đăng bán giá cố định; không có ảnh trong database, không còn dữ liệu nghiệp vụ cũ. */
+    @Test
+    void booksFromTheSheetAreLoadedAndOldBusinessDataIsGone() {
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM books", Long.class)).isEqualTo(66);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM listings WHERE status = 'ACTIVE'", Long.class)).isEqualTo(66);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images", Long.class)).isZero();
+        for (String t : new String[]{"orders", "consignments", "lots", "auction_sessions", "cart_items", "notifications"}) {
+            assertThat(jdbc.queryForObject("SELECT count(*) FROM " + t, Long.class)).as(t).isZero();
+        }
+        // Tài khoản và hai shop vẫn còn.
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM users", Long.class)).isEqualTo(7);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM shops", Long.class)).isEqualTo(2);
+    }
+
+    /** ISBN đúng chữ số kiểm tra, không trùng; mỗi sách thuộc thể loại con (hoặc thể loại cha không có con). */
+    @Test
+    void isbnsAreValidAndCategoriesAreLeaves() {
+        assertThat(jdbc.queryForObject("SELECT count(DISTINCT isbn) FROM books", Long.class)).isEqualTo(66);
+        for (String isbn : jdbc.queryForList("SELECT isbn FROM books", String.class)) {
+            assertThat(com.rebook.common.Isbn.normalize(isbn)).isEqualTo(isbn);
+        }
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM books b WHERE EXISTS (SELECT 1 FROM categories c WHERE c.parent_id = b.category_id)", Long.class))
+                .isZero();
+    }
+
+    /** Ví về số dư mẫu và sổ cái khớp số dư. */
+    @Test
+    void walletsMatchTheirLedger() {
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM wallets w WHERE w.available_balance <> COALESCE((SELECT sum(available_change) FROM wallet_transactions t WHERE t.wallet_id = w.id), 0) OR w.held_balance <> COALESCE((SELECT sum(held_change) FROM wallet_transactions t WHERE t.wallet_id = w.id), 0)", Long.class))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT sum(available_balance) FROM wallets", Long.class)).isEqualTo(13000000L);
+    }
 }
