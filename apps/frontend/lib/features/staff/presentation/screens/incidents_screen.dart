@@ -59,6 +59,7 @@ class IncidentsScreen extends ConsumerWidget {
           context,
           title: l10n.stfApproveIncident,
           label: l10n.stfSellerPercent,
+          rule: Rules.percent,
         );
         if (v == null) return;
         final n = int.tryParse(v.trim());
@@ -117,30 +118,30 @@ class IncidentsScreen extends ConsumerWidget {
                         if (i > 0) Divider(height: 1, color: c.separator),
                         ListTile(
                           title: Text(l.bookTitle),
-                          subtitle: Text(
-                            [
+                          subtitle: _TileBody(
+                            text: [
                               if (l.consignmentCode != null) l.consignmentCode!,
                               if (l.hammerPrice != null)
                                 formatVnd(l.hammerPrice!),
                               if (l.closedAt != null) formatDate(l.closedAt!),
                             ].join(' · '),
-                          ),
-                          trailing: Wrap(
-                            spacing: AppSpacing.sm,
-                            children: [
-                              OutlinedButton(
-                                onPressed: busy
-                                    ? null
-                                    : () => reinspect(l, false),
-                                child: Text(l10n.stfReinspectFail),
-                              ),
-                              FilledButton(
-                                onPressed: busy
-                                    ? null
-                                    : () => reinspect(l, true),
-                                child: Text(l10n.stfReinspectPass),
-                              ),
-                            ],
+                            action: Wrap(
+                              spacing: AppSpacing.sm,
+                              children: [
+                                OutlinedButton(
+                                  onPressed: busy
+                                      ? null
+                                      : () => reinspect(l, false),
+                                  child: Text(l10n.stfReinspectFail),
+                                ),
+                                FilledButton(
+                                  onPressed: busy
+                                      ? null
+                                      : () => reinspect(l, true),
+                                  child: Text(l10n.stfReinspectPass),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -165,8 +166,8 @@ class IncidentsScreen extends ConsumerWidget {
                         if (i > 0) Divider(height: 1, color: c.separator),
                         ListTile(
                           title: Text(x.bookTitle),
-                          subtitle: Text(
-                            [
+                          subtitle: _TileBody(
+                            text: [
                               x.type == IncidentType.lost
                                   ? l10n.stfIncidentLost
                                   : l10n.stfIncidentDamaged,
@@ -175,40 +176,42 @@ class IncidentsScreen extends ConsumerWidget {
                                 '${x.sellerPercent}%',
                               if (x.decisionNote != null) x.decisionNote!,
                             ].join(' · '),
-                          ),
-                          trailing: x.status == IncidentStatus.pending
-                              ? (isAdmin
-                                    ? Wrap(
-                                        spacing: AppSpacing.sm,
-                                        children: [
-                                          OutlinedButton(
-                                            onPressed: busy
-                                                ? null
-                                                : () => reject(x),
-                                            child: Text(l10n.stfRejectIncident),
-                                          ),
-                                          FilledButton(
-                                            onPressed: busy
-                                                ? null
-                                                : () => approve(x),
-                                            child: Text(
-                                              l10n.stfApproveIncident,
+                            action: x.status == IncidentStatus.pending
+                                ? (isAdmin
+                                      ? Wrap(
+                                          spacing: AppSpacing.sm,
+                                          children: [
+                                            OutlinedButton(
+                                              onPressed: busy
+                                                  ? null
+                                                  : () => reject(x),
+                                              child: Text(
+                                                l10n.stfRejectIncident,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      )
-                                    : StatusPill(
-                                        l10n.stfIncidentPending,
-                                        tone: StatusTone.warning,
-                                      ))
-                              : StatusPill(
-                                  x.status == IncidentStatus.approved
-                                      ? l10n.stfIncidentApproved
-                                      : l10n.stfIncidentRejected,
-                                  tone: x.status == IncidentStatus.approved
-                                      ? StatusTone.success
-                                      : StatusTone.danger,
-                                ),
+                                            FilledButton(
+                                              onPressed: busy
+                                                  ? null
+                                                  : () => approve(x),
+                                              child: Text(
+                                                l10n.stfApproveIncident,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : StatusPill(
+                                          l10n.stfIncidentPending,
+                                          tone: StatusTone.warning,
+                                        ))
+                                : StatusPill(
+                                    x.status == IncidentStatus.approved
+                                        ? l10n.stfIncidentApproved
+                                        : l10n.stfIncidentRejected,
+                                    tone: x.status == IncidentStatus.approved
+                                        ? StatusTone.success
+                                        : StatusTone.danger,
+                                  ),
+                          ),
                         ),
                       ],
                     ],
@@ -218,4 +221,22 @@ class IncidentsScreen extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// Chữ mô tả và hàng nút / nhãn bên dưới (không ép sang cột phải, vì màn điện thoại hẹp).
+class _TileBody extends StatelessWidget {
+  const _TileBody({required this.text, required this.action});
+
+  final String text;
+  final Widget action;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(text),
+      const SizedBox(height: AppSpacing.sm),
+      action,
+    ],
+  );
 }

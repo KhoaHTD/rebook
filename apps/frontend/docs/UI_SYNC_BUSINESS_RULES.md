@@ -19,10 +19,21 @@ Việc làm bám bảng "Việc frontend phải làm" trong `docs/AUDIT_FRONTEND
 | Admin | Màn "Đối soát COD": đơn COD đã giao chờ sàn nhận tiền, nút "Đã nhận tiền COD" | `features/admin/.../cod_screen.dart` |
 | Dữ liệu giả | Trả hàng nhiều bước chạy được ở chế độ mock; COD / nợ không có ở mock | `shared/data/fake/` |
 
+## Đã làm thêm ngày 06/11/2026 (tối)
+
+| Phần | Nội dung |
+|---|---|
+| Người mua | Trả hàng chọn "Sách không đúng mô tả" (cần ảnh) hoặc "Chưa nhận được hàng" (không cần ảnh) |
+| Shop | Yêu cầu huỷ của người mua: "Đồng ý hủy" hoặc "Từ chối hủy" (đơn đi tiếp) |
+| Admin | "Mở ngay" và "Hủy phiên" ở danh sách phiên; menu mỗi người dùng: đổi vai trò, gỡ cấm đấu giá (hiện khi đang bị cấm) |
+| Staff | Màn "Sự cố & kiểm lại": kiểm định lại lô bị trả về kho (đạt / không đạt), khai báo sự cố kho từ màn Kho; Admin duyệt (nhập % bồi thường) hoặc từ chối trong cùng màn |
+| Staff | Màn Giao lô đấu giá: nút giao thất bại (chọn bên có lỗi), đồng ý / từ chối trả hàng, đã nhận lại sách |
+| Tài khoản | Cài đặt: đổi mật khẩu; đăng xuất báo backend huỷ refresh token; đặt giá tự động có nút hủy |
+
 ## Chưa làm
 
-- Staff: màn lô chờ kiểm định lại (`POST /staff/lots/{id}/reinspect`), sự cố kho mất / hỏng (Staff khai báo, Admin duyệt), xác nhận kho đã nhận sách trả của đơn đấu giá.
-- Admin: nút miễn nợ (`POST /admin/debts/{id}/waive`); nhãn tiếng Việt cho các cấu hình mới trong màn Cấu hình phí.
+- Admin: nút miễn nợ (`POST /admin/debts/{id}/waive`): backend chưa có API liệt kê nợ của người dùng cho Admin nên chưa có chỗ để bấm; nhãn tiếng Việt cho các cấu hình mới trong màn Cấu hình phí; đánh dấu shop uy tín (`PUT /admin/shops/{id}/trusted`, thiếu dữ liệu shop trong danh sách người dùng).
+- Không làm vì trùng chức năng đã có: `POST /consignments/{id}/withdraw` (đã rút ký gửi bằng quyết định WITHDRAW), `DELETE /cart` (xoá từng món), `GET /admin/platform-wallet` (Dashboard đã có phí sàn thu được), `PUT /seller/listings/{id}/stock` (sửa tồn kho qua form sửa tin).
 - Người bán: hiển thị hạn giao hàng, uy tín shop, hạn quyết định lô không bán.
 - Ẩn nút giả lập giao hàng ở bản production (FE-12): chỉ chạy được khi backend bật chế độ giả lập (profile dev).
 - Cảnh báo ở hoá đơn lô thắng: quá 48 giờ bị phạt 10% giá búa và cấm đấu giá.
@@ -38,6 +49,12 @@ Việc làm bám bảng "Việc frontend phải làm" trong `docs/AUDIT_FRONTEND
 | COD: shop giao → Staff đánh dấu "Đã giao thành công" ở màn Đối chiếu vận chuyển (giao diện) → người mua nhận → Admin bấm "Đã nhận tiền COD" (giao diện) → tiền về ví shop | Đạt |
 | Huỷ đăng ký đấu giá trước hạn: hoàn đủ cọc, nút quay lại "Đăng ký tham gia", có thông báo | Đạt sau khi sửa lỗi (bên dưới) |
 | Khoản nợ trong ví: hiện khung nợ, "Thu nợ từ ví" thu đủ 250.000 ₫, khung biến mất | Đạt (nợ chèn thẳng vào database test) |
+| Admin "Mở ngay" ở danh sách phiên: phiên đổi sang đang diễn ra, hiện "Giám sát" | Đạt |
+| Trả hàng "Chưa nhận được hàng": form ẩn phần ảnh, gửi được không cần ảnh | Đạt |
+| Shop từ chối yêu cầu huỷ của người mua: đơn trở lại "Đang chuẩn bị" bình thường | Đạt |
+| Admin đổi vai trò người dùng bằng menu, đổi lại được | Đạt |
+| Staff báo sự cố kho (hỏng sách) → Admin duyệt 50%: backend từ chối vì ví sàn không đủ, app hiện đúng thông báo của backend | Đạt |
+| Đổi mật khẩu với mật khẩu hiện tại sai: hiện "Mật khẩu hiện tại không đúng" | Đạt |
 | Admin: nút "Mở ngay" ở danh sách phiên đấu giá, phiên chuyển sang đang diễn ra, hiện nút "Giám sát" | Đạt |
 | Trả hàng "Chưa nhận được hàng": form ẩn phần ảnh, gửi được không cần ảnh, đơn sang "Yêu cầu trả hàng" | Đạt |
 
@@ -48,3 +65,5 @@ Lỗi tìm thấy khi test và đã sửa:
 Còn thấy nhưng chưa sửa: dòng sổ cái của khoản thu nợ vẫn mang nhãn chung "Thanh toán".
 
 Cách chạy lại: bật Docker Desktop, `docker start rebook-db`, tạo database mới (`CREATE DATABASE rebook_ui OWNER rebook ENCODING 'UTF8' TEMPLATE template0`), chạy backend ở `apps/backend` với `DB_URL=jdbc:postgresql://localhost:5432/rebook_ui PORT=8081 ./mvnw spring-boot:run` (nếu báo trùng migration V9 thì xoá file cũ `target/classes/db/migration/V9__unaccent_search.sql`), build app bằng file env trỏ `10.0.2.2:8081`.
+
+Chưa test tay trên máy ảo (đã có test tự động và analyze sạch): Hủy phiên, kiểm định lại lô, nút giao thất bại / trả hàng ở màn Giao lô đấu giá của Staff, gỡ cấm đấu giá, hủy đặt giá tự động.
