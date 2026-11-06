@@ -354,7 +354,8 @@ class _Actions extends ConsumerWidget {
                   final r = await showReturnSheet(context);
                   if (r != null) {
                     await run(
-                      () => actions.requestReturn(r.$1, r.$2),
+                      () =>
+                          actions.requestReturn(r.$1, r.$2, notReceived: r.$3),
                       done: l10n.returnSent,
                     );
                   }

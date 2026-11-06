@@ -29,9 +29,9 @@ extension FakeCommerce on FakeStore {
         .where(
           (l) =>
               q.author == null ||
-              removeDiacritics(l.book.author).toLowerCase().contains(
-                removeDiacritics(q.author!).toLowerCase(),
-              ),
+              removeDiacritics(l.book.author)
+                  .toLowerCase()
+                  .contains(removeDiacritics(q.author!).toLowerCase()),
         )
         .where((l) => q.condition == null || l.book.condition == q.condition)
         .where((l) => q.minPrice == null || l.price >= q.minPrice!)

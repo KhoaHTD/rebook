@@ -8,13 +8,11 @@ part 'add_cart_request.g.dart';
 
 @JsonSerializable()
 class AddCartRequest {
-  const AddCartRequest({
-    required this.listingId,
-    required this.quantity,
-  });
-  
-  factory AddCartRequest.fromJson(Map<String, Object?> json) => _$AddCartRequestFromJson(json);
-  
+  const AddCartRequest({required this.listingId, required this.quantity});
+
+  factory AddCartRequest.fromJson(Map<String, Object?> json) =>
+      _$AddCartRequestFromJson(json);
+
   final int listingId;
   final int quantity;
 

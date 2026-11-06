@@ -17,14 +17,17 @@ class PageResponseNotificationResponse {
     this.totalItems,
     this.totalPages,
   });
-  
-  factory PageResponseNotificationResponse.fromJson(Map<String, Object?> json) => _$PageResponseNotificationResponseFromJson(json);
-  
+
+  factory PageResponseNotificationResponse.fromJson(
+    Map<String, Object?> json,
+  ) => _$PageResponseNotificationResponseFromJson(json);
+
   final List<NotificationResponse>? items;
   final int? page;
   final int? size;
   final int? totalItems;
   final int? totalPages;
 
-  Map<String, Object?> toJson() => _$PageResponseNotificationResponseToJson(this);
+  Map<String, Object?> toJson() =>
+      _$PageResponseNotificationResponseToJson(this);
 }

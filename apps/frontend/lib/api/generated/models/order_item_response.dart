@@ -18,9 +18,10 @@ class OrderItemResponse {
     this.quantity,
     this.lineTotal,
   });
-  
-  factory OrderItemResponse.fromJson(Map<String, Object?> json) => _$OrderItemResponseFromJson(json);
-  
+
+  factory OrderItemResponse.fromJson(Map<String, Object?> json) =>
+      _$OrderItemResponseFromJson(json);
+
   final int? id;
   final int? listingId;
   final int? lotId;

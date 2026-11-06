@@ -17,9 +17,10 @@ class CartShopGroup {
     this.items,
     this.subtotal,
   });
-  
-  factory CartShopGroup.fromJson(Map<String, Object?> json) => _$CartShopGroupFromJson(json);
-  
+
+  factory CartShopGroup.fromJson(Map<String, Object?> json) =>
+      _$CartShopGroupFromJson(json);
+
   final int? shopId;
   final String? shopName;
   final String? shopProvince;

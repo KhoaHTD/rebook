@@ -23,9 +23,10 @@ class SessionState {
     this.me,
     this.myProxyMax,
   });
-  
-  factory SessionState.fromJson(Map<String, Object?> json) => _$SessionStateFromJson(json);
-  
+
+  factory SessionState.fromJson(Map<String, Object?> json) =>
+      _$SessionStateFromJson(json);
+
   final DateTime? serverTime;
   final int? sessionId;
   final SessionStatus? status;

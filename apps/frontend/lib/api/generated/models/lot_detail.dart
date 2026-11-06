@@ -20,9 +20,10 @@ class LotDetail {
     this.provenance,
     this.session,
   });
-  
-  factory LotDetail.fromJson(Map<String, Object?> json) => _$LotDetailFromJson(json);
-  
+
+  factory LotDetail.fromJson(Map<String, Object?> json) =>
+      _$LotDetailFromJson(json);
+
   final LotPublic? lot;
   final BookResponse? book;
   final String? conditionReport;

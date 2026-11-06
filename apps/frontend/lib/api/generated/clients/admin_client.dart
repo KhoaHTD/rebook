@@ -57,9 +57,7 @@ abstract class AdminClient {
   });
 
   @POST('/admin/users/{id}/unlock')
-  Future<UserResponse> postAdminUsersIdUnlock({
-    @Path('id') required int id,
-  });
+  Future<UserResponse> postAdminUsersIdUnlock({@Path('id') required int id});
 
   /// Khoá tài khoản vi phạm
   @POST('/admin/users/{id}/lock')

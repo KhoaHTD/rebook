@@ -178,7 +178,5 @@ abstract class ConsignmentClient {
 
   /// Chi tiết ký gửi: kết quả kiểm định, lô, kho
   @GET('/consignments/{id}')
-  Future<ConsignmentResponse> getConsignmentsId({
-    @Path('id') required int id,
-  });
+  Future<ConsignmentResponse> getConsignmentsId({@Path('id') required int id});
 }

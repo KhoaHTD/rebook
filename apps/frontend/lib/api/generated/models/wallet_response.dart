@@ -8,13 +8,11 @@ part 'wallet_response.g.dart';
 
 @JsonSerializable()
 class WalletResponse {
-  const WalletResponse({
-    this.availableBalance,
-    this.heldBalance,
-  });
-  
-  factory WalletResponse.fromJson(Map<String, Object?> json) => _$WalletResponseFromJson(json);
-  
+  const WalletResponse({this.availableBalance, this.heldBalance});
+
+  factory WalletResponse.fromJson(Map<String, Object?> json) =>
+      _$WalletResponseFromJson(json);
+
   final num? availableBalance;
   final num? heldBalance;
 

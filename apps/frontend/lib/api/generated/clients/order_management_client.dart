@@ -19,7 +19,8 @@ part 'order_management_client.g.dart';
 
 @RestApi()
 abstract class OrderManagementClient {
-  factory OrderManagementClient(Dio dio, {String? baseUrl}) = _OrderManagementClient;
+  factory OrderManagementClient(Dio dio, {String? baseUrl}) =
+      _OrderManagementClient;
 
   /// [Staff] Xuất kho, giao cho shipper
   @POST('/staff/orders/{id}/ship')
@@ -50,14 +51,10 @@ abstract class OrderManagementClient {
 
   /// [Staff] Giao thành công / bàn giao tại kho
   @POST('/staff/orders/{id}/delivered')
-  Future<OrderDetail> postStaffOrdersIdDelivered({
-    @Path('id') required int id,
-  });
+  Future<OrderDetail> postStaffOrdersIdDelivered({@Path('id') required int id});
 
   @POST('/staff/orders/{id}/confirm')
-  Future<OrderDetail> postStaffOrdersIdConfirm({
-    @Path('id') required int id,
-  });
+  Future<OrderDetail> postStaffOrdersIdConfirm({@Path('id') required int id});
 
   /// [Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại (người nhận từ chối, thất lạc). Hoàn tiền nếu đã trả trước
   @POST('/staff/orders/{id}/carrier-failed')
@@ -107,9 +104,7 @@ abstract class OrderManagementClient {
 
   /// Xác nhận đơn (trong 24h)
   @POST('/seller/orders/{id}/confirm')
-  Future<OrderDetail> postSellerOrdersIdConfirm({
-    @Path('id') required int id,
-  });
+  Future<OrderDetail> postSellerOrdersIdConfirm({@Path('id') required int id});
 
   @POST('/seller/orders/{id}/cancel')
   Future<OrderDetail> postSellerOrdersIdCancel({

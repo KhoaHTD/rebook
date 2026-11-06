@@ -1288,6 +1288,18 @@ extension FakeAuction on FakeStore {
     return sessions[id]!;
   }
 
+  /// Mở phiên ngay (demo): giờ bắt đầu thành bây giờ, động cơ giả tự chuyển phiên sang đang diễn ra.
+  AuctionSession startSessionNow(String id) {
+    final s = sessions[id] ?? fail(ErrorCodes.notFound, 404);
+    if (s.status != SessionStatus.published &&
+        s.status != SessionStatus.confirmed) {
+      fail(ErrorCodes.invalidTransition);
+    }
+    sessions[id] = s.copyWith(startAt: DateTime.now());
+    _changed('auctions');
+    return sessions[id]!;
+  }
+
   AuctionSession pauseSession(String id) {
     final s = sessions[id] ?? fail(ErrorCodes.notFound, 404);
     if (s.status != SessionStatus.live) fail(ErrorCodes.invalidTransition);

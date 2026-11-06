@@ -17,9 +17,10 @@ class CheckoutRequest {
     this.note,
     this.expectedTotal,
   });
-  
-  factory CheckoutRequest.fromJson(Map<String, Object?> json) => _$CheckoutRequestFromJson(json);
-  
+
+  factory CheckoutRequest.fromJson(Map<String, Object?> json) =>
+      _$CheckoutRequestFromJson(json);
+
   final int addressId;
   final PaymentMethod paymentMethod;
   final List<int>? listingIds;

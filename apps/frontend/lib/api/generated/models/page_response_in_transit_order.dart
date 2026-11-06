@@ -17,9 +17,10 @@ class PageResponseInTransitOrder {
     this.totalItems,
     this.totalPages,
   });
-  
-  factory PageResponseInTransitOrder.fromJson(Map<String, Object?> json) => _$PageResponseInTransitOrderFromJson(json);
-  
+
+  factory PageResponseInTransitOrder.fromJson(Map<String, Object?> json) =>
+      _$PageResponseInTransitOrderFromJson(json);
+
   final List<InTransitOrder>? items;
   final int? page;
   final int? size;

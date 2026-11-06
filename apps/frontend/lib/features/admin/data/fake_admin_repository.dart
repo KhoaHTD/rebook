@@ -87,6 +87,10 @@ class FakeAdminRepository implements AdminRepository {
       fakeCall(() => _store.publishSession(id));
 
   @override
+  Future<AuctionSession> startNow(String id) =>
+      fakeCall(() => _store.startSessionNow(id));
+
+  @override
   Future<AuctionSession> pause(String id) =>
       fakeCall(() => _store.pauseSession(id));
 

@@ -10,20 +10,21 @@ enum SellerDecisionAction {
   accept('ACCEPT'),
   @JsonValue('WITHDRAW')
   withdraw('WITHDRAW'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const SellerDecisionAction(this.json);
 
-  factory SellerDecisionAction.fromJson(String json) => values.firstWhere(
-        (e) => e.json == json,
-        orElse: () => $unknown,
-      );
+  factory SellerDecisionAction.fromJson(String json) =>
+      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
+
   /// Returns all defined enum values excluding the $unknown value.
-  static List<SellerDecisionAction> get $valuesDefined => values.where((value) => value != $unknown).toList();
+  static List<SellerDecisionAction> get $valuesDefined =>
+      values.where((value) => value != $unknown).toList();
 }

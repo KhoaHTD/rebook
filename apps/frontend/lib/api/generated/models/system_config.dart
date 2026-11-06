@@ -8,15 +8,11 @@ part 'system_config.g.dart';
 
 @JsonSerializable()
 class SystemConfig {
-  const SystemConfig({
-    this.key,
-    this.value,
-    this.description,
-    this.updatedAt,
-  });
-  
-  factory SystemConfig.fromJson(Map<String, Object?> json) => _$SystemConfigFromJson(json);
-  
+  const SystemConfig({this.key, this.value, this.description, this.updatedAt});
+
+  factory SystemConfig.fromJson(Map<String, Object?> json) =>
+      _$SystemConfigFromJson(json);
+
   final String? key;
   final String? value;
   final String? description;

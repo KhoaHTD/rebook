@@ -43,12 +43,15 @@ class ApiOrdersRepository implements OrdersRepository {
   Future<Order> requestReturn(
     String id,
     String reason,
-    List<String> imageUrls,
-  ) => guardApi(
+    List<String> imageUrls, {
+    bool notReceived = false,
+  }) => guardApi(
     () async => (await _client.order.postOrdersIdReturn(
       id: apiId(id),
       body: api.ReturnCreateRequest(
-        reason: api.ReturnReason.otherNotAsDescribed,
+        reason: notReceived
+            ? api.ReturnReason.notReceived
+            : api.ReturnReason.otherNotAsDescribed,
         description: reason,
         images: imageUrls,
       ),

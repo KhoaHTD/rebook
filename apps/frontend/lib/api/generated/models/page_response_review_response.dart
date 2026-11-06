@@ -17,9 +17,10 @@ class PageResponseReviewResponse {
     this.totalItems,
     this.totalPages,
   });
-  
-  factory PageResponseReviewResponse.fromJson(Map<String, Object?> json) => _$PageResponseReviewResponseFromJson(json);
-  
+
+  factory PageResponseReviewResponse.fromJson(Map<String, Object?> json) =>
+      _$PageResponseReviewResponseFromJson(json);
+
   final List<ReviewResponse>? items;
   final int? page;
   final int? size;

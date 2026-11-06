@@ -33,6 +33,9 @@ abstract interface class AdminRepository {
   Future<AuctionSession> saveSession(String? id, AuctionSession draft);
   Future<(AuctionSession, List<Lot>)> setLots(String id, List<String> lotIds);
   Future<AuctionSession> publish(String id);
+
+  /// Mở phiên ngay (chỉ môi trường demo; bình thường phiên tự mở đúng giờ).
+  Future<AuctionSession> startNow(String id);
   Future<AuctionSession> pause(String id);
   Future<AuctionSession> resume(String id);
   Future<List<Lot>> lots({LotStatus? status});

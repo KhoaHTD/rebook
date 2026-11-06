@@ -19,9 +19,10 @@ class DashboardResponse {
     this.lotSellThroughRate,
     this.platformBalance,
   });
-  
-  factory DashboardResponse.fromJson(Map<String, Object?> json) => _$DashboardResponseFromJson(json);
-  
+
+  factory DashboardResponse.fromJson(Map<String, Object?> json) =>
+      _$DashboardResponseFromJson(json);
+
   final num? revenueThisMonth;
   final int? ordersThisMonth;
   final int? ordersInProgress;

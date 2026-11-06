@@ -20,9 +20,10 @@ class AuctionEvent {
     this.nextLotAt,
     this.message,
   });
-  
-  factory AuctionEvent.fromJson(Map<String, Object?> json) => _$AuctionEventFromJson(json);
-  
+
+  factory AuctionEvent.fromJson(Map<String, Object?> json) =>
+      _$AuctionEventFromJson(json);
+
   final String? type;
   final int? sessionId;
   final DateTime? serverTime;

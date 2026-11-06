@@ -31,8 +31,9 @@ class FakeOrdersRepository implements OrdersRepository {
   Future<Order> requestReturn(
     String id,
     String reason,
-    List<String> imageUrls,
-  ) => fakeCall(() => _store.requestReturn(id, reason, imageUrls));
+    List<String> imageUrls, {
+    bool notReceived = false,
+  }) => fakeCall(() => _store.requestReturn(id, reason, imageUrls));
 
   @override
   Future<Order> review(String id, int rating, String? comment) =>

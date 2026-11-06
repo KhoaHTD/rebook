@@ -16,9 +16,10 @@ class ProcessRequest {
     this.transferAmount,
     this.proofImageUrl,
   });
-  
-  factory ProcessRequest.fromJson(Map<String, Object?> json) => _$ProcessRequestFromJson(json);
-  
+
+  factory ProcessRequest.fromJson(Map<String, Object?> json) =>
+      _$ProcessRequestFromJson(json);
+
   final bool? approve;
   final String? note;
   final String? senderName;

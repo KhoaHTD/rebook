@@ -10,13 +10,11 @@ part 'image_response.g.dart';
 
 @JsonSerializable()
 class ImageResponse {
-  const ImageResponse({
-    this.url,
-    this.source,
-  });
-  
-  factory ImageResponse.fromJson(Map<String, Object?> json) => _$ImageResponseFromJson(json);
-  
+  const ImageResponse({this.url, this.source});
+
+  factory ImageResponse.fromJson(Map<String, Object?> json) =>
+      _$ImageResponseFromJson(json);
+
   final String? url;
   final ImageSource? source;
 

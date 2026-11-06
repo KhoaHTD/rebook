@@ -13,7 +13,13 @@ abstract interface class OrdersRepository {
 
   Future<Order> confirmReceived(String id);
 
-  Future<Order> requestReturn(String id, String reason, List<String> imageUrls);
+  /// [notReceived]: người mua chưa nhận được hàng (không cần ảnh, không có hàng để gửi trả).
+  Future<Order> requestReturn(
+    String id,
+    String reason,
+    List<String> imageUrls, {
+    bool notReceived = false,
+  });
 
   /// Người mua gửi hàng trả sau khi shop đồng ý: nhập mã vận đơn.
   Future<Order> shipReturn(String id, String trackingCode);

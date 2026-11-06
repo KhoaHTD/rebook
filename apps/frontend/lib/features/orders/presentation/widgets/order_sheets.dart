@@ -15,12 +15,13 @@ import 'package:book_marketplace/shared/widgets/sheets.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
 /// Yêu cầu trả hàng: mô tả + ảnh minh chứng (chỉ khi sách khác mô tả — SRS 4.4).
-Future<(String, List<String>)?> showReturnSheet(BuildContext context) {
+Future<(String, List<String>, bool)?> showReturnSheet(BuildContext context) {
   final l10n = context.l10n;
   final reason = TextEditingController();
   final formKey = GlobalKey<FormState>();
   var photos = <String>[];
-  return showAppSheet<(String, List<String>)>(
+  var notReceived = false;
+  return showAppSheet<(String, List<String>, bool)>(
     context,
     title: l10n.requestReturn,
     body: (c, setState) => Form(
@@ -28,6 +29,23 @@ Future<(String, List<String>)?> showReturnSheet(BuildContext context) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Hai loại: sách không đúng mô tả (cần ảnh) hoặc chưa nhận được hàng (không cần ảnh).
+          Wrap(
+            spacing: AppSpacing.sm,
+            children: [
+              ChoiceChip(
+                label: Text(l10n.returnTypeWrong),
+                selected: !notReceived,
+                onSelected: (_) => setState(() => notReceived = false),
+              ),
+              ChoiceChip(
+                label: Text(l10n.returnTypeNotReceived),
+                selected: notReceived,
+                onSelected: (_) => setState(() => notReceived = true),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
           RuleField(
             controller: reason,
             rule: Rules.reason,
@@ -36,18 +54,24 @@ Future<(String, List<String>)?> showReturnSheet(BuildContext context) {
             maxLines: 4,
             showCounter: true,
           ),
-          Text(l10n.returnPhotos, style: c.textStyles.titleSmall),
-          const SizedBox(height: AppSpacing.sm),
-          PhotoPickerField(
-            folder: 'returns',
-            max: 5,
-            onChanged: (urls) => photos = urls,
-          ),
+          if (!notReceived) ...[
+            Text(l10n.returnPhotos, style: c.textStyles.titleSmall),
+            const SizedBox(height: AppSpacing.sm),
+            PhotoPickerField(
+              folder: 'returns',
+              max: 5,
+              onChanged: (urls) => photos = urls,
+            ),
+          ],
           const SizedBox(height: AppSpacing.lg),
           FilledButton(
             onPressed: () {
               if (!formKey.currentState!.validate()) return;
-              Navigator.pop(c, (Rules.reason.value(reason.text), photos));
+              Navigator.pop(c, (
+                Rules.reason.value(reason.text),
+                notReceived ? <String>[] : photos,
+                notReceived,
+              ));
             },
             child: Text(l10n.submit),
           ),

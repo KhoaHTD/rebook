@@ -13,9 +13,10 @@ class ResetPasswordRequest {
     required this.code,
     required this.newPassword,
   });
-  
-  factory ResetPasswordRequest.fromJson(Map<String, Object?> json) => _$ResetPasswordRequestFromJson(json);
-  
+
+  factory ResetPasswordRequest.fromJson(Map<String, Object?> json) =>
+      _$ResetPasswordRequestFromJson(json);
+
   final String email;
   final String code;
   final String newPassword;

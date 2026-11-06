@@ -873,6 +873,9 @@
   "admCodRefundPending": "Returned order, waiting for the cash before refunding",
   "admCodDeliveredAt": "Delivered {time}",
   "admCodDone": "COD cash confirmed.",
+  "admSessionStartNow": "Start now",
+  "admSessionStartQuestion": "Start this session right now? For demos only; normally a session opens on time by itself.",
+  "admSessionStarted": "Session started.",
   "modeBooks": "Books",
   "modeAuction": "Auction",
   "modeBackToBooks": "Back to books",
@@ -1237,5 +1240,7 @@
   "evAuthorTitle": "Books by {author}",
   "evAuthorSub": "{count} books by the same author",
   "subCategory": "Subcategory",
-  "pickSubCategory": "Pick a subcategory"
+  "pickSubCategory": "Pick a subcategory",
+  "returnTypeWrong": "Not as described",
+  "returnTypeNotReceived": "Never received it"
 }

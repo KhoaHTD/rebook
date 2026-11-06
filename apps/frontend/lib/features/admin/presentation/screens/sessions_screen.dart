@@ -9,7 +9,11 @@ import 'package:book_marketplace/core/auth/auth_user.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
+import 'package:book_marketplace/core/utils/data_changes.dart';
+import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
+import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/sheets.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -24,6 +28,24 @@ class SessionsScreen extends ConsumerWidget {
     final list = ref.watch(adminSessionsProvider);
     // Staff chỉ giám sát phiên đang chạy; tạo / sửa phiên là việc của Admin.
     final isAdmin = ref.watch(currentUserProvider)?.role == AuthRole.admin;
+    // watch giữ notifier sống trong lúc đang gọi API (mở phiên).
+    final busy = ref.watch(adminActionsProvider).isLoading;
+
+    Future<void> startNow(String id) async {
+      final ok = await confirmDialog(context, l10n.admSessionStartQuestion);
+      if (!ok) return;
+      await ref.read(adminActionsProvider.notifier).run((r) => r.startNow(id), [
+        DataArea.auctions,
+      ]);
+      if (!context.mounted) return;
+      final error = ref.read(adminActionsProvider).error;
+      if (error != null) {
+        showErrorSnack(context, error);
+      } else {
+        showInfoSnack(context, l10n.admSessionStarted);
+      }
+    }
+
     return AppPage(
       title: l10n.navSessions,
       showBack: false,
@@ -75,6 +97,13 @@ class SessionsScreen extends ConsumerWidget {
                                   onPressed: () =>
                                       context.go(AdminRoutes.monitor(s.id)),
                                   child: Text(l10n.monitor),
+                                ),
+                              if (isAdmin &&
+                                  (s.status == SessionStatus.published ||
+                                      s.status == SessionStatus.confirmed))
+                                TextButton(
+                                  onPressed: busy ? null : () => startNow(s.id),
+                                  child: Text(l10n.admSessionStartNow),
                                 ),
                             ],
                           ),

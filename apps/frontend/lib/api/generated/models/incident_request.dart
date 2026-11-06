@@ -15,9 +15,10 @@ class IncidentRequest {
     required this.description,
     this.photoUrls,
   });
-  
-  factory IncidentRequest.fromJson(Map<String, Object?> json) => _$IncidentRequestFromJson(json);
-  
+
+  factory IncidentRequest.fromJson(Map<String, Object?> json) =>
+      _$IncidentRequestFromJson(json);
+
   final IncidentType type;
   final String description;
   final List<String>? photoUrls;

@@ -185,6 +185,13 @@ class ApiAdminRepository implements AdminRepository {
   );
 
   @override
+  Future<AuctionSession> startNow(String id) => guardApi(
+    () async =>
+        (await _client.auction.postAdminSessionsIdStart(id: apiId(id)))
+            .toDomain(),
+  );
+
+  @override
   Future<AuctionSession> pause(String id) => guardApi(
     () async =>
         (await _client.auction.postStaffSessionsIdPause(id: apiId(id)))

@@ -23,9 +23,10 @@ class AddressResponse {
     this.longitude,
     this.addressType,
   });
-  
-  factory AddressResponse.fromJson(Map<String, Object?> json) => _$AddressResponseFromJson(json);
-  
+
+  factory AddressResponse.fromJson(Map<String, Object?> json) =>
+      _$AddressResponseFromJson(json);
+
   final int? id;
   final String? receiverName;
   final String? phone;

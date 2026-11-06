@@ -8,12 +8,11 @@ part 'shelf_request.g.dart';
 
 @JsonSerializable()
 class ShelfRequest {
-  const ShelfRequest({
-    required this.shelfCode,
-  });
-  
-  factory ShelfRequest.fromJson(Map<String, Object?> json) => _$ShelfRequestFromJson(json);
-  
+  const ShelfRequest({required this.shelfCode});
+
+  factory ShelfRequest.fromJson(Map<String, Object?> json) =>
+      _$ShelfRequestFromJson(json);
+
   final String shelfCode;
 
   Map<String, Object?> toJson() => _$ShelfRequestToJson(this);

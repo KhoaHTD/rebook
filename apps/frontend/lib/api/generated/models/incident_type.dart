@@ -10,20 +10,21 @@ enum IncidentType {
   lost('LOST'),
   @JsonValue('DAMAGED')
   damaged('DAMAGED'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const IncidentType(this.json);
 
-  factory IncidentType.fromJson(String json) => values.firstWhere(
-        (e) => e.json == json,
-        orElse: () => $unknown,
-      );
+  factory IncidentType.fromJson(String json) =>
+      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
+
   /// Returns all defined enum values excluding the $unknown value.
-  static List<IncidentType> get $valuesDefined => values.where((value) => value != $unknown).toList();
+  static List<IncidentType> get $valuesDefined =>
+      values.where((value) => value != $unknown).toList();
 }

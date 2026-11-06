@@ -1416,6 +1416,9 @@
     }
   },
   "admCodDone": "Đã xác nhận nhận tiền COD.",
+  "admSessionStartNow": "Mở ngay",
+  "admSessionStartQuestion": "Mở phiên này ngay bây giờ? Chỉ dùng khi demo; bình thường phiên tự mở đúng giờ.",
+  "admSessionStarted": "Đã mở phiên.",
   "modeBooks": "Mua sách",
   "modeAuction": "Đấu giá",
   "modeBackToBooks": "Về Mua sách",
@@ -2103,5 +2106,7 @@
     }
   },
   "subCategory": "Thể loại con",
-  "pickSubCategory": "Chọn thể loại con"
+  "pickSubCategory": "Chọn thể loại con",
+  "returnTypeWrong": "Sách không đúng mô tả",
+  "returnTypeNotReceived": "Chưa nhận được hàng"
 }

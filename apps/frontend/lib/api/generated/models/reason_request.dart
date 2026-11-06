@@ -8,12 +8,11 @@ part 'reason_request.g.dart';
 
 @JsonSerializable()
 class ReasonRequest {
-  const ReasonRequest({
-    required this.reason,
-  });
-  
-  factory ReasonRequest.fromJson(Map<String, Object?> json) => _$ReasonRequestFromJson(json);
-  
+  const ReasonRequest({required this.reason});
+
+  factory ReasonRequest.fromJson(Map<String, Object?> json) =>
+      _$ReasonRequestFromJson(json);
+
   final String reason;
 
   Map<String, Object?> toJson() => _$ReasonRequestToJson(this);

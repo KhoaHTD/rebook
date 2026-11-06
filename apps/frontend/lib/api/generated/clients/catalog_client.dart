@@ -30,9 +30,7 @@ abstract class CatalogClient {
 
   /// Ẩn tin đăng
   @DELETE('/seller/listings/{id}')
-  Future<ListingDetail> deleteSellerListingsId({
-    @Path('id') required int id,
-  });
+  Future<ListingDetail> deleteSellerListingsId({@Path('id') required int id});
 
   /// Cập nhật tồn kho
   @PUT('/seller/listings/{id}/stock')
@@ -48,9 +46,7 @@ abstract class CatalogClient {
   });
 
   @DELETE('/admin/categories/{id}')
-  Future<void> deleteAdminCategoriesId({
-    @Path('id') required int id,
-  });
+  Future<void> deleteAdminCategoriesId({@Path('id') required int id});
 
   /// Tin đăng của shop tôi
   @GET('/seller/listings')
@@ -68,9 +64,7 @@ abstract class CatalogClient {
 
   /// Hiện lại tin đã ẩn
   @POST('/seller/listings/{id}/show')
-  Future<ListingDetail> postSellerListingsIdShow({
-    @Path('id') required int id,
-  });
+  Future<ListingDetail> postSellerListingsIdShow({@Path('id') required int id});
 
   /// Thả tim một tin bán (sách yêu thích)
   @POST('/listings/{id}/favorite')
@@ -122,9 +116,7 @@ abstract class CatalogClient {
 
   /// Chi tiết sách đang bán
   @GET('/listings/{id}')
-  Future<ListingDetail> getListingsId({
-    @Path('id') required int id,
-  });
+  Future<ListingDetail> getListingsId({@Path('id') required int id});
 
   /// Cây danh mục thể loại
   @GET('/categories')
@@ -132,9 +124,7 @@ abstract class CatalogClient {
 
   /// [Admin] Chi tiết tin (mọi trạng thái)
   @GET('/admin/listings/{id}')
-  Future<ListingDetail> getAdminListingsId({
-    @Path('id') required int id,
-  });
+  Future<ListingDetail> getAdminListingsId({@Path('id') required int id});
 
   /// [Admin] Tin đã duyệt / từ chối, mới nhất trước (kèm người duyệt)
   @GET('/admin/listings/reviewed')

@@ -81,10 +81,14 @@ class OrderActions extends _$OrderActions {
   Future<Order?> confirmReceived() =>
       _run(() => ref.read(ordersRepositoryProvider).confirmReceived(orderId));
 
-  Future<Order?> requestReturn(String reason, List<String> images) => _run(
+  Future<Order?> requestReturn(
+    String reason,
+    List<String> images, {
+    bool notReceived = false,
+  }) => _run(
     () => ref
         .read(ordersRepositoryProvider)
-        .requestReturn(orderId, reason, images),
+        .requestReturn(orderId, reason, images, notReceived: notReceived),
   );
 
   Future<Order?> shipReturn(String trackingCode) => _run(

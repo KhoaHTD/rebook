@@ -17,9 +17,10 @@ class NotificationResponse {
     this.read,
     this.createdAt,
   });
-  
-  factory NotificationResponse.fromJson(Map<String, Object?> json) => _$NotificationResponseFromJson(json);
-  
+
+  factory NotificationResponse.fromJson(Map<String, Object?> json) =>
+      _$NotificationResponseFromJson(json);
+
   final int? id;
   final String? type;
   final String? title;
