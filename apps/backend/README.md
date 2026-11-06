@@ -39,8 +39,22 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run          # Windows PowerShell:
 
 Dữ liệu mẫu có: cây thể loại hai cấp (17 nhóm cha, 47 thể loại con), 70 sách tiếng Anh từ file Excel thành 70 tin đăng bán giá cố định
 (32 tiểu thuyết ở "Nhà Sách Cũ Sài Gòn", 38 sách phi hư cấu ở "Tiệm Sách Hà Nội Xưa", tồn kho 3–5 cuốn, mỗi sách một ảnh bìa trên Cloudinary),
-ví ba người mua nạp sẵn 5 / 5 / 3 triệu. Chưa có đơn hàng, ký gửi, phiên đấu giá: tạo thêm khi demo.
+ví ba người mua nạp sẵn 5 / 5 / 3 triệu. Chưa có đơn hàng, ký gửi, phiên đấu giá: tạo thêm khi demo, hoặc nạp bộ dữ liệu demo bên dưới.
 Nguồn, cách đổi và cách thêm sách: [tools/books/README.md](tools/books/README.md).
+
+## Dữ liệu demo cho buổi trình diễn (một lệnh)
+
+Bộ dữ liệu demo (`db/demo/V22_1__demo_scenarios.sql`) thêm: 8 người dùng, 2 shop, ~80 đơn rải 30 ngày đủ trạng thái, khiếu nại trả hàng, COD chờ đối soát, rút tiền (chờ / xong / từ chối),
+nợ phạt và chargeback, tin chờ duyệt, 5 phiên đấu giá (2 đã xong, 1 tự mở sau ~4 phút, 1 đang mở đăng ký, 1 nháp) cùng 24 lô sách hiếm, 11 yêu cầu ký gửi ở mọi bước và một sự cố kho.
+Mọi mốc thời gian tính theo lúc reset. Bộ này **không** nạp mặc định (test và máy dev thường không có), chỉ khi chạy script:
+
+```powershell
+cd apps/backend
+./scripts/reset-demo.ps1 -Port 8081 -Db rebook_books   # Windows; bản bash: PORT=8081 DB=rebook_books ./scripts/reset-demo.sh
+```
+
+Script bật container Postgres `rebook-db`, xoá và tạo lại database, chạy backend profile dev với `REBOOK_DEMO=,classpath:db/demo` rồi đợi API sẵn sàng. Chạy lại trước mỗi buổi demo.
+Tài khoản demo thêm: seller3 (shop Đà Nẵng), seller4 (shop mới, tiền bán còn bị giữ), buyer4..7, locked@ (bị khoá), banned@ (bị cấm đấu giá, có nợ phạt); mật khẩu `Rebook@123`.
 
 ## Cấu trúc
 

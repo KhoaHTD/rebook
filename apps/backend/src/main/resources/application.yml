@@ -119,8 +119,8 @@ spring:
     activate:
       on-profile: dev
   flyway:
-    # Thêm dữ liệu mẫu khi chạy profile dev
-    locations: classpath:db/migration,classpath:db/seed
+    # Thêm dữ liệu mẫu khi chạy profile dev. REBOOK_DEMO=,classpath:db/demo (scripts/reset-demo đặt) nạp thêm dữ liệu demo.
+    locations: classpath:db/migration,classpath:db/seed${REBOOK_DEMO:}
 app:
   otp:
     expose-in-response: true
