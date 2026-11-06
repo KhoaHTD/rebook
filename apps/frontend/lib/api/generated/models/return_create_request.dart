@@ -13,14 +13,14 @@ class ReturnCreateRequest {
   const ReturnCreateRequest({
     required this.reason,
     required this.description,
-    required this.images,
+    this.images,
   });
   
   factory ReturnCreateRequest.fromJson(Map<String, Object?> json) => _$ReturnCreateRequestFromJson(json);
   
   final ReturnReason reason;
   final String description;
-  final List<String> images;
+  final List<String>? images;
 
   Map<String, Object?> toJson() => _$ReturnCreateRequestToJson(this);
 }

@@ -48,5 +48,5 @@ abstract interface class StaffRepository {
   Future<void> carrierDelivered(String id);
 
   /// Hãng báo giao thất bại (người nhận từ chối, thất lạc…): hoàn tiền nếu đã trả trước.
-  Future<void> carrierFailed(String id, String reason);
+  Future<void> carrierFailed(String id, String reason, DeliveryFaultKind fault);
 }

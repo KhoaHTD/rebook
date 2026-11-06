@@ -86,6 +86,8 @@ export 'models/return_response.dart';
 export 'models/return_status.dart';
 export 'models/decision_request.dart';
 export 'models/reason_request.dart';
+export 'models/delivery_fault.dart';
+export 'models/delivery_failed_request.dart';
 export 'models/reinspect_request.dart';
 export 'models/lot_brief.dart';
 export 'models/consignment_review_request.dart';

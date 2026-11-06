@@ -174,10 +174,21 @@ class ApiStaffRepository implements StaffRepository {
   );
 
   @override
-  Future<void> carrierFailed(String id, String reason) => guardApi(
+  Future<void> carrierFailed(
+    String id,
+    String reason,
+    DeliveryFaultKind fault,
+  ) => guardApi(
     () => _client.orderManagement.postStaffOrdersIdCarrierFailed(
       id: apiId(id),
-      body: api.ReasonRequest(reason: reason),
+      body: api.DeliveryFailedRequest(
+        reason: reason,
+        fault: switch (fault) {
+          DeliveryFaultKind.buyer => api.DeliveryFault.buyer,
+          DeliveryFaultKind.carrier => api.DeliveryFault.carrier,
+          DeliveryFaultKind.shop => api.DeliveryFault.shop,
+        },
+      ),
     ),
   );
 }

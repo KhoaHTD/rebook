@@ -1211,6 +1211,8 @@
   "stfCarrierShopLine": "{shop} · {code}",
   "stfCarrierTracking": "Tracking: {code}",
   "stfCarrierDone": "Carrier result recorded.",
+  "stfFaultTitle": "Who caused the failed delivery?",
+  "stfFaultOptions": "Buyer (refused, wrong address, unreachable)|Carrier (lost, damaged)|Shop (wrong or missing items)",
   "walletDebtTitle": "Unpaid debts",
   "walletDebtHint": "While you owe money you cannot register for auctions, bid or withdraw. Top up, then collect.",
   "walletDebtPenalty": "Penalty for not paying a won lot",

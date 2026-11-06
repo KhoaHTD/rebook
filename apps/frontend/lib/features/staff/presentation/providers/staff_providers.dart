@@ -123,11 +123,15 @@ class StaffActions extends _$StaffActions {
       ) ??
       false;
 
-  Future<bool> carrierFailed(String id, String reason) async =>
+  Future<bool> carrierFailed(
+    String id,
+    String reason,
+    DeliveryFaultKind fault,
+  ) async =>
       await _run(
         () => ref
             .read(staffRepositoryProvider)
-            .carrierFailed(id, reason)
+            .carrierFailed(id, reason, fault)
             .then((_) => true),
         [DataArea.orders, DataArea.wallet],
       ) ??

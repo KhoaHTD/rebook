@@ -14,6 +14,8 @@ enum ReturnReason {
   wrongEdition('WRONG_EDITION'),
   @JsonValue('OTHER_NOT_AS_DESCRIBED')
   otherNotAsDescribed('OTHER_NOT_AS_DESCRIBED'),
+  @JsonValue('NOT_RECEIVED')
+  notReceived('NOT_RECEIVED'),
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 

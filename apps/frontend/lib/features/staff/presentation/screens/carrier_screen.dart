@@ -5,6 +5,7 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/staff/presentation/providers/staff_providers.dart';
+import 'package:book_marketplace/shared/domain/transit_order.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/sheets.dart';
@@ -128,11 +129,27 @@ class CarrierScreen extends ConsumerWidget {
                                                         .stfCarrierFailedReason,
                                                     lines: 3,
                                                   );
-                                              if (reason == null) return;
+                                              if (reason == null ||
+                                                  !context.mounted) {
+                                                return;
+                                              }
+                                              final picked =
+                                                  await showCancelSheet(
+                                                    context,
+                                                    l10n.stfFaultOptions,
+                                                    title: l10n.stfFaultTitle,
+                                                  );
+                                              if (picked == null) return;
+                                              final fault =
+                                                  DeliveryFaultKind.values[l10n
+                                                      .stfFaultOptions
+                                                      .split('|')
+                                                      .indexOf(picked)];
                                               await report(
                                                 () => actions.carrierFailed(
                                                   o.id,
                                                   reason,
+                                                  fault,
                                                 ),
                                               );
                                             },

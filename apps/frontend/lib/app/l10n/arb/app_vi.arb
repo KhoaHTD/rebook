@@ -2001,6 +2001,8 @@
     }
   },
   "stfCarrierDone": "Đã ghi nhận kết quả từ hãng vận chuyển.",
+  "stfFaultTitle": "Ai gây ra giao thất bại?",
+  "stfFaultOptions": "Người mua (từ chối nhận, sai địa chỉ, không liên lạc được)|Hãng vận chuyển (thất lạc, hư hỏng)|Shop (gửi sai, thiếu hàng)",
   "walletDebtTitle": "Khoản nợ chưa thanh toán",
   "walletDebtHint": "Khi còn nợ, bạn chưa đăng ký đấu giá, trả giá hay rút tiền được. Nạp thêm tiền rồi bấm thu nợ.",
   "walletDebtPenalty": "Phạt bỏ thanh toán lô thắng",

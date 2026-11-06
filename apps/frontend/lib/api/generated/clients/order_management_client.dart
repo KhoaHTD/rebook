@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../models/decision_request.dart';
+import '../models/delivery_failed_request.dart';
 import '../models/order_detail.dart';
 import '../models/order_status.dart';
 import '../models/page_response_in_transit_order.dart';
@@ -40,10 +41,11 @@ abstract class OrderManagementClient {
     @Body() required DecisionRequest body,
   });
 
+  /// [Staff] Giao lô đấu giá thất bại. fault=BUYER: phạt như bỏ thanh toán và thu phí giao chiều đi
   @POST('/staff/orders/{id}/delivery-failed')
   Future<OrderDetail> postStaffOrdersIdDeliveryFailed({
     @Path('id') required int id,
-    @Body() required ReasonRequest body,
+    @Body() required DeliveryFailedRequest body,
   });
 
   /// [Staff] Giao thành công / bàn giao tại kho
@@ -61,7 +63,7 @@ abstract class OrderManagementClient {
   @POST('/staff/orders/{id}/carrier-failed')
   Future<OrderDetail> postStaffOrdersIdCarrierFailed({
     @Path('id') required int id,
-    @Body() required ReasonRequest body,
+    @Body() required DeliveryFailedRequest body,
   });
 
   /// [Staff] Đối chiếu hãng vận chuyển: đơn thường đã giao thành công (đường chính để COD đi tiếp)

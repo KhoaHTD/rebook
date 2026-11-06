@@ -67,6 +67,9 @@ class FakeStaffRepository implements StaffRepository {
       fakeCall(() => _store.markDelivered(id));
 
   @override
-  Future<void> carrierFailed(String id, String reason) =>
-      fakeCall(() => _store.markDeliveryFailed(id, reason));
+  Future<void> carrierFailed(
+    String id,
+    String reason,
+    DeliveryFaultKind fault,
+  ) => fakeCall(() => _store.markDeliveryFailed(id, reason));
 }

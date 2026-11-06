@@ -15,6 +15,7 @@ class CheckoutRequest {
     required this.paymentMethod,
     this.listingIds,
     this.note,
+    this.expectedTotal,
   });
   
   factory CheckoutRequest.fromJson(Map<String, Object?> json) => _$CheckoutRequestFromJson(json);
@@ -23,6 +24,9 @@ class CheckoutRequest {
   final PaymentMethod paymentMethod;
   final List<int>? listingIds;
   final String? note;
+
+  /// Tổng tiền người mua thấy ở bước xem trước; gửi kèm thì giá đổi bị từ chối với PRICE_CHANGED (409)
+  final num? expectedTotal;
 
   Map<String, Object?> toJson() => _$CheckoutRequestToJson(this);
 }

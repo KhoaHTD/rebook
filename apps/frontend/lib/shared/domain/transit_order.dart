@@ -22,3 +22,15 @@ class TransitOrder {
   /// Giao quá lâu mà chưa có kết quả.
   final bool overdue;
 }
+
+/// Ai gây giao thất bại: quyết định ai chịu phí và tiền hoàn đi đâu.
+enum DeliveryFaultKind {
+  /// Người mua từ chối nhận, sai địa chỉ, không liên lạc được.
+  buyer,
+
+  /// Hãng vận chuyển làm thất lạc / hư hỏng.
+  carrier,
+
+  /// Shop gửi sai hoặc thiếu hàng.
+  shop,
+}
