@@ -11,7 +11,7 @@ Cập nhật 2026-11-06. File này mô tả **hệ thống đang chạy thế n�
 
 1. [Vai trò và tài khoản](#1-vai-trò-và-tài-khoản)
 2. [Ví và tiền](#2-ví-và-tiền)
-3. [Mua bán giá cố định](#3-mua-bán-giá-cố-định)
+3. [Sách, tin đăng, mua bán giá cố định](#3-sách-tin-đăng-mua-bán-giá-cố-định)
 4. [Ký gửi và kho](#4-ký-gửi-và-kho)
 5. [Đấu giá](#5-đấu-giá)
 6. [Thời hạn và job tự động](#6-thời-hạn-và-job-tự-động)
@@ -70,7 +70,82 @@ Nợ:      phạt hoặc phí kho chưa thu đủ ──▶ khoản nợ, thu d�
 | Thu nợ song song | — | Khoá ví trước rồi mới đọc nợ, không trừ hai lần (BE-47) |
 | Số tiền nhập | Nhận số lẻ, số quá lớn | Chỉ số nguyên đồng, tối đa 15 chữ số |
 
-## 3. Mua bán giá cố định
+## 3. Sách, tin đăng, mua bán giá cố định
+
+### Thông tin một cuốn sách
+
+Một cuốn sách (bảng `books`) tách khỏi tin bán (`listings`) và lô đấu giá (`lots`): sách ký gửi không bán được ở đấu giá chuyển sang bán thường mà không phải nhập lại. Cùng một form dùng cho đăng bán và gửi ký gửi.
+
+| Trường | Bắt buộc | Kiểm tra |
+|---|---|---|
+| Tên sách | Có | ≤ 300 ký tự |
+| Tác giả | Có | ≤ 200 ký tự |
+| Danh mục | Có | Phải tồn tại; danh mục dạng cây |
+| Tình trạng | Có | Một trong 5 bậc dưới đây |
+| Cân nặng | Có | ≥ 1 gam, dùng để tính phí ship |
+| Ảnh thật | Có | **3–10 ảnh** của người bán |
+| NXB | Không | ≤ 200 ký tự |
+| Năm xuất bản | Không | 1500–2100 |
+| ISBN | Không | Xem mục ISBN bên dưới |
+| Ngôn ngữ, số trang | Không | Ngôn ngữ ≤ 50 ký tự; số trang ≥ 1 |
+| Mô tả | Không | ≤ 5.000 ký tự |
+
+**Thang tình trạng** (SRS 4.1, bắt buộc để người mua so sánh được):
+
+| Mã | Tên | Nghĩa |
+|---|---|---|
+| `NEW` | Mới | Chưa đọc, còn nguyên |
+| `LIKE_NEW` | Như mới | Đã đọc, không dấu vết |
+| `VERY_GOOD` | Tốt | Dấu hiệu dùng nhẹ, không ghi chú |
+| `GOOD` | Khá | Có ghi chú / gấp góc / ố vàng nhẹ, đủ trang |
+| `ACCEPTABLE` | Trung bình | Hư hại rõ, vẫn đọc được |
+
+**Ảnh:** có hai nguồn, ảnh người bán và ảnh Staff chụp lúc nhận sách / kiểm định. Ảnh bìa ưu tiên ảnh của Staff. Kiểm định đạt thì tình trạng sách đổi theo kết luận của Staff.
+
+**Danh mục:** dạng cây, Admin thêm / sửa / xoá. Xoá danh mục còn danh mục con thì báo `HAS_CHILDREN`; còn sách thì 409. Lọc theo một danh mục là lọc cả danh mục con.
+
+### ISBN và năm xuất bản (BR-2.1 đến BR-2.5)
+
+| Luật | Chi tiết |
+|---|---|
+| Không bắt buộc | Sách trước 1970 và nhiều sách cũ không có ISBN |
+| Nhập vào | Chỉ chữ số, `X`, dấu gạch và khoảng trắng, tối đa 20 ký tự. Bỏ gạch / khoảng trắng; nhận **ISBN-10** (ký tự cuối được là `X`) hoặc **ISBN-13** đầu 978 / 979 |
+| Kiểm số kiểm tra | ISBN-10: tổng có trọng số chia hết cho 11. ISBN-13: trọng số 1-3 chia hết cho 10. Sai thì `INVALID_ISBN` |
+| Lưu | Luôn lưu **ISBN-13**: ISBN-10 thêm 978 rồi tính lại số kiểm tra. Trang chi tiết hiện bản 13 số (không giữ bản người bán gõ) |
+| Tìm kiếm | Ô tìm kiếm khớp tên, tác giả, một phần ISBN; gõ ISBN-10 hoặc ISBN có gạch vẫn ra đúng sách |
+| Dữ liệu cũ | ISBN đã lưu mà người bán giữ nguyên khi sửa tin thì không kiểm lại (dữ liệu mẫu có ISBN sai số kiểm tra) |
+
+| Năm xuất bản | Có ISBN | Không ISBN |
+|---|---|---|
+| **Trước 1970** (thời chưa có ISBN) | Nhận, gắn cờ `isbnWarning` cho người duyệt tin / Staff xem kỹ (có thể là bản in lại). **Không chặn** | Bình thường |
+| **Từ 1970** | Bình thường | Bình thường, không cảnh báo |
+| Không ghi năm | Bình thường | Bình thường |
+
+Cờ `isbnWarning` có trong dữ liệu trả về nhưng **frontend chưa hiển thị** (mục 8).
+
+### Luồng tin đăng
+
+```
+Đăng tin ─▶ PENDING_REVIEW ──Admin duyệt──▶ ACTIVE ⇄ OUT_OF_STOCK   (tồn kho về 0 / có lại)
+  (shop uy tín: bỏ qua, vào thẳng ACTIVE)  │            │
+            └──từ chối (lý do)─▶ REJECTED  └──ẩn──▶ HIDDEN ──hiện lại──▶ ACTIVE / OUT_OF_STOCK
+                                   └─sửa─▶ PENDING_REVIEW
+```
+
+1. **Mở shop** trước khi đăng (tên, địa chỉ lấy hàng, tỉnh, tài khoản ngân hàng nhận tiền).
+2. **Đăng tin**: thông tin sách + giá (≥ 1.000đ, số nguyên đồng) + tồn kho (≥ 0).
+3. **Duyệt**: shop thường vào Chờ duyệt, Admin duyệt hoặc từ chối (bắt buộc lý do; app gợi ý "Ảnh không đạt", "Sai thông tin sách", "Nội dung bị cấm"). Shop uy tín được tự duyệt khi `listing.auto_approve_trusted` bật.
+4. **Sửa tin**: đổi ISBN, NXB, năm, tên, tác giả, tình trạng, mô tả hoặc ảnh thì tin quay lại Chờ duyệt (trừ shop uy tín). Đổi **giá, tồn kho** thì không phải duyệt lại. Tin bị từ chối sửa xong luôn quay lại Chờ duyệt.
+5. **Ẩn / hiện**: chỉ ẩn được tin đã duyệt; hiện lại không phải duyệt.
+6. **Tìm kiếm**: chỉ tin **Đang bán** hiện trong kết quả. Lọc theo từ khoá, danh mục (cả con), tác giả, tình trạng, khoảng giá, shop. Sắp xếp: mới nhất, giá tăng, giá giảm, bán chạy. Tin Hết hàng vẫn mở được trang chi tiết và vẫn nằm trong "Sách yêu thích"; tin chưa duyệt / bị ẩn chỉ chủ shop xem được.
+7. **Không tự mua sách của shop mình** (`OWN_LISTING`).
+8. **Tin chuyển từ lô đấu giá không bán**: Admin chỉ duyệt được khi người bán đã nhận lại sách khỏi kho (`BOOK_IN_WAREHOUSE`).
+
+| Luật | Cũ | Hiện tại |
+|---|---|---|
+| ISBN | Chỉ kiểm độ dài 10 / 13 | Kiểm số kiểm tra, lưu ISBN-13, tìm kiếm nhận mọi dạng |
+| Sửa thông tin ấn bản | Chỉ một số trường bắt duyệt lại | ISBN / NXB / năm / tên / tác giả / tình trạng / mô tả / ảnh đều bắt duyệt lại |
+| Duyệt tin của lô không bán | Duyệt ngay dù sách còn trong kho | Chờ người bán nhận lại sách |
 
 ### Luồng trạng thái đơn
 
@@ -89,6 +164,22 @@ PENDING_PAYMENT ─┴▶ PENDING_CONFIRM ─▶ PREPARING ─▶ SHIPPING ─�
 3. **Shop xác nhận** trong 24 giờ → **giao cho vận chuyển** trong 3 ngày.
 4. **Giao**: người mua bấm "đã nhận"; không bấm thì đơn trả trước tự coi là đã giao sau 7 ngày (đơn COD chờ Staff đối chiếu hãng).
 5. **Khiếu nại** trong 3 ngày sau khi giao; hết hạn thì tự hoàn tất, shop nhận tiền trừ phí sàn 5%.
+6. **Đánh giá**: chỉ đơn mua thường đã hoàn tất, mỗi đơn một lần, 1–5 sao kèm nhận xét ≤ 1.000 ký tự. Điểm shop là trung bình mọi đánh giá; tên người đánh giá hiện rút gọn ("Minh N.").
+
+### Giao hàng và nhận hàng (đơn thường)
+
+Chưa nối hãng vận chuyển thật. Ai bấm gì ở từng bước:
+
+| Bước | Ai làm | Trên app | Ghi chú |
+|---|---|---|---|
+| Xác nhận đơn | Shop | "Xác nhận đặt hàng" (đơn Chờ xác nhận) | Hạn 24 giờ; xác nhận xong có hạn giao 3 ngày |
+| Giao cho vận chuyển | Shop | "Giao cho shipper", ô "Mã vận đơn (không bắt buộc)" | Bỏ trống thì hệ thống tự sinh mã `RB` + 10 số. Đơn đang có yêu cầu huỷ thì phải xử lý yêu cầu trước (`CANCEL_REQUESTED`) |
+| Hãng báo đã giao | Shop (chỉ môi trường dev) | "Giả lập: đã giao thành công" / "Giao thất bại" | Ngoài dev hai nút trả 403. Đường thật: Staff đối chiếu hãng (`/staff/orders/in-transit`, `carrier-delivered`, `carrier-failed`, ghi ai gây lỗi) |
+| Người mua nhận | Người mua | "Đã nhận hàng" | Backend nhận cả khi đơn còn Đang giao; app hiện nút khi đơn đã Giao (mục 8). Không bấm thì đơn trả trước tự coi là đã giao sau 7 ngày, rồi tự hoàn tất sau 3 ngày khiếu nại |
+| Trả hàng | Người mua | "Yêu cầu trả hàng" (lý do + 1–10 ảnh; "Không nhận được hàng" không cần ảnh) | Chỉ trong 3 ngày sau khi giao. Lý do: sai tình trạng, thiếu trang, sai ấn bản, khác mô tả khác, không nhận được hàng. Không nhận trả vì đổi ý |
+| COD về tay shop | Admin | Chưa có màn | Admin xác nhận đã nhận tiền thu hộ (`POST /admin/cod/{orderId}/remit`) thì shop mới được trả |
+
+### Luật đơn hàng: cũ và hiện tại
 
 | Luật | Cũ | Hiện tại |
 |---|---|---|
@@ -115,9 +206,9 @@ SUBMITTED ─▶ APPROVED ─▶ APPOINTMENT_BOOKED ─▶ RECEIVED ─▶ AWAIT
                                                                 └▶ WITHDRAWN ─▶ RETURNED (kho trả sách)
 ```
 
-1. Người bán gửi yêu cầu (giá mong muốn ≥ 300.000đ), Staff sơ duyệt (từ chối phải có lý do).
+1. Người bán gửi yêu cầu: thông tin sách như mục 3 (cùng form, cùng luật ISBN), giá mong muốn ≥ 300.000đ, cần email đã xác thực. Mỗi yêu cầu là **một cuốn**, thành **một lô**. Staff sơ duyệt (từ chối phải có lý do).
 2. Người bán hẹn mang sách tới kho trong 7 ngày, 8:00–17:00.
-3. Kho nhận sách, gắn mã kho; Staff kiểm định: đạt thì đề xuất giá ước tính, giá khởi điểm, giá sàn (khởi điểm ≤ sàn ≤ ước tính thấp).
+3. Kho nhận sách theo mã lịch hẹn, gắn mã kho và kệ, chụp ảnh lúc nhận; Staff kiểm định: chấm tình trạng (thang 5 bậc ở mục 3, ghi đè tình trạng người bán khai), checklist và báo cáo tình trạng, ảnh kiểm định (thành ảnh bìa); đạt thì đề xuất giá ước tính, giá khởi điểm, giá sàn (0 < khởi điểm ≤ sàn ≤ ước tính thấp ≤ ước tính cao).
 4. Người bán đồng ý hợp đồng (có thể đề nghị giá sàn khác trong khoảng cho phép) → sách thành lô chờ xếp phiên, hoa hồng 15% chụp lúc này.
 5. Lô không bán: người bán chọn vào phiên sau (tối đa 2 phiên), chuyển bán giá cố định, hoặc nhận lại sách. Nhận lại: miễn phí 14 ngày, sau đó 5.000đ/ngày.
 
@@ -164,6 +255,29 @@ DRAFT ─▶ PUBLISHED ─▶ CONFIRMED ─▶ LIVE ⇄ PAUSED ─▶ ENDED
 | Giá tay bằng giá tối đa của người dẫn | Cướp được vị trí | Người đặt trước giữ vị trí |
 | Mở phiên ngay | Admin bấm được mọi lúc | Chỉ ở môi trường demo (`DEMO_ONLY`) |
 | **Backend tắt quá giờ chốt của lô** | Bật lại là lô chốt ngay theo giờ cũ, không ai kịp trả giá | Nhịp đầu tiên sau khi khởi động **kéo dài lô** cho còn ít nhất thời gian soft close (BE-48) |
+
+### Thanh toán và giao lô đấu giá
+
+Sách đấu giá nằm ở **kho của sàn**, nên **kho giao**, không phải người bán. Người bán (shop) mở đơn đấu giá sẽ bị chặn ("Đơn đấu giá do kho xử lý").
+
+```
+PENDING_PAYMENT ─trả─▶ PENDING_CONFIRM ─Staff xác nhận─▶ PREPARING ─┬─ Xuất kho giao ─▶ SHIPPING ─ Đã giao ─▶ DELIVERED ─▶ COMPLETED
+ (hoá đơn 48 giờ)      (đã thanh toán)                               └─ nhận tại kho: bàn giao ──────────────▶ DELIVERED    (người mua nhận
+                                                                                                                          hoặc sau 3 ngày)
+```
+
+| Bước | Ai làm | Chi tiết |
+|---|---|---|
+| Chọn cách nhận | Người thắng | Trên hoá đơn: **"Giao tận nơi"** (chọn địa chỉ) hoặc **"Nhận tại kho ReBook"** (phí giao 0đ). Chỉ đổi được khi chưa thanh toán (`POST /orders/{id}/delivery-option`). Phí giao tính từ tỉnh của kho tới tỉnh người nhận; thắng nhiều lô cùng phiên thì gộp kiện |
+| Thanh toán | Người thắng | "Thanh toán hóa đơn": ví hoặc ZaloPay. Hoá đơn = giá búa + phí người mua + phí giao − cọc (cọc trừ vào hoá đơn đầu tiên). Trả xong: lô `PAID`, sách trong kho chuyển `RESERVED` (giữ cho người thắng), giá búa vào túi **đang giữ** của người bán, phí người mua + phí giao vào ví sàn |
+| Xác nhận | Staff | Đơn chuyển `PREPARING`. Hạn **24 giờ** (quá hạn báo Staff, Admin một lần) |
+| Xuất kho giao | Staff | "Xuất kho giao": mã vận đơn tự sinh nếu để trống; sách trong kho chuyển `SHIPPED`. Hạn **3 ngày** kể từ lúc thanh toán (quá hạn báo Staff, Admin; đơn nhận tại kho không tính hạn này vì chờ người thắng tới lấy) |
+| Đã giao / bàn giao tại kho | Staff | "Đã giao" khi hãng báo giao thành công. Đơn nhận tại kho: Staff bàn giao khi người thắng tới lấy (`POST /staff/orders/{id}/delivered`, từ `PREPARING`) |
+| Nhận hàng | Người thắng | "Đã nhận hàng" → `COMPLETED`: người bán nhận **giá búa − hoa hồng 15%** (tỷ lệ chụp lúc người bán chấp nhận hợp đồng); sàn bù chênh nếu lô từng bị bỏ (BR-6.2). Không bấm thì tự hoàn tất sau 3 ngày kể từ lúc giao |
+| Trả hàng | Người thắng, Staff xử lý | Trong 3 ngày sau khi giao, lý do + ảnh. **Sàn chịu trách nhiệm** vì đã kiểm định: Staff đồng ý → người mua gửi về kho → kho nhận → hoàn đủ hoá đơn (cả phần cọc đã trừ), người bán không nhận tiền, lô chuyển `INSPECTING` chờ kiểm định lại. Lý do "Không nhận được hàng" không dùng cho đơn đấu giá (liên hệ sàn, xử lý như sự cố kho) |
+| Giao thất bại | Staff | Ghi ai gây lỗi. Lỗi **người mua** (từ chối nhận, sai địa chỉ, không liên lạc được): hoàn tiền rồi **phạt như bỏ thanh toán** + thu phí giao chiều đi (BE-45). Lô về `INSPECTING` |
+
+Trên app, màn Staff "Giao lô đấu giá" **chưa có** nút cho đơn vừa thanh toán (Chờ xác nhận) và nút bàn giao tại kho (mục 8). Tạm dùng Swagger: `POST /staff/orders/{id}/confirm`, `POST /staff/orders/{id}/delivered`.
 
 ### Bỏ thanh toán và sau phiên
 
@@ -246,6 +360,18 @@ Cấu hình theo máy (biến môi trường hoặc `apps/backend/.env`, mẫu �
 Những luật đã bàn nhưng chưa làm. Chi tiết và mức nặng ở [DANH_GIA_BA_TESTER.md](DANH_GIA_BA_TESTER.md) phần A.
 
 - **Cần dịch vụ ngoài:** OTP SMS thật, định danh CCCD, thông báo push, hãng vận chuyển thật để kiểm mã vận đơn, nhận báo chargeback tự động từ cổng thanh toán (hiện Admin ghi tay). Mail đã có, cần tài khoản SMTP và tên miền có SPF / DKIM khi chạy thật.
-- **Cần chủ sàn quyết:** shop chịu ship chiều về khi sách sai mô tả; ngày nghỉ và công suất kho.
+- **Cần chủ sàn quyết:** shop chịu ship chiều về khi sách sai mô tả; ngày nghỉ và công suất kho; bộ sách bán nguyên bộ hay cho bán lẻ từng tập; sách trước 1970 / lô đấu giá có bắt buộc ảnh trang bản quyền không; Staff có được sửa thông tin sách khi kiểm định không (BR-4.5).
+- **Sách: SRS hoặc luật bổ sung đã có nhưng code chưa làm:**
+  - **Bộ sách**: SRS 6.x cho phép "một lô có thể là một bộ sách", nhưng hệ thống chưa có số tập, tập thiếu, ISBN của bộ, lý do trả hàng "thiếu tập". Hiện chỉ đăng thành một tin / một lô đặt tên "Bộ X (n tập)".
+  - **Phiếu kiểm định có cấu trúc** (BR-4.1 đến 4.5): checklist đang là JSON tự do; chưa bắt buộc bộ ảnh chuẩn (bìa trước, bìa sau, gáy, trang bản quyền, chỗ hỏng); chưa có trường chữ ký / bút tích đã xác thực hay chưa; Staff chưa đối chiếu được thông tin sách.
+  - **Lần in / ấn bản** (BR-2.6): chưa có trường riêng, dù "sai ấn bản" là lý do trả hàng.
+  - **Chính sách nội dung** (BR-2.8 đến 2.11): chưa cấm sách lậu / photocopy trong code, chưa có nút báo cáo tin, chưa có lý do trả hàng `COUNTERFEIT`, chưa khoá shop vi phạm 3 lần.
+  - **Giới hạn** (BR-2.12): chưa có trần giá 500.000.000đ, tồn kho 999; năm xuất bản cho phép tới 2100 (nhập được năm tương lai).
+  - Sách cũ tồn kho > 1 dùng chung một bộ ảnh chưa bị chặn (mục 24 bản đánh giá).
+  - Chưa gợi ý tự điền thông tin từ ISBN (BR-2.7).
 - **Cần frontend làm cùng:** hoàn một phần khi khiếu nại, xác nhận khi trả giá lớn, bán sau phiên cho người chưa đạt giá sàn, hai Admin cùng duyệt khoản rút lớn, OTP khi thêm tài khoản ngân hàng.
-- **Frontend chưa theo kịp backend:** lựa chọn "Không nhận được hàng", ô "ai gây lỗi" khi báo giao thất bại, gửi `expectedTotal`, hiện lỗi `LOT_DEPOSIT_REQUIRED` / `PRICE_CHANGED`; màn rút tiền hiện `saleHeld` / `saleUnlockAt` và lỗi `SALE_HELD`; màn OTP hiện `TOO_MANY_REQUESTS` / `EMAIL_SEND_FAILED`; màn Admin ghi nợ chargeback.
+- **Frontend chưa theo kịp backend:** lựa chọn "Không nhận được hàng", ô "ai gây lỗi" khi báo giao thất bại, gửi `expectedTotal`, hiện lỗi `LOT_DEPOSIT_REQUIRED` / `PRICE_CHANGED`; màn rút tiền hiện `saleHeld` / `saleUnlockAt` và lỗi `SALE_HELD`; màn OTP hiện `TOO_MANY_REQUESTS` / `EMAIL_SEND_FAILED`; màn Admin ghi nợ chargeback; hiện cờ `isbnWarning` ở màn duyệt tin.
+- **Frontend chưa đi hết luồng giao hàng** (đọc code app ngày 2026-11-06):
+  - Màn Staff "Giao lô đấu giá" chỉ có nút cho đơn `PREPARING` / `SHIPPING`: hoá đơn vừa thanh toán (`PENDING_CONFIRM`) không có nút xác nhận; đơn **nhận tại kho** bấm "Xuất kho giao" sẽ bị `PICKUP_ORDER`, chưa có nút bàn giao tại kho.
+  - Chưa có màn Staff đối chiếu hãng vận chuyển (`/staff/orders/in-transit`, `carrier-delivered`, `carrier-failed`) và màn Admin đối soát COD (`/admin/cod/pending`, `remit`): ngoài dev, đơn COD không tới được bước hoàn tất trên app.
+  - Nút "Đã nhận hàng" của người mua chỉ hiện khi đơn đã Giao; backend nhận cả khi đơn đang giao.
