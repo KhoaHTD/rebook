@@ -70,6 +70,15 @@ export function sheetRows(files, sheetPath) {
  * Trả về Map isbn(13 số) → { bytes, ext }.
  */
 export function coverImages(files) {
+  return coverImagesBy(files, (cells) => (cells[2] ?? '').replace(/\D/g, ''));
+}
+
+/** Ảnh nhúng ghép theo STT (cột A của sheet ảnh), cho file không có ISBN (sách hiếm). Trả về Map STT(chuỗi) → { bytes, ext }. */
+export function coverImagesByStt(files) {
+  return coverImagesBy(files, (cells) => (cells[0] ?? '').trim());
+}
+
+function coverImagesBy(files, keyOf) {
   const rels = files['xl/drawings/_rels/drawing1.xml.rels']?.toString('utf8');
   const drawing = files['xl/drawings/drawing1.xml']?.toString('utf8');
   if (!rels || !drawing) return new Map();
@@ -80,7 +89,7 @@ export function coverImages(files) {
     if (id && t) target.set(id, t.replace(/^\/+/, '').replace(/^\.\.\//, 'xl/'));
   }
   const rows = sheetRows(files, 'xl/worksheets/sheet2.xml');
-  const isbnByRow = new Map(rows.map((r) => [r.r, (r.cells[2] ?? '').replace(/\D/g, '')]));
+  const isbnByRow = new Map(rows.map((r) => [r.r, keyOf(r.cells)]));
   const out = new Map();
   for (const a of drawing.matchAll(/<(?:\w+:)?(?:oneCellAnchor|twoCellAnchor)>([\s\S]*?)<\/(?:\w+:)?(?:oneCellAnchor|twoCellAnchor)>/g)) {
     const row0 = +/<(?:\w+:)?row>(\d+)</.exec(a[1])?.[1];

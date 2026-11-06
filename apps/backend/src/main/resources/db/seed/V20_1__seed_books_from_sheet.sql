@@ -329,6 +329,133 @@ INSERT INTO listings (id, book_id, shop_id, price, stock, sold_count, status, cr
     (69, 69, 2, 297000, 3, 0, 'ACTIVE', now() - interval '4 days'),
     (70, 70, 2, 301000, 4, 0, 'ACTIVE', now() - interval '11 days');
 
+-- 24 sách hiếm để đấu giá (ấn bản đầu / sưu tầm, không ISBN, chưa có tin đăng bán thường): chỉ là bản ghi sách
+-- kèm ảnh bìa; ký gửi, kiểm định, lô và phiên đấu giá do script demo tạo.
+INSERT INTO books (id, owner_id, title, author, publisher, publish_year, isbn, language, pages, category_id,
+                   condition_grade, description, weight_gram) VALUES
+    (71, 3, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Charles Scribner’s Sons', 1925, NULL, 'Tiếng Anh', 218,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Nick Carraway kể lại cuộc sống của người hàng xóm giàu có Jay Gatsby tại Long Island. Tình yêu dành cho Daisy và những bữa tiệc xa hoa dần hé lộ khoảng cách giữa giấc mơ, địa vị xã hội và thực tế nước Mỹ thập niên 1920.
+
+Ấn bản: Ấn bản đầu tại Mỹ, 1925. Ấn bản đầu với áo bìa do Francis Cugat thiết kế là đối tượng sưu tầm có giá trị; áo bìa còn nguyên đặc biệt khó tìm.', 400),
+    (72, 4, 'The Hobbit, or There and Back Again', 'J. R. R. Tolkien', 'George Allen & Unwin', 1937, NULL, 'Tiếng Anh', 310,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Bilbo Baggins rời ngôi nhà yên bình để cùng Gandalf và đoàn người lùn tìm lại kho báu bị rồng Smaug chiếm giữ. Cuộc hành trình qua núi, rừng và hang động thử thách lòng can đảm, trí khôn và khả năng thay đổi của một người hobbit.
+
+Ấn bản: Ấn bản Anh đầu, 1937. Ấn bản đầu của tác phẩm mở đầu thế giới Trung Địa; bản có áo bìa nguyên gốc do Tolkien thiết kế được giới sưu tầm tìm kiếm.', 500),
+    (73, 3, 'Ulysses', 'James Joyce', 'Shakespeare and Company', 1922, NULL, 'Tiếng Anh', 732,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Tác phẩm theo chân Leopold Bloom, Stephen Dedalus và Molly Bloom tại Dublin trong ngày 16 tháng 6 năm 1904. Joyce kết hợp độc thoại nội tâm, nhại văn phong và những liên hệ với Odyssey để khám phá đời sống thường ngày, ký ức và bản sắc.
+
+Ấn bản: Ấn bản đầu, Paris, 1922. Ấn bản sách đầu tiên do Sylvia Beach xuất bản ở Paris; mốc quan trọng của văn chương hiện đại và sưu tầm Joyce.', 970),
+    (74, 4, 'Dracula', 'Bram Stoker', 'Archibald Constable and Company', 1897, NULL, 'Tiếng Anh', 390,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Qua nhật ký, thư từ và các ghi chép, câu chuyện tái hiện hành trình của bá tước Dracula từ Transylvania đến nước Anh. Jonathan Harker, Mina, Van Helsing và những người đồng hành tìm cách ngăn chặn sức mạnh của ma cà rồng.
+
+Ấn bản: Ấn bản Anh đầu, 1897. Ấn bản đầu với bìa vải vàng chữ đỏ nổi tiếng; một ấn bản nền tảng trong sưu tầm tiểu thuyết kinh dị.', 590),
+    (75, 3, 'Nineteen Eighty-Four', 'George Orwell', 'Secker & Warburg', 1949, NULL, 'Tiếng Anh', 328,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Winston Smith sống trong một xã hội giám sát toàn diện, nơi lịch sử bị sửa lại và ngôn ngữ bị kiểm soát. Những suy nghĩ riêng tư và mối quan hệ với Julia khiến anh đối đầu với bộ máy quyền lực của Big Brother.
+
+Ấn bản: Ấn bản Anh đầu, 1949; áo bìa màu đỏ. Ấn bản Anh đầu có áo bìa nguyên gốc là dạng sách sưu tầm; tồn tại hai biến thể màu áo bìa đỏ và xanh.', 520),
+    (76, 4, 'Animal Farm: A Fairy Story', 'George Orwell', 'Secker & Warburg', 1945, NULL, 'Tiếng Anh', 92,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Các con vật nổi dậy chống lại người chủ trang trại để xây dựng một cộng đồng bình đẳng. Khi đàn lợn thâu tóm quyền lực, những lời hứa ban đầu bị biến đổi, tạo nên một ngụ ngôn về tuyên truyền và sự tha hóa của cách mạng.
+
+Ấn bản: Ấn bản Anh đầu, 1945. Ấn bản đầu thời chiến với áo bìa giấy còn giữ được là dạng được sưu tầm; phải phân biệt với nhiều lần in sau.', 260),
+    (77, 3, 'Brave New World', 'Aldous Huxley', 'Chatto & Windus', 1932, NULL, 'Tiếng Anh', 306,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Trong một thế giới con người được sản xuất và phân tầng ngay từ khi sinh ra, hạnh phúc được duy trì bằng điều kiện hóa và thuốc soma. Sự xuất hiện của John, người lớn lên ngoài xã hội ấy, đặt ra câu hỏi về tự do, đau khổ và phẩm giá.
+
+Ấn bản: Ấn bản Anh đầu, 1932. Ấn bản đầu với áo bìa do Leslie Holland thiết kế được tìm kiếm trong thị trường sách hiếm và văn học phản địa đàng.', 500),
+    (78, 4, 'Alice’s Adventures in Wonderland', 'Lewis Carroll; minh họa John Tenniel', 'D. Appleton and Co.', 1866, NULL, 'Tiếng Anh', 192,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Alice đi theo Thỏ Trắng xuống hang và bước vào xứ sở nơi kích thước, ngôn ngữ và quy tắc thông thường liên tục thay đổi. Những cuộc gặp với Mèo Cheshire, Mad Hatter và Nữ hoàng Cơ kết hợp trò chơi logic với trí tưởng tượng.
+
+Ấn bản: Ấn bản đầu, đợt phát hành thứ hai tại Mỹ — Appleton Alice, 1866. Dùng các tờ in Oxford năm 1865 bị thu hồi, thay trang nhan đề để phát hành tại Mỹ năm 1866; một ấn bản sưu tầm có lịch sử đặc biệt.', 370),
+    (79, 3, 'Fahrenheit 451', 'Ray Bradbury', 'Ballantine Books', 1953, NULL, 'Tiếng Anh', 199,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Guy Montag làm nghề đốt sách trong một xã hội coi việc đọc là mối đe dọa. Những cuộc gặp gỡ và trải nghiệm khiến anh nghi ngờ công việc của mình, rồi tìm cách gìn giữ tri thức trước một nền văn hóa giải trí và kiểm soát.
+
+Ấn bản: Ấn bản Mỹ đầu, bìa cứng, 1953. Ấn bản bìa cứng đầu của tác phẩm với áo bìa Joe Mugnaini; bản còn áo bìa là sách sưu tầm có giá trị.', 380),
+    (80, 4, 'Lord of the Flies', 'William Golding', 'Faber & Faber', 1954, NULL, 'Tiếng Anh', 248,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Một nhóm học sinh sống sót sau tai nạn máy bay trên đảo hoang cố lập ra quy tắc và tổ chức cứu hộ. Nỗi sợ cùng tranh chấp quyền lực dần phá vỡ trật tự, phơi bày sự mong manh của các chuẩn mực văn minh.
+
+Ấn bản: Ấn bản Anh đầu, 1954. Tiểu thuyết đầu tay của Golding; ấn bản đầu kèm áo bìa nguyên gốc là một mục sưu tầm văn học Anh thế kỷ XX.', 430),
+    (81, 3, 'Catch-22', 'Joseph Heller', 'Simon and Schuster', 1961, NULL, 'Tiếng Anh', 443,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Phi công Yossarian tìm cách sống sót trong Thế chiến II khi nhiệm vụ chiến đấu ngày càng tăng. Cấu trúc phi tuyến và những tình huống phi lý cho thấy một bộ máy quan liêu trong đó mọi lối thoát đều bị khóa bởi nghịch lý Catch-22.
+
+Ấn bản: Ấn bản Mỹ đầu, 1961. Ấn bản đầu của tiểu thuyết chiến tranh có ảnh hưởng; nguồn ảnh là hồ sơ một bản ký tên được Sotheby’s giới thiệu.', 650),
+    (82, 4, 'The Sun Also Rises', 'Ernest Hemingway', 'Charles Scribner’s Sons', 1926, NULL, 'Tiếng Anh', 259,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Jake Barnes và những người bạn lưu vong đi từ Paris đến lễ hội đấu bò ở Pamplona. Dưới những cuộc uống rượu, du lịch và tình yêu dang dở là cảm giác mất phương hướng của thế hệ trải qua Thế chiến I.
+
+Ấn bản: Ấn bản Mỹ đầu, lần in đầu, 1926. Ấn bản đầu kèm áo bìa đợt đầu là mục sưu tầm quan trọng của Hemingway; nguồn ảnh ghi nhận áo bìa có hao mòn.', 440),
+    (83, 3, 'A Farewell to Arms', 'Ernest Hemingway', 'Charles Scribner’s Sons', 1929, NULL, 'Tiếng Anh', 355,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Frederic Henry, một người Mỹ phục vụ trong lực lượng cứu thương tại Ý, yêu nữ y tá Catherine Barkley giữa Thế chiến I. Cuộc tình của họ gắn với thương tích, cuộc rút lui và mong muốn tìm một đời sống riêng ngoài chiến tranh.
+
+Ấn bản: Ấn bản thương mại Mỹ đầu, 1929. Ấn bản đầu với áo bìa gốc do Cleonike Damianakes thiết kế được sưu tầm; không nhầm với bản giới hạn hoặc bản in sau.', 550),
+    (84, 4, 'The Old Man and the Sea', 'Ernest Hemingway', 'Charles Scribner’s Sons', 1952, NULL, 'Tiếng Anh', 140,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Sau chuỗi ngày đánh bắt thất bại, lão ngư Santiago ra khơi một mình và mắc được con cá kiếm khổng lồ. Cuộc vật lộn trên biển trở thành thử thách về sức bền, lòng tự trọng và khả năng chấp nhận mất mát.
+
+Ấn bản: Ấn bản Mỹ đầu, 1952. Ấn bản đầu có dấu A và dấu nhà xuất bản trên trang bản quyền; áo bìa nguyên gốc là yếu tố quan trọng với người sưu tầm.', 310),
+    (85, 3, 'The Grapes of Wrath', 'John Steinbeck', 'The Viking Press', 1939, NULL, 'Tiếng Anh', 619,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Gia đình Joad rời Oklahoma trong thời Đại suy thoái, hướng đến California với hy vọng có việc làm. Trên đường và tại các trại lao động, họ đối diện cảnh nghèo đói, bóc lột và sức ép buộc con người phải lựa chọn giữa chia rẽ và đoàn kết.
+
+Ấn bản: Ấn bản Mỹ đầu, 1939. Ấn bản đầu còn áo bìa Elmer Hader, có dòng First Edition trên tai bìa, là dạng được giới sưu tầm tìm kiếm.', 840),
+    (86, 4, 'Of Mice and Men', 'John Steinbeck', 'Covici Friede', 1937, NULL, 'Tiếng Anh', 186,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'George và Lennie đi làm thuê tại các trang trại California, cùng nuôi giấc mơ sở hữu một mảnh đất nhỏ. Tình bạn của họ bị thử thách bởi sự cô độc, những giới hạn cá nhân và một biến cố không thể cứu vãn.
+
+Ấn bản: Ấn bản Mỹ đầu, 1937. Ấn bản đầu với áo bìa gốc là mục sưu tầm Steinbeck; dấu hiệu của từng đợt phát hành phải kiểm tra ở trang 9 và 88.', 360),
+    (87, 3, 'East of Eden', 'John Steinbeck', 'The Viking Press', 1952, NULL, 'Tiếng Anh', 602,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Lấy bối cảnh thung lũng Salinas, truyện theo dõi nhiều thế hệ hai gia đình Trask và Hamilton. Qua những xung đột giữa cha mẹ, con cái và anh em, Steinbeck suy ngẫm về thiện ác, di sản gia đình và quyền lựa chọn của mỗi người.
+
+Ấn bản: Ấn bản thương mại Mỹ đầu, 1952. Ấn bản đầu của tiểu thuyết gia đình nổi tiếng; khác với bản giới hạn ký tên và bản câu lạc bộ sách.', 820),
+    (88, 4, 'The Maltese Falcon', 'Dashiell Hammett', 'Alfred A. Knopf', 1930, NULL, 'Tiếng Anh', 267,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Thám tử Sam Spade bị cuốn vào cuộc truy tìm một tượng chim ưng quý giá sau khi cộng sự bị sát hại. Những lời nói dối, lòng tham và các liên minh không bền vững khiến anh phải quyết định đâu là ranh giới nghề nghiệp của mình.
+
+Ấn bản: Ấn bản sách Mỹ đầu, 1930. Ấn bản đầu còn áo bìa vàng nguyên gốc đặc biệt được săn tìm; một cột mốc của trinh thám hard-boiled.', 450),
+    (89, 3, 'The Little Prince', 'Antoine de Saint-Exupéry; dịch Katherine Woods', 'Reynal & Hitchcock', 1943, NULL, 'Tiếng Anh', 94,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Một phi công gặp hoàng tử bé giữa sa mạc và lắng nghe câu chuyện về những hành tinh em từng ghé qua. Những cuộc trò chuyện về bông hồng, con cáo và người lớn đặt ra các câu hỏi giản dị mà sâu sắc về tình yêu và trách nhiệm.
+
+Ấn bản: Ấn bản Mỹ đầu, lần in thứ sáu (theo hồ sơ người bán). Bản in sớm có áo bìa, thuộc thị trường sách sưu tầm; đây là lần in thứ sáu, KHÔNG phải lần in đầu.', 260),
+    (90, 4, 'Lolita', 'Vladimir Nabokov', 'G. P. Putnam’s Sons', 1958, NULL, 'Tiếng Anh', 319,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Tiểu thuyết được trình bày qua lời kể của Humbert Humbert, một người đàn ông tìm cách biện hộ cho việc xâm hại và kiểm soát cô bé Dolores Haze. Ngôn ngữ tinh vi và người kể không đáng tin buộc độc giả đối diện sự thao túng của lời tự sự.
+
+Ấn bản: Ấn bản Mỹ đầu, 1958. Ấn bản Mỹ đầu, khác với bản Olympia Press xuất bản tại Paris năm 1955; có vị trí riêng trong sưu tầm Nabokov.', 510),
+    (91, 3, 'The Catcher in the Rye', 'J. D. Salinger', 'Little, Brown and Company', 1951, NULL, 'Tiếng Anh', 277,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Holden Caulfield kể lại vài ngày lang thang ở New York sau khi rời trường nội trú. Giọng kể vừa châm biếm vừa dễ tổn thương bộc lộ nỗi cô đơn, mất mát và sự chống đối của một thiếu niên trước thế giới người lớn.
+
+Ấn bản: Ấn bản Mỹ đầu, 1951. Ấn bản đầu với áo bìa ngựa gỗ màu đỏ do E. Michael Mitchell thiết kế là một mục sưu tầm văn học Mỹ nổi bật.', 460),
+    (92, 4, 'A Clockwork Orange', 'Anthony Burgess', 'William Heinemann', 1962, NULL, 'Tiếng Anh', 196,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Alex, một thiếu niên bạo lực, bị đưa vào chương trình cải tạo nhằm loại bỏ khả năng làm điều ác bằng điều kiện hóa. Qua tiếng lóng Nadsat và những nghịch cảnh của nhân vật, tác phẩm chất vấn mối quan hệ giữa tự do lựa chọn và đạo đức.
+
+Ấn bản: Ấn bản Anh đầu, 1962. Ấn bản Anh đầu với áo bìa Barry Trengrove; văn bản Anh có chương kết không có trong ấn bản Mỹ đầu.', 380),
+    (93, 3, 'Tender Is the Night', 'F. Scott Fitzgerald', 'Charles Scribner’s Sons', 1934, NULL, 'Tiếng Anh', 408,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Trên vùng Riviera, bác sĩ Dick Diver và người vợ giàu có Nicole xuất hiện như một cặp đôi lý tưởng. Những mối quan hệ và tổn thương tinh thần dần hé lộ sự suy sụp đằng sau vẻ hào nhoáng của họ.
+
+Ấn bản: Ấn bản Mỹ đầu, 1934. Ấn bản đầu với áo bìa nguyên gốc là sách sưu tầm; tiểu thuyết cuối cùng Fitzgerald hoàn thành trong đời.', 610),
+    (94, 4, 'The Fellowship of the Ring', 'J. R. R. Tolkien', 'George Allen & Unwin', 1954, NULL, 'Tiếng Anh', 423,
+        (SELECT id FROM categories WHERE slug = 'sach-hiem-sach-co'), 'GOOD', 'Frodo Baggins rời Shire để đưa Chiếc Nhẫn khỏi tay Sauron. Cùng những người bạn và Đoàn Hộ Nhẫn, anh vượt qua các vùng đất Trung Địa trong hành trình mà lòng trung thành và sự cám dỗ của quyền lực luôn bị thử thách.
+
+Ấn bản: Ấn bản Anh đầu, 1954; tập I của The Lord of the Rings. Ấn bản đầu, lần in đầu của tập I chỉ có 3.000 bản; áo bìa và bản đồ đi kèm là những yếu tố sưu tầm quan trọng.', 630);
+
+INSERT INTO book_images (book_id, url, sort_order, source) VALUES
+    (71, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985265/rebook/covers/rare-01.jpg', 0, 'SELLER'),
+    (72, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985178/rebook/covers/rare-02.jpg', 0, 'SELLER'),
+    (73, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985179/rebook/covers/rare-03.jpg', 0, 'SELLER'),
+    (74, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985245/rebook/covers/rare-04.jpg', 0, 'SELLER'),
+    (75, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985182/rebook/covers/rare-05.jpg', 0, 'SELLER'),
+    (76, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985183/rebook/covers/rare-06.jpg', 0, 'SELLER'),
+    (77, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985183/rebook/covers/rare-07.jpg', 0, 'SELLER'),
+    (78, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985184/rebook/covers/rare-08.png', 0, 'SELLER'),
+    (79, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985185/rebook/covers/rare-09.jpg', 0, 'SELLER'),
+    (80, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985186/rebook/covers/rare-10.jpg', 0, 'SELLER'),
+    (81, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985186/rebook/covers/rare-11.jpg', 0, 'SELLER'),
+    (82, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985187/rebook/covers/rare-12.jpg', 0, 'SELLER'),
+    (83, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985188/rebook/covers/rare-13.jpg', 0, 'SELLER'),
+    (84, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985189/rebook/covers/rare-14.jpg', 0, 'SELLER'),
+    (85, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985190/rebook/covers/rare-15.jpg', 0, 'SELLER'),
+    (86, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985191/rebook/covers/rare-16.jpg', 0, 'SELLER'),
+    (87, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985192/rebook/covers/rare-17.jpg', 0, 'SELLER'),
+    (88, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985193/rebook/covers/rare-18.jpg', 0, 'SELLER'),
+    (89, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985193/rebook/covers/rare-19.jpg', 0, 'SELLER'),
+    (90, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985195/rebook/covers/rare-20.jpg', 0, 'SELLER'),
+    (91, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985195/rebook/covers/rare-21.jpg', 0, 'SELLER'),
+    (92, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985196/rebook/covers/rare-22.jpg', 0, 'SELLER'),
+    (93, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985197/rebook/covers/rare-23.jpg', 0, 'SELLER'),
+    (94, 'https://res.cloudinary.com/dppc2tng8/image/upload/v1793985198/rebook/covers/rare-24.jpg', 0, 'SELLER');
+
 -- Lượt yêu thích mẫu (để thứ tự "phổ biến" có dữ liệu thật); favorite_count khớp bảng listing_favorites.
 INSERT INTO listing_favorites (user_id, listing_id, created_at) VALUES
     (7, 2, now() - interval '9 days'),

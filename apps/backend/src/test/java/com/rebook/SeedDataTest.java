@@ -51,11 +51,11 @@ class SeedDataTest {
     /** 70 sách từ file Excel thành tin đăng bán giá cố định, mỗi sách một ảnh bìa Cloudinary; không còn dữ liệu nghiệp vụ cũ. */
     @Test
     void booksFromTheSheetAreLoadedAndOldBusinessDataIsGone() {
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM books", Long.class)).isEqualTo(70);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM books", Long.class)).isEqualTo(94);
         assertThat(jdbc.queryForObject("SELECT count(*) FROM listings WHERE status = 'ACTIVE'", Long.class)).isEqualTo(70);
         // Mỗi sách có đúng một ảnh bìa trên Cloudinary (URL https), không có ảnh lưu cục bộ.
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images WHERE url LIKE 'https://res.cloudinary.com/%'", Long.class)).isEqualTo(70);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images", Long.class)).isEqualTo(70);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images WHERE url LIKE 'https://res.cloudinary.com/%'", Long.class)).isEqualTo(94);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images", Long.class)).isEqualTo(94);
         for (String t : new String[]{"orders", "consignments", "lots", "auction_sessions", "cart_items", "notifications"}) {
             assertThat(jdbc.queryForObject("SELECT count(*) FROM " + t, Long.class)).as(t).isZero();
         }
@@ -68,7 +68,7 @@ class SeedDataTest {
     @Test
     void isbnsAreValidAndCategoriesAreLeaves() {
         assertThat(jdbc.queryForObject("SELECT count(DISTINCT isbn) FROM books", Long.class)).isEqualTo(70);
-        for (String isbn : jdbc.queryForList("SELECT isbn FROM books", String.class)) {
+        for (String isbn : jdbc.queryForList("SELECT isbn FROM books WHERE isbn IS NOT NULL", String.class)) {
             assertThat(com.rebook.common.Isbn.normalize(isbn)).isEqualTo(isbn);
         }
         assertThat(jdbc.queryForObject("SELECT count(*) FROM books b WHERE EXISTS (SELECT 1 FROM categories c WHERE c.parent_id = b.category_id)", Long.class))
@@ -90,5 +90,15 @@ class SeedDataTest {
         assertThat(jdbc.queryForObject("SELECT count(*) FROM listings l WHERE l.favorite_count <> (SELECT count(*) FROM listing_favorites f WHERE f.listing_id = l.id)", Long.class))
                 .isZero();
         assertThat(jdbc.queryForObject("SELECT max(favorite_count) FROM listings", Integer.class)).isGreaterThanOrEqualTo(2);
+    }
+
+    /** 24 sách hiếm để đấu giá: nằm ở thể loại Sách hiếm, không ISBN, chưa có tin đăng bán thường, có ảnh và khối lượng. */
+    @Test
+    void rareBooksAreReadyForAuctionAndNotForSale() {
+        String where = "FROM books b JOIN categories c ON c.id = b.category_id WHERE c.slug = 'sach-hiem-sach-co'";
+        assertThat(jdbc.queryForObject("SELECT count(*) " + where, Long.class)).isEqualTo(24);
+        assertThat(jdbc.queryForObject("SELECT count(*) " + where + " AND b.isbn IS NULL AND b.weight_gram > 0 AND b.publish_year < 1970", Long.class)).isEqualTo(24);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM listings l JOIN books b ON b.id = l.book_id JOIN categories c ON c.id = b.category_id WHERE c.slug = 'sach-hiem-sach-co'", Long.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images i JOIN books b ON b.id = i.book_id JOIN categories c ON c.id = b.category_id WHERE c.slug = 'sach-hiem-sach-co'", Long.class)).isEqualTo(24);
     }
 }

@@ -25,6 +25,15 @@ Kết quả luôn giống nhau (giá và tồn kho tính theo ISBN, không dùng
 Các file `V19*.sql` được **sinh ra**, đừng sửa tay: sửa Excel hoặc các bảng ở đầu `gen.mjs` (`TREE`, `CATEGORY_BY_STT`,
 `PRICE_RANGE`, ...) rồi chạy lại. DB đã chạy bản cũ của V19 thì tạo lại DB (Flyway kiểm tra checksum).
 
+## Sách hiếm để đấu giá (rare.xlsx)
+
+`rare.xlsx` có 24 sách hiếm / ấn bản đầu (1866 – 1962), không ISBN, ảnh bìa mặt trước nhúng ở sheet thứ hai. Seed nạp chúng thành **bản ghi sách
+(thể loại "Sách hiếm – Sách cổ") kèm ảnh bìa, không có tin đăng bán thường**; ký gửi, kiểm định, lô và phiên đấu giá do script demo tạo sau.
+Ảnh có khoá `rare-NN` trong `covers.json`. `upload-covers.mjs` dùng ảnh nhúng trước; nếu ảnh hỏng hoặc quá 10 MB thì thử lần lượt các cột link
+("Link ảnh bìa gốc", "Nguồn ảnh và ấn bản", "Nguồn đối chiếu số trang"; cột nào tải về không phải ảnh thì bỏ qua). Ảnh gốc quá lớn mà link cũng
+trỏ cùng ảnh đó (như Gatsby, 16 MB) thì thu nhỏ tay rồi `--only rare-01 --file <ảnh>`.
+Tình trạng ghi `GOOD` (chưa kiểm định); khối lượng **ước tính** 160 g + 1,1 g/trang vì sheet ghi "chưa xác minh".
+
 ## Quy tắc đã dùng
 
 - **ISBN**: lưu 13 chữ số, không gạch (script từ chối ISBN sai chữ số kiểm tra).

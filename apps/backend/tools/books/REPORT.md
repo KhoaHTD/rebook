@@ -85,3 +85,37 @@ Sinh bởi `tools/books/gen.mjs` từ `tools/books/books.xlsx` (70 sách, ảnh 
 | 68 | Leaving Isn't the Hardest Thing | 9780593080764 | Tiểu sử / Hồi ký / Hài hước | Tiểu sử – Hồi ký › Hồi ký – Tự truyện | Hà Nội Xưa | Mới, chưa sử dụng | 390 g | 235.000 | 4 | có |
 | 69 | Humor, Seriously | 9780593135280 | Kinh doanh / Phát triển bản thân / Hài hước | Kỹ năng sống › Phát triển bản thân | Hà Nội Xưa | Mới, chưa sử dụng | 470 g | 297.000 | 3 | có |
 | 70 | Wow, No Thank You. | 9780525563488 | Hài hước / Tiểu sử / Hồi ký | Hài hước – Tiểu luận › Hài hước | Hà Nội Xưa | Như mới, bìa và trang sạch | 390 g | 301.000 | 4 | có |
+
+
+## Sách hiếm để đấu giá (24 cuốn, từ rare.xlsx)
+
+Chưa có tin đăng bán thường; chỉ là bản ghi sách + ảnh bìa trong thể loại "Sách hiếm – Sách cổ". Không có ISBN (ấn bản trước hệ thống ISBN).
+Tình trạng ghi `GOOD` cho tất cả vì chưa kiểm định thật. **Khối lượng là ước tính** (160 g + 1,1 g/trang), sheet ghi "chưa xác minh".
+Người ký gửi xen kẽ seller1 / seller2.
+
+| STT | Tên sách | Tác giả | Nhà xuất bản | Năm | Trang | Ấn bản | Khối lượng ước tính | Ký gửi | Ảnh |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | The Great Gatsby | F. Scott Fitzgerald | Charles Scribner’s Sons | 1925 | 218 | Ấn bản đầu tại Mỹ, 1925 | 400 g | seller1 | có |
+| 2 | The Hobbit, or There and Back Again | J. R. R. Tolkien | George Allen & Unwin | 1937 | 310 | Ấn bản Anh đầu, 1937 | 500 g | seller2 | có |
+| 3 | Ulysses | James Joyce | Shakespeare and Company | 1922 | 732 | Ấn bản đầu, Paris, 1922 | 970 g | seller1 | có |
+| 4 | Dracula | Bram Stoker | Archibald Constable and Company | 1897 | 390 | Ấn bản Anh đầu, 1897 | 590 g | seller2 | có |
+| 5 | Nineteen Eighty-Four | George Orwell | Secker & Warburg | 1949 | 328 | Ấn bản Anh đầu, 1949; áo bìa màu đỏ | 520 g | seller1 | có |
+| 6 | Animal Farm: A Fairy Story | George Orwell | Secker & Warburg | 1945 | 92 | Ấn bản Anh đầu, 1945 | 260 g | seller2 | có |
+| 7 | Brave New World | Aldous Huxley | Chatto & Windus | 1932 | 306 | Ấn bản Anh đầu, 1932 | 500 g | seller1 | có |
+| 8 | Alice’s Adventures in Wonderland | Lewis Carroll; minh họa John Tenniel | D. Appleton and Co. | 1866 | 192 | Ấn bản đầu, đợt phát hành thứ hai tại Mỹ — Appleton Alice, 1866 | 370 g | seller2 | có |
+| 9 | Fahrenheit 451 | Ray Bradbury | Ballantine Books | 1953 | 199 | Ấn bản Mỹ đầu, bìa cứng, 1953 | 380 g | seller1 | có |
+| 10 | Lord of the Flies | William Golding | Faber & Faber | 1954 | 248 | Ấn bản Anh đầu, 1954 | 430 g | seller2 | có |
+| 11 | Catch-22 | Joseph Heller | Simon and Schuster | 1961 | 443 | Ấn bản Mỹ đầu, 1961 | 650 g | seller1 | có |
+| 12 | The Sun Also Rises | Ernest Hemingway | Charles Scribner’s Sons | 1926 | 259 | Ấn bản Mỹ đầu, lần in đầu, 1926 | 440 g | seller2 | có |
+| 13 | A Farewell to Arms | Ernest Hemingway | Charles Scribner’s Sons | 1929 | 355 | Ấn bản thương mại Mỹ đầu, 1929 | 550 g | seller1 | có |
+| 14 | The Old Man and the Sea | Ernest Hemingway | Charles Scribner’s Sons | 1952 | 140 | Ấn bản Mỹ đầu, 1952 | 310 g | seller2 | có |
+| 15 | The Grapes of Wrath | John Steinbeck | The Viking Press | 1939 | 619 | Ấn bản Mỹ đầu, 1939 | 840 g | seller1 | có |
+| 16 | Of Mice and Men | John Steinbeck | Covici Friede | 1937 | 186 | Ấn bản Mỹ đầu, 1937 | 360 g | seller2 | có |
+| 17 | East of Eden | John Steinbeck | The Viking Press | 1952 | 602 | Ấn bản thương mại Mỹ đầu, 1952 | 820 g | seller1 | có |
+| 18 | The Maltese Falcon | Dashiell Hammett | Alfred A. Knopf | 1930 | 267 | Ấn bản sách Mỹ đầu, 1930 | 450 g | seller2 | có |
+| 19 | The Little Prince | Antoine de Saint-Exupéry; dịch Katherine Woods | Reynal & Hitchcock | 1943 | 94 | Ấn bản Mỹ đầu, lần in thứ sáu (theo hồ sơ người bán) | 260 g | seller1 | có |
+| 20 | Lolita | Vladimir Nabokov | G. P. Putnam’s Sons | 1958 | 319 | Ấn bản Mỹ đầu, 1958 | 510 g | seller2 | có |
+| 21 | The Catcher in the Rye | J. D. Salinger | Little, Brown and Company | 1951 | 277 | Ấn bản Mỹ đầu, 1951 | 460 g | seller1 | có |
+| 22 | A Clockwork Orange | Anthony Burgess | William Heinemann | 1962 | 196 | Ấn bản Anh đầu, 1962 | 380 g | seller2 | có |
+| 23 | Tender Is the Night | F. Scott Fitzgerald | Charles Scribner’s Sons | 1934 | 408 | Ấn bản Mỹ đầu, 1934 | 610 g | seller1 | có |
+| 24 | The Fellowship of the Ring | J. R. R. Tolkien | George Allen & Unwin | 1954 | 423 | Ấn bản Anh đầu, 1954; tập I của The Lord of the Rings | 630 g | seller2 | có |

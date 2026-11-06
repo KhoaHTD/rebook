@@ -160,6 +160,33 @@ if (dupIsbn.length) throw new Error('ISBN trùng: ' + dupIsbn.join(', '));
 const noCover = books.filter((b) => !b.cover);
 if (noCover.length) console.warn(`Cảnh báo: ${noCover.length} sách chưa có ảnh trong covers.json (chạy upload-covers.mjs).`);
 
+// ───────────────────────── sách hiếm (để đấu giá) ─────────────────────────
+// Đọc rare.xlsx: ấn bản đầu / sưu tầm trước thời ISBN, không có tin đăng bán giá cố định; chỉ là bản ghi sách (kèm ảnh bìa)
+// để script demo sau này đưa vào ký gửi và lô đấu giá. Ảnh ở covers.json với khoá rare-NN.
+
+const RARE_CATEGORY = 'Sách hiếm – Sách cổ';
+const RARE_OWNERS = [3, 4]; // người ký gửi: xen kẽ seller1 / seller2
+/** Chưa kiểm định thật, nên mọi cuốn lấy cùng một mức; Staff sẽ đánh giá lại khi kiểm định. */
+const RARE_GRADE = 'GOOD';
+/** Sheet ghi "chưa xác minh": ước tính tương đối cho sách bìa cứng thời xưa (bìa + giấy dày). Làm tròn 10 g. */
+const estimateRareWeight = (pages) => Math.round((160 + pages * 1.1) / 10) * 10;
+const pad2 = (n) => String(n).padStart(2, '0');
+const rareFile = join(here, 'rare.xlsx');
+const rare = existsSync(rareFile) ? bookRows(readZip(rareFile)).map(({ stt, row }) => {
+  const pages = +row['Số trang chính'];
+  const year = +row['Năm xuất bản'];
+  if (!(pages > 0) || !(year >= 1500 && year <= 2100)) throw new Error(`Số liệu lạ ở sách hiếm STT ${stt}`);
+  if (!knownCategories.has(RARE_CATEGORY)) throw new Error('Thiếu thể loại ' + RARE_CATEGORY);
+  return {
+    stt, title: row['Tên sách'], author: row['Tác giả / Minh họa / Dịch giả'], publisher: row['Nhà xuất bản'], year, pages,
+    language: row['Ngôn ngữ'], genre: row['Thể loại'], edition: row['Ấn bản được chọn'], weight: estimateRareWeight(pages),
+    description: `${row['Mô tả tiếng Việt']}\n\nẤn bản: ${row['Ấn bản được chọn']}. ${row['Đặc điểm sưu tầm / Độ hiếm']}`,
+    owner: RARE_OWNERS[(stt - 1) % RARE_OWNERS.length], cover: covers['rare-' + pad2(stt)] ?? null,
+  };
+}) : [];
+const noRareCover = rare.filter((b) => !b.cover);
+if (noRareCover.length) console.warn(`Cảnh báo: ${noRareCover.length} sách hiếm chưa có ảnh (chạy upload-covers.mjs).`);
+
 // ───────────────────────── V19: cây thể loại ─────────────────────────
 
 const allSlugs = [];
@@ -221,6 +248,11 @@ books.forEach((b, i) => {
 });
 const listingRows = books.map((b, i) => `    (${i + 1}, ${i + 1}, ${b.shop.shopId}, ${b.price}, ${b.stock}, 0, 'ACTIVE', now() - interval '${b.daysAgo} days')`);
 
+// Sách hiếm: id nối tiếp sách bán thường, không có ISBN, không có tin đăng.
+const rareBookRows = rare.map((b, i) => `    (${books.length + i + 1}, ${b.owner}, ${sql(b.title)}, ${sql(b.author)}, ${sql(b.publisher)}, ${b.year}, NULL, ${sql(b.language)}, ${b.pages},
+        (SELECT id FROM categories WHERE slug = ${sql(slugify(RARE_CATEGORY))}), ${sql(RARE_GRADE)}, ${sql(b.description)}, ${b.weight})`);
+const rareImageRows = rare.map((b, i) => (b.cover ? `    (${books.length + i + 1}, ${sql(b.cover)}, 0, 'SELLER')` : null)).filter(Boolean);
+
 const walletRows = BUYER_WALLETS.map((w, i) => `    (${sql('PMDEMO00000' + (i + 1))}, ${w.userId}, 'TOP_UP', 'ZALOPAY', ${w.amount}, 'SUCCESS', ${sql('SEED-1400000' + (i + 1))}, now() - interval '${15 - i} days', now() - interval '${15 - i} days')`);
 const ledgerRows = BUYER_WALLETS.map((w) => `    ((SELECT id FROM wallets WHERE user_id = ${w.userId}), 'TOP_UP', ${w.amount}, 0, ${w.amount}, 0, 'PAYMENT', (SELECT id FROM payments WHERE user_id = ${w.userId} AND purpose = 'TOP_UP'), 'Nạp tiền vào ví', now() - interval '14 days')`);
 
@@ -267,7 +299,16 @@ ${imageRows.join(',\n')};
 
 INSERT INTO listings (id, book_id, shop_id, price, stock, sold_count, status, created_at) VALUES
 ${listingRows.join(',\n')};
+${rare.length ? `
+-- ${rare.length} sách hiếm để đấu giá (ấn bản đầu / sưu tầm, không ISBN, chưa có tin đăng bán thường): chỉ là bản ghi sách
+-- kèm ảnh bìa; ký gửi, kiểm định, lô và phiên đấu giá do script demo tạo.
+INSERT INTO books (id, owner_id, title, author, publisher, publish_year, isbn, language, pages, category_id,
+                   condition_grade, description, weight_gram) VALUES
+${rareBookRows.join(',\n')};
 
+INSERT INTO book_images (book_id, url, sort_order, source) VALUES
+${rareImageRows.join(',\n')};
+` : ''}
 -- Lượt yêu thích mẫu (để thứ tự "phổ biến" có dữ liệu thật); favorite_count khớp bảng listing_favorites.
 INSERT INTO listing_favorites (user_id, listing_id, created_at) VALUES
 ${favoriteRows.join(',\n')};
@@ -301,11 +342,25 @@ Sinh bởi \`tools/books/gen.mjs\` từ \`tools/books/books.xlsx\` (${books.leng
 ${books.map((b) => `| ${b.stt} | ${b.title} | ${b.isbn} | ${b.genre} | ${parentOf.get(b.category)} › ${b.category} | ${shopName(b)} | ${b.gradeLabel} | ${b.weight} g | ${b.price.toLocaleString('vi-VN')} | ${b.stock} | ${b.cover ? 'có' : 'CHƯA'} |`).join('\n')}
 `;
 
+const rareReport = rare.length ? `
+
+## Sách hiếm để đấu giá (${rare.length} cuốn, từ rare.xlsx)
+
+Chưa có tin đăng bán thường; chỉ là bản ghi sách + ảnh bìa trong thể loại "${RARE_CATEGORY}". Không có ISBN (ấn bản trước hệ thống ISBN).
+Tình trạng ghi \`${RARE_GRADE}\` cho tất cả vì chưa kiểm định thật. **Khối lượng là ước tính** (160 g + 1,1 g/trang), sheet ghi "chưa xác minh".
+Người ký gửi xen kẽ seller1 / seller2.
+
+| STT | Tên sách | Tác giả | Nhà xuất bản | Năm | Trang | Ấn bản | Khối lượng ước tính | Ký gửi | Ảnh |
+|---|---|---|---|---|---|---|---|---|---|
+${rare.map((b) => `| ${b.stt} | ${b.title} | ${b.author} | ${b.publisher} | ${b.year} | ${b.pages} | ${b.edition} | ${b.weight} g | seller${b.owner === 3 ? 1 : 2} | ${b.cover ? 'có' : 'CHƯA'} |`).join('\n')}
+` : '';
+
 writeFileSync(OUT_MIGRATION, migration);
 writeFileSync(OUT_SEED, seed);
-writeFileSync(OUT_REPORT, report);
+writeFileSync(OUT_REPORT, report + rareReport);
 const byCat = {};
 books.forEach((b) => { byCat[b.category] = (byCat[b.category] ?? 0) + 1; });
+console.log(`Sách hiếm: ${rare.length}, ảnh: ${rareImageRows.length}`);
 console.log(`Đã ghi ${books.length} sách, ${allSlugs.length} thể loại, ${imageRows.length} ảnh.`);
 console.log('Giá thấp nhất / cao nhất:', Math.min(...books.map((b) => b.price)), Math.max(...books.map((b) => b.price)));
 console.log('Sách có yêu thích:', new Set(favoriteRows.map((r) => r.split(', ')[1])).size, ' lượt:', favoriteRows.length);
