@@ -124,6 +124,33 @@ class WithdrawApprovalTest extends IntegrationTest {
                 Long.class, adminId, String.valueOf(withdrawId))).isEqualTo(1);
     }
 
+    /** BE-34: biên lai có số tài khoản không còn xem công khai; chỉ người rút và Admin / Staff xem được. */
+    @Test
+    void receiptImageBecomesPrivateAfterApproval() throws Exception {
+        byte[] png = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 9, 9};
+        String body = mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/files")
+                        .file(new org.springframework.mock.web.MockMultipartFile("file", "bl.png", "image/png", png))
+                        .with(as(adminId, Role.ADMIN)))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String publicUrl = body.replaceAll(".*\"url\":\"([^\"]+)\".*", "$1");
+        String privateUrl = publicUrl.replace("/files/", "/files/private/");
+
+        approve(approveJson("\"Sàn ReBook\"", "\"" + Instant.now().minusSeconds(60) + "\"", "200000", "\"" + publicUrl + "\""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.transfer.proofImageUrl").value(privateUrl));
+
+        mvc.perform(get(publicUrl)).andExpect(status().isNotFound());
+        mvc.perform(get(privateUrl)).andExpect(status().isUnauthorized());
+        long stranger = createUser(Role.USER, "Người Lạ", 0);
+        mvc.perform(get(privateUrl).with(as(stranger, Role.USER))).andExpect(status().isNotFound());
+        mvc.perform(get(privateUrl).with(as(userId, Role.USER)))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.header()
+                        .string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")));
+        long staff = createUser(Role.STAFF, "Staff", 0);
+        mvc.perform(get(privateUrl).with(as(staff, Role.STAFF))).andExpect(status().isOk());
+    }
+
     @Test
     void secondApproveIsConflict() throws Exception {
         String json = approveJson("\"Sàn ReBook\"", "\"" + Instant.now().minusSeconds(60) + "\"", "200000", "\"/files/a.png\"");

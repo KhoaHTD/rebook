@@ -11,8 +11,9 @@ Cần: JDK 21+ (JDK kèm IntelliJ cũng được), PostgreSQL đang chạy ở `
 # 1. Tạo user + database (một lần, bằng tài khoản postgres)
 psql -U postgres -h localhost -f scripts/create-database.sql
 
-# 2. Chạy (profile dev: tự tạo bảng + nạp dữ liệu mẫu)
-./mvnw spring-boot:run          # Windows: mvnw.cmd spring-boot:run
+# 2. Chạy. Mặc định là profile prod (không dữ liệu mẫu, không lộ OTP, không giả lập thanh toán, bắt buộc JWT_SECRET).
+#    Máy dev: đặt SPRING_PROFILES_ACTIVE=dev (hoặc dòng spring.profiles.active=dev trong .env) để tự tạo bảng + nạp dữ liệu mẫu
+SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run          # Windows PowerShell: $env:SPRING_PROFILES_ACTIVE='dev'; .\mvnw.cmd spring-boot:run
 ```
 
 - API: http://localhost:8080 · Swagger UI: http://localhost:8080/swagger-ui.html

@@ -47,6 +47,8 @@ public class SecurityConfig {
                         .requestMatchers("/payments/zalopay/**").permitAll()
                         // WebSocket: tự xác thực bằng ?token=
                         .requestMatchers("/ws/**").permitAll()
+                        // Ảnh biên lai chuyển khoản (BE-34): cần đăng nhập, quyền xem kiểm trong FileController
+                        .requestMatchers(HttpMethod.GET, "/files/private/**").authenticated()
                         // Khách (Guest) được xem sách, shop, lịch phiên, catalogue
                         .requestMatchers(HttpMethod.GET, "/categories/**", "/listings/**", "/shops/**",
                                 "/sessions/**", "/lots/**", "/files/**").permitAll()

@@ -10,7 +10,9 @@ spring:
     # Cấu hình riêng của từng máy (khoá ZaloPay riêng, APP_URL...) đặt ở apps/backend/.env, dạng KEY=giá trị; file này không commit.
     import: optional:file:.env[.properties]
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    # Mặc định prod: quên đặt biến khi deploy thì KHÔNG lộ OTP, KHÔNG bật /payments/{code}/simulate, KHÔNG nạp dữ liệu mẫu.
+    # Máy dev đặt SPRING_PROFILES_ACTIVE=dev (biến môi trường, hoặc dòng spring.profiles.active=dev trong apps/backend/.env).
+    active: ${SPRING_PROFILES_ACTIVE:prod}
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/rebook_dev}
     username: ${DB_USERNAME:rebook}

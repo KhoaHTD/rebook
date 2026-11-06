@@ -162,7 +162,12 @@ public class AuthService {
         }
         throttleOtp("u:" + userId, user);
         String code = issueOtp(user, purpose, true);
-        return new OtpSentResponse("Đã gửi mã OTP tới email " + MailService.mask(user.getEmail()), props.otp().exposeInResponse() ? code : null);
+        return new OtpSentResponse("Đã gửi mã OTP tới email " + MailService.mask(user.getEmail()), exposeOtp(code));
+    }
+
+    /** Chỉ trả mã trong response khi bật cờ dev VÀ mail thật đang tắt: mail đã gửi đi thì không lộ mã lần nữa. */
+    private String exposeOtp(String code) {
+        return props.otp().exposeInResponse() && !mail.enabled() ? code : null;
     }
 
     @Transactional
@@ -189,7 +194,7 @@ public class AuthService {
                 "USER", known == null ? null : known.getId(), null, "Yêu cầu đặt lại mật khẩu",
                 "known", known != null, "emailHash", emailHash(email));
         return new OtpSentResponse("Nếu email tồn tại, mã OTP đã được gửi",
-                props.otp().exposeInResponse() ? code : null);
+                exposeOtp(code));
     }
 
     @Transactional
@@ -316,7 +321,7 @@ public class AuthService {
 
         String access = jwtService.createAccessToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(access, refresh, "Bearer", jwtService.accessTokenSeconds(),
-                userService.me(user.getId()), props.otp().exposeInResponse() ? otp : null);
+                userService.me(user.getId()), exposeOtp(otp));
     }
 
     private static void ensureActive(User user) {

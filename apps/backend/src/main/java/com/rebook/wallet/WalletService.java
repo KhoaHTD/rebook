@@ -5,6 +5,8 @@ import com.rebook.audit.AuditLog;
 import com.rebook.audit.EventCode;
 import com.rebook.common.ApiException;
 import com.rebook.common.CodeGenerator;
+import com.rebook.file.FileStorage;
+import com.rebook.security.UserPrincipal;
 import com.rebook.system.SystemConfigService;
 import com.rebook.common.PageResponse;
 import com.rebook.order.OrderRepository;
@@ -55,6 +57,7 @@ public class WalletService {
     private final AccountDebtRepository debtRepository;
     private final ShopRepository shopRepository;
     private final OrderRepository orderRepository;
+    private final FileStorage fileStorage;
 
     @Transactional
     public Wallet createFor(Long userId) {
@@ -396,8 +399,24 @@ public class WalletService {
         t.setSenderName(req.senderName().trim());
         t.setTransferTime(req.transferTime());
         t.setAmount(req.transferAmount());
-        t.setProofImageUrl(req.proofImageUrl().trim());
+        // Biên lai có số tài khoản: chuyển khỏi thư mục ảnh công khai (BE-34)
+        t.setProofImageUrl(fileStorage.makePrivate(req.proofImageUrl().trim()));
         return transferRepository.save(t);
+    }
+
+    /** Ảnh biên lai riêng tư: Admin / Staff xem được mọi biên lai, người dùng chỉ xem biên lai khoản rút của mình. */
+    @Transactional(readOnly = true)
+    public boolean canViewProof(UserPrincipal me, String url) {
+        if (me == null) {
+            return false;
+        }
+        if (me.isStaffOrAdmin()) {
+            return true;
+        }
+        return transferRepository.findFirstByProofImageUrl(url)
+                .flatMap(t -> withdrawRepository.findById(t.getWithdrawId()))
+                .map(w -> w.getUserId().equals(me.id()))
+                .orElse(false);
     }
 
     /** Gắn tên người rút, tên Admin duyệt và biên lai (nếu có) vào danh sách yêu cầu. */
