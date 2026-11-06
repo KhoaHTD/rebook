@@ -56,7 +56,7 @@ abstract class OrderManagementClient {
   @POST('/staff/orders/{id}/confirm')
   Future<OrderDetail> postStaffOrdersIdConfirm({@Path('id') required int id});
 
-  /// [Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại (người nhận từ chối, thất lạc). Hoàn tiền nếu đã trả trước
+  /// [Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại. fault=BUYER: hoàn trừ phí giao chiều đi (phí đó về shop); SHOP: tính lỗi shop
   @POST('/staff/orders/{id}/carrier-failed')
   Future<OrderDetail> postStaffOrdersIdCarrierFailed({
     @Path('id') required int id,

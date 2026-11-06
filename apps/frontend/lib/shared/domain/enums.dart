@@ -8,7 +8,8 @@ enum UserRole { user, staff, admin }
 
 enum ListingStatus { pendingReview, active, hidden, outOfStock, rejected }
 
-enum ListingSort { newest, priceAsc, priceDesc, relevance }
+/// [popular]: nhiều lượt yêu thích nhất (rồi bán nhiều hơn, rồi mới hơn).
+enum ListingSort { newest, priceAsc, priceDesc, relevance, popular }
 
 /// NORMAL: shop giao. AUCTION: kho của sàn giao, sàn nhận tiền (SRS 7.3).
 enum OrderType { normal, auction }

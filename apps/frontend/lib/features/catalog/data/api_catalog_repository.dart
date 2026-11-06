@@ -40,7 +40,7 @@ class ApiCatalogRepository implements CatalogRepository {
   Future<HomeFeed> homeFeed() => guardApi(() async {
     final results = await Future.wait([
       _client.catalog.getListings(sort: 'newest', size: 12),
-      _client.catalog.getListings(sort: 'best_selling', size: 12),
+      _client.catalog.getListings(sort: 'popular', size: 12),
       _client.auction.getSessions(status: api.SessionStatus.live, size: 10),
     ]);
     final newest = (results[0] as api.PageResponseListingSummary).items;
@@ -80,6 +80,7 @@ class ApiCatalogRepository implements CatalogRepository {
             ListingSort.priceAsc => 'price_asc',
             ListingSort.priceDesc => 'price_desc',
             ListingSort.relevance => 'best_selling',
+            ListingSort.popular => 'popular',
             ListingSort.newest => 'newest',
           },
           page: page,
@@ -92,6 +93,32 @@ class ApiCatalogRepository implements CatalogRepository {
           totalItems: res.totalItems,
           map: (api.ListingSummary e) => e.toDomain(),
         );
+      });
+
+  @override
+  Future<List<CategoryShelf>> categoryShelves({int perShelf = 10}) =>
+      guardApi(() async {
+        final cats = flattenCategories(await _client.catalog.getCategories())
+            .where((c) => c.parentId == null)
+            .toList();
+        // Backend lọc theo nhóm cha đã gồm cả thể loại con; mỗi nhóm một lượt gọi, song song.
+        final pages = await Future.wait([
+          for (final c in cats)
+            _client.catalog.getListings(
+              category: int.tryParse(c.id),
+              sort: 'popular',
+              size: perShelf,
+            ),
+        ]);
+        return [
+          for (var i = 0; i < cats.length; i++)
+            if ((pages[i].totalItems ?? 0) > 0)
+              CategoryShelf(
+                category: cats[i],
+                items: [for (final l in pages[i].items.orEmpty) l.toDomain()],
+                total: pages[i].totalItems ?? 0,
+              ),
+        ];
       });
 
   @override

@@ -53,4 +53,25 @@ void main() {
     await repo.addToCart('l1', 1);
     expect(store.cart().itemCount, 1);
   });
+
+  test('kệ thể loại: chỉ nhóm cha có sách, tối đa perShelf cuốn, total là số sách của cả nhóm', () async {
+    final shelves = await repo.categoryShelves(perShelf: 2);
+    expect(shelves, isNotEmpty);
+    for (final s in shelves) {
+      expect(s.category.parentId, isNull);
+      expect(s.items.length, lessThanOrEqualTo(2));
+      expect(s.items, isNotEmpty);
+      // total khớp số kết quả khi tìm theo đúng nhóm đó (gồm cả thể loại con).
+      final all = await repo.search(ListingQuery(categoryId: s.category.id));
+      expect(s.total, all.total);
+    }
+  });
+
+  test('sắp xếp phổ biến: nhiều lượt yêu thích lên trước', () async {
+    final page = await repo.search(
+      const ListingQuery(sort: ListingSort.popular),
+    );
+    final counts = page.items.map((l) => l.favoriteCount).toList();
+    expect(counts, [...counts]..sort((a, b) => b.compareTo(a)));
+  });
 }

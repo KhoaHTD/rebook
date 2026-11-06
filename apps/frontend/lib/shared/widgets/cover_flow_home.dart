@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter/services.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/shared/widgets/book_poster.dart';
 import 'package:book_marketplace/shared/widgets/cover_color.dart';
+import 'package:book_marketplace/shared/widgets/see_all_book.dart';
 
 /// Một cuốn (hoặc lô) hiện trên trang chủ điện thoại: ở hàng bìa lớn hoặc trong một kệ.
 class CoverFlowEntry {
@@ -28,15 +30,30 @@ class CoverFlowEntry {
 
 /// Một kệ: nhãn viết hoa nhỏ kèm đường kẻ, rồi một hàng bìa cuộn ngang.
 class CoverFlowShelf {
-  const CoverFlowShelf(this.label, this.entries);
+  const CoverFlowShelf(
+    this.label,
+    this.entries, {
+    this.onSeeAll,
+    this.seeAllLabel,
+    this.seeAllCaption,
+  });
 
   final String label;
   final List<CoverFlowEntry> entries;
+
+  /// Có thì tiêu đề kệ hiện [seeAllLabel] ("Xem tất cả ›") và cuối kệ có một "cuốn sách giả"
+  /// ghi [seeAllCaption] (vd. "Xem tất cả 12 cuốn"); bấm vào hai chỗ đó đều gọi [onSeeAll].
+  final VoidCallback? onSeeAll;
+  final String? seeAllLabel;
+  final String? seeAllCaption;
 }
 
 /// Trang chủ điện thoại: nửa trên là **một màu chủ đạo của bìa** đang chọn (đổi mượt khi lướt) với hàng bìa
 /// lớn (cuốn giữa to nhất); nửa dưới là tờ giấy bo góc chứa tab và các kệ sách. Kéo lên thì tờ giấy trượt
 /// che nửa trên và phủ kín màn hình, chỉ còn thanh tiêu đề mỏng. Bìa vuông góc, không kính.
+///
+/// Thanh [tabs] là mục lục của các kệ: tab đầu ("Tất cả") là đầu trang, tab thứ i+1 ứng với kệ thứ i. Bấm tab thì
+/// trang cuộn xuống kệ đó; tự cuộn thì tab sáng theo kệ đang xem. Khi tờ giấy phủ kín, thanh tab dính dưới thanh tiêu đề.
 class CoverFlowHome extends StatefulWidget {
   const CoverFlowHome({
     super.key,
@@ -44,8 +61,6 @@ class CoverFlowHome extends StatefulWidget {
     required this.trailing,
     required this.hero,
     required this.tabs,
-    required this.tabIndex,
-    required this.onTab,
     required this.shelves,
     required this.emptyText,
   });
@@ -58,8 +73,6 @@ class CoverFlowHome extends StatefulWidget {
   /// Các cuốn ở hàng bìa lớn (chừng 5 cuốn).
   final List<CoverFlowEntry> hero;
   final List<String> tabs;
-  final int tabIndex;
-  final ValueChanged<int> onTab;
   final List<CoverFlowShelf> shelves;
   final String emptyText;
 
@@ -70,8 +83,14 @@ class CoverFlowHome extends StatefulWidget {
 class _CoverFlowHomeState extends State<CoverFlowHome> {
   static const _radius = 28.0;
   static const _pagesHeight = 290.0;
+  static const _barH = 56.0;
+  static const _stripH = 48.0;
 
   final _scroll = ScrollController();
+  var _keys = <GlobalKey>[];
+  int _active = 0;
+  bool _locked = false;
+  double _safeTop = 0;
   final _pages = PageController(viewportFraction: 0.5);
   int _index = 0;
   final _colors = <String, Color>{};
@@ -79,6 +98,8 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
   @override
   void initState() {
     super.initState();
+    _syncKeys();
+    _scroll.addListener(_spy);
     _warm();
   }
 
@@ -86,11 +107,73 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
   void didUpdateWidget(CoverFlowHome old) {
     super.didUpdateWidget(old);
     if (_index >= widget.hero.length) _index = 0;
+    _syncKeys();
+    if (_active > widget.shelves.length) _active = 0;
     _warm();
+  }
+
+  void _syncKeys() {
+    if (_keys.length > widget.shelves.length) {
+      _keys = _keys.sublist(0, widget.shelves.length);
+    }
+    while (_keys.length < widget.shelves.length) {
+      _keys.add(GlobalKey());
+    }
+  }
+
+  /// Tab nào sáng: kệ cuối cùng đã chạm tới đường ngay dưới thanh tiêu đề + thanh tab dính.
+  void _spy() {
+    if (_locked || !_scroll.hasClients) return;
+    final line = _safeTop + _barH + _stripH + 60;
+    var next = 0;
+    for (var i = 0; i < _keys.length; i++) {
+      final box = _keys[i].currentContext?.findRenderObject();
+      if (box is! RenderBox || !box.attached) continue;
+      if (box.localToGlobal(Offset.zero).dy <= line) {
+        next = i + 1;
+      } else {
+        break;
+      }
+    }
+    // Cuộn tới cuối trang thì kệ cuối sáng (kệ ngắn không đủ chỗ để lên sát thanh dính).
+    final pos = _scroll.position;
+    if (_keys.isNotEmpty && pos.pixels >= pos.maxScrollExtent - 8) {
+      next = _keys.length;
+    }
+    if (next != _active && mounted) setState(() => _active = next);
+  }
+
+  /// Bấm tab: cuộn tới kệ (tab 0 = đầu trang), đặt kệ ngay dưới thanh dính.
+  Future<void> _goTo(int tab) async {
+    if (!_scroll.hasClients) return;
+    setState(() {
+      _active = tab;
+      _locked = true;
+    });
+    var target = 0.0;
+    if (tab > 0) {
+      final box = _keys[tab - 1].currentContext?.findRenderObject();
+      if (box is RenderBox && box.attached) {
+        final reveal = RenderAbstractViewport.of(box)
+            .getOffsetToReveal(box, 0)
+            .offset;
+        target = reveal - (_safeTop + _barH + _stripH + 8);
+      }
+    }
+    final pos = _scroll.position;
+    await _scroll.animateTo(
+      target.clamp(pos.minScrollExtent, pos.maxScrollExtent),
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeOutCubic,
+    );
+    if (!mounted) return;
+    _locked = false;
+    _spy();
   }
 
   @override
   void dispose() {
+    _scroll.removeListener(_spy);
     _scroll.dispose();
     _pages.dispose();
     super.dispose();
@@ -121,6 +204,7 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
   Widget build(BuildContext context) {
     final paper = context.colors.surface;
     final safeTop = MediaQuery.paddingOf(context).top;
+    _safeTop = safeTop;
     final heroH = safeTop + 466;
     final current = widget.hero.isEmpty
         ? null
@@ -156,7 +240,11 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
                       child: _Paper(
                         color: paper,
                         radius: _radius,
-                        child: _paperContent(context, box.maxWidth),
+                        child: _paperContent(
+                          context,
+                          box.maxWidth,
+                          box.maxHeight,
+                        ),
                       ),
                     ),
                   ),
@@ -217,25 +305,38 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
       color: paper,
       elevation: 0,
       child: Container(
-        padding: EdgeInsets.fromLTRB(20, safeTop, 8, 0),
-        height: safeTop + 56,
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(color: context.appColors.separator),
           ),
         ),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Text(
-                widget.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textStyles.headlineSmall,
+            Container(
+              padding: EdgeInsets.fromLTRB(20, safeTop, 8, 0),
+              height: safeTop + _barH,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyles.headlineSmall,
+                    ),
+                  ),
+                  widget.trailing(false),
+                  const SizedBox(width: 12),
+                ],
               ),
             ),
-            widget.trailing(false),
-            const SizedBox(width: 12),
+            _TabStrip(
+              tabs: widget.tabs,
+              active: _active,
+              onTap: _goTo,
+              height: _stripH,
+            ),
           ],
         ),
       ),
@@ -376,54 +477,23 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
     );
   }
 
-  Widget _paperContent(BuildContext context, double width) {
+  Widget _paperContent(BuildContext context, double width, double viewH) {
     final c = context.appColors;
     final text = context.textStyles;
     // 3 cuốn rưỡi: lề trái 20, ba khoảng cách 12, cuốn thứ tư ló một nửa.
     final itemW = (width - 56) / 3.5;
+    // Đủ chỗ trống phía dưới để kệ cuối cũng cuộn lên sát thanh dính được.
+    final tail = (viewH - 280 - _safeTop - _barH - _stripH).clamp(120.0, 900.0);
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 120),
+      padding: EdgeInsets.only(top: 20, bottom: tail),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                for (var i = 0; i < widget.tabs.length; i++)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 24),
-                    child: InkResponse(
-                      onTap: () => widget.onTab(i),
-                      child: Container(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              width: 2,
-                              color: i == widget.tabIndex
-                                  ? context.colors.onSurface
-                                  : Colors.transparent,
-                            ),
-                          ),
-                        ),
-                        child: Text(
-                          widget.tabs[i],
-                          style: text.titleMedium?.copyWith(
-                            fontWeight: i == widget.tabIndex
-                                ? FontWeight.w800
-                                : FontWeight.w500,
-                            color: i == widget.tabIndex
-                                ? context.colors.onSurface
-                                : c.secondaryText,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+          _TabStrip(
+            tabs: widget.tabs,
+            active: _active,
+            onTap: _goTo,
+            height: _stripH,
           ),
           Divider(height: 1, color: c.separator),
           if (widget.shelves.isEmpty)
@@ -434,36 +504,195 @@ class _CoverFlowHomeState extends State<CoverFlowHome> {
                 style: text.bodyMedium?.copyWith(color: c.secondaryText),
               ),
             ),
-          for (final shelf in widget.shelves) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
-              child: Text(
-                shelf.label.toUpperCase(),
-                style: text.labelMedium?.copyWith(
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.w700,
+          for (var i = 0; i < widget.shelves.length; i++)
+            _shelfView(context, i, widget.shelves[i], itemW),
+        ],
+      ),
+    );
+  }
+
+  Widget _shelfView(
+    BuildContext context,
+    int i,
+    CoverFlowShelf shelf,
+    double itemW,
+  ) {
+    final c = context.appColors;
+    final text = context.textStyles;
+    return Column(
+      key: _keys[i],
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  shelf.label.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.labelMedium?.copyWith(
+                    letterSpacing: 1.2,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Divider(height: 1, indent: 20, endIndent: 20, color: c.separator),
-            const SizedBox(height: 16),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  for (final e in shelf.entries)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: _ShelfItem(entry: e, width: itemW),
+              if (shelf.onSeeAll != null && shelf.seeAllLabel != null)
+                InkResponse(
+                  onTap: shelf.onSeeAll,
+                  child: Text(
+                    '${shelf.seeAllLabel} ›',
+                    style: text.labelMedium?.copyWith(
+                      color: c.secondaryText,
+                      fontWeight: FontWeight.w700,
                     ),
-                ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Divider(height: 1, indent: 20, endIndent: 20, color: c.separator),
+        const SizedBox(height: 16),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (final e in shelf.entries)
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: _ShelfItem(entry: e, width: itemW),
+                ),
+              if (shelf.onSeeAll != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: SizedBox(
+                    width: itemW,
+                    child: SeeAllBookCard(
+                      title: shelf.label,
+                      caption: shelf.seeAllCaption ?? shelf.seeAllLabel ?? '',
+                      onTap: shelf.onSeeAll!,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Thanh tab thể loại: chữ đậm + gạch chân ở tab đang sáng, tự trượt cho tab sáng nằm giữa khung.
+class _TabStrip extends StatefulWidget {
+  const _TabStrip({
+    required this.tabs,
+    required this.active,
+    required this.onTap,
+    required this.height,
+  });
+
+  final List<String> tabs;
+  final int active;
+  final ValueChanged<int> onTap;
+  final double height;
+
+  @override
+  State<_TabStrip> createState() => _TabStripState();
+}
+
+class _TabStripState extends State<_TabStrip> {
+  late var _keys = [for (final _ in widget.tabs) GlobalKey()];
+
+  final _ctrl = ScrollController();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_TabStrip old) {
+    super.didUpdateWidget(old);
+    if (_keys.length != widget.tabs.length) {
+      _keys = [for (final _ in widget.tabs) GlobalKey()];
+    }
+    if (old.active != widget.active) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _centerActive());
+    }
+  }
+
+  /// Trượt riêng thanh tab (theo chiều ngang) cho tab sáng nằm giữa khung. Không dùng Scrollable.ensureVisible
+  /// vì nó cuộn cả các khung cuộn bao ngoài (trang dọc) và làm trang nhảy.
+  void _centerActive() {
+    if (!mounted || !_ctrl.hasClients || widget.active >= _keys.length) return;
+    final box = _keys[widget.active].currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.attached) return;
+    final pos = _ctrl.position;
+    final target = RenderAbstractViewport.of(box)
+        .getOffsetToReveal(box, 0.5, axis: Axis.horizontal)
+        .offset;
+    _ctrl.animateTo(
+      target.clamp(pos.minScrollExtent, pos.maxScrollExtent),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.appColors;
+    final text = context.textStyles;
+    return SizedBox(
+      height: widget.height,
+      child: SingleChildScrollView(
+        controller: _ctrl,
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: [
+            for (var i = 0; i < widget.tabs.length; i++)
+              Padding(
+                key: _keys[i],
+                padding: const EdgeInsets.only(right: 24),
+                child: InkResponse(
+                  onTap: () => widget.onTap(i),
+                  child: Container(
+                    height: widget.height,
+                    alignment: Alignment.center,
+                    child: Container(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            width: 2,
+                            color: i == widget.active
+                                ? context.colors.onSurface
+                                : Colors.transparent,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        widget.tabs[i],
+                        style: text.titleMedium?.copyWith(
+                          fontWeight: i == widget.active
+                              ? FontWeight.w800
+                              : FontWeight.w500,
+                          color: i == widget.active
+                              ? context.colors.onSurface
+                              : c.secondaryText,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
           ],
-        ],
+        ),
       ),
     );
   }

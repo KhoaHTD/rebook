@@ -45,6 +45,15 @@ Future<List<Lot>> sessionLots(Ref ref, String sessionId) {
   return ref.watch(catalogRepositoryProvider).sessionLots(sessionId);
 }
 
+/// Kệ thể loại ở trang Mua sách (10 cuốn phổ biến nhất mỗi nhóm); đổi yêu thích thì tải lại để thứ tự theo kịp.
+@riverpod
+Future<List<CategoryShelf>> categoryShelves(Ref ref) {
+  ref
+    ..watchArea(DataArea.favorites)
+    ..watchArea(DataArea.listings);
+  return ref.watch(catalogRepositoryProvider).categoryShelves();
+}
+
 @riverpod
 Future<List<Category>> categories(Ref ref) =>
     ref.watch(catalogRepositoryProvider).categories();

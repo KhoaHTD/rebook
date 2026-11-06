@@ -4,7 +4,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-/// Ai gây giao thất bại. BUYER = người mua từ chối nhận, sai địa chỉ, không liên lạc được
 @JsonEnum()
 enum DeliveryFault {
   @JsonValue('BUYER')

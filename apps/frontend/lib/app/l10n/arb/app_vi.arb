@@ -2149,5 +2149,14 @@
   "settingsPwdChanged": "Đã đổi mật khẩu.",
   "proxyCancel": "Hủy đặt giá tự động",
   "proxyCleared": "Đã hủy đặt giá tự động.",
-  "auctionPayPenaltyWarning": "Không thanh toán đúng hạn: bị phạt 10% giá búa và có thể bị cấm đấu giá."
+  "auctionPayPenaltyWarning": "Không thanh toán đúng hạn: bị phạt 10% giá búa và có thể bị cấm đấu giá.",
+  "sortPopular": "Phổ biến nhất",
+  "seeAllCount": "Xem tất cả {count} cuốn",
+  "@seeAllCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

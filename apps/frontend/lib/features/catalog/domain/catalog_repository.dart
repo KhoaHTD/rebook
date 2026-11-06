@@ -19,11 +19,29 @@ class HomeFeed {
   final List<AuctionSession> liveSessions;
 }
 
+/// Một kệ thể loại ở trang Mua sách: tối đa vài chục cuốn phổ biến nhất của một nhóm thể loại (gồm cả thể loại con)
+/// và tổng số sách của nhóm ([total], để ghi "Xem tất cả N cuốn").
+class CategoryShelf {
+  const CategoryShelf({
+    required this.category,
+    required this.items,
+    required this.total,
+  });
+
+  final Category category;
+  final List<Listing> items;
+  final int total;
+}
+
 /// Chợ sách giá cố định (SRS 4.1–4.3): duyệt, tìm, xem, thêm giỏ.
 abstract interface class CatalogRepository {
   Future<HomeFeed> homeFeed();
 
   Future<Paged<Listing>> search(ListingQuery query, {int page = 0});
+
+  /// Kệ theo thể loại cho trang Mua sách: mỗi nhóm thể loại cha có sách là một kệ, [perShelf] cuốn phổ biến nhất
+  /// (nhiều lượt yêu thích nhất). Nhóm chưa có sách bị bỏ.
+  Future<List<CategoryShelf>> categoryShelves({int perShelf = 10});
 
   Future<Listing> listing(String id);
 

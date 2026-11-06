@@ -18,6 +18,7 @@ class ListingTile extends StatelessWidget {
     this.menu,
     this.onMenuSelected,
     this.showShop = false,
+    this.compact = false,
   });
 
   final Listing listing;
@@ -27,6 +28,9 @@ class ListingTile extends StatelessWidget {
 
   /// Hiện tên shop thay cho tình trạng (dùng ở danh sách "các bản khác").
   final bool showShop;
+
+  /// Lưới 3 cột trên điện thoại: chỉ ghi giá (tình trạng · giá không đủ chỗ).
+  final bool compact;
 
   static bool isNew(Listing l) =>
       DateTime.now().difference(l.createdAt).inDays < 3;
@@ -52,8 +56,9 @@ class ListingTile extends StatelessWidget {
           Flexible(
             child: Text.rich(
               TextSpan(
-                text:
-                    '${showShop ? listing.shop.name : book.condition.label(l10n)} · ',
+                text: compact
+                    ? ''
+                    : '${showShop ? listing.shop.name : book.condition.label(l10n)} · ',
                 children: [
                   TextSpan(
                     text: formatVnd(listing.price),

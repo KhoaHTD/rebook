@@ -80,6 +80,9 @@ abstract class Listing with _$Listing {
     required int stock,
     required ListingStatus status,
     required DateTime createdAt,
+
+    /// Số lượt yêu thích (sắp xếp "phổ biến").
+    @Default(0) int favoriteCount,
     String? rejectReason,
 
     /// Admin duyệt / từ chối tin này và lúc nào (SRS 8.1: nhật ký).

@@ -16,7 +16,7 @@ part 'files_client.g.dart';
 abstract class FilesClient {
   factory FilesClient(Dio dio, {String? baseUrl}) = _FilesClient;
 
-  /// Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL tương đối để gắn vào nghiệp vụ
+  /// Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL (tương đối khi lưu cục bộ, https đầy đủ khi bật Cloudinary) để gắn vào nghiệp vụ
   @MultiPart()
   @POST('/files')
   Future<FileResponse> postFiles({

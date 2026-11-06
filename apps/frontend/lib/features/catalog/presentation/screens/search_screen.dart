@@ -23,10 +23,26 @@ import 'package:book_marketplace/shared/widgets/ui.dart';
 /// có từ khóa hoặc bộ lọc thì hiện kết quả. Lọc theo thể loại / tình trạng / giá + sắp xếp (SRS 3 — người mua).
 /// [initialCategory]: mở từ "Kệ sách" ở sidebar (`?category=`).
 class SearchScreen extends ConsumerStatefulWidget {
-  const SearchScreen({super.key, this.initialCategory, this.initialText});
+  const SearchScreen({
+    super.key,
+    this.initialCategory,
+    this.initialText,
+    this.initialSort,
+  });
 
   final String? initialCategory;
   final String? initialText;
+
+  /// `?sort=` trên đường dẫn (vd. `popular` khi bấm "Xem tất cả" của một kệ thể loại).
+  final String? initialSort;
+
+  static ListingSort? sortFromParam(String? p) => switch (p) {
+    'popular' => ListingSort.popular,
+    'price_asc' => ListingSort.priceAsc,
+    'price_desc' => ListingSort.priceDesc,
+    'newest' => ListingSort.newest,
+    _ => null,
+  };
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
@@ -44,7 +60,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final notifier = ref.read(searchQueryProvider(null).notifier);
       notifier.update(
-        ListingQuery(categoryId: widget.initialCategory, q: widget.initialText),
+        ListingQuery(
+          categoryId: widget.initialCategory,
+          q: widget.initialText,
+          sort:
+              SearchScreen.sortFromParam(widget.initialSort) ??
+              ListingSort.newest,
+        ),
       );
     });
   }
@@ -52,11 +74,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   void didUpdateWidget(SearchScreen old) {
     super.didUpdateWidget(old);
-    if (old.initialCategory != widget.initialCategory) {
-      final q = ref.read(searchQueryProvider(null));
-      ref
-          .read(searchQueryProvider(null).notifier)
-          .update(q.copyWith(categoryId: widget.initialCategory));
+    if (old.initialCategory != widget.initialCategory ||
+        old.initialSort != widget.initialSort) {
+      // Không đổi provider ngay trong lúc dựng (go_router dựng lại màn này khi đường dẫn đổi): đợi hết khung hình.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final q = ref.read(searchQueryProvider(null));
+        ref
+            .read(searchQueryProvider(null).notifier)
+            .update(
+              q.copyWith(
+                categoryId: widget.initialCategory,
+                sort:
+                    SearchScreen.sortFromParam(widget.initialSort) ??
+                    (old.initialCategory != widget.initialCategory
+                        ? ListingSort.newest
+                        : q.sort),
+              ),
+            );
+      });
     }
   }
 
@@ -151,6 +187,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
           ],
         ),
+        if (query.categoryId != null)
+          _SubCategoryChips(
+            cats: cats,
+            selectedId: query.categoryId!,
+            onSelected: (id) => notifier.update(query.copyWith(categoryId: id)),
+          ),
         const SizedBox(height: AppSpacing.lg),
         if (idle) ...[
           const ExploreEvents(),
@@ -184,10 +226,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   PosterGrid(
+                    compactColumns: 3,
                     children: [
                       for (final l in page.items)
                         ListingTile(
                           listing: l,
+                          compact: context.windowSize.isCompact,
                           onTap: () => context.go(Routes.listing(l.id)),
                         ),
                     ],
@@ -303,6 +347,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     ListingSort.priceAsc => l.sortPriceAsc,
     ListingSort.priceDesc => l.sortPriceDesc,
     ListingSort.relevance => l.sortRelevance,
+    ListingSort.popular => l.sortPopular,
   };
 
   Future<void> _priceSheet(BuildContext context, ListingQuery query) async {
@@ -418,6 +463,56 @@ class _MenuChip<T> extends StatelessWidget {
             color: active ? context.appColors.onSelected : null,
           ),
           onDeleted: () {},
+        ),
+      ),
+    );
+  }
+}
+
+/// Chip thể loại con của nhóm đang xem: "Tất cả" (cả nhóm) rồi từng thể loại con, để thu hẹp danh sách.
+/// Đang xem một thể loại con thì vẫn hiện anh em của nó. Nhóm không có con thì không hiện gì.
+class _SubCategoryChips extends StatelessWidget {
+  const _SubCategoryChips({
+    required this.cats,
+    required this.selectedId,
+    required this.onSelected,
+  });
+
+  final List<Category> cats;
+  final String selectedId;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final current = cats.where((c) => c.id == selectedId).firstOrNull;
+    if (current == null) return const SizedBox.shrink();
+    final rootId = current.parentId ?? current.id;
+    final children = cats.where((c) => c.parentId == rootId).toList();
+    if (children.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.md),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: ChoiceChip(
+                label: Text(context.l10n.allCategories),
+                selected: selectedId == rootId,
+                onSelected: (_) => onSelected(rootId),
+              ),
+            ),
+            for (final c in children)
+              Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                child: ChoiceChip(
+                  label: Text(c.name),
+                  selected: selectedId == c.id,
+                  onSelected: (_) => onSelected(c.id),
+                ),
+              ),
+          ],
         ),
       ),
     );

@@ -92,12 +92,16 @@ void main() {
           ? null
           : store.orders.keys.first;
       final shopId = store.shops.keys.first;
+      final categoryId = store.categories
+          .firstWhere((c) => c.parentId == null)
+          .id;
       final consignmentId = store.consignments.keys.isEmpty
           ? null
           : store.consignments.keys.first;
       final paths = <String>[
         Routes.home,
         Routes.search,
+        Routes.searchCategory(categoryId),
         Routes.listing(listingId),
         Routes.shop(shopId),
         Routes.cart,

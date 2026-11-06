@@ -482,6 +482,7 @@ extension ListingSummaryMapper on api.ListingSummary {
     stock: stock ?? 0,
     status: listingStatusToDomain(status),
     createdAt: _t(createdAt),
+    favoriteCount: favoriteCount ?? 0,
     reviewedBy: reviewedByName,
     reviewedAt: reviewedAt,
   );

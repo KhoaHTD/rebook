@@ -26,6 +26,24 @@ class FakeCatalogRepository implements CatalogRepository {
       fakeCall(() => _store.searchListings(query, page: page));
 
   @override
+  Future<List<CategoryShelf>> categoryShelves({int perShelf = 10}) =>
+      fakeCall(() {
+        final shelves = <CategoryShelf>[];
+        for (final c in _store.categories.where((c) => c.parentId == null)) {
+          final page = _store.searchListings(
+            ListingQuery(categoryId: c.id, sort: ListingSort.popular),
+            size: perShelf,
+          );
+          if (page.total > 0) {
+            shelves.add(
+              CategoryShelf(category: c, items: page.items, total: page.total),
+            );
+          }
+        }
+        return shelves;
+      });
+
+  @override
   Future<Listing> listing(String id) => fakeCall(() => _store.listing(id));
 
   @override

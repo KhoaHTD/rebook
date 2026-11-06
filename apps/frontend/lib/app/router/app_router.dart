@@ -136,6 +136,7 @@ GoRouter appRouter(Ref ref) {
                     builder: (_, s) => SearchScreen(
                       initialCategory: s.uri.queryParameters['category'],
                       initialText: s.uri.queryParameters['q'],
+                      initialSort: s.uri.queryParameters['sort'],
                     ),
                   ),
                   GoRoute(

@@ -1283,5 +1283,7 @@
   "settingsPwdChanged": "Password changed.",
   "proxyCancel": "Cancel auto-bid",
   "proxyCleared": "Auto-bid cancelled.",
-  "auctionPayPenaltyWarning": "Missing the deadline: 10% penalty on the winning price and a possible auction ban."
+  "auctionPayPenaltyWarning": "Missing the deadline: 10% penalty on the winning price and a possible auction ban.",
+  "sortPopular": "Most popular",
+  "seeAllCount": "See all {count} books"
 }

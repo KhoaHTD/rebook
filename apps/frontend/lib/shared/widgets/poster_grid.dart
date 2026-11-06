@@ -75,13 +75,21 @@ class PosterTile extends StatelessWidget {
 
 /// Lưới poster: 4 cột trên desktop, 3 trên tablet, 2 trên điện thoại (như mockup).
 class PosterGrid extends StatelessWidget {
-  const PosterGrid({super.key, required this.children, this.maxColumns = 4});
+  const PosterGrid({
+    super.key,
+    required this.children,
+    this.maxColumns = 4,
+    this.compactColumns = 2,
+  });
 
   final List<Widget> children;
   final int maxColumns;
 
-  static int columnsFor(double width, int max) {
-    final c = width >= 900 ? 4 : (width >= 600 ? 3 : 2);
+  /// Số cột trên điện thoại (dưới 600px); mặc định 2, Khám phá dùng 3.
+  final int compactColumns;
+
+  static int columnsFor(double width, int max, [int compact = 2]) {
+    final c = width >= 900 ? 4 : (width >= 600 ? 3 : compact);
     return c > max ? max : c;
   }
 
@@ -89,8 +97,8 @@ class PosterGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, box) {
-        final cols = columnsFor(box.maxWidth, maxColumns);
-        final gapX = cols == 2 ? AppSpacing.md : AppSpacing.posterGapX;
+        final cols = columnsFor(box.maxWidth, maxColumns, compactColumns);
+        final gapX = box.maxWidth < 600 ? AppSpacing.md : AppSpacing.posterGapX;
         final tileW = (box.maxWidth - gapX * (cols - 1)) / cols;
         // Bìa sách cao thấp theo ảnh thật, nhưng mỗi hàng canh ĐÁY: sách trong cùng một hàng đứng trên
         // một đường kẻ như trên giá (tên + giá bên dưới cũng thẳng hàng), chỉ đỉnh bìa là lệch nhau.
@@ -127,6 +135,7 @@ class Shelf extends StatelessWidget {
     required this.title,
     required this.children,
     this.onSeeAll,
+    this.trailing,
     this.alt = false,
     this.itemWidth = 160,
     this.horizontalPadding = 20,
@@ -135,6 +144,9 @@ class Shelf extends StatelessWidget {
   final String title;
   final List<Widget> children;
   final VoidCallback? onSeeAll;
+
+  /// Nút / chữ bên phải tiêu đề kệ (vd. "Xem tất cả ›").
+  final Widget? trailing;
 
   /// Nền xám nhạt — xen kẽ các kệ cho dễ phân biệt (như mockup).
   final bool alt;
@@ -152,7 +164,7 @@ class Shelf extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: SectionHeader(title, onTap: onSeeAll),
+              child: SectionHeader(title, onTap: onSeeAll, trailing: trailing),
             ),
             const SizedBox(height: 22),
             SingleChildScrollView(

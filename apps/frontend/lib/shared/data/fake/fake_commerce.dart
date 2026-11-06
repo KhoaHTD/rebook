@@ -42,6 +42,10 @@ extension FakeCommerce on FakeStore {
       (a, b) => switch (q.sort) {
         ListingSort.priceAsc => a.price.compareTo(b.price),
         ListingSort.priceDesc => b.price.compareTo(a.price),
+        ListingSort.popular =>
+          b.favoriteCount != a.favoriteCount
+              ? b.favoriteCount.compareTo(a.favoriteCount)
+              : b.createdAt.compareTo(a.createdAt),
         ListingSort.newest ||
         ListingSort.relevance => b.createdAt.compareTo(a.createdAt),
       },

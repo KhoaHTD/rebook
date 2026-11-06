@@ -99,7 +99,7 @@ abstract class CatalogClient {
 
   /// Tìm kiếm / lọc sách đang bán.
   ///
-  /// sort: newest | price_asc | price_desc | best_selling. category lọc cả danh mục con.
+  /// sort: newest | price_asc | price_desc | best_selling | popular (nhiều lượt yêu thích nhất). category lọc cả danh mục con.
   @GET('/listings')
   Future<PageResponseListingSummary> getListings({
     @Query('sort') String? sort = 'newest',

@@ -21,6 +21,7 @@ class ListingSummary {
     this.price,
     this.stock,
     this.soldCount,
+    this.favoriteCount,
     this.status,
     this.shop,
     this.createdAt,
@@ -40,6 +41,7 @@ class ListingSummary {
   final num? price;
   final int? stock;
   final int? soldCount;
+  final int? favoriteCount;
   final ListingStatus? status;
   final ShopBrief? shop;
   final DateTime? createdAt;

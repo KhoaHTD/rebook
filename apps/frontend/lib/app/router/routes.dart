@@ -19,6 +19,10 @@ abstract final class Routes {
   // Nhánh 1 — Khám phá & mua
   static const home = '/home';
   static const search = '/home/search';
+
+  /// Khám phá lọc theo một thể loại (nhóm cha hoặc con), mặc định xếp theo phổ biến.
+  static String searchCategory(String categoryId) =>
+      '/home/search?category=$categoryId&sort=popular';
   static String listing(String id) => '/home/listings/$id';
   static String exploreEvent(String kind) => '/home/events/$kind';
   static String shop(String id) => '/home/shops/$id';
