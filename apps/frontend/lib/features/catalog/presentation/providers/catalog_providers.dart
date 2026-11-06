@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/features/catalog/data/catalog_repository_provider.dart';
 import 'package:book_marketplace/features/catalog/domain/catalog_repository.dart';
+import 'package:book_marketplace/features/catalog/domain/explore_event.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
@@ -23,6 +24,13 @@ Future<HomeFeed> homeFeed(Ref ref) {
 Future<List<Listing>> allListings(Ref ref) {
   ref.watchArea(DataArea.listings);
   return ref.watch(catalogRepositoryProvider).allListings();
+}
+
+/// Sự kiện ở đầu trang Khám phá: dựng từ các tin đang bán.
+@riverpod
+Future<List<ExploreEvent>> exploreEvents(Ref ref) async {
+  final listings = await ref.watch(allListingsProvider.future);
+  return buildExploreEvents(listings);
 }
 
 @riverpod

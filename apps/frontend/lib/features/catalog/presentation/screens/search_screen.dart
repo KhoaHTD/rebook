@@ -7,6 +7,7 @@ import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/recent_searches.dart';
+import 'package:book_marketplace/features/catalog/presentation/widgets/explore_events.dart';
 import 'package:book_marketplace/features/catalog/presentation/widgets/explore_sections.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
@@ -152,6 +153,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ),
         const SizedBox(height: AppSpacing.lg),
         if (idle) ...[
+          const ExploreEvents(),
           RecentSearchChips(
             onPick: (q) {
               _text.text = q;

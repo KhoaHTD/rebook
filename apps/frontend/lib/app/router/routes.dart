@@ -20,6 +20,7 @@ abstract final class Routes {
   static const home = '/home';
   static const search = '/home/search';
   static String listing(String id) => '/home/listings/$id';
+  static String exploreEvent(String kind) => '/home/events/$kind';
   static String shop(String id) => '/home/shops/$id';
   static const cart = '/home/cart';
   static const checkout = '/home/cart/checkout';

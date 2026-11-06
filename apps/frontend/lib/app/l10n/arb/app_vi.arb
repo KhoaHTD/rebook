@@ -2024,5 +2024,80 @@
         "type": "String"
       }
     }
+  },
+  "exploreEventsTitle": "Sự kiện",
+  "evTagDeal": "Giá tốt",
+  "evTagRare": "Sách hiếm",
+  "evTagLikeNew": "Như mới",
+  "evTagClassic": "Kinh điển",
+  "evTagAuthor": "Tác giả",
+  "evCheapTitle": "Đồng giá từ {price} trở xuống",
+  "@evCheapTitle": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "evCheapSub": "{count} cuốn, rẻ nhất {min}",
+  "@evCheapSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "evRareTitle": "Sách hiếm trước năm {year}",
+  "@evRareTitle": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "evRareSub": "{count} cuốn xuất bản từ rất lâu",
+  "@evRareSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "evLikeNewTitle": "Sách như mới",
+  "evLikeNewSub": "{count} cuốn còn mới, ít dấu vết sử dụng",
+  "@evLikeNewSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "evClassicTitle": "Văn học Việt Nam kinh điển",
+  "evClassicSub": "{count} cuốn tiểu thuyết Việt Nam",
+  "@evClassicSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "evAuthorTitle": "Sách của {author}",
+  "@evAuthorTitle": {
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "evAuthorSub": "{count} cuốn cùng một tác giả",
+  "@evAuthorSub": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

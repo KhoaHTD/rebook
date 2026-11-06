@@ -16,6 +16,7 @@ import 'package:book_marketplace/features/intro/presentation/screens/splash_scre
 import 'package:book_marketplace/features/account/presentation/screens/account_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/address_edit_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/addresses_screen.dart';
+import 'package:book_marketplace/features/catalog/presentation/screens/explore_event_screen.dart';
 import 'package:book_marketplace/features/catalog/presentation/screens/favorites_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/profile_screen.dart';
 import 'package:book_marketplace/features/account/presentation/screens/settings_screen.dart';
@@ -136,6 +137,11 @@ GoRouter appRouter(Ref ref) {
                       initialCategory: s.uri.queryParameters['category'],
                       initialText: s.uri.queryParameters['q'],
                     ),
+                  ),
+                  GoRoute(
+                    path: 'events/:kind',
+                    builder: (_, s) =>
+                        ExploreEventScreen(kindName: s.pathParameters['kind']!),
                   ),
                   GoRoute(
                     path: 'listings/:id',

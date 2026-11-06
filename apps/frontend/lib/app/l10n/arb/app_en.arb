@@ -1217,5 +1217,21 @@
   "walletDebtStorage": "Storage fee",
   "walletDebtRemaining": "Owed {amount}",
   "walletDebtCollect": "Pay from wallet",
-  "walletDebtCollected": "Collected {collected}, {left} still owed."
+  "walletDebtCollected": "Collected {collected}, {left} still owed.",
+  "exploreEventsTitle": "Events",
+  "evTagDeal": "Deal",
+  "evTagRare": "Rare",
+  "evTagLikeNew": "Like new",
+  "evTagClassic": "Classics",
+  "evTagAuthor": "Author",
+  "evCheapTitle": "Fixed low price: {price} or less",
+  "evCheapSub": "{count} books, cheapest {min}",
+  "evRareTitle": "Rare books before {year}",
+  "evRareSub": "{count} books printed long ago",
+  "evLikeNewTitle": "Like-new books",
+  "evLikeNewSub": "{count} books in near-new condition",
+  "evClassicTitle": "Vietnamese literature classics",
+  "evClassicSub": "{count} Vietnamese novels",
+  "evAuthorTitle": "Books by {author}",
+  "evAuthorSub": "{count} books by the same author"
 }
