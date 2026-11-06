@@ -7,6 +7,7 @@ import 'package:book_marketplace/core/utils/file_download.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/admin/domain/admin_report.dart';
 import 'package:book_marketplace/features/admin/presentation/export/report_csv.dart';
+import 'package:book_marketplace/features/admin/presentation/export/report_pdf.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/dashboard_screen.dart';
 import 'package:book_marketplace/shared/widgets/admin_charts.dart';
@@ -66,6 +67,23 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     });
   }
 
+  bool _exporting = false;
+
+  Future<void> _exportPdf(AdminReport r) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final name = reportFileName(r, 'pdf');
+    setState(() => _exporting = true);
+    try {
+      await shareReportPdf(await buildReportPdf(r, l10n), name);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.admExportDone(name))));
+    } on Object {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.admExportFailed)));
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
   Future<void> _exportCsv(AdminReport r) async {
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
@@ -89,6 +107,16 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       showBack: false,
       onRefresh: () => ref.refresh(adminReportProvider(_from, _to).future),
       actions: [
+        FilledButton.icon(
+          onPressed: r == null || _exporting ? null : () => _exportPdf(r),
+          icon: _exporting
+              ? const SizedBox.square(
+                  dimension: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.picture_as_pdf_outlined, size: 18),
+          label: Text(l10n.admExportPdf),
+        ),
         if (canDownloadFiles)
           OutlinedButton.icon(
             onPressed: r == null ? null : () => _exportCsv(r),

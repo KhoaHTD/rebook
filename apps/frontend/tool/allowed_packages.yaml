@@ -28,6 +28,8 @@ dependencies:
   firebase_messaging: thông báo đẩy FCM (SRS mục 3), duyệt 2026-10-22
   flutter_map: bản đồ OpenStreetMap trong màn sửa địa chỉ, duyệt 2026-11-01
   latlong2: kiểu toạ độ cho flutter_map, duyệt 2026-11-01
+  pdf: dựng file PDF báo cáo của Admin, người dùng cho phép 2026-11-07 (chưa báo team)
+  printing: lưu / in / chia sẻ file PDF, chạy được trên web, người dùng cho phép 2026-11-07 (chưa báo team)
 
 dev_dependencies:
   flutter_test: SDK

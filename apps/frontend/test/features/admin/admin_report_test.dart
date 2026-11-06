@@ -4,6 +4,7 @@ import 'package:book_marketplace/app/l10n/generated/app_localizations_vi.dart';
 import 'package:book_marketplace/features/admin/data/fake_admin_repository.dart';
 import 'package:book_marketplace/features/admin/domain/admin_report.dart';
 import 'package:book_marketplace/features/admin/presentation/export/report_csv.dart';
+import 'package:book_marketplace/features/admin/presentation/export/report_pdf.dart';
 import 'package:book_marketplace/shared/data/fake/fake_store.dart';
 
 void main() {
@@ -73,5 +74,15 @@ void main() {
     expect(csv, contains('01/10/2026'));
     expect(csv, contains('Tổng,${r.gmv},${r.orders},${r.newUsers}'));
     expect(reportFileName(r, 'csv'), 'rebook-report-2026-10-01_2026-10-03.csv');
+  });
+
+  test('PDF dựng được (dùng font mặc định khi không có mạng)', () async {
+    store = FakeStore()..login('admin@rebook.vn', '123456');
+    final r = await FakeAdminRepository(store)
+        .report(DateTime(2026, 10, 1), DateTime(2026, 10, 30));
+    final bytes = await buildReportPdf(r, AppLocalizationsVi());
+
+    expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
+    expect(bytes.length, greaterThan(2000));
   });
 }
