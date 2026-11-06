@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:book_marketplace/features/admin/domain/admin_report.dart';
 import 'package:book_marketplace/features/admin/domain/cod_pending.dart';
 import 'package:book_marketplace/features/admin/domain/admin_repository.dart';
 import 'package:book_marketplace/shared/data/fake/fake_store.dart';
@@ -15,6 +18,73 @@ class FakeAdminRepository implements AdminRepository {
 
   @override
   Future<Dashboard> dashboard() => fakeCall(_store.dashboard);
+
+  /// Số liệu mẫu ổn định theo ngày (cùng một ngày luôn ra cùng số), có nhịp tuần: cuối tuần đông hơn.
+  @override
+  Future<AdminReport> report(DateTime from, DateTime to) => fakeCall(() {
+    final start = DateTime(from.year, from.month, from.day);
+    final end = DateTime(to.year, to.month, to.day);
+    final days = <ReportDay>[];
+    for (var d = start; !d.isAfter(end); d = d.add(const Duration(days: 1))) {
+      final r = math.Random(d.year * 10000 + d.month * 100 + d.day);
+      final weekend = d.weekday >= 6 ? 1.35 : 1.0;
+      final orders = ((6 + r.nextInt(9)) * weekend).round();
+      days.add(
+        ReportDay(
+          date: d,
+          orders: orders,
+          gmv: orders * (90000 + r.nextInt(120000)),
+          newUsers: 1 + r.nextInt(6),
+        ),
+      );
+    }
+    final gmv = days.fold<int>(0, (a, d) => a + d.gmv);
+    final orders = days.fold<int>(0, (a, d) => a + d.orders);
+    final completed = (orders * 0.74).round();
+    final cancelled = (orders * 0.08).round();
+    const names = [
+      'Văn học Việt Nam',
+      'Văn học nước ngoài',
+      'Kỹ năng sống',
+      'Kinh tế',
+      'Thiếu nhi',
+      'Sách hiếm',
+    ];
+    const shares = [0.31, 0.24, 0.17, 0.12, 0.09, 0.07];
+    return AdminReport(
+      from: start,
+      to: end,
+      gmv: gmv,
+      revenue: (gmv * 0.74).round(),
+      platformFees: (gmv * 0.74 * 0.08).round(),
+      orders: orders,
+      completedOrders: completed,
+      cancelledOrders: cancelled,
+      auctionOrders: (orders * 0.12).round(),
+      newUsers: days.fold<int>(0, (a, d) => a + d.newUsers),
+      days: days,
+      categories: [
+        for (var i = 0; i < names.length; i++)
+          ReportCategory(name: names[i], amount: (gmv * shares[i]).round()),
+      ],
+      statuses: [
+        ReportStatusCount(status: OrderStatus.completed, count: completed),
+        ReportStatusCount(
+          status: OrderStatus.shipping,
+          count: (orders * 0.09).round(),
+        ),
+        ReportStatusCount(
+          status: OrderStatus.preparing,
+          count: (orders * 0.06).round(),
+        ),
+        ReportStatusCount(
+          status: OrderStatus.pendingConfirm,
+          count: (orders * 0.03).round(),
+        ),
+        ReportStatusCount(status: OrderStatus.cancelled, count: cancelled),
+      ],
+    );
+  });
 
   @override
   Future<List<Listing>> listings({ListingStatus? status}) =>

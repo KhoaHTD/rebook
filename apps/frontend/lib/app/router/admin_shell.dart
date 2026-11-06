@@ -78,10 +78,20 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     );
 
     final sidebar = Container(
-      width: compact ? null : 240,
-      decoration: const BoxDecoration(
+      width: compact ? null : 248,
+      margin: compact ? null : const EdgeInsets.fromLTRB(16, 16, 0, 16),
+      decoration: BoxDecoration(
         color: AdminPalette.card,
-        border: Border(right: BorderSide(color: AdminPalette.line)),
+        borderRadius: compact ? null : BorderRadius.circular(24),
+        boxShadow: compact
+            ? null
+            : [
+                BoxShadow(
+                  color: AdminPalette.ink.withValues(alpha: 0.05),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
       ),
       child: SafeArea(
         right: false,
@@ -89,22 +99,28 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 16, 8),
+              padding: const EdgeInsets.fromLTRB(20, 22, 16, 10),
               child: Row(
                 children: [
                   Container(
-                    width: 26,
-                    height: 26,
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
-                      color: AdminPalette.ink,
-                      borderRadius: BorderRadius.circular(8),
+                      color: AdminPalette.accent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.auto_stories_rounded,
+                      size: 18,
+                      color: AdminPalette.card,
                     ),
                   ),
-                  const SizedBox(width: 9),
+                  const SizedBox(width: 10),
                   Text(
                     l10n.appTitle,
                     style: context.textStyles.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
                     ),
                   ),
                   const Spacer(),
@@ -114,13 +130,17 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: isAdmin ? AdminPalette.ink : AdminPalette.info,
+                      color: isAdmin
+                          ? AdminPalette.accentSoft
+                          : AdminPalette.infoSoft,
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: Text(
                       isAdmin ? l10n.adminBadgeAdmin : l10n.adminBadgeStaff,
                       style: context.textStyles.labelSmall?.copyWith(
-                        color: Colors.white,
+                        color: isAdmin
+                            ? AdminPalette.accent
+                            : AdminPalette.info,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.3,
                       ),
@@ -142,17 +162,17 @@ class _AdminShellState extends ConsumerState<AdminShell> {
             ),
             if (user != null)
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
-                decoration: const BoxDecoration(
-                  border: Border(top: BorderSide(color: AdminPalette.line)),
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
+                decoration: BoxDecoration(
+                  color: AdminPalette.bg,
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
                     CircleAvatar(
-                      radius: 15,
-                      backgroundColor: isAdmin
-                          ? AdminPalette.ink
-                          : AdminPalette.info,
+                      radius: 16,
+                      backgroundColor: AdminPalette.accent,
                       child: Text(
                         user.fullName.isEmpty
                             ? '?'
@@ -223,26 +243,26 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
 /// Nút đen, bo 10 — dùng cho mọi màn quản trị (không phải nút xanh của app người mua).
 ThemeData _adminTheme(ThemeData base) {
-  final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(10));
+  final shape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
   return base.copyWith(
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: AdminPalette.ink,
+        backgroundColor: AdminPalette.accent,
         foregroundColor: Colors.white,
         shape: shape,
-        minimumSize: const Size(0, 40),
+        minimumSize: const Size(0, 42),
       ),
     ),
     chipTheme: base.chipTheme.copyWith(
-      selectedColor: AdminPalette.ink,
+      selectedColor: AdminPalette.accent,
       checkmarkColor: Colors.white,
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AdminPalette.ink,
-        side: const BorderSide(color: AdminPalette.ink, width: 1.4),
+        side: const BorderSide(color: AdminPalette.line, width: 1.2),
         shape: shape,
-        minimumSize: const Size(0, 40),
+        minimumSize: const Size(0, 42),
       ),
     ),
   );
@@ -285,23 +305,23 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = selected ? Colors.white : AdminPalette.ink;
+    final fg = selected ? AdminPalette.accent : AdminPalette.ink;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1),
       child: Material(
-        color: selected ? AdminPalette.ink : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
+        color: selected ? AdminPalette.accentSoft : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
         child: InkWell(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
                 Icon(
                   icon,
                   size: 18,
-                  color: selected ? Colors.white : AdminPalette.muted,
+                  color: selected ? AdminPalette.accent : AdminPalette.muted,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -311,7 +331,7 @@ class _NavItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: context.textStyles.bodyMedium?.copyWith(
                       color: fg,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -322,13 +342,17 @@ class _NavItem extends StatelessWidget {
                       vertical: 1,
                     ),
                     decoration: BoxDecoration(
-                      color: selected ? Colors.white : AdminPalette.badSoft,
+                      color: selected
+                          ? AdminPalette.card
+                          : AdminPalette.badSoft,
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: Text(
                       '$count',
                       style: context.textStyles.labelSmall?.copyWith(
-                        color: selected ? AdminPalette.ink : AdminPalette.bad,
+                        color: selected
+                            ? AdminPalette.accent
+                            : AdminPalette.bad,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

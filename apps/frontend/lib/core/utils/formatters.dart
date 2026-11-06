@@ -31,3 +31,19 @@ String formatDateTime(DateTime d) => _dateTime.format(d.toLocal());
 
 /// `20:00 22/10` — dòng meta ngắn dưới poster.
 String formatShortDateTime(DateTime d) => _shortDateTime.format(d.toLocal());
+
+/// Tiền gọn cho trục biểu đồ: `850k`, `1,2 tr`, `3,4 tỷ`.
+String formatVndCompact(num v) {
+  String trim(double x) {
+    final t = x.toStringAsFixed(1);
+    return (t.endsWith('.0') ? t.substring(0, t.length - 2) : t).replaceAll(
+      '.',
+      ',',
+    );
+  }
+
+  if (v >= 1e9) return '${trim(v / 1e9)} tỷ';
+  if (v >= 1e6) return '${trim(v / 1e6)} tr';
+  if (v >= 1e3) return '${(v / 1e3).round()}k';
+  return '${v.round()}';
+}

@@ -45,6 +45,7 @@ public class AdminController {
     private final SystemConfigService configService;
     private final WalletService walletService;
     private final ActivityLogService activityLogService;
+    private final ReportService reportService;
 
     public record LockRequest(@NotBlank @Size(max = 500) String reason) {
     }
@@ -62,6 +63,23 @@ public class AdminController {
     @GetMapping("/dashboard")
     public DashboardResponse dashboard() {
         return adminService.dashboard();
+    }
+
+    @Operation(summary = "Báo cáo theo khoảng ngày (yyyy-MM-dd): doanh thu, đơn, người dùng mới theo ngày, cơ cấu thể loại và trạng thái")
+    @GetMapping("/reports")
+    public ReportService.ReportResponse report(@RequestParam(required = false) String from,
+                                               @RequestParam(required = false) String to) {
+        java.time.LocalDate end = to == null || to.isBlank() ? java.time.LocalDate.now(com.rebook.common.CodeGenerator.VN) : day(to);
+        return reportService.report(from == null || from.isBlank() ? end.minusDays(29) : day(from), end);
+    }
+
+    /** Nhận ngày dạng yyyy-MM-dd (cả khi client gửi kèm giờ). */
+    private static java.time.LocalDate day(String s) {
+        try {
+            return java.time.LocalDate.parse(s.length() > 10 ? s.substring(0, 10) : s);
+        } catch (java.time.format.DateTimeParseException e) {
+            throw com.rebook.common.ApiException.badRequest("BAD_DATE", "Ngày không đúng định dạng yyyy-MM-dd");
+        }
     }
 
     @GetMapping("/users")

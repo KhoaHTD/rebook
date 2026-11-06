@@ -861,6 +861,16 @@ paths:
       tags: [Admin]
       operationId: adminDashboard
       responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/DashboardDto' } } } } }
+  /admin/reports:
+    get:
+      x-origin: frontend
+      tags: [Admin]
+      operationId: adminReport
+      description: 'Báo cáo theo khoảng ngày (yyyy-MM-dd, giờ VN): doanh thu, đơn, người dùng mới theo ngày, cơ cấu thể loại và trạng thái. Xem BACKEND_HANDOFF B10.'
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: object } } } } }
 
 components:
   securitySchemes:

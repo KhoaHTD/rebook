@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/admin/domain/admin_report.dart';
 import 'package:book_marketplace/features/admin/domain/cod_pending.dart';
 import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/catalog.dart';
@@ -9,6 +10,9 @@ import 'package:book_marketplace/shared/domain/user.dart';
 /// Quản trị sàn (SRS 2, 5.3, 7.2, 8, 11).
 abstract interface class AdminRepository {
   Future<Dashboard> dashboard();
+
+  /// Báo cáo trong khoảng ngày [from]–[to] (cả hai đầu): doanh thu theo ngày, cơ cấu thể loại và trạng thái đơn.
+  Future<AdminReport> report(DateTime from, DateTime to);
 
   // Tin đăng
   Future<List<Listing>> listings({ListingStatus? status});

@@ -124,4 +124,5 @@ abstract final class AdminRoutes {
   static const withdrawals = '/withdrawals';
   static const disputes = '/disputes';
   static const activity = '/activity';
+  static const reports = '/reports';
 }

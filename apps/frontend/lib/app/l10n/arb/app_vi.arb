@@ -1434,6 +1434,86 @@
   "admChargebackAmount": "Số tiền bị đòi lại (đồng)",
   "admChargebackReason": "Lý do / mã tra soát (từ 5 ký tự)",
   "admChargebackDone": "Đã ghi nợ. Phần ví đang có được thu ngay, phần còn lại là nợ của người dùng.",
+  "admHello": "Xin chào, {name}",
+  "@admHello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "admDashSub": "Tổng quan hoạt động của sàn ReBook",
+  "admPerformance": "Hiệu suất",
+  "admRange7": "7 ngày",
+  "admRange30": "30 ngày",
+  "admRange90": "90 ngày",
+  "admSeriesRevenue": "Doanh thu",
+  "admSeriesOrders": "Đơn hàng",
+  "admSeriesUsers": "Người dùng mới",
+  "admKpiGmv": "Doanh thu đặt hàng",
+  "admKpiOrders": "Số đơn",
+  "admKpiNewUsers": "Người dùng mới",
+  "admVsFirstHalf": "so với nửa đầu kỳ",
+  "admTodoDone": "Đã xong",
+  "admTodoCount": "{count} cần xử lý",
+  "@admTodoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "admRecentActivity": "Hoạt động gần đây",
+  "admSeeAll": "Xem tất cả",
+  "admNoActivity": "Chưa có hoạt động nào",
+  "admNavReports": "Báo cáo",
+  "admReportsTitle": "Báo cáo",
+  "admReportsSub": "Doanh thu, đơn hàng và người dùng theo thời gian",
+  "admPickRange": "Chọn khoảng ngày",
+  "admExportPdf": "Xuất PDF",
+  "admExportCsv": "Xuất CSV",
+  "admExportDone": "Đã xuất file {name}",
+  "@admExportDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "admExportFailed": "Không xuất được file. Thử lại sau.",
+  "admReportRevenueDay": "Doanh thu theo ngày",
+  "admReportUsersDay": "Người dùng mới theo ngày",
+  "admReportByCategory": "Cơ cấu theo thể loại",
+  "admReportByStatus": "Đơn theo trạng thái",
+  "admReportDaily": "Chi tiết theo ngày",
+  "admColDate": "Ngày",
+  "admTotal": "Tổng",
+  "admRevenueDone": "Doanh thu hoàn tất",
+  "admFees": "Phí sàn thu",
+  "admAvgOrder": "Giá trị trung bình / đơn",
+  "admCancelRate": "Tỉ lệ huỷ đơn",
+  "admAuctionOrders": "Đơn đấu giá",
+  "admNormalOrders": "Đơn mua thường",
+  "admNoReportData": "Chưa có dữ liệu trong khoảng ngày này.",
+  "admReportPeriod": "Kỳ báo cáo: {from} – {to}",
+  "@admReportPeriod": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "admGeneratedAt": "Xuất lúc {time}",
+  "@admGeneratedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "modeBooks": "Mua sách",
   "modeAuction": "Đấu giá",
   "modeBackToBooks": "Về Mua sách",

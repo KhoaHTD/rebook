@@ -3515,6 +3515,31 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PageResponseUserResponse"
+  /admin/reports:
+    get:
+      tags:
+      - Admin
+      summary: "Báo cáo theo khoảng ngày (yyyy-MM-dd): doanh thu, đơn, người dùng\
+        \ mới theo ngày, cơ cấu thể loại và trạng thái"
+      operationId: report
+      parameters:
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ReportResponse"
   /admin/platform-wallet:
     get:
       tags:
@@ -6403,6 +6428,77 @@ components:
         totalPages:
           type: integer
           format: int32
+    CategorySlice:
+      type: object
+      properties:
+        name:
+          type: string
+        amount:
+          type: number
+    Day:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        gmv:
+          type: number
+        orders:
+          type: integer
+          format: int64
+        newUsers:
+          type: integer
+          format: int64
+    ReportResponse:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        gmv:
+          type: number
+        revenue:
+          type: number
+        platformFees:
+          type: number
+        orders:
+          type: integer
+          format: int64
+        completedOrders:
+          type: integer
+          format: int64
+        cancelledOrders:
+          type: integer
+          format: int64
+        auctionOrders:
+          type: integer
+          format: int64
+        newUsers:
+          type: integer
+          format: int64
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/Day"
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategorySlice"
+        statuses:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusSlice"
+    StatusSlice:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        count:
+          type: integer
+          format: int64
     PageResponseLotPublic:
       type: object
       properties:

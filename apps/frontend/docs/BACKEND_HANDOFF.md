@@ -110,6 +110,11 @@ Frontend: **mỗi lần thêm thứ ngoài SRS đều phải đánh dấu như t
 - Đề xuất (chưa làm, chờ backend): `POST /uploads/cover-check` nhận ảnh, dùng model đọc ảnh trả `{type: FRONT_COVER|BACK_COVER|SPINE|OTHER|NOT_A_BOOK, issues: [BLURRY, GLARE, TOO_DARK, CROPPED], corners}`;
   frontend dùng để chặn ảnh rác (ảnh chụp màn hình…) và gợi ý sẵn 4 góc. Khoá API model chỉ để ở backend.
 
+### B10. Báo cáo của Admin (dashboard + trang Báo cáo)
+- `GET /admin/reports?from=yyyy-MM-dd&to=yyyy-MM-dd` (mặc định 30 ngày gần nhất, tối đa 366 ngày, `to` ≥ `from`) → `ReportResponse`: `gmv` (tổng đơn không huỷ / giao thất bại), `revenue` (đơn COMPLETED), `platformFees` (subtotal × feePercent của đơn COMPLETED),
+  `orders`, `completedOrders`, `cancelledOrders`, `auctionOrders`, `newUsers`, `days[]` (mỗi ngày có đủ: `date`, `gmv`, `orders`, `newUsers`), `categories[]` (top 6 thể loại theo doanh thu), `statuses[]` (số đơn theo trạng thái).
+- Ngày tính theo giờ Việt Nam. Frontend vẽ biểu đồ đường / cột / tròn và xuất CSV từ chính dữ liệu này (PDF làm ở frontend).
+
 ### B9. Luật nhập liệu (backend nên kiểm tra lại cùng luật)
 Frontend chặn ký tự và kiểm tra ở `lib/core/utils/input_rules.dart`; backend **phải kiểm tra lại** (không tin client) và trả lỗi 400 cùng luật. Cột "Nguồn": **SRS** = có trong SRS, **FE** = frontend tự đề xuất theo thông lệ (backend góp ý được; đổi thì sửa spec rồi báo frontend). Chỉ ngưỡng ký gửi ≥ 300.000đ (SRS 6.1) và việc ISBN là tuỳ chọn là có trong SRS; mọi con số khác là đề xuất.
 
@@ -169,6 +174,7 @@ Chuẩn hoá trước khi lưu: cắt khoảng trắng hai đầu, gộp khoản
 | B5 Rút tiền + ngân hàng | xong (bank, accountNumber, accountHolder); khác spec: tiền khoá (`held`) ngay lúc yêu cầu; ghi chú của người rút ở `userNote` (`note` là ghi chú Admin) |
 | B6 Tài khoản ngân hàng đã dùng | xong: `GET /wallet/bank-accounts`, `POST` / `DELETE /wallet/bank-accounts/{id}/favorite` |
 | B7 Người duyệt | rút tiền + phân xử trả hàng xong (`processedByName`, `resolvedByName`, `GET /admin/disputes?resolved=true`); tin đăng: `reviewedBy` / `reviewedByName` / `reviewedAt`, `GET /admin/listings/reviewed` |
+| B10 Báo cáo Admin | xong: `GET /admin/reports` (`ReportService`, test `AdminReportTest`) |
 | B9 Luật nhập liệu (bảng ở B9) | chưa kiểm tra lại phía server |
 | B8 Ảnh bìa đại diện | giữ thứ tự ảnh (chưa); AI kiểm tra loại ảnh (đề xuất) |
 

@@ -376,7 +376,7 @@ abstract final class AuctionPalette {
 
 /// Bảng màu giao diện quản trị (Staff / Admin): dashboard sáng, phẳng, nút đen.
 abstract final class AdminPalette {
-  static const bg = Color(0xFFF5F6F8);
+  static const bg = Color(0xFFF0F3F8);
   static const card = Color(0xFFFFFFFF);
   static const line = Color(0xFFE5E7EB);
   static const lineSoft = Color(0xFFF0F1F4);
@@ -393,6 +393,18 @@ abstract final class AdminPalette {
   static const infoSoft = Color(0xFFE6F0FF);
   static const selected = Color(0xFFF2F6FF);
   static const barIdle = Color(0xFFE4E7EC);
+
+  /// Màu nhấn xanh (nút chính, mục sidebar đang chọn) và bảng màu biểu đồ.
+  static const accent = Color(0xFF3B73F0);
+  static const accentSoft = Color(0xFFE8EFFE);
+  static const chart = <Color>[
+    Color(0xFF3B73F0),
+    Color(0xFFF59E4B),
+    Color(0xFF2FB67C),
+    Color(0xFF8B7CF6),
+    Color(0xFF35B6D6),
+    Color(0xFFEE7CA4),
+  ];
 }
 
 /// Nền slide sự kiện của băng chuyền trang chủ (ký gửi, mở shop…) và lớp phủ đọc chữ trên ảnh bìa.

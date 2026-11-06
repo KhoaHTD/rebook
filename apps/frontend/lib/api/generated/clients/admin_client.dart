@@ -12,6 +12,7 @@ import '../models/page_response_activity_log_response.dart';
 import '../models/page_response_user_response.dart';
 import '../models/page_response_withdraw_response.dart';
 import '../models/process_request.dart';
+import '../models/report_response.dart';
 import '../models/role.dart';
 import '../models/role_request.dart';
 import '../models/shop_response.dart';
@@ -86,6 +87,13 @@ abstract class AdminClient {
     @Query('q') String? q,
     @Query('role') Role? role,
     @Query('status') UserStatus? status,
+  });
+
+  /// Báo cáo theo khoảng ngày (yyyy-MM-dd): doanh thu, đơn, người dùng mới theo ngày, cơ cấu thể loại và trạng thái
+  @GET('/admin/reports')
+  Future<ReportResponse> getAdminReports({
+    @Query('from') String? from,
+    @Query('to') String? to,
   });
 
   /// Số dư ví sàn (phí đã thu)

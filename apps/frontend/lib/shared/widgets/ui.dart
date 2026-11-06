@@ -172,7 +172,7 @@ extension on AppPage {
           SliverPadding(
             padding:
                 contentPadding ??
-                EdgeInsets.fromLTRB(gutter, compact ? 16 : 20, gutter, 32),
+                EdgeInsets.fromLTRB(gutter, compact ? 16 : 16, gutter, 32),
             sliver: SliverList.list(children: children!),
           ),
       ],
@@ -186,19 +186,25 @@ extension on AppPage {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            // Trên điện thoại thanh đầu trang nằm dưới thanh trạng thái (web: inset = 0).
-            height: 60 + MediaQuery.paddingOf(context).top,
+            // Điện thoại: thanh trắng dưới thanh trạng thái. Desktop: tiêu đề lớn đứng thẳng trên nền xám, không khung.
             padding: EdgeInsets.fromLTRB(
               gutter - (compact ? 8 : 0),
-              MediaQuery.paddingOf(context).top,
+              MediaQuery.paddingOf(context).top + (compact ? 6 : 26),
               gutter,
-              0,
+              compact ? 6 : 4,
             ),
-            decoration: const BoxDecoration(
-              color: AdminPalette.card,
-              border: Border(bottom: BorderSide(color: AdminPalette.line)),
-            ),
+            decoration: compact
+                ? const BoxDecoration(
+                    color: AdminPalette.card,
+                    border: Border(
+                      bottom: BorderSide(color: AdminPalette.line),
+                    ),
+                  )
+                : null,
             child: Row(
+              crossAxisAlignment: compact
+                  ? CrossAxisAlignment.center
+                  : CrossAxisAlignment.start,
               children: [
                 if (onMenu != null)
                   IconButton(
@@ -211,31 +217,28 @@ extension on AppPage {
                     onPressed: () => context.pop(),
                   ),
                 Expanded(
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              (compact ? text.titleLarge : text.headlineSmall)
-                                  ?.copyWith(
-                                    fontFamily: AppFonts.serif,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: (compact ? text.titleLarge : text.headlineMedium)
+                            ?.copyWith(
+                              fontFamily: null,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
                       ),
                       if (subtitle != null && !compact) ...[
-                        const SizedBox(width: AppSpacing.md),
-                        Flexible(
-                          child: Text(
-                            subtitle!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: text.bodyMedium?.copyWith(
-                              color: AdminPalette.muted,
-                            ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.bodyMedium?.copyWith(
+                            color: AdminPalette.muted,
                           ),
                         ),
                       ],

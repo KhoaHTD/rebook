@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/admin/domain/admin_report.dart';
 import 'package:book_marketplace/features/admin/domain/cod_pending.dart';
 import 'package:book_marketplace/api/generated/export.dart' as api;
 import 'package:book_marketplace/core/error/app_exception.dart';
@@ -33,6 +34,48 @@ class ApiAdminRepository implements AdminRepository {
       users: (results[1] as api.PageResponseUserResponse).totalItems ?? 0,
       pendingConsignments:
           (results[2] as api.PageResponseConsignmentResponse).totalItems ?? 0,
+    );
+  });
+
+  @override
+  Future<AdminReport> report(DateTime from, DateTime to) => guardApi(() async {
+    String day(DateTime d) =>
+        '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    final r = await _client.admin.getAdminReports(from: day(from), to: day(to));
+    DateTime date(DateTime? d) => d == null
+        ? DateTime(from.year, from.month, from.day)
+        : DateTime(d.year, d.month, d.day);
+    return AdminReport(
+      from: date(r.from),
+      to: date(r.to),
+      gmv: r.gmv?.toInt() ?? 0,
+      revenue: r.revenue?.toInt() ?? 0,
+      platformFees: r.platformFees?.toInt() ?? 0,
+      orders: r.orders ?? 0,
+      completedOrders: r.completedOrders ?? 0,
+      cancelledOrders: r.cancelledOrders ?? 0,
+      auctionOrders: r.auctionOrders ?? 0,
+      newUsers: r.newUsers ?? 0,
+      days: [
+        for (final d in r.days.orEmpty)
+          ReportDay(
+            date: date(d.date),
+            gmv: d.gmv?.toInt() ?? 0,
+            orders: d.orders ?? 0,
+            newUsers: d.newUsers ?? 0,
+          ),
+      ],
+      categories: [
+        for (final c in r.categories.orEmpty)
+          ReportCategory(name: c.name ?? '', amount: c.amount?.toInt() ?? 0),
+      ],
+      statuses: [
+        for (final s in r.statuses.orEmpty)
+          ReportStatusCount(
+            status: orderStatusToDomain(s.status),
+            count: s.count ?? 0,
+          ),
+      ],
     );
   });
 

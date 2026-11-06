@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/admin/domain/admin_report.dart';
 import 'package:book_marketplace/features/admin/domain/cod_pending.dart';
 
 import 'dart:async';
@@ -23,6 +24,13 @@ Future<Dashboard> dashboard(Ref ref) {
     ..watchArea(DataArea.listings)
     ..watchArea(DataArea.consignments);
   return ref.watch(adminRepositoryProvider).dashboard();
+}
+
+/// Báo cáo trong khoảng ngày (cả hai đầu). Đổi khi có đơn mới / đơn đổi trạng thái.
+@riverpod
+Future<AdminReport> adminReport(Ref ref, DateTime from, DateTime to) {
+  ref.watchArea(DataArea.orders);
+  return ref.watch(adminRepositoryProvider).report(from, to);
 }
 
 @riverpod
