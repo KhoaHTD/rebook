@@ -36,7 +36,7 @@ Việc làm bám bảng "Việc frontend phải làm" trong `docs/AUDIT_FRONTEND
 - Không làm vì trùng chức năng đã có: `POST /consignments/{id}/withdraw` (đã rút ký gửi bằng quyết định WITHDRAW), `DELETE /cart` (xoá từng món), `GET /admin/platform-wallet` (Dashboard đã có phí sàn thu được), `PUT /seller/listings/{id}/stock` (sửa tồn kho qua form sửa tin).
 - Người bán: hiển thị hạn giao hàng, uy tín shop, hạn quyết định lô không bán.
 - Ẩn nút giả lập giao hàng ở bản production (FE-12): chỉ chạy được khi backend bật chế độ giả lập (profile dev).
-- Cảnh báo ở hoá đơn lô thắng: quá 48 giờ bị phạt 10% giá búa và cấm đấu giá.
+- (đã làm) Cảnh báo phạt ở hoá đơn lô thắng chưa thanh toán.
 
 ## Test tay trên máy ảo Android (06/11/2026, backend nhánh này, database riêng `rebook_ui`, cổng 8081)
 

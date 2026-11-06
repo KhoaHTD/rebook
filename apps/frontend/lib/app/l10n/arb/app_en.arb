@@ -1282,5 +1282,6 @@
   "settingsPwdTooShort": "New password needs at least 8 characters and the current password is required.",
   "settingsPwdChanged": "Password changed.",
   "proxyCancel": "Cancel auto-bid",
-  "proxyCleared": "Auto-bid cancelled."
+  "proxyCleared": "Auto-bid cancelled.",
+  "auctionPayPenaltyWarning": "Missing the deadline: 10% penalty on the winning price and a possible auction ban."
 }

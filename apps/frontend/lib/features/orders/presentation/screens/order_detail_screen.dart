@@ -123,6 +123,15 @@ class _Main extends StatelessWidget {
         ),
         if (order.status == OrderStatus.pendingPayment)
           deadline(l10n.payBefore, order.paymentDeadline),
+        if (order.status == OrderStatus.pendingPayment &&
+            order.type == OrderType.auction)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
+            child: Text(
+              l10n.auctionPayPenaltyWarning,
+              style: context.textStyles.bodySmall?.copyWith(color: c.warning),
+            ),
+          ),
         if (order.status == OrderStatus.pendingConfirm)
           deadline(l10n.shopConfirmBefore, order.confirmDeadline),
         if (order.status == OrderStatus.delivered)
