@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/wallet/domain/debt.dart';
 import 'package:book_marketplace/features/wallet/domain/wallet_repository.dart';
 import 'package:book_marketplace/shared/data/fake/fake_store.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
@@ -44,4 +45,12 @@ class FakeWalletRepository implements WalletRepository {
       note: note,
     ),
   );
+
+  // Dữ liệu giả không có công nợ.
+  @override
+  Future<List<Debt>> debts() => fakeCall(() => <Debt>[]);
+
+  @override
+  Future<DebtCollectResult> collectDebts() =>
+      fakeCall(() => const DebtCollectResult(collected: 0, stillOwed: 0));
 }

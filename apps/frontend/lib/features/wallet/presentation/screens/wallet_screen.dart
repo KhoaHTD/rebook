@@ -10,6 +10,7 @@ import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/external_link.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/wallet/presentation/providers/wallet_providers.dart';
+import 'package:book_marketplace/features/wallet/presentation/widgets/debt_panel.dart';
 import 'package:book_marketplace/features/wallet/presentation/providers/withdraw_draft.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
@@ -146,6 +147,7 @@ class WalletScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const DebtPanel(),
               AsyncValueView(
                 value: wallet,
                 loading: const Skeleton(height: 190, radius: 24),

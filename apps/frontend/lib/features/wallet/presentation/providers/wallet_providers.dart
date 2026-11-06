@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/wallet/domain/debt.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:book_marketplace/core/utils/data_changes.dart';
@@ -10,6 +11,12 @@ part 'wallet_providers.g.dart';
 Future<Wallet> myWallet(Ref ref) {
   ref.watchArea(DataArea.wallet);
   return ref.watch(walletRepositoryProvider).wallet();
+}
+
+@riverpod
+Future<List<Debt>> myDebts(Ref ref) {
+  ref.watchArea(DataArea.wallet);
+  return ref.watch(walletRepositoryProvider).debts();
 }
 
 @riverpod

@@ -2000,5 +2000,29 @@
       }
     }
   },
-  "stfCarrierDone": "Đã ghi nhận kết quả từ hãng vận chuyển."
+  "stfCarrierDone": "Đã ghi nhận kết quả từ hãng vận chuyển.",
+  "walletDebtTitle": "Khoản nợ chưa thanh toán",
+  "walletDebtHint": "Khi còn nợ, bạn chưa đăng ký đấu giá, trả giá hay rút tiền được. Nạp thêm tiền rồi bấm thu nợ.",
+  "walletDebtPenalty": "Phạt bỏ thanh toán lô thắng",
+  "walletDebtStorage": "Phí lưu kho",
+  "walletDebtRemaining": "Còn nợ {amount}",
+  "@walletDebtRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "walletDebtCollect": "Thu nợ từ ví",
+  "walletDebtCollected": "Đã thu {collected}, còn nợ {left}.",
+  "@walletDebtCollected": {
+    "placeholders": {
+      "collected": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  }
 }

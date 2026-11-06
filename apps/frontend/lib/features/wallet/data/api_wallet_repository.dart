@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/wallet/domain/debt.dart';
 import 'package:book_marketplace/api/generated/export.dart' as api;
 import 'package:book_marketplace/core/error/app_exception.dart';
 import 'package:book_marketplace/features/wallet/domain/wallet_repository.dart';
@@ -80,4 +81,32 @@ class ApiWalletRepository implements WalletRepository {
               );
         return res.toDomain();
       });
+
+  @override
+  Future<List<Debt>> debts() => guardApi(() async {
+    final res = await _client.debts.getMeDebts();
+    return [
+      for (final d in res)
+        if (d.status == api.DebtStatus.open)
+          Debt(
+            id: '${d.id ?? 0}',
+            kind: d.type == api.DebtType.storageFee
+                ? DebtKind.storageFee
+                : DebtKind.auctionPenalty,
+            amount: d.amount?.round() ?? 0,
+            remaining: d.remaining?.round() ?? 0,
+            note: d.note,
+            createdAt: d.createdAt,
+          ),
+    ];
+  });
+
+  @override
+  Future<DebtCollectResult> collectDebts() => guardApi(() async {
+    final r = await _client.debts.postMeDebtsCollect();
+    return DebtCollectResult(
+      collected: r.collected?.round() ?? 0,
+      stillOwed: r.stillOwed?.round() ?? 0,
+    );
+  });
 }

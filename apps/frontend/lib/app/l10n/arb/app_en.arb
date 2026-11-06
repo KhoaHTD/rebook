@@ -1210,5 +1210,12 @@
   "stfCarrierPrepaid": "Prepaid",
   "stfCarrierShopLine": "{shop} · {code}",
   "stfCarrierTracking": "Tracking: {code}",
-  "stfCarrierDone": "Carrier result recorded."
+  "stfCarrierDone": "Carrier result recorded.",
+  "walletDebtTitle": "Unpaid debts",
+  "walletDebtHint": "While you owe money you cannot register for auctions, bid or withdraw. Top up, then collect.",
+  "walletDebtPenalty": "Penalty for not paying a won lot",
+  "walletDebtStorage": "Storage fee",
+  "walletDebtRemaining": "Owed {amount}",
+  "walletDebtCollect": "Pay from wallet",
+  "walletDebtCollected": "Collected {collected}, {left} still owed."
 }

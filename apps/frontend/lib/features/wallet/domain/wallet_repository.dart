@@ -1,3 +1,4 @@
+import 'package:book_marketplace/features/wallet/domain/debt.dart';
 import 'package:book_marketplace/shared/domain/commerce.dart';
 
 /// Ví nội bộ: số dư, nạp qua ZaloPay, sổ giao dịch, rút tiền (SRS 8.1).
@@ -24,4 +25,10 @@ abstract interface class WalletRepository {
     required String accountName,
     String? note,
   });
+
+  /// Nợ còn phải trả (phạt bỏ thanh toán, phí kho).
+  Future<List<Debt>> debts();
+
+  /// Thu nợ ngay từ số dư dùng được của ví, cũ nhất trước.
+  Future<DebtCollectResult> collectDebts();
 }
