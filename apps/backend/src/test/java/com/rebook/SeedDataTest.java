@@ -48,12 +48,14 @@ class SeedDataTest {
                 .isZero();
     }
 
-    /** 66 sách từ file Excel thành tin đăng bán giá cố định; không có ảnh trong database, không còn dữ liệu nghiệp vụ cũ. */
+    /** 70 sách từ file Excel thành tin đăng bán giá cố định, mỗi sách một ảnh bìa Cloudinary; không còn dữ liệu nghiệp vụ cũ. */
     @Test
     void booksFromTheSheetAreLoadedAndOldBusinessDataIsGone() {
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM books", Long.class)).isEqualTo(66);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM listings WHERE status = 'ACTIVE'", Long.class)).isEqualTo(66);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images", Long.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM books", Long.class)).isEqualTo(70);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM listings WHERE status = 'ACTIVE'", Long.class)).isEqualTo(70);
+        // Mỗi sách có đúng một ảnh bìa trên Cloudinary (URL https), không có ảnh lưu cục bộ.
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images WHERE url LIKE 'https://res.cloudinary.com/%'", Long.class)).isEqualTo(70);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM book_images", Long.class)).isEqualTo(70);
         for (String t : new String[]{"orders", "consignments", "lots", "auction_sessions", "cart_items", "notifications"}) {
             assertThat(jdbc.queryForObject("SELECT count(*) FROM " + t, Long.class)).as(t).isZero();
         }
@@ -65,7 +67,7 @@ class SeedDataTest {
     /** ISBN đúng chữ số kiểm tra, không trùng; mỗi sách thuộc thể loại con (hoặc thể loại cha không có con). */
     @Test
     void isbnsAreValidAndCategoriesAreLeaves() {
-        assertThat(jdbc.queryForObject("SELECT count(DISTINCT isbn) FROM books", Long.class)).isEqualTo(66);
+        assertThat(jdbc.queryForObject("SELECT count(DISTINCT isbn) FROM books", Long.class)).isEqualTo(70);
         for (String isbn : jdbc.queryForList("SELECT isbn FROM books", String.class)) {
             assertThat(com.rebook.common.Isbn.normalize(isbn)).isEqualTo(isbn);
         }

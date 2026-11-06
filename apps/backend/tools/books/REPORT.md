@@ -1,162 +1,87 @@
 # Dữ liệu sách mẫu — báo cáo để duyệt
 
-Sinh bởi `tools/books/gen.mjs` từ `tools/books/books.xlsx` (66 sách). Chạy lại script sau khi sửa Excel.
+Sinh bởi `tools/books/gen.mjs` từ `tools/books/books.xlsx` (70 sách, ảnh bìa trong `covers.json`). Chạy lại script sau khi sửa Excel.
 
-## Sửa lỗi chính tả (theo bảng CORRECTIONS trong gen.mjs)
+## Quy tắc đã dùng (sửa ở đầu gen.mjs)
 
-| STT | Trong sheet | Sau khi sửa |
-|---|---|---|
-| 10 | Mặt Trận Miền Tây Khôn Có Gì Lạ | Mặt Trận Miền Tây Không Có Gì Lạ |
-| 12 | Lược Khảo Lịch sử Thượng Hải | Lược Khảo Lịch Sử Thượng Hải |
-| 47 | The T assistant of Jakob von Gunten | Jakob von Gunten |
-| 53 | The Rise of Network Society | The Rise of the Network Society |
+- **Tình trạng** (giả lập trong sheet): Mới, chưa sử dụng → `NEW`; Như mới → `LIKE_NEW`; Đã đọc, còn tốt → `VERY_GOOD`; Đã đọc, gáy hơi nhăn và Đã qua sử dụng, góc bìa hơi mòn → `GOOD`.
+- **Khối lượng**: lấy cột "Khối lượng giả lập" của sheet (290 – 1.530 g).
+- **Shop**: tiểu thuyết (nhóm "Văn học") → Nhà Sách Cũ Sài Gòn; còn lại → Tiệm Sách Hà Nội Xưa.
+- **Giá**: 120.000 – 450.000 đồng theo tình trạng, số trang, bìa cứng; làm tròn 1.000. **Tồn kho**: 3 – 5 cuốn.
+- **Tác giả để trống** (STT 40) → "Nhiều tác giả".
+- **Ảnh**: mỗi sách một ảnh bìa, URL Cloudinary lưu ở `book_images` (ISBN-13 là tên ảnh `rebook/covers/<isbn>`).
 
-## Nghi sai nhưng giữ nguyên (bạn quyết)
+## Từng sách
 
-- STT 5 "Dế Hèn" (Nguyễn Huy Thiệp): không thấy tác phẩm tên này; "Dế Mèn Phiêu Lưu Ký" là của Tô Hoài.
-- STT 12 "Lược Khảo Lịch Sử Thượng Hải" (Trần Trọng Kim): tên và tác giả có vẻ không khớp.
-- STT 29 "Nền Kinh Tế Chia Sẻ" (Swami Iyer) và STT 28 tác giả "Professor John Vu - Nguyên Phong": giữ như sheet.
-
-## ISBN: cũ → mới (đặt tên file ảnh theo cột ISBN-13 mới, không gạch)
-
-35/66 ISBN bị sai chữ số kiểm tra nên chữ số cuối đã được tính lại.
-
-| STT | Tên sách | ISBN cũ | ISBN-13 mới (tên file ảnh) | Đổi? |
-|---|---|---|---|---|
-| 1 | Thời Xa Vắng | 9786045301232 | 9786045301234 | có |
-| 2 | Mùa Lá Rụng Trong Vườn | 9786043456789 | 9786043456783 | có |
-| 3 | Nỗi Buồn Chiến Tranh | 9786045314524 | 9786045314524 |  |
-| 4 | Phố | 9786041456123 | 9786041456129 | có |
-| 5 | Dế Hèn | 9786041098765 | 9786041098763 | có |
-| 6 | Tướng Về Hưu | 9786041011223 | 9786041011229 | có |
-| 7 | Giăng Sáng | 9786042033445 | 9786042033442 | có |
-| 8 | Sống Mòn | 9786042078901 | 9786042078900 | có |
-| 9 | Vỡ Bờ | 9786043123456 | 9786043123456 |  |
-| 10 | Mặt Trận Miền Tây Không Có Gì Lạ | 9780449213940 | 9780449213940 |  |
-| 11 | Đất Khổ | 9786045356789 | 9786045356784 | có |
-| 12 | Lược Khảo Lịch Sử Thượng Hải | 9786043987654 | 9786043987652 | có |
-| 13 | Việt Nam Sử Lược | 9786043111112 | 9786043111118 | có |
-| 14 | Đại Việt Sử Ký Tiền Biên | 9786046888881 | 9786046888888 | có |
-| 15 | Việt Nam Phong Tục | 9786043222223 | 9786043222227 | có |
-| 16 | Đường Kách Mệnh | 9786045777772 | 9786045777770 | có |
-| 17 | Búp Sen Xanh | 9786042111223 | 9786042111225 | có |
-| 18 | Miền Hoang Tưởng | 9786041088991 | 9786041088993 | có |
-| 19 | Cơ Sở Lập Trình Hướng Đối Tượng | 9786047354321 | 9786047354320 | có |
-| 20 | Kiến Trúc Phần Mềm | 9786048912345 | 9786048912345 |  |
-| 21 | Phân Tích Và Thiết Kế Hệ Thống Thông Tin | 9786049112234 | 9786049112232 | có |
-| 22 | Nhập Môn Trí Tuệ Nhân Tạo | 9786047345678 | 9786047345670 | có |
-| 23 | Cơ Sở Dữ Liệu Nâng Cao | 9786040123987 | 9786040123985 | có |
-| 24 | Kinh Tế Vi Mô | 9786049567890 | 9786049567896 | có |
-| 25 | Quản Trị Chiến Lược Doanh Nghiệp | 9786047987652 | 9786047987658 | có |
-| 26 | Marketing Ngầm | 9786041045673 | 9786041045675 | có |
-| 27 | Đường Xưa Mây Trẻ | 9786049223345 | 9786049223341 | có |
-| 28 | Muôn Kiếp Nhân Sinh | 9786045899887 | 9786045899885 | có |
-| 29 | Nền Kinh Tế Chia Sẻ | 9786047712348 | 9786047712342 | có |
-| 30 | Gia Đình Vui Vẻ | 9786042099882 | 9786042099882 |  |
-| 31 | The Notebooks of Malte Laurids Brigge | 9780679724940 | 9780679724940 |  |
-| 32 | The Street of Crocodiles | 9780141189871 | 9780141189871 |  |
-| 33 | The Loser | 9780375703218 | 9780375703218 |  |
-| 34 | Ferdydurke | 9780300082408 | 9780300082401 | có |
-| 35 | Zeno's Conscience | 9780679728863 | 9780679728863 |  |
-| 36 | The Passion According to G.H. | 9780811219197 | 9780811219198 | có |
-| 37 | Independent People | 9780375705649 | 9780375705649 |  |
-| 38 | The Book of Disquiet | 9780811211153 | 9780811211154 | có |
-| 39 | The Emigrants | 9780812227039 | 9780812227031 | có |
-| 40 | Solenoid | 9781646050049 | 9781646050048 | có |
-| 41 | Warlock | 9781590171547 | 9781590171547 |  |
-| 42 | Dictionary of the Khazars | 9780394753171 | 9780394753171 |  |
-| 43 | The Man Without Qualities | 9780375705823 | 9780375705823 |  |
-| 44 | The Notebook | 9780307269386 | 9780307269386 |  |
-| 45 | The Proof | 9780802135681 | 9780802135681 |  |
-| 46 | The Third Lie | 9780802135698 | 9780802135698 |  |
-| 47 | Jakob von Gunten | 9781590170342 | 9781590170342 |  |
-| 48 | Selected Stories | 9780940322035 | 9780940322035 |  |
-| 49 | The Arcades Project | 9780679764588 | 9780679764588 |  |
-| 50 | Simulacra and Simulation | 9780452011502 | 9780452011502 |  |
-| 51 | The Production of Space | 9780631140481 | 9780631140481 |  |
-| 52 | Gender Trouble | 9780415389558 | 9780415389556 | có |
-| 53 | The Rise of the Network Society | 9781405196864 | 9781405196864 |  |
-| 54 | The Information | 9780307387371 | 9780307387370 | có |
-| 55 | Chaos | 9780143113256 | 9780143113256 |  |
-| 56 | Genius | 9780679747048 | 9780679747048 |  |
-| 57 | Near to the Wild Heart | 9780811219326 | 9780811219327 | có |
-| 58 | Cosmos | 9780802151254 | 9780802151254 |  |
-| 59 | Sanatorium Under the Sign of the Hourglass | 9780141189888 | 9780141189888 |  |
-| 60 | The Blue of Noon | 9780714528571 | 9780714528571 |  |
-| 61 | The Book of Monelle | 9781878972232 | 9781878972231 | có |
-| 62 | The Book of Imaginary Beings | 9780142439166 | 9780142439166 |  |
-| 63 | Institute Benjamenta | 9780811214871 | 9780811214872 | có |
-| 64 | Introduction to Mathematical Philosophy | 9780486277240 | 9780486277240 |  |
-| 65 | Language, Truth and Logic | 9780486200194 | 9780486200194 |  |
-| 66 | Camera Lucida | 9780374520342 | 9780374520342 |  |
-
-## Thể loại, shop, giá, tồn kho
-
-| STT | Tên sách | Thể loại sheet | Thể loại mới | Shop | Tình trạng | Giá | Tồn |
-|---|---|---|---|---|---|---|---|
-| 1 | Thời Xa Vắng | Tiểu thuyết hiện đại Việt Nam | Văn học › Tiểu thuyết Việt Nam | Hà Nội Xưa | Mới | 111.000 | 5 |
-| 2 | Mùa Lá Rụng Trong Vườn | Tiểu thuyết hiện thực | Văn học › Tiểu thuyết Việt Nam | Hà Nội Xưa | Như mới | 121.000 | 4 |
-| 3 | Nỗi Buồn Chiến Tranh | Tiểu thuyết chiến tranh | Văn học › Tiểu thuyết Việt Nam | Hà Nội Xưa | Tốt | 82.000 | 5 |
-| 4 | Phố | Tiểu thuyết hiện thực đô thị | Văn học › Tiểu thuyết Việt Nam | Hà Nội Xưa | Khá | 92.000 | 3 |
-| 5 | Dế Hèn | Tuyển tập truyện ngắn | Văn học › Truyện ngắn | Hà Nội Xưa | Mới | 113.000 | 5 |
-| 6 | Tướng Về Hưu | Truyện ngắn hiện thực | Văn học › Truyện ngắn | Hà Nội Xưa | Như mới | 91.000 | 3 |
-| 7 | Giăng Sáng | Tuyển tập truyện ngắn | Văn học › Truyện ngắn | Hà Nội Xưa | Tốt | 137.000 | 5 |
-| 8 | Sống Mòn | Tiểu thuyết tâm lý xã hội | Văn học › Tiểu thuyết Việt Nam | Hà Nội Xưa | Mới | 108.000 | 5 |
-| 9 | Vỡ Bờ | Tiểu thuyết lịch sử | Văn học › Tiểu thuyết lịch sử | Hà Nội Xưa | Khá | 104.000 | 4 |
-| 10 | Mặt Trận Miền Tây Không Có Gì Lạ | Tiểu thuyết chiến tranh | Văn học › Tiểu thuyết nước ngoài | Hà Nội Xưa | Như mới | 135.000 | 5 |
-| 11 | Đất Khổ | Tiểu thuyết hiện thực | Văn học › Tiểu thuyết Việt Nam | Hà Nội Xưa | Mới | 121.000 | 3 |
-| 12 | Lược Khảo Lịch Sử Thượng Hải | Lịch sử khảo cứu | Lịch sử – Chính trị › Lịch sử Việt Nam | Hà Nội Xưa | Tốt | 131.000 | 4 |
-| 13 | Việt Nam Sử Lược | Lịch sử học | Lịch sử – Chính trị › Lịch sử Việt Nam | Hà Nội Xưa | Như mới | 194.000 | 4 |
-| 14 | Đại Việt Sử Ký Tiền Biên | Sử liệu cổ | Lịch sử – Chính trị › Lịch sử Việt Nam | Hà Nội Xưa | Mới | 214.000 | 3 |
-| 15 | Việt Nam Phong Tục | Khảo cứu văn hóa | Triết học – Tôn giáo › Văn hóa học | Hà Nội Xưa | Như mới | 149.000 | 4 |
-| 16 | Đường Kách Mệnh | Tài liệu chính trị lịch sử | Lịch sử – Chính trị › Lịch sử Việt Nam | Hà Nội Xưa | Tốt | 116.000 | 3 |
-| 17 | Búp Sen Xanh | Tiểu sử văn học | Tiểu sử – Hồi ký › Tiểu sử – Hồi ký văn học | Hà Nội Xưa | Mới | 117.000 | 5 |
-| 18 | Miền Hoang Tưởng | Tuyển tập truyện ngắn | Văn học › Truyện ngắn | Hà Nội Xưa | Khá | 80.000 | 4 |
-| 19 | Cơ Sở Lập Trình Hướng Đối Tượng | Giáo trình Công nghệ thông tin | Giáo trình › Công nghệ thông tin | Hà Nội Xưa | Mới | 109.000 | 3 |
-| 20 | Kiến Trúc Phần Mềm | Giáo trình Công nghệ thông tin | Giáo trình › Công nghệ thông tin | Hà Nội Xưa | Như mới | 112.000 | 4 |
-| 21 | Phân Tích Và Thiết Kế Hệ Thống Thông Tin | Giáo trình CNTT / Business Analyst | Giáo trình › Công nghệ thông tin | Hà Nội Xưa | Tốt | 88.000 | 4 |
-| 22 | Nhập Môn Trí Tuệ Nhân Tạo | Giáo trình Khoa học máy tính | Giáo trình › Công nghệ thông tin | Hà Nội Xưa | Mới | 119.000 | 5 |
-| 23 | Cơ Sở Dữ Liệu Nâng Cao | Giáo trình CNTT | Giáo trình › Công nghệ thông tin | Hà Nội Xưa | Khá | 80.000 | 4 |
-| 24 | Kinh Tế Vi Mô | Giáo trình Kinh tế học | Giáo trình › Kinh tế – Quản trị | Hà Nội Xưa | Như mới | 110.000 | 3 |
-| 25 | Quản Trị Chiến Lược Doanh Nghiệp | Giáo trình Quản trị kinh doanh | Giáo trình › Kinh tế – Quản trị | Hà Nội Xưa | Mới | 109.000 | 5 |
-| 26 | Marketing Ngầm | Sách chuyên khảo Truyền thông | Kinh tế – Kinh doanh › Marketing – Bán hàng | Hà Nội Xưa | Tốt | 94.000 | 4 |
-| 27 | Đường Xưa Mây Trẻ | Triết học Phật giáo / Tâm linh | Triết học – Tôn giáo › Phật giáo – Tâm linh | Hà Nội Xưa | Mới | 134.000 | 3 |
-| 28 | Muôn Kiếp Nhân Sinh | Triết học tâm linh / Huyền bí | Triết học – Tôn giáo › Phật giáo – Tâm linh | Hà Nội Xưa | Như mới | 115.000 | 4 |
-| 29 | Nền Kinh Tế Chia Sẻ | Kinh tế học hiện đại | Kinh tế – Kinh doanh › Kinh tế học | Hà Nội Xưa | Khá | 85.000 | 3 |
-| 30 | Gia Đình Vui Vẻ | Sách kỹ năng gia đình | Kỹ năng sống › Gia đình – Nuôi dạy con | Hà Nội Xưa | Mới | 113.000 | 4 |
-| 31 | The Notebooks of Malte Laurids Brigge | Tiểu thuyết hiện sinh | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Mới | 420.000 | 3 |
-| 32 | The Street of Crocodiles | Truyện ngắn siêu thực | Văn học › Truyện ngắn | Cũ Sài Gòn | Như mới | 349.000 | 4 |
-| 33 | The Loser | Tiểu thuyết nghệ thuật | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Tốt | 228.000 | 4 |
-| 34 | Ferdydurke | Tiểu thuyết châm biếm | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Mới | 413.000 | 4 |
-| 35 | Zeno's Conscience | Tiểu thuyết phân tâm học | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Khá | 408.000 | 4 |
-| 36 | The Passion According to G.H. | Triết học hiện sinh | Triết học – Tôn giáo › Triết học phương Tây | Cũ Sài Gòn | Như mới | 260.000 | 5 |
-| 37 | Independent People | Tiểu thuyết hiện thực Iceland | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Mới | 525.000 | 5 |
-| 38 | The Book of Disquiet | Văn học thử nghiệm | Văn học › Văn học thử nghiệm – Siêu thực | Cũ Sài Gòn | Tốt | 273.000 | 5 |
-| 39 | The Emigrants | Hư cấu tài liệu | Văn học › Văn học thử nghiệm – Siêu thực | Cũ Sài Gòn | Như mới | 239.000 | 3 |
-| 40 | Solenoid | Tiểu thuyết siêu thực | Văn học › Văn học thử nghiệm – Siêu thực | Cũ Sài Gòn | Mới | 334.000 | 5 |
-| 41 | Warlock | Tiểu thuyết miền Tây u tối | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Khá | 268.000 | 4 |
-| 42 | Dictionary of the Khazars | Tiểu thuyết từ điển | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Như mới | 262.000 | 4 |
-| 43 | The Man Without Qualities | Tiểu thuyết triết học | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Mới | 561.000 | 3 |
-| 44 | The Notebook | Tiểu thuyết tâm lý | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Tốt | 274.000 | 3 |
-| 45 | The Proof | Tiểu thuyết tiếp nối | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Như mới | 271.000 | 3 |
-| 46 | The Third Lie | Tiểu thuyết kết thúc bộ ba | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Mới | 316.000 | 4 |
-| 47 | Jakob von Gunten | Tiểu thuyết nhật ký | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Khá | 387.000 | 3 |
-| 48 | Selected Stories | Tuyển tập truyện ngắn | Văn học › Truyện ngắn | Cũ Sài Gòn | Như mới | 216.000 | 5 |
-| 49 | The Arcades Project | Văn hóa học / Triết học | Triết học – Tôn giáo › Văn hóa học | Cũ Sài Gòn | Mới | 384.000 | 4 |
-| 50 | Simulacra and Simulation | Triết học hậu hiện đại | Triết học – Tôn giáo › Triết học phương Tây | Cũ Sài Gòn | Tốt | 231.000 | 3 |
-| 51 | The Production of Space | Triết học không gian | Triết học – Tôn giáo › Triết học phương Tây | Cũ Sài Gòn | Như mới | 332.000 | 4 |
-| 52 | Gender Trouble | Triết học giới | Triết học – Tôn giáo › Triết học phương Tây | Cũ Sài Gòn | Mới | 309.000 | 3 |
-| 53 | The Rise of the Network Society | Xã hội học công nghệ | Khoa học – Công nghệ › Truyền thông – Xã hội học | Cũ Sài Gòn | Khá | 278.000 | 4 |
-| 54 | The Information | Khoa học thông tin | Khoa học – Công nghệ › Khoa học thông tin | Cũ Sài Gòn | Như mới | 345.000 | 4 |
-| 55 | Chaos | Khoa học tự nhiên | Khoa học – Công nghệ › Khoa học tự nhiên | Cũ Sài Gòn | Mới | 310.000 | 5 |
-| 56 | Genius | Tiểu sử khoa học | Khoa học – Công nghệ › Tiểu sử khoa học | Cũ Sài Gòn | Tốt | 334.000 | 4 |
-| 57 | Near to the Wild Heart | Tiểu thuyết tâm lý | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Như mới | 360.000 | 4 |
-| 58 | Cosmos | Tiểu thuyết phi lý | Văn học › Văn học thử nghiệm – Siêu thực | Cũ Sài Gòn | Mới | 261.000 | 5 |
-| 59 | Sanatorium Under the Sign of the Hourglass | Truyện ngắn giả tưởng | Văn học › Truyện ngắn | Cũ Sài Gòn | Khá | 350.000 | 4 |
-| 60 | The Blue of Noon | Tiểu thuyết khiêu khích | Văn học › Văn học thử nghiệm – Siêu thực | Cũ Sài Gòn | Như mới | 434.000 | 5 |
-| 61 | The Book of Monelle | Tiểu thuyết tượng trưng | Văn học › Văn học thử nghiệm – Siêu thực | Cũ Sài Gòn | Mới | 380.000 | 5 |
-| 62 | The Book of Imaginary Beings | Từ điển sinh vật huyền thoại | Tham khảo › Từ điển – Bách khoa | Cũ Sài Gòn | Tốt | 242.000 | 4 |
-| 63 | Institute Benjamenta | Tiểu thuyết | Văn học › Tiểu thuyết nước ngoài | Cũ Sài Gòn | Như mới | 233.000 | 5 |
-| 64 | Introduction to Mathematical Philosophy | Triết học toán học | Triết học – Tôn giáo › Triết học phương Tây | Cũ Sài Gòn | Mới | 458.000 | 4 |
-| 65 | Language, Truth and Logic | Triết học phân tích | Triết học – Tôn giáo › Triết học phương Tây | Cũ Sài Gòn | Khá | 307.000 | 5 |
-| 66 | Camera Lucida | Nhiếp ảnh học / Triết học | Triết học – Tôn giáo › Triết học phương Tây | Cũ Sài Gòn | Như mới | 251.000 | 5 |
+| STT | Tên sách | ISBN-13 | Thể loại sheet | Thể loại mới | Shop | Tình trạng | Khối lượng | Giá | Tồn | Ảnh |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Atomic Habits | 9780735211292 | Kinh doanh / Tâm lý học / Phát triển bản thân | Kỹ năng sống › Phát triển bản thân | Hà Nội Xưa | Mới, chưa sử dụng | 540 g | 306.000 | 5 | có |
+| 2 | The French Illusion | 9780385550543 | Giật gân / Hồi hộp / Tiểu thuyết gián điệp | Văn học › Trinh thám – Kinh dị | Cũ Sài Gòn | Mới, chưa sử dụng | 520 g | 406.000 | 3 | có |
+| 3 | Ruthless | 9780593973301 | Tiểu thuyết về phụ nữ / Tình cảm đương đại | Văn học › Ngôn tình – Lãng mạn | Cũ Sài Gòn | Đã đọc, còn tốt | 480 g | 253.000 | 4 | có |
+| 4 | Cursed City | 9780593953457 | Kỳ ảo đô thị / Tình cảm | Văn học › Kỳ ảo – Giả tưởng | Cũ Sài Gòn | Đã đọc, còn tốt | 590 g | 295.000 | 3 | có |
+| 5 | Dawn of the Cursed Queen: Deluxe Special Edition | 9781496758088 | Kỳ ảo / Tình cảm kỳ ảo | Văn học › Kỳ ảo – Giả tưởng | Cũ Sài Gòn | Như mới, bìa và trang sạch | 850 g | 390.000 | 5 | có |
+| 6 | Hollywood, Ending | 9780525426073 | Văn học / Tình cảm đương đại | Văn học › Văn học đương đại | Cũ Sài Gòn | Đã đọc, gáy hơi nhăn | 510 g | 224.000 | 4 | có |
+| 7 | Free Falling | 9780593977798 | Tình cảm đương đại / Tình cảm miền Tây / Tiểu thuyết siêu nhiên / Tình cảm kỳ ảo | Văn học › Ngôn tình – Lãng mạn | Cũ Sài Gòn | Mới, chưa sử dụng | 400 g | 304.000 | 5 | có |
+| 8 | Exit Party | 9780593321461 | Văn học | Văn học › Văn học đương đại | Cũ Sài Gòn | Mới, chưa sử dụng | 530 g | 401.000 | 5 | có |
+| 9 | Hollow Bones | 9780593726259 | Tiểu thuyết về phụ nữ / Văn học | Văn học › Văn học đương đại | Cũ Sài Gòn | Đã qua sử dụng, góc bìa hơi mòn | 650 g | 350.000 | 4 | có |
+| 10 | The Pirate Queen | 9780385550345 | Tiểu thuyết lịch sử / Giật gân / Hồi hộp | Văn học › Tiểu thuyết lịch sử | Cũ Sài Gòn | Đã qua sử dụng, góc bìa hơi mòn | 750 g | 332.000 | 5 | có |
+| 11 | The Disappearers | 9780593717202 | Văn học | Văn học › Văn học đương đại | Cũ Sài Gòn | Như mới, bìa và trang sạch | 880 g | 364.000 | 5 | có |
+| 12 | My Dreadful Darling | 9781638936015 | Tình cảm giật gân / Gothic / Kinh dị / Tình cảm đương đại | Văn học › Trinh thám – Kinh dị | Cũ Sài Gòn | Mới, chưa sử dụng | 680 g | 372.000 | 3 | có |
+| 13 | Big Little Truths: Reese's Book Club | 9780593798638 | Tiểu thuyết về phụ nữ / Giật gân / Hồi hộp | Văn học › Văn học đương đại | Cũ Sài Gòn | Đã đọc, còn tốt | 620 g | 293.000 | 3 | có |
+| 14 | The Poison Daughter | 9781638935971 | Tình cảm kỳ ảo | Văn học › Kỳ ảo – Giả tưởng | Cũ Sài Gòn | Như mới, bìa và trang sạch | 930 g | 346.000 | 3 | có |
+| 15 | The True Meaning of Love | 9780593973141 | Tiểu thuyết về phụ nữ / Tình cảm đương đại | Văn học › Ngôn tình – Lãng mạn | Cũ Sài Gòn | Mới, chưa sử dụng | 430 g | 274.000 | 4 | có |
+| 16 | The Butcher Legacy | 9781638933403 | Tiểu thuyết tội phạm / Giật gân / Hồi hộp | Văn học › Trinh thám – Kinh dị | Cũ Sài Gòn | Như mới, bìa và trang sạch | 530 g | 348.000 | 5 | có |
+| 17 | Insatiable | 9781638935469 | Tình cảm giật gân / Gothic / Kinh dị / Tình cảm đương đại | Văn học › Trinh thám – Kinh dị | Cũ Sài Gòn | Đã đọc, còn tốt | 460 g | 176.000 | 5 | có |
+| 18 | A Trade of Blood | 9780593723852 | Kỳ ảo sử thi / Trinh thám / Giật gân | Văn học › Kỳ ảo – Giả tưởng | Cũ Sài Gòn | Mới, chưa sử dụng | 630 g | 379.000 | 4 | có |
+| 19 | The Amateur | 9780385551298 | Văn học / Giật gân / Hồi hộp | Văn học › Trinh thám – Kinh dị | Cũ Sài Gòn | Mới, chưa sử dụng | 490 g | 423.000 | 4 | có |
+| 20 | Getting Away with Murder | 9780593832479 | Giật gân / Hồi hộp / Tiểu thuyết về phụ nữ | Văn học › Trinh thám – Kinh dị | Cũ Sài Gòn | Đã đọc, còn tốt | 580 g | 254.000 | 4 | có |
+| 21 | Simply Ina | 9780593234174 | Sách nấu ăn | Ẩm thực – Nấu ăn › Nấu ăn gia đình | Hà Nội Xưa | Mới, chưa sử dụng | 760 g | 302.000 | 5 | có |
+| 22 | Mediterranean All the Way | 9780593799901 | Ẩm thực quốc tế | Ẩm thực – Nấu ăn › Ẩm thực quốc tế | Hà Nội Xưa | Đã qua sử dụng, góc bìa hơi mòn | 860 g | 214.000 | 3 | có |
+| 23 | Love and Lemons Pop of Flavor | 9780593853146 | Nấu ăn theo chế độ / Phương pháp nấu ăn | Ẩm thực – Nấu ăn › Ăn chay – Dinh dưỡng | Hà Nội Xưa | Đã qua sử dụng, góc bìa hơi mòn | 880 g | 302.000 | 3 | có |
+| 24 | Why Am I Like This? | 9780593994849 | Phát triển bản thân / Tâm lý học | Kỹ năng sống › Tâm lý học | Hà Nội Xưa | Mới, chưa sử dụng | 480 g | 276.000 | 4 | có |
+| 25 | The Rush | 9780525562238 | Lịch sử Mỹ thế kỷ XIX / Lịch sử thế giới | Lịch sử – Chính trị › Lịch sử thế giới | Hà Nội Xưa | Mới, chưa sử dụng | 670 g | 380.000 | 4 | có |
+| 26 | Ottolenghi Simple Too | 9781984860088 | Ẩm thực quốc tế | Ẩm thực – Nấu ăn › Ẩm thực quốc tế | Hà Nội Xưa | Như mới, bìa và trang sạch | 840 g | 327.000 | 3 | có |
+| 27 | Into the quiet | 9780593193808 | Đời sống tinh thần / Tôn giáo / Phát triển bản thân | Triết học – Tôn giáo › Tôn giáo – Tâm linh | Hà Nội Xưa | Như mới, bìa và trang sạch | 490 g | 293.000 | 4 | có |
+| 28 | Sleeping Beauties | 9780593655276 | Khoa học / Công nghệ / Phát triển bản thân | Khoa học – Công nghệ › Khoa học tự nhiên | Hà Nội Xưa | Mới, chưa sử dụng | 630 g | 329.000 | 3 | có |
+| 29 | How to Win at Chess, Next Level | 9780593837818 | Phi hư cấu / Trò chơi / Giải đố | Sở thích – Giải trí › Trò chơi – Giải đố | Hà Nội Xưa | Như mới, bìa và trang sạch | 410 g | 267.000 | 5 | có |
+| 30 | What Could Possibly Go Right? | 9780593731772 | Lãnh đạo / Tiểu sử / Hồi ký / Hồi ký ẩm thực / Du lịch | Tiểu sử – Hồi ký › Hồi ký – Tự truyện | Hà Nội Xưa | Đã đọc, còn tốt | 930 g | 295.000 | 4 | có |
+| 31 | Man in the Mirror | 9780593802014 | Lịch sử Mỹ thế kỷ XXI | Lịch sử – Chính trị › Lịch sử thế giới | Hà Nội Xưa | Đã qua sử dụng, góc bìa hơi mòn | 650 g | 300.000 | 3 | có |
+| 32 | A Fabulous Debt | 9780593719183 | Kinh tế học / Lịch sử thế giới | Kinh tế – Kinh doanh › Kinh tế học | Hà Nội Xưa | Như mới, bìa và trang sạch | 570 g | 411.000 | 5 | có |
+| 33 | Work in Progress | 9780593734483 | Hồi ký nghệ thuật / Giải trí / Phát triển bản thân / Nuôi dạy con | Tiểu sử – Hồi ký › Hồi ký – Tự truyện | Hà Nội Xưa | Mới, chưa sử dụng | 540 g | 359.000 | 5 | có |
+| 34 | The Cauldron | 9780593805053 | Lịch sử Trung Đông / Chính trị thế giới | Lịch sử – Chính trị › Lịch sử thế giới | Hà Nội Xưa | Như mới, bìa và trang sạch | 680 g | 450.000 | 4 | có |
+| 35 | An Unexpected Life | 9780593978177 | Tiểu sử nhân vật chính trị | Tiểu sử – Hồi ký › Chân dung nhân vật | Hà Nội Xưa | Mới, chưa sử dụng | 410 g | 280.000 | 5 | có |
+| 36 | Meals You Can't Mess Up | 9780593968710 | Ẩm thực vùng miền Mỹ / Phương pháp nấu ăn | Ẩm thực – Nấu ăn › Nấu ăn gia đình | Hà Nội Xưa | Mới, chưa sử dụng | 730 g | 308.000 | 4 | có |
+| 37 | Saved by the Pack | 9781426224706 | Thú cưng / Tiểu sử / Hồi ký / Khoa học / Công nghệ | Sở thích – Giải trí › Thú cưng – Thiên nhiên | Hà Nội Xưa | Đã qua sử dụng, góc bìa hơi mòn | 510 g | 194.000 | 5 | có |
+| 38 | Redwood | 9780593728123 | Lịch sử quân sự / Lịch sử thế giới / Tiểu sử / Hồi ký | Lịch sử – Chính trị › Lịch sử thế giới | Hà Nội Xưa | Đã đọc, còn tốt | 590 g | 337.000 | 5 | có |
+| 39 | Veg Everything | 9780593836620 | Nấu ăn theo chế độ | Ẩm thực – Nấu ăn › Ăn chay – Dinh dưỡng | Hà Nội Xưa | Mới, chưa sử dụng | 730 g | 375.000 | 3 | có |
+| 40 | The Portable Feminist Reader | 9780143110392 | Phi hư cấu / Phi hư cấu kinh điển | Hài hước – Tiểu luận › Tiểu luận – Tuyển tập | Hà Nội Xưa | Đã qua sử dụng, góc bìa hơi mòn | 760 g | 269.000 | 3 | có |
+| 41 | Dark Tales | 9780143132004 | Gothic / Kinh dị / Văn học kinh điển / Tiểu thuyết siêu nhiên / Giật gân / Hồi hộp | Văn học › Trinh thám – Kinh dị | Cũ Sài Gòn | Mới, chưa sử dụng | 290 g | 186.000 | 4 | có |
+| 42 | It Can't Happen Here | 9780451216588 | Văn học | Văn học › Văn học kinh điển | Cũ Sài Gòn | Mới, chưa sử dụng | 470 g | 255.000 | 5 | có |
+| 43 | Twelve Years a Slave | 9780143106708 | Tiểu sử / Hồi ký / Phi hư cấu kinh điển / Lịch sử Mỹ thế kỷ XIX | Tiểu sử – Hồi ký › Hồi ký – Tự truyện | Hà Nội Xưa | Như mới, bìa và trang sạch | 380 g | 209.000 | 3 | có |
+| 44 | The Collected Autobiographies of Maya Angelou | 9780679643258 | Hồi ký nghệ thuật / Giải trí / Tiểu sử nhà văn / Phi hư cấu kinh điển / Tiểu sử nhân vật lịch sử | Tiểu sử – Hồi ký › Hồi ký – Tự truyện | Hà Nội Xưa | Như mới, bìa và trang sạch | 1530 g | 395.000 | 3 | có |
+| 45 | Vera | 9780375755347 | Hồi ký nghệ thuật / Giải trí / Tiểu sử nhà văn / Phi hư cấu kinh điển | Tiểu sử – Hồi ký › Chân dung nhân vật | Hà Nội Xưa | Đã đọc, còn tốt | 600 g | 217.000 | 4 | có |
+| 46 | The Rise of Theodore Roosevelt | 9781400069651 | Tiểu sử nhân vật chính trị / Lịch sử quân sự / Chính trị trong nước | Tiểu sử – Hồi ký › Chân dung nhân vật | Hà Nội Xưa | Đã đọc, còn tốt | 1150 g | 383.000 | 3 | có |
+| 47 | The Diary of a Young Girl | 9780307594006 | Lịch sử châu Âu / Phi hư cấu kinh điển / Tiểu sử nhân vật lịch sử | Tiểu sử – Hồi ký › Hồi ký – Tự truyện | Hà Nội Xưa | Như mới, bìa và trang sạch | 470 g | 246.000 | 4 | có |
+| 48 | The Short Novels of John Steinbeck | 9780143105770 | Văn học / Văn học kinh điển / Truyện ngắn | Văn học › Văn học kinh điển | Cũ Sài Gòn | Đã đọc, còn tốt | 720 g | 353.000 | 4 | có |
+| 49 | Shadow Country | 9780812980622 | Văn học / Văn học kinh điển | Văn học › Văn học kinh điển | Cũ Sài Gòn | Đã qua sử dụng, góc bìa hơi mòn | 1040 g | 335.000 | 3 | có |
+| 50 | The Stone Diaries | 9780143105503 | Văn học / Văn học kinh điển / Tiểu thuyết lịch sử | Văn học › Văn học kinh điển | Cũ Sài Gòn | Mới, chưa sử dụng | 400 g | 238.000 | 4 | có |
+| 51 | A Death in the Family | 9780143105718 | Văn học / Văn học kinh điển | Văn học › Văn học kinh điển | Cũ Sài Gòn | Mới, chưa sử dụng | 370 g | 267.000 | 3 | có |
+| 52 | The Winter of Our Discontent | 9780143039488 | Văn học / Văn học kinh điển | Văn học › Văn học kinh điển | Cũ Sài Gòn | Mới, chưa sử dụng | 380 g | 252.000 | 5 | có |
+| 53 | Excellent Women | 9780143104872 | Văn học kinh điển / Văn học | Văn học › Văn học kinh điển | Cũ Sài Gòn | Đã đọc, còn tốt | 330 g | 156.000 | 4 | có |
+| 54 | The Haunting of Hill House | 9780143129370 | Gothic / Kinh dị / Văn học kinh điển | Văn học › Trinh thám – Kinh dị | Cũ Sài Gòn | Như mới, bìa và trang sạch | 320 g | 276.000 | 5 | có |
+| 55 | We Have Always Lived in the Castle | 9780143134831 | Văn học / Văn học kinh điển / Gothic / Kinh dị | Văn học › Văn học kinh điển | Cũ Sài Gòn | Đã qua sử dụng, góc bìa hơi mòn | 330 g | 236.000 | 3 | có |
+| 56 | Beloved (Pulitzer Prize Winner) | 9780525659273 | Văn học | Văn học › Văn học đương đại | Cũ Sài Gòn | Như mới, bìa và trang sạch | 440 g | 315.000 | 5 | có |
+| 57 | The Grapes of Wrath | 9780143039433 | Văn học kinh điển / Văn học / Tiểu thuyết lịch sử | Văn học › Văn học kinh điển | Cũ Sài Gòn | Đã đọc, còn tốt | 650 g | 288.000 | 3 | có |
+| 58 | Kristin Lavransdatter | 9780143039167 | Tiểu thuyết lịch sử / Văn học kinh điển | Văn học › Tiểu thuyết lịch sử | Cũ Sài Gòn | Như mới, bìa và trang sạch | 1180 g | 384.000 | 5 | có |
+| 59 | How to Be Okay When Nothing Is Okay | 9780593833216 | Phát triển bản thân / Hài hước / Tiểu sử / Hồi ký | Hài hước – Tiểu luận › Hài hước | Hà Nội Xưa | Đã qua sử dụng, góc bìa hơi mòn | 450 g | 274.000 | 5 | có |
+| 60 | I'll Have What She's Having | 9780593596579 | Tiểu sử / Hồi ký / Hài hước | Hài hước – Tiểu luận › Hài hước | Hà Nội Xưa | Mới, chưa sử dụng | 510 g | 315.000 | 5 | có |
+| 61 | What in the World?! | 9780593594414 | Hài hước / Tiểu sử / Hồi ký | Hài hước – Tiểu luận › Hài hước | Hà Nội Xưa | Đã đọc, còn tốt | 300 g | 120.000 | 5 | có |
+| 62 | Democracy or Else | 9781638931430 | Chính trị trong nước / Hài hước | Lịch sử – Chính trị › Chính trị | Hà Nội Xưa | Mới, chưa sử dụng | 380 g | 237.000 | 3 | có |
+| 63 | A City on Mars | 9781984881748 | Khoa học / Công nghệ / Chính trị / Hài hước | Khoa học – Công nghệ › Khoa học tự nhiên | Hà Nội Xưa | Mới, chưa sử dụng | 490 g | 375.000 | 4 | có |
+| 64 | Where the Deer and the Antelope Play | 9781101984703 | Hài hước / Khoa học / Công nghệ / Lịch sử Mỹ | Hài hước – Tiểu luận › Hài hước | Hà Nội Xưa | Đã đọc, còn tốt | 440 g | 290.000 | 4 | có |
+| 65 | Quietly Hostile | 9780593315699 | Hài hước / Tiểu luận / Tuyển tập / Tiểu sử / Hồi ký | Hài hước – Tiểu luận › Tiểu luận – Tuyển tập | Hà Nội Xưa | Như mới, bìa và trang sạch | 400 g | 193.000 | 3 | có |
+| 66 | What If? 2 | 9780525537113 | Hài hước / Khoa học / Công nghệ | Khoa học – Công nghệ › Khoa học tự nhiên | Hà Nội Xưa | Như mới, bìa và trang sạch | 550 g | 258.000 | 3 | có |
+| 67 | Yearbook | 9781984825421 | Tiểu sử / Hồi ký / Hài hước | Hài hước – Tiểu luận › Hài hước | Hà Nội Xưa | Mới, chưa sử dụng | 360 g | 230.000 | 3 | có |
+| 68 | Leaving Isn't the Hardest Thing | 9780593080764 | Tiểu sử / Hồi ký / Hài hước | Tiểu sử – Hồi ký › Hồi ký – Tự truyện | Hà Nội Xưa | Mới, chưa sử dụng | 390 g | 235.000 | 4 | có |
+| 69 | Humor, Seriously | 9780593135280 | Kinh doanh / Phát triển bản thân / Hài hước | Kỹ năng sống › Phát triển bản thân | Hà Nội Xưa | Mới, chưa sử dụng | 470 g | 297.000 | 3 | có |
+| 70 | Wow, No Thank You. | 9780525563488 | Hài hước / Tiểu sử / Hồi ký | Hài hước – Tiểu luận › Hài hước | Hà Nội Xưa | Như mới, bìa và trang sạch | 390 g | 301.000 | 4 | có |

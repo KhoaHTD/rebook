@@ -34,8 +34,8 @@ psql -U postgres -h localhost -f scripts/create-database.sql
 | seller2@rebook.vn | USER + shop "Tiệm Sách Hà Nội Xưa" (HN) | 1 tin chờ duyệt, đơn chờ xác nhận |
 | buyer1..3@rebook.vn | USER | ví 3–5 triệu, đã đăng ký + cọc phiên đấu giá #1 |
 
-Dữ liệu mẫu có: cây thể loại hai cấp (14 nhóm cha, 38 thể loại con), 66 sách từ file Excel thành 66 tin đăng bán giá cố định
-(30 sách tiếng Việt ở "Tiệm Sách Hà Nội Xưa", 36 sách tiếng Anh ở "Nhà Sách Cũ Sài Gòn", tồn kho 3–5 cuốn, chưa có ảnh bìa),
+Dữ liệu mẫu có: cây thể loại hai cấp (17 nhóm cha, 47 thể loại con), 70 sách tiếng Anh từ file Excel thành 70 tin đăng bán giá cố định
+(32 tiểu thuyết ở "Nhà Sách Cũ Sài Gòn", 38 sách phi hư cấu ở "Tiệm Sách Hà Nội Xưa", tồn kho 3–5 cuốn, mỗi sách một ảnh bìa trên Cloudinary),
 ví ba người mua nạp sẵn 5 / 5 / 3 triệu. Chưa có đơn hàng, ký gửi, phiên đấu giá: tạo thêm khi demo.
 Nguồn, cách đổi và cách thêm sách: [tools/books/README.md](tools/books/README.md).
 
