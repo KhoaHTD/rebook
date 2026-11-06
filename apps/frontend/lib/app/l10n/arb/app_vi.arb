@@ -1864,5 +1864,86 @@
   "settingsIntroReplayHint": "Phát lại các trang giới thiệu ReBook khi mở app lần đầu",
   "hintNewPassword": "8–72 ký tự",
   "shippingAtCheckout": "Tính khi thanh toán",
-  "hintAbout": "Viết vài dòng giới thiệu…"
+  "hintAbout": "Viết vài dòng giới thiệu…",
+  "errTopupLocked": "Tiền mới nạp chưa rút được. Bạn chỉ rút được phần hiển thị ở màn Rút tiền; phần còn lại mở khoá sau.",
+  "errWithdrawDailyLimit": "Bạn đã chạm hạn mức rút trong ngày. Hãy thử lại vào ngày mai.",
+  "errCodNotAllowed": "Đơn này không đặt COD được (vượt hạn mức hoặc bạn có nhiều đơn giao thất bại). Hãy chọn Ví ReBook hoặc ZaloPay.",
+  "errDebtOpen": "Bạn đang có khoản nợ chưa thanh toán. Hãy thanh toán nợ trước.",
+  "errStaffCannotBid": "Tài khoản nhân viên sàn không được tham gia đấu giá.",
+  "errInvalidIsbn": "ISBN không hợp lệ (sai số kiểm tra hoặc sai độ dài).",
+  "errInvalidPrice": "Giá không hợp lệ.",
+  "errBookInWarehouse": "Sách này còn trong kho của sàn, chưa thể bán giá cố định.",
+  "errTooManyRequests": "Bạn thao tác quá nhiều lần. Vui lòng thử lại sau ít phút.",
+  "walletLockedNote": "Tiền mới nạp {amount} chưa rút được, mở khoá lúc {time}.",
+  "@walletLockedNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "wdWithdrawableNow": "Rút được ngay: {amount}",
+  "@wdWithdrawableNow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "rsAwaitingGoods": "Chờ người mua gửi hàng trả",
+  "rsExpired": "Quá hạn gửi hàng trả",
+  "returnShipTo": "Gửi sách về: {name}, {address}",
+  "@returnShipTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "returnShipBy": "Hạn gửi hàng trả: {time}",
+  "@returnShipBy": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "returnShippedInfo": "Đã gửi hàng trả, mã vận đơn {code}. Chờ shop xác nhận đã nhận để hoàn tiền.",
+  "@returnShippedInfo": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "returnShipButton": "Gửi hàng trả",
+  "returnTrackingHint": "Nhập mã vận đơn của gói hàng trả",
+  "returnTrackingLabel": "Mã vận đơn hàng trả",
+  "returnShipDone": "Đã ghi nhận hàng trả. Tiền hoàn sau khi shop nhận được sách.",
+  "returnReceivedButton": "Đã nhận lại sách, hoàn tiền",
+  "returnReceivedQuestion": "Xác nhận đã nhận lại sách từ người mua? Tiền sẽ hoàn cho người mua.",
+  "returnReceivedDone": "Đã hoàn tiền cho người mua.",
+  "returnWaitingBuyerShip": "Shop đã đồng ý. Đang chờ người mua gửi hàng trả (hạn {time}).",
+  "@returnWaitingBuyerShip": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "returnWaitingBuyerShipNoTime": "Shop đã đồng ý. Đang chờ người mua gửi hàng trả.",
+  "returnBuyerShipped": "Người mua đã gửi hàng trả, mã vận đơn {code}.",
+  "@returnBuyerShipped": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -322,7 +322,8 @@ class _WithdrawAmountScreenState extends ConsumerState<WithdrawAmountScreen> {
     final text = context.textStyles;
     final draft = ref.watch(withdrawDraftControllerProvider);
     final wallet = ref.watch(myWalletProvider).value;
-    final available = wallet?.available ?? 0;
+    // Chỉ rút được phần không còn bị khoá (tiền mới nạp khoá một thời gian).
+    final available = wallet?.withdrawable ?? 0;
     final busy = ref.watch(walletControllerProvider).isLoading;
     if (draft.bank == null || draft.accountNumber.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -491,11 +492,22 @@ class _WithdrawAmountScreenState extends ConsumerState<WithdrawAmountScreen> {
                             style: text.titleSmall,
                           ),
                           Text(
-                            l10n.wdAvailable(formatVnd(available)),
+                            l10n.wdWithdrawableNow(formatVnd(available)),
                             style: text.bodySmall?.copyWith(
                               color: c.secondaryText,
                             ),
                           ),
+                          if ((wallet?.locked ?? 0) > 0 &&
+                              wallet?.unlockAt != null)
+                            Text(
+                              l10n.walletLockedNote(
+                                formatVnd(wallet!.locked),
+                                formatShortDateTime(wallet.unlockAt!),
+                              ),
+                              style: text.bodySmall?.copyWith(
+                                color: c.secondaryText,
+                              ),
+                            ),
                         ],
                       ),
                     ),

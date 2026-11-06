@@ -50,6 +50,8 @@ extension ReturnStatusL10n on ReturnStatus {
     ReturnStatus.resolvedRefund => l.rsResolvedRefund,
     ReturnStatus.resolvedNoRefund => l.rsResolvedNoRefund,
     ReturnStatus.withdrawn => l.rsWithdrawn,
+    ReturnStatus.awaitingGoods => l.rsAwaitingGoods,
+    ReturnStatus.expired => l.rsExpired,
   };
 }
 

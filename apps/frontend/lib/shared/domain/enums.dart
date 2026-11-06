@@ -50,6 +50,12 @@ enum ReturnStatus {
 
   /// Người mua bấm "Đã nhận hàng" khi đang yêu cầu trả hàng: coi như rút yêu cầu (SRS 4.4).
   withdrawn,
+
+  /// Shop đã đồng ý trả: chờ người mua gửi hàng về, rồi shop / kho xác nhận nhận sách mới hoàn tiền.
+  awaitingGoods,
+
+  /// Người mua không gửi hàng trả đúng hạn.
+  expired,
 }
 
 /// Loại giao dịch ví (SRS 8.1). Mọi thay đổi số dư là một dòng sổ cái.

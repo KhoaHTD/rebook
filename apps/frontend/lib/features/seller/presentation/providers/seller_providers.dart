@@ -147,4 +147,9 @@ class SellerActions extends _$SellerActions {
         .decideReturn(id, accept: accept, note: note),
     [DataArea.orders, DataArea.wallet],
   );
+
+  Future<Order?> confirmReturnReceived(String id) => _run(
+    () => ref.read(sellerRepositoryProvider).confirmReturnReceived(id),
+    [DataArea.orders, DataArea.wallet],
+  );
 }

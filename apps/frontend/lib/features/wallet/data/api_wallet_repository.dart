@@ -10,8 +10,14 @@ class ApiWalletRepository implements WalletRepository {
   final api.RestClient _client;
 
   @override
-  Future<Wallet> wallet() =>
-      guardApi(() async => (await _client.wallet.getWallet()).toDomain());
+  Future<Wallet> wallet() => guardApi(() async {
+    final w = (await _client.wallet.getWallet()).toDomain();
+    final info = await _client.wallet.getWalletWithdrawable();
+    return w.copyWith(
+      locked: info.locked?.toInt() ?? 0,
+      unlockAt: info.unlockAt,
+    );
+  });
 
   @override
   Future<List<WalletTxn>> transactions() => guardApi(() async {

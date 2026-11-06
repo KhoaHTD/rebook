@@ -49,4 +49,7 @@ abstract interface class SellerRepository {
   Future<Order> cancel(String id, String reason);
 
   Future<Order> decideReturn(String id, {required bool accept, String? note});
+
+  /// Shop xác nhận đã nhận lại sách người mua gửi trả: lúc này mới hoàn tiền.
+  Future<Order> confirmReturnReceived(String id);
 }

@@ -86,6 +86,14 @@ abstract class ReturnRequest with _$ReturnRequest {
     /// Admin phân xử và lúc nào (SRS 8.1: nhật ký).
     String? resolvedBy,
     DateTime? resolvedAt,
+
+    /// Bước gửi hàng trả: mã vận đơn, lúc gửi, lúc shop / kho nhận, hạn gửi, nơi nhận.
+    String? returnTrackingCode,
+    DateTime? returnShippedAt,
+    DateTime? returnReceivedAt,
+    DateTime? shipBy,
+    String? returnToName,
+    String? returnToAddress,
   }) = _ReturnRequest;
 }
 
@@ -155,9 +163,21 @@ abstract class CheckoutResult with _$CheckoutResult {
 abstract class Wallet with _$Wallet {
   const Wallet._();
 
-  const factory Wallet({required int available, required int held}) = _Wallet;
+  const factory Wallet({
+    required int available,
+    required int held,
+
+    /// Tiền mới nạp còn bị khoá (chưa rút được), nằm trong [available].
+    @Default(0) int locked,
+
+    /// Lúc khoản khoá sớm nhất mở ra.
+    DateTime? unlockAt,
+  }) = _Wallet;
 
   int get total => available + held;
+
+  /// Rút được ngay: số dư dùng được trừ phần tiền mới nạp còn khoá.
+  int get withdrawable => (available - locked).clamp(0, available);
 }
 
 @freezed

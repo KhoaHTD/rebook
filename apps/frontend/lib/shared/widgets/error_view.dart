@@ -26,6 +26,15 @@ String errorMessage(BuildContext context, Object error) {
       ErrorCodes.emailTaken => l10n.errEmailTaken,
       ErrorCodes.notFound => l10n.errNotFound,
       ErrorCodes.receiptMismatch => l10n.errReceiptMismatch,
+      ErrorCodes.topupLocked => l10n.errTopupLocked,
+      ErrorCodes.withdrawDailyLimit => l10n.errWithdrawDailyLimit,
+      ErrorCodes.codNotAllowed => l10n.errCodNotAllowed,
+      ErrorCodes.debtOpen => l10n.errDebtOpen,
+      ErrorCodes.staffCannotBid => l10n.errStaffCannotBid,
+      ErrorCodes.invalidIsbn => l10n.errInvalidIsbn,
+      ErrorCodes.invalidPrice => l10n.errInvalidPrice,
+      ErrorCodes.bookInWarehouse => l10n.errBookInWarehouse,
+      ErrorCodes.tooManyRequests => l10n.errTooManyRequests,
       _ => null,
     };
     if (byCode != null) return byCode;
@@ -38,7 +47,9 @@ String errorMessage(BuildContext context, Object error) {
     NetworkException() => l10n.errorNetwork,
     UnauthorizedException() => l10n.errorUnauthorized,
     // Xung đột nghiệp vụ (vd. xoá danh mục còn con): backend đã nói rõ lý do.
-    ServerException(statusCode: 409, message: final m?) when m.isNotEmpty => m,
+    ServerException(statusCode: 400 || 403 || 409 || 429, message: final m?)
+        when m.isNotEmpty =>
+      m,
     ServerException(statusCode: 409) => l10n.errorConflict,
     ServerException() => l10n.errorServer,
     UnknownException() => l10n.errorUnknown,

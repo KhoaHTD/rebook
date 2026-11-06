@@ -56,6 +56,14 @@ class ApiOrdersRepository implements OrdersRepository {
   );
 
   @override
+  Future<Order> shipReturn(String id, String trackingCode) => guardApi(
+    () async => (await _client.order.postOrdersIdReturnShipment(
+      id: apiId(id),
+      body: api.ReturnShipmentRequest(trackingCode: trackingCode),
+    )).toDomain(),
+  );
+
+  @override
   Future<Order> review(String id, int rating, String? comment) =>
       guardApi(() async {
         await _client.order.postOrdersIdReview(

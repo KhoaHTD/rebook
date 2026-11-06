@@ -120,6 +120,20 @@ class _Main extends StatelessWidget {
         if (ret != null) ...[
           heading(l10n.returnRequestFrom),
           StatusPill(ret.status.label(l10n), tone: StatusTone.warning),
+          if (ret.status == ReturnStatus.awaitingGoods)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                ret.returnTrackingCode != null
+                    ? l10n.returnBuyerShipped(ret.returnTrackingCode!)
+                    : (ret.shipBy != null
+                          ? l10n.returnWaitingBuyerShip(
+                              formatDateTime(ret.shipBy!),
+                            )
+                          : l10n.returnWaitingBuyerShipNoTime),
+                style: context.textStyles.bodyMedium,
+              ),
+            ),
           if (ret.status == ReturnStatus.pending && ret.respondBy != null)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),
@@ -240,6 +254,11 @@ class _Actions extends ConsumerWidget {
     final returnPending =
         s == OrderStatus.returnRequested &&
         order.returnRequest?.status == ReturnStatus.pending;
+    final returnAwaiting =
+        s == OrderStatus.returnRequested &&
+        order.returnRequest?.status == ReturnStatus.awaitingGoods;
+    final returnShipped = returnAwaiting &&
+        order.returnRequest?.returnShippedAt != null;
     final buttons = <Widget>[
       if (s == OrderStatus.pendingConfirm)
         FilledButton(
@@ -282,6 +301,21 @@ class _Actions extends ConsumerWidget {
           child: Text(l10n.rejectReturn),
         ),
       ],
+      if (returnShipped)
+        FilledButton(
+          onPressed: busy
+              ? null
+              : () async {
+                  final ok = await confirmDialog(
+                    context,
+                    l10n.returnReceivedQuestion,
+                  );
+                  if (!ok) return;
+                  await actions.confirmReturnReceived(order.id);
+                  after();
+                },
+          child: Text(l10n.returnReceivedButton),
+        ),
       if (s == OrderStatus.pendingConfirm || s == OrderStatus.preparing)
         OutlinedButton(
           onPressed: busy ? null : cancel,

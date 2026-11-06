@@ -15,6 +15,9 @@ abstract interface class OrdersRepository {
 
   Future<Order> requestReturn(String id, String reason, List<String> imageUrls);
 
+  /// Người mua gửi hàng trả sau khi shop đồng ý: nhập mã vận đơn.
+  Future<Order> shipReturn(String id, String trackingCode);
+
   Future<Order> review(String id, int rating, String? comment);
 
   /// Thanh toán lại đơn chờ thanh toán / hóa đơn đấu giá.

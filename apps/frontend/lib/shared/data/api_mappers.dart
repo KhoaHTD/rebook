@@ -197,6 +197,8 @@ ReturnStatus returnStatusToDomain(api.ReturnStatus? s) => switch (s) {
   api.ReturnStatus.approved => ReturnStatus.accepted,
   api.ReturnStatus.disputed => ReturnStatus.escalated,
   api.ReturnStatus.rejected => ReturnStatus.rejected,
+  api.ReturnStatus.awaitingGoods => ReturnStatus.awaitingGoods,
+  api.ReturnStatus.expired => ReturnStatus.expired,
   _ => ReturnStatus.pending,
 };
 
@@ -610,6 +612,12 @@ extension ReturnResponseMapper on api.ReturnResponse {
     respondBy: respondBy,
     resolvedBy: resolvedByName,
     resolvedAt: resolvedAt,
+    returnTrackingCode: returnTrackingCode,
+    returnShippedAt: returnShippedAt,
+    returnReceivedAt: returnReceivedAt,
+    shipBy: shipBy,
+    returnToName: returnToName,
+    returnToAddress: returnToAddress,
   );
 }
 

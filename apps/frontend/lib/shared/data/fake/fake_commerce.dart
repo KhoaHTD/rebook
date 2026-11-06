@@ -944,18 +944,17 @@ extension FakeCommerce on FakeStore {
     final o = order(id);
     final rr = o.returnRequest ?? fail(ErrorCodes.invalidTransition);
     if (accept) {
-      _transition(
-        id,
-        OrderStatus.returned,
-        note: note ?? 'Shop đồng ý trả hàng',
-      );
-      orders[id] = orders[id]!.copyWith(
+      // Chưa hoàn tiền: người mua phải gửi hàng về, shop xác nhận nhận sách rồi mới hoàn.
+      orders[id] = o.copyWith(
         returnRequest: rr.copyWith(
-          status: ReturnStatus.accepted,
+          status: ReturnStatus.awaitingGoods,
           resolution: note,
+          shipBy: DateTime.now().add(const Duration(days: 7)),
+          returnToName: 'Shop',
+          returnToAddress: 'Địa chỉ nhận hàng trả của shop',
         ),
       );
-      _refundOrder(o, 'Hoàn tiền trả hàng ${o.code}');
+      _changed('orders');
     } else {
       orders[id] = o.copyWith(
         returnRequest: rr.copyWith(
@@ -965,6 +964,45 @@ extension FakeCommerce on FakeStore {
       );
       _changed('orders');
     }
+    return orders[id]!;
+  }
+
+  /// Người mua gửi hàng trả: ghi mã vận đơn, chờ shop xác nhận nhận sách.
+  Order shipReturn(String id, String trackingCode) {
+    final o = order(id);
+    final rr = o.returnRequest;
+    if (rr == null ||
+        rr.status != ReturnStatus.awaitingGoods ||
+        rr.returnTrackingCode != null) {
+      fail(ErrorCodes.invalidTransition);
+    }
+    orders[id] = o.copyWith(
+      returnRequest: rr.copyWith(
+        returnTrackingCode: trackingCode,
+        returnShippedAt: DateTime.now(),
+      ),
+    );
+    _changed('orders');
+    return orders[id]!;
+  }
+
+  /// Shop xác nhận nhận lại sách: đơn chuyển đã trả và hoàn tiền người mua.
+  Order confirmReturnReceived(String id) {
+    final o = order(id);
+    final rr = o.returnRequest;
+    if (rr == null ||
+        rr.status != ReturnStatus.awaitingGoods ||
+        rr.returnShippedAt == null) {
+      fail(ErrorCodes.invalidTransition);
+    }
+    _transition(id, OrderStatus.returned, note: 'Shop đã nhận lại sách');
+    orders[id] = orders[id]!.copyWith(
+      returnRequest: rr.copyWith(
+        status: ReturnStatus.accepted,
+        returnReceivedAt: DateTime.now(),
+      ),
+    );
+    _refundOrder(o, 'Hoàn tiền trả hàng ${o.code}');
     return orders[id]!;
   }
 

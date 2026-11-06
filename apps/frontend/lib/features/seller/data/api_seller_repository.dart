@@ -204,4 +204,11 @@ class ApiSellerRepository implements SellerRepository {
               body: api.DecisionRequest(approve: accept, note: note),
             )).toDomain(),
       );
+
+  @override
+  Future<Order> confirmReturnReceived(String id) => guardApi(
+    () async => (await _client.orderManagement.postSellerOrdersIdReturnReceived(
+      id: apiId(id),
+    )).toDomain(),
+  );
 }

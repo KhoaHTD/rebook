@@ -24,6 +24,10 @@ class FakeOrdersRepository implements OrdersRepository {
       fakeCall(() => _store.confirmReceived(id));
 
   @override
+  Future<Order> shipReturn(String id, String trackingCode) =>
+      fakeCall(() => _store.shipReturn(id, trackingCode));
+
+  @override
   Future<Order> requestReturn(
     String id,
     String reason,

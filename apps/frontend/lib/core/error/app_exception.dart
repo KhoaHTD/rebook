@@ -20,6 +20,15 @@ abstract final class ErrorCodes {
   static const emailTaken = 'EMAIL_TAKEN';
   static const notFound = 'NOT_FOUND';
   static const receiptMismatch = 'RECEIPT_AMOUNT_MISMATCH';
+  static const topupLocked = 'TOPUP_LOCKED';
+  static const withdrawDailyLimit = 'WITHDRAW_DAILY_LIMIT';
+  static const codNotAllowed = 'COD_NOT_ALLOWED';
+  static const debtOpen = 'DEBT_OPEN';
+  static const staffCannotBid = 'STAFF_CANNOT_BID';
+  static const invalidIsbn = 'INVALID_ISBN';
+  static const invalidPrice = 'INVALID_PRICE';
+  static const bookInWarehouse = 'BOOK_IN_WAREHOUSE';
+  static const tooManyRequests = 'TOO_MANY_REQUESTS';
 }
 
 /// Lỗi chuẩn hoá của app. Tầng data bắt mọi exception và ném lại dạng này
@@ -36,12 +45,6 @@ String? _normalizeCode(String? code, String? message) {
       return ErrorCodes.lotClosed;
     case 'INVALID_STATUS_TRANSITION':
       return ErrorCodes.invalidTransition;
-    case 'FORBIDDEN':
-      // Backend gộp các lý do cấm đấu giá vào FORBIDDEN, chỉ khác câu chữ.
-      final m = message ?? '';
-      if (m.contains('cấm tham gia đấu giá')) return ErrorCodes.auctionBanned;
-      if (m.contains('chưa đăng ký')) return ErrorCodes.notRegistered;
-      return code;
     default:
       return code;
   }

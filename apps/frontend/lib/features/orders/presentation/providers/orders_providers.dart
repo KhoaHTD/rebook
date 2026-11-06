@@ -87,6 +87,10 @@ class OrderActions extends _$OrderActions {
         .requestReturn(orderId, reason, images),
   );
 
+  Future<Order?> shipReturn(String trackingCode) => _run(
+    () => ref.read(ordersRepositoryProvider).shipReturn(orderId, trackingCode),
+  );
+
   Future<Order?> review(int rating, String? comment) => _run(
     () => ref.read(ordersRepositoryProvider).review(orderId, rating, comment),
   );

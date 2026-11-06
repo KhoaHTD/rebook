@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
+import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/utils/external_link.dart';
@@ -178,6 +179,40 @@ class _Main extends StatelessWidget {
                 style: context.textStyles.bodySmall,
               ),
             ),
+          if (order.returnRequest!.status == ReturnStatus.awaitingGoods) ...[
+            if (order.returnRequest!.returnTrackingCode == null) ...[
+              if (order.returnRequest!.returnToAddress != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  child: Text(
+                    l10n.returnShipTo(
+                      order.returnRequest!.returnToName ?? '',
+                      order.returnRequest!.returnToAddress!,
+                    ),
+                    style: context.textStyles.bodyMedium,
+                  ),
+                ),
+              if (order.returnRequest!.shipBy != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                  child: Text(
+                    l10n.returnShipBy(
+                      formatDateTime(order.returnRequest!.shipBy!),
+                    ),
+                    style: context.textStyles.bodySmall,
+                  ),
+                ),
+            ] else
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  l10n.returnShippedInfo(
+                    order.returnRequest!.returnTrackingCode!,
+                  ),
+                  style: context.textStyles.bodyMedium,
+                ),
+              ),
+          ],
           if (order.returnRequest!.resolution != null)
             Text(
               order.returnRequest!.resolution!,
@@ -261,6 +296,43 @@ class _Actions extends ConsumerWidget {
                   }
                 },
           child: Text(l10n.payInvoice),
+        ),
+      // Người mua nhận được hàng sớm hơn hãng báo: bấm nhận ngay, không phải chờ 7 ngày tự giao.
+      if (order.status == OrderStatus.shipping)
+        FilledButton(
+          onPressed: busy
+              ? null
+              : () async {
+                  final ok = await confirmDialog(
+                    context,
+                    l10n.confirmReceivedQuestion,
+                  );
+                  if (ok) await run(actions.confirmReceived);
+                },
+          child: Text(l10n.confirmReceived),
+        ),
+      if (order.status == OrderStatus.returnRequested &&
+          order.returnRequest?.status == ReturnStatus.awaitingGoods &&
+          order.returnRequest?.returnTrackingCode == null)
+        FilledButton(
+          onPressed: busy
+              ? null
+              : () async {
+                  final code = await showTextSheet(
+                    context,
+                    title: l10n.returnShipButton,
+                    label: l10n.returnTrackingLabel,
+                    hint: l10n.returnTrackingHint,
+                    rule: Rules.trackingCode,
+                  );
+                  if (code != null && code.trim().isNotEmpty) {
+                    await run(
+                      () => actions.shipReturn(code.trim()),
+                      done: l10n.returnShipDone,
+                    );
+                  }
+                },
+          child: Text(l10n.returnShipButton),
         ),
       if (order.status == OrderStatus.delivered) ...[
         FilledButton(
