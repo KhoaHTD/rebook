@@ -19,9 +19,10 @@ class SessionDetail {
     this.lots,
     this.myRegistration,
   });
-  
-  factory SessionDetail.fromJson(Map<String, Object?> json) => _$SessionDetailFromJson(json);
-  
+
+  factory SessionDetail.fromJson(Map<String, Object?> json) =>
+      _$SessionDetailFromJson(json);
+
   final SessionSummary? session;
   final int? lotDurationSec;
   final int? softCloseSec;

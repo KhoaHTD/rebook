@@ -20,9 +20,10 @@ class SessionRequest {
     this.softCloseSec,
     this.lotGapSec,
   });
-  
-  factory SessionRequest.fromJson(Map<String, Object?> json) => _$SessionRequestFromJson(json);
-  
+
+  factory SessionRequest.fromJson(Map<String, Object?> json) =>
+      _$SessionRequestFromJson(json);
+
   final String title;
   final String? description;
   final String? coverUrl;

@@ -28,9 +28,10 @@ class BookResponse {
     this.images,
     this.isbnWarning,
   });
-  
-  factory BookResponse.fromJson(Map<String, Object?> json) => _$BookResponseFromJson(json);
-  
+
+  factory BookResponse.fromJson(Map<String, Object?> json) =>
+      _$BookResponseFromJson(json);
+
   final int? id;
   final String? title;
   final String? author;

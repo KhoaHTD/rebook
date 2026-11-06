@@ -17,9 +17,10 @@ class PageResponseInspectingLot {
     this.totalItems,
     this.totalPages,
   });
-  
-  factory PageResponseInspectingLot.fromJson(Map<String, Object?> json) => _$PageResponseInspectingLotFromJson(json);
-  
+
+  factory PageResponseInspectingLot.fromJson(Map<String, Object?> json) =>
+      _$PageResponseInspectingLotFromJson(json);
+
   final List<InspectingLot>? items;
   final int? page;
   final int? size;

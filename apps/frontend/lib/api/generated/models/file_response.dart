@@ -8,14 +8,11 @@ part 'file_response.g.dart';
 
 @JsonSerializable()
 class FileResponse {
-  const FileResponse({
-    this.url,
-    this.contentType,
-    this.size,
-  });
-  
-  factory FileResponse.fromJson(Map<String, Object?> json) => _$FileResponseFromJson(json);
-  
+  const FileResponse({this.url, this.contentType, this.size});
+
+  factory FileResponse.fromJson(Map<String, Object?> json) =>
+      _$FileResponseFromJson(json);
+
   final String? url;
   final String? contentType;
   final int? size;

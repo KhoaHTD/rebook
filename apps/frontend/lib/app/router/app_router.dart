@@ -69,6 +69,8 @@ GoRouter appRouter(Ref ref) {
   final refresh = ValueNotifier(0);
   ref.listen(sessionControllerProvider, (_, _) => refresh.value++);
   ref.listen(introSeenProvider, (_, _) => refresh.value++);
+  ref.listen(splashHoldProvider, (_, _) => refresh.value++);
+  ref.listen(splashHoldProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
@@ -82,6 +84,10 @@ GoRouter appRouter(Ref ref) {
       if (location == Routes.start) {
         final seen = ref.read(introSeenProvider);
         if (session.status == AuthStatus.unknown || seen == null) return null;
+        // Điện thoại: splash thương hiệu hiện đủ một nhịp rồi mới đi tiếp.
+        if (!kIsWeb && !ref.read(splashHoldProvider)) return null;
+        // Điện thoại: splash thương hiệu hiện đủ một nhịp rồi mới đi tiếp.
+        if (!kIsWeb && !ref.read(splashHoldProvider)) return null;
         // Điện thoại: lần đầu có giới thiệu. Web: trang giới thiệu `/` cho người chưa đăng nhập.
         if (!kIsWeb && !seen) return Routes.intro;
         return kIsWeb && !session.isSignedIn ? Routes.landing : Routes.home;

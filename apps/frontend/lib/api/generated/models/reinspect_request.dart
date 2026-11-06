@@ -8,13 +8,11 @@ part 'reinspect_request.g.dart';
 
 @JsonSerializable()
 class ReinspectRequest {
-  const ReinspectRequest({
-    required this.report,
-    this.passed,
-  });
-  
-  factory ReinspectRequest.fromJson(Map<String, Object?> json) => _$ReinspectRequestFromJson(json);
-  
+  const ReinspectRequest({required this.report, this.passed});
+
+  factory ReinspectRequest.fromJson(Map<String, Object?> json) =>
+      _$ReinspectRequestFromJson(json);
+
   final bool? passed;
   final String report;
 

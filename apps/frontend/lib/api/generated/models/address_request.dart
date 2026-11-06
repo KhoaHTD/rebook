@@ -22,9 +22,10 @@ class AddressRequest {
     this.addressType,
     this.isDefault,
   });
-  
-  factory AddressRequest.fromJson(Map<String, Object?> json) => _$AddressRequestFromJson(json);
-  
+
+  factory AddressRequest.fromJson(Map<String, Object?> json) =>
+      _$AddressRequestFromJson(json);
+
   final String receiverName;
   final String phone;
   final String province;

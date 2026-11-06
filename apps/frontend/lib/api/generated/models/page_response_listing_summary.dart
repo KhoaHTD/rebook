@@ -17,9 +17,10 @@ class PageResponseListingSummary {
     this.totalItems,
     this.totalPages,
   });
-  
-  factory PageResponseListingSummary.fromJson(Map<String, Object?> json) => _$PageResponseListingSummaryFromJson(json);
-  
+
+  factory PageResponseListingSummary.fromJson(Map<String, Object?> json) =>
+      _$PageResponseListingSummaryFromJson(json);
+
   final List<ListingSummary>? items;
   final int? page;
   final int? size;

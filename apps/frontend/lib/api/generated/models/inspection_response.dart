@@ -27,9 +27,10 @@ class InspectionResponse {
     this.decidedAt,
     this.createdAt,
   });
-  
-  factory InspectionResponse.fromJson(Map<String, Object?> json) => _$InspectionResponseFromJson(json);
-  
+
+  factory InspectionResponse.fromJson(Map<String, Object?> json) =>
+      _$InspectionResponseFromJson(json);
+
   final int? id;
   final InspectionResult? result;
   final Map<String, dynamic>? checklist;

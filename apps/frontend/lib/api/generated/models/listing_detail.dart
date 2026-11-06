@@ -27,9 +27,10 @@ class ListingDetail {
     this.reviewedByName,
     this.reviewedAt,
   });
-  
-  factory ListingDetail.fromJson(Map<String, Object?> json) => _$ListingDetailFromJson(json);
-  
+
+  factory ListingDetail.fromJson(Map<String, Object?> json) =>
+      _$ListingDetailFromJson(json);
+
   final int? id;
   final num? price;
   final int? stock;

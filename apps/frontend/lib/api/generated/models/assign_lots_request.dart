@@ -8,12 +8,11 @@ part 'assign_lots_request.g.dart';
 
 @JsonSerializable()
 class AssignLotsRequest {
-  const AssignLotsRequest({
-    required this.lotIds,
-  });
-  
-  factory AssignLotsRequest.fromJson(Map<String, Object?> json) => _$AssignLotsRequestFromJson(json);
-  
+  const AssignLotsRequest({required this.lotIds});
+
+  factory AssignLotsRequest.fromJson(Map<String, Object?> json) =>
+      _$AssignLotsRequestFromJson(json);
+
   final List<int> lotIds;
 
   Map<String, Object?> toJson() => _$AssignLotsRequestToJson(this);

@@ -8,13 +8,11 @@ part 'incident_decision_request.g.dart';
 
 @JsonSerializable()
 class IncidentDecisionRequest {
-  const IncidentDecisionRequest({
-    this.sellerPercent,
-    this.note,
-  });
-  
-  factory IncidentDecisionRequest.fromJson(Map<String, Object?> json) => _$IncidentDecisionRequestFromJson(json);
-  
+  const IncidentDecisionRequest({this.sellerPercent, this.note});
+
+  factory IncidentDecisionRequest.fromJson(Map<String, Object?> json) =>
+      _$IncidentDecisionRequestFromJson(json);
+
   final int? sellerPercent;
   final String? note;
 

@@ -8,13 +8,11 @@ part 'review_request.g.dart';
 
 @JsonSerializable()
 class ReviewRequest {
-  const ReviewRequest({
-    required this.rating,
-    this.comment,
-  });
-  
-  factory ReviewRequest.fromJson(Map<String, Object?> json) => _$ReviewRequestFromJson(json);
-  
+  const ReviewRequest({required this.rating, this.comment});
+
+  factory ReviewRequest.fromJson(Map<String, Object?> json) =>
+      _$ReviewRequestFromJson(json);
+
   final int rating;
   final String? comment;
 

@@ -13,9 +13,10 @@ class ChargebackRequest {
     required this.amount,
     required this.reason,
   });
-  
-  factory ChargebackRequest.fromJson(Map<String, Object?> json) => _$ChargebackRequestFromJson(json);
-  
+
+  factory ChargebackRequest.fromJson(Map<String, Object?> json) =>
+      _$ChargebackRequestFromJson(json);
+
   final int userId;
   final num amount;
   final String reason;

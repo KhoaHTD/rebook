@@ -10,20 +10,21 @@ enum UserStatus {
   active('ACTIVE'),
   @JsonValue('LOCKED')
   locked('LOCKED'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const UserStatus(this.json);
 
-  factory UserStatus.fromJson(String json) => values.firstWhere(
-        (e) => e.json == json,
-        orElse: () => $unknown,
-      );
+  factory UserStatus.fromJson(String json) =>
+      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
+
   /// Returns all defined enum values excluding the $unknown value.
-  static List<UserStatus> get $valuesDefined => values.where((value) => value != $unknown).toList();
+  static List<UserStatus> get $valuesDefined =>
+      values.where((value) => value != $unknown).toList();
 }

@@ -1,12 +1,141 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/app/theme/soft_palette.dart';
+import 'package:book_marketplace/core/settings/intro_state.dart';
 import 'package:book_marketplace/shared/widgets/skeleton.dart';
 
-/// Màn loading lúc mở app: khung xương của trang chủ (tiêu đề, ô tìm, chip, thẻ lớn, danh sách) nhấp nháy
-/// trong lúc app đọc phiên đăng nhập. Router tự chuyển đi khi xong.
-class SplashScreen extends StatelessWidget {
+/// Màn mở app. Điện thoại: splash thương hiệu (nền trắng, tên app to, dòng phụ có chữ nhấn) giữ chừng
+/// một giây rưỡi. Web: khung xương của trang chủ nhấp nháy trong lúc đọc phiên đăng nhập.
+/// Router tự chuyển đi khi xong.
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!kIsWeb) {
+      _timer = Timer(const Duration(milliseconds: 1500), () {
+        if (mounted) ref.read(splashHoldProvider.notifier).release();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      kIsWeb ? const _SkeletonSplash() : const _BrandSplash();
+}
+
+class _BrandSplash extends StatelessWidget {
+  const _BrandSplash();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final text = context.textStyles;
+    return Scaffold(
+      backgroundColor: SoftPalette.paper,
+      body: Center(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 700),
+          curve: Curves.easeOutCubic,
+          builder: (_, t, child) => Opacity(
+            opacity: t,
+            child: Transform.translate(
+              offset: Offset(0, 14 * (1 - t)),
+              child: child,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                width: 44,
+                height: 22,
+                child: CustomPaint(painter: _OpenBook()),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                l10n.appTitle,
+                style: text.displayLarge?.copyWith(
+                  color: SoftPalette.ink,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -1.5,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text.rich(
+                TextSpan(
+                  text: '${l10n.splashTaglineLead} ',
+                  children: [
+                    TextSpan(
+                      text: l10n.splashTaglineAccent,
+                      style: const TextStyle(color: SoftPalette.brick),
+                    ),
+                  ],
+                ),
+                style: text.bodyMedium?.copyWith(color: SoftPalette.ink),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Quyển sách mở nhỏ phía trên chữ, thay cho vòng hào quang trong mẫu.
+class _OpenBook extends CustomPainter {
+  const _OpenBook();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = SoftPalette.brick
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.2
+      ..strokeCap = StrokeCap.round;
+    final w = size.width;
+    final h = size.height;
+    final path = Path()
+      ..moveTo(w / 2, h * 0.28)
+      ..quadraticBezierTo(w * 0.28, 0, 0, h * 0.14)
+      ..lineTo(0, h * 0.86)
+      ..quadraticBezierTo(w * 0.28, h * 0.72, w / 2, h)
+      ..quadraticBezierTo(w * 0.72, h * 0.72, w, h * 0.86)
+      ..lineTo(w, h * 0.14)
+      ..quadraticBezierTo(w * 0.72, 0, w / 2, h * 0.28)
+      ..moveTo(w / 2, h * 0.28)
+      ..lineTo(w / 2, h);
+    canvas.drawPath(path, p);
+  }
+
+  @override
+  bool shouldRepaint(_OpenBook old) => false;
+}
+
+/// Màn loading của web: khung xương của trang chủ (tiêu đề, ô tìm, chip, thẻ lớn, danh sách).
+class _SkeletonSplash extends StatelessWidget {
+  const _SkeletonSplash();
 
   @override
   Widget build(BuildContext context) {

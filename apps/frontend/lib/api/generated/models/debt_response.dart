@@ -22,9 +22,10 @@ class DebtResponse {
     this.createdAt,
     this.settledAt,
   });
-  
-  factory DebtResponse.fromJson(Map<String, Object?> json) => _$DebtResponseFromJson(json);
-  
+
+  factory DebtResponse.fromJson(Map<String, Object?> json) =>
+      _$DebtResponseFromJson(json);
+
   final int? id;
   final DebtType? type;
   final num? amount;

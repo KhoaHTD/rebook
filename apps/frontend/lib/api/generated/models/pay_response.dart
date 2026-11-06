@@ -11,13 +11,11 @@ part 'pay_response.g.dart';
 
 @JsonSerializable()
 class PayResponse {
-  const PayResponse({
-    this.order,
-    this.payment,
-  });
-  
-  factory PayResponse.fromJson(Map<String, Object?> json) => _$PayResponseFromJson(json);
-  
+  const PayResponse({this.order, this.payment});
+
+  factory PayResponse.fromJson(Map<String, Object?> json) =>
+      _$PayResponseFromJson(json);
+
   final OrderSummary? order;
   final PaymentResponse? payment;
 

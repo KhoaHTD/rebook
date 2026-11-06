@@ -8,12 +8,11 @@ part 'bid_request.g.dart';
 
 @JsonSerializable()
 class BidRequest {
-  const BidRequest({
-    required this.amount,
-  });
-  
-  factory BidRequest.fromJson(Map<String, Object?> json) => _$BidRequestFromJson(json);
-  
+  const BidRequest({required this.amount});
+
+  factory BidRequest.fromJson(Map<String, Object?> json) =>
+      _$BidRequestFromJson(json);
+
   final num amount;
 
   Map<String, Object?> toJson() => _$BidRequestToJson(this);

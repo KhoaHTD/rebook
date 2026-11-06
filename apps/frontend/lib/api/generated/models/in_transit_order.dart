@@ -22,9 +22,10 @@ class InTransitOrder {
     this.shippedAt,
     this.overdue,
   });
-  
-  factory InTransitOrder.fromJson(Map<String, Object?> json) => _$InTransitOrderFromJson(json);
-  
+
+  factory InTransitOrder.fromJson(Map<String, Object?> json) =>
+      _$InTransitOrderFromJson(json);
+
   final int? orderId;
   final String? code;
   final int? shopId;

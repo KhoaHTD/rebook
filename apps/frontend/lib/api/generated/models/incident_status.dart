@@ -12,20 +12,21 @@ enum IncidentStatus {
   approved('APPROVED'),
   @JsonValue('REJECTED')
   rejected('REJECTED'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const IncidentStatus(this.json);
 
-  factory IncidentStatus.fromJson(String json) => values.firstWhere(
-        (e) => e.json == json,
-        orElse: () => $unknown,
-      );
+  factory IncidentStatus.fromJson(String json) =>
+      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
+
   /// Returns all defined enum values excluding the $unknown value.
-  static List<IncidentStatus> get $valuesDefined => values.where((value) => value != $unknown).toList();
+  static List<IncidentStatus> get $valuesDefined =>
+      values.where((value) => value != $unknown).toList();
 }

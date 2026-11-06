@@ -23,9 +23,10 @@ class ShopResponse {
     this.bankAccountHolder,
     this.createdAt,
   });
-  
-  factory ShopResponse.fromJson(Map<String, Object?> json) => _$ShopResponseFromJson(json);
-  
+
+  factory ShopResponse.fromJson(Map<String, Object?> json) =>
+      _$ShopResponseFromJson(json);
+
   final int? id;
   final int? ownerId;
   final String? name;

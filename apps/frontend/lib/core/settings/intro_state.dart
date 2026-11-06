@@ -31,6 +31,15 @@ class IntroSeen extends _$IntroSeen {
   }
 }
 
+/// Splash thương hiệu (điện thoại) đã hiện đủ lâu chưa; router chỉ rời màn splash khi `true`.
+@Riverpod(keepAlive: true)
+class SplashHold extends _$SplashHold {
+  @override
+  bool build() => false;
+
+  void release() => state = true;
+}
+
 /// Lời mời đăng nhập lúc mở app chỉ hiện một lần mỗi lần chạy (khách chọn "Chỉ xem sách" là thôi).
 @Riverpod(keepAlive: true)
 class GuestWelcomeShown extends _$GuestWelcomeShown {

@@ -31,9 +31,7 @@ abstract class WalletClient {
 
   /// Nạp tiền qua ZaloPay sandbox — trả về paymentUrl để mở trình duyệt
   @POST('/wallet/top-up')
-  Future<PaymentResponse> postWalletTopUp({
-    @Body() required TopUpRequest body,
-  });
+  Future<PaymentResponse> postWalletTopUp({@Body() required TopUpRequest body});
 
   /// Đánh dấu yêu thích một tài khoản ngân hàng đã lưu
   @POST('/wallet/bank-accounts/{id}/favorite')
@@ -79,9 +77,7 @@ abstract class WalletClient {
 
   /// Trạng thái một thanh toán
   @GET('/payments/{code}')
-  Future<PaymentResponse> getPaymentsCode({
-    @Path('code') required String code,
-  });
+  Future<PaymentResponse> getPaymentsCode({@Path('code') required String code});
 
   /// Redirect URL của ZaloPay: xác nhận giao dịch rồi hiện trang kết quả cho người dùng
   @GET('/payments/zalopay/return')

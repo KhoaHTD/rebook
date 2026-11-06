@@ -14,9 +14,10 @@ class CategoryRequest {
     this.parentId,
     this.sortOrder,
   });
-  
-  factory CategoryRequest.fromJson(Map<String, Object?> json) => _$CategoryRequestFromJson(json);
-  
+
+  factory CategoryRequest.fromJson(Map<String, Object?> json) =>
+      _$CategoryRequestFromJson(json);
+
   final String name;
   final String slug;
   final int? parentId;

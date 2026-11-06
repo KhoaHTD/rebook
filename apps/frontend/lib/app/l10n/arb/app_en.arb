@@ -1338,5 +1338,19 @@
   "collectionBooks": "{count} books",
   "walletSaleHeldNote": "Sales proceeds of a new shop are held: {amount}, withdrawable from {date}.",
   "walletDebtChargeback": "Top-up reversed by the bank (chargeback)",
-  "errEmailSendFailed": "Could not send the verification email. Try again in a few minutes."
+  "errEmailSendFailed": "Could not send the verification email. Try again in a few minutes.",
+  "splashTaglineLead": "Used books",
+  "splashTaglineAccent": "& auctions",
+  "obTitle1": "Find books you love",
+  "obBody1": "Thousands of pre-loved books at soft prices, with honest condition notes.",
+  "obTitle2": "Bid on rare books",
+  "obBody2": "Join live rooms, bid in real time and take a rare copy home.",
+  "obTitle3": "Sell your books easily",
+  "obBody3": "Open a shop or consign to ReBook and readers will find your books.",
+  "obSignUpFree": "Sign up for free",
+  "obOrLogIn": "Or log in",
+  "authContinueGoogle": "Continue with Google",
+  "authGoogleSoon": "Google sign-in is coming soon.",
+  "authOrEmail": "Or use your email",
+  "authSkipAsGuest": "Skip, browse books first"
 }

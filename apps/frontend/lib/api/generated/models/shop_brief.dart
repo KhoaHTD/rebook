@@ -15,9 +15,10 @@ class ShopBrief {
     this.ratingAvg,
     this.ratingCount,
   });
-  
-  factory ShopBrief.fromJson(Map<String, Object?> json) => _$ShopBriefFromJson(json);
-  
+
+  factory ShopBrief.fromJson(Map<String, Object?> json) =>
+      _$ShopBriefFromJson(json);
+
   final int? id;
   final String? name;
   final String? pickupProvince;

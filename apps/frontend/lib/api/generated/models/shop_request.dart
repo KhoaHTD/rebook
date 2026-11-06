@@ -17,9 +17,10 @@ class ShopRequest {
     required this.bankAccountHolder,
     this.description,
   });
-  
-  factory ShopRequest.fromJson(Map<String, Object?> json) => _$ShopRequestFromJson(json);
-  
+
+  factory ShopRequest.fromJson(Map<String, Object?> json) =>
+      _$ShopRequestFromJson(json);
+
   final String name;
   final String? description;
   final String pickupAddress;

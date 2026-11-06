@@ -35,9 +35,10 @@ class IncidentResponse {
     this.decisionNote,
     this.createdAt,
   });
-  
-  factory IncidentResponse.fromJson(Map<String, Object?> json) => _$IncidentResponseFromJson(json);
-  
+
+  factory IncidentResponse.fromJson(Map<String, Object?> json) =>
+      _$IncidentResponseFromJson(json);
+
   final int? id;
   final int? warehouseItemId;
   final int? consignmentId;

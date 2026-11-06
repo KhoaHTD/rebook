@@ -16,9 +16,10 @@ class BankAccountResponse {
     this.favorite,
     this.lastUsedAt,
   });
-  
-  factory BankAccountResponse.fromJson(Map<String, Object?> json) => _$BankAccountResponseFromJson(json);
-  
+
+  factory BankAccountResponse.fromJson(Map<String, Object?> json) =>
+      _$BankAccountResponseFromJson(json);
+
   final int? id;
   final String? bankName;
   final String? accountNumber;

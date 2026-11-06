@@ -12,20 +12,21 @@ enum OtpPurpose {
   verifyPhone('VERIFY_PHONE'),
   @JsonValue('RESET_PASSWORD')
   resetPassword('RESET_PASSWORD'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const OtpPurpose(this.json);
 
-  factory OtpPurpose.fromJson(String json) => values.firstWhere(
-        (e) => e.json == json,
-        orElse: () => $unknown,
-      );
+  factory OtpPurpose.fromJson(String json) =>
+      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
+
   /// Returns all defined enum values excluding the $unknown value.
-  static List<OtpPurpose> get $valuesDefined => values.where((value) => value != $unknown).toList();
+  static List<OtpPurpose> get $valuesDefined =>
+      values.where((value) => value != $unknown).toList();
 }

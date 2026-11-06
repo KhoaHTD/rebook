@@ -12,20 +12,21 @@ enum DebtType {
   storageFee('STORAGE_FEE'),
   @JsonValue('CHARGEBACK')
   chargeback('CHARGEBACK'),
+
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const DebtType(this.json);
 
-  factory DebtType.fromJson(String json) => values.firstWhere(
-        (e) => e.json == json,
-        orElse: () => $unknown,
-      );
+  factory DebtType.fromJson(String json) =>
+      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
+
   /// Returns all defined enum values excluding the $unknown value.
-  static List<DebtType> get $valuesDefined => values.where((value) => value != $unknown).toList();
+  static List<DebtType> get $valuesDefined =>
+      values.where((value) => value != $unknown).toList();
 }

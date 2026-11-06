@@ -182,4 +182,3 @@ export 'models/page_response_activity_log_response.dart';
 export 'models/auction_event.dart';
 // Root client
 export 'rest_client.dart';
-

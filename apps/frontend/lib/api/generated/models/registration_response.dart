@@ -21,9 +21,10 @@ class RegistrationResponse {
     this.status,
     this.createdAt,
   });
-  
-  factory RegistrationResponse.fromJson(Map<String, Object?> json) => _$RegistrationResponseFromJson(json);
-  
+
+  factory RegistrationResponse.fromJson(Map<String, Object?> json) =>
+      _$RegistrationResponseFromJson(json);
+
   final int? id;
   final int? sessionId;
   final String? paddle;

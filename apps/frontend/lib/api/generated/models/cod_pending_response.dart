@@ -18,9 +18,10 @@ class CodPendingResponse {
     this.deliveredAt,
     this.refundPending,
   });
-  
-  factory CodPendingResponse.fromJson(Map<String, Object?> json) => _$CodPendingResponseFromJson(json);
-  
+
+  factory CodPendingResponse.fromJson(Map<String, Object?> json) =>
+      _$CodPendingResponseFromJson(json);
+
   final int? orderId;
   final String? code;
   final OrderStatus? status;

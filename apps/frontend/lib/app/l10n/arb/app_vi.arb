@@ -2300,5 +2300,19 @@
     }
   },
   "walletDebtChargeback": "Tiền nạp bị ngân hàng đòi lại (chargeback)",
-  "errEmailSendFailed": "Không gửi được email mã xác thực. Thử lại sau ít phút."
+  "errEmailSendFailed": "Không gửi được email mã xác thực. Thử lại sau ít phút.",
+  "splashTaglineLead": "Chợ sách cũ",
+  "splashTaglineAccent": "& đấu giá",
+  "obTitle1": "Tìm sách bạn thích",
+  "obBody1": "Hàng nghìn cuốn đã qua tay người đọc, giá mềm, tình trạng rõ ràng.",
+  "obTitle2": "Đấu giá sách hiếm",
+  "obBody2": "Vào phòng trực tiếp, trả giá theo thời gian thực và mang bản hiếm về.",
+  "obTitle3": "Bán sách cũ dễ dàng",
+  "obBody3": "Mở shop hoặc ký gửi cho ReBook, sách lên kệ là có người tìm.",
+  "obSignUpFree": "Đăng ký miễn phí",
+  "obOrLogIn": "Hoặc đăng nhập",
+  "authContinueGoogle": "Tiếp tục với Google",
+  "authGoogleSoon": "Đăng nhập bằng Google sẽ có sớm.",
+  "authOrEmail": "Hoặc dùng email",
+  "authSkipAsGuest": "Bỏ qua, xem sách trước"
 }

@@ -33,9 +33,10 @@ class OrderSummary {
     this.lotId,
     this.secondChance,
   });
-  
-  factory OrderSummary.fromJson(Map<String, Object?> json) => _$OrderSummaryFromJson(json);
-  
+
+  factory OrderSummary.fromJson(Map<String, Object?> json) =>
+      _$OrderSummaryFromJson(json);
+
   final int? id;
   final String? code;
   final OrderType? orderType;

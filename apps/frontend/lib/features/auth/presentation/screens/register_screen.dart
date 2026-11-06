@@ -72,6 +72,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return AuthLayout(
       title: l10n.authRegisterTitle,
       subtitle: l10n.authRegisterSubtitle,
+      showGoogle: true,
       children: [
         Form(
           key: _form,

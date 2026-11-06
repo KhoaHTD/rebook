@@ -22,9 +22,10 @@ class InspectionRequest {
     this.proposedStart,
     this.proposedReserve,
   });
-  
-  factory InspectionRequest.fromJson(Map<String, Object?> json) => _$InspectionRequestFromJson(json);
-  
+
+  factory InspectionRequest.fromJson(Map<String, Object?> json) =>
+      _$InspectionRequestFromJson(json);
+
   final InspectionResult result;
   final Map<String, dynamic>? checklist;
   final ConditionGrade? conditionGrade;

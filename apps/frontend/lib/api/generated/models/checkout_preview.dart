@@ -16,9 +16,10 @@ class CheckoutPreview {
     this.shippingFee,
     this.total,
   });
-  
-  factory CheckoutPreview.fromJson(Map<String, Object?> json) => _$CheckoutPreviewFromJson(json);
-  
+
+  factory CheckoutPreview.fromJson(Map<String, Object?> json) =>
+      _$CheckoutPreviewFromJson(json);
+
   final List<ShopQuote>? shops;
   final num? subtotal;
   final num? shippingFee;

@@ -7,6 +7,7 @@ import 'package:book_marketplace/shared/widgets/form_widgets.dart';
 import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
+import 'package:book_marketplace/core/settings/intro_state.dart';
 import 'package:book_marketplace/features/auth/presentation/providers/auth_controller.dart';
 import 'package:book_marketplace/features/auth/presentation/widgets/auth_layout.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
@@ -46,6 +47,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
+  /// "Bỏ qua": vào trang chủ bằng tài khoản khách, không hiện thêm lời mời đăng nhập.
+  void _skip() {
+    ref.read(guestWelcomeShownProvider.notifier).mark();
+    context.go(Routes.home);
+  }
+
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     await ref
@@ -61,6 +68,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       title: widget.allowSignUp ? l10n.authWelcomeBack : l10n.adminAppTitle,
       subtitle: widget.allowSignUp ? l10n.authLoginSubtitle : null,
       showBack: widget.allowSignUp,
+      showGoogle: widget.allowSignUp,
+      onSkip: widget.allowSignUp ? _skip : null,
       children: [
         Form(
           key: _form,

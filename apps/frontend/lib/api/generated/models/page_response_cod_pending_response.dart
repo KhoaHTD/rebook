@@ -17,9 +17,10 @@ class PageResponseCodPendingResponse {
     this.totalItems,
     this.totalPages,
   });
-  
-  factory PageResponseCodPendingResponse.fromJson(Map<String, Object?> json) => _$PageResponseCodPendingResponseFromJson(json);
-  
+
+  factory PageResponseCodPendingResponse.fromJson(Map<String, Object?> json) =>
+      _$PageResponseCodPendingResponseFromJson(json);
+
   final List<CodPendingResponse>? items;
   final int? page;
   final int? size;

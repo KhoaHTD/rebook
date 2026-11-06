@@ -70,14 +70,11 @@ class _DebtPanelState extends ConsumerState<DebtPanel> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        switch (d.kind) {
-                          DebtKind.storageFee => l10n.walletDebtStorage,
-                          DebtKind.chargeback => l10n.walletDebtChargeback,
-                          DebtKind.auctionPenalty => l10n.walletDebtPenalty,
-                        },
-                        style: text.bodyMedium,
-                      ),
+                      child: Text(switch (d.kind) {
+                        DebtKind.storageFee => l10n.walletDebtStorage,
+                        DebtKind.chargeback => l10n.walletDebtChargeback,
+                        DebtKind.auctionPenalty => l10n.walletDebtPenalty,
+                      }, style: text.bodyMedium),
                     ),
                     Text(
                       l10n.walletDebtRemaining(formatVnd(d.remaining)),

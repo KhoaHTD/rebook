@@ -16,9 +16,10 @@ class WithdrawableResponse {
     this.saleHeld,
     this.saleUnlockAt,
   });
-  
-  factory WithdrawableResponse.fromJson(Map<String, Object?> json) => _$WithdrawableResponseFromJson(json);
-  
+
+  factory WithdrawableResponse.fromJson(Map<String, Object?> json) =>
+      _$WithdrawableResponseFromJson(json);
+
   final num? available;
   final num? locked;
   final num? withdrawable;

@@ -8,12 +8,11 @@ part 'trusted_request.g.dart';
 
 @JsonSerializable()
 class TrustedRequest {
-  const TrustedRequest({
-    this.trusted,
-  });
-  
-  factory TrustedRequest.fromJson(Map<String, Object?> json) => _$TrustedRequestFromJson(json);
-  
+  const TrustedRequest({this.trusted});
+
+  factory TrustedRequest.fromJson(Map<String, Object?> json) =>
+      _$TrustedRequestFromJson(json);
+
   final bool? trusted;
 
   Map<String, Object?> toJson() => _$TrustedRequestToJson(this);
