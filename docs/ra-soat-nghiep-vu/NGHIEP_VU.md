@@ -33,6 +33,8 @@ Cập nhật 2026-11-06. File này mô tả **hệ thống đang chạy thế n�
 |---|---|---|
 | Điều kiện để mua / ký gửi | Xác thực email | Giữ nguyên |
 | Điều kiện để đấu giá | Xác thực SĐT (OTP chỉ ghi log) | Giữ nguyên. Thêm: **Staff / Admin không được đăng ký hay trả giá** (`STAFF_CANNOT_BID`, BR-5.0) |
+| Mã OTP | Chỉ ghi ra log máy chủ | **Gửi qua email** (SMTP, bật bằng `MAIL_ENABLED`). Xin mã cách nhau ≥ 60 giây, tối đa 5 mã / giờ, 10 mã / ngày (`TOO_MANY_REQUESTS`). Mail lỗi khi xin mã: `EMAIL_SEND_FAILED`. Mã xác thực SĐT tạm gửi qua email vì chưa có SMS |
+| Đăng ký bằng biến thể email | `a.b+1@gmail.com` và `ab@gmail.com` là hai tài khoản | Chặn (`EMAIL_TAKEN`): so theo dạng chuẩn (chữ thường, bỏ phần `+...`, Gmail bỏ dấu chấm) |
 | Đăng nhập sai | Không giới hạn | Đếm sai theo **email + IP (10 lần)**, **IP (30)**, **email trên mọi IP (100)** trong 15 phút; một IP sai nhiều không khoá được chủ tài khoản ở IP khác (BE-42) |
 | Bị khoá khi đang đăng nhập | Chỉ đổi trạng thái | Token cũ hết tác dụng ở request kế tiếp; tin bị ẩn, đơn chưa giao bị huỷ và hoàn tiền |
 | Bị khoá khi đang có việc đấu giá | Hoá đơn đấu giá vẫn chạy 48 giờ rồi phạt người bị khoá | **Huỷ hoá đơn chưa trả, không phạt, hoàn cọc, mời người kế tiếp**; huỷ giá tối đa; rút lô của người bán khỏi phiên chưa chạy (mục 10) |
@@ -59,7 +61,9 @@ Nợ:      phạt hoặc phí kho chưa thu đủ ──▶ khoản nợ, thu d�
 
 | Luật | Cũ | Hiện tại |
 |---|---|---|
-| Rút tiền vừa nạp | Rút ngay được | Tiền nạp chưa tiêu bị khoá **24 giờ** (`TOPUP_LOCKED`); tiền bán hàng rút ngay được |
+| Rút tiền vừa nạp | Rút ngay được | Tiền nạp chưa tiêu bị khoá **24 giờ** (`TOPUP_LOCKED`) |
+| Rút tiền bán hàng | Rút ngay được | Shop uy tín và shop lâu năm rút ngay. **Shop mới** (mở dưới 30 ngày hoặc dưới 10 đơn hoàn tất, chưa được gắn uy tín): tiền bán giữ **7 ngày** kể từ lúc giải ngân (`SALE_HELD`), chặn nạp thẻ trộm, mua của shop phụ rồi rút ngay |
+| Ngân hàng đòi lại tiền nạp | Không có cách xử lý | Admin ghi nợ `CHARGEBACK` (`POST /admin/debts/chargeback`): thu ngay phần ví đang có, phần còn lại là nợ (chặn rút, đấu giá) |
 | Hạn mức rút | Không có | **20.000.000đ / ngày** |
 | Còn nợ | Không có khái niệm nợ | Không rút, không đăng ký phiên, không trả giá được (`DEBT_OPEN`) |
 | Rút song song | Có thể vượt số dư | Khoá ví, không vượt |
@@ -176,6 +180,7 @@ Hết 48 giờ chưa trả ──▶ (đang mở ZaloPay? hỏi lại cổng, â
 | Cọc / phạt về đâu | 50% người bán, 50% sàn (SRS) | **100% về sàn** (BR-6.1); lô bán lại thấp hơn thì sàn **bù chênh** cho người bán, tối đa bằng số đã thu từ người bỏ (BR-6.2) |
 | Thời gian cấm | Luôn 90 ngày | **Luỹ tiến**: lần 1 cấm 90 ngày, lần 2 trong 12 tháng cấm 365 ngày, lần 3 **vĩnh viễn** (Admin vẫn gỡ được); bỏ nhiều lô cùng phiên tính một lần (mục 23) |
 | Trả ZaloPay sát hạn, cổng báo chậm | Bị phạt như bỏ thanh toán | Hỏi lại ZaloPay trước; còn chờ thì **ân hạn 15 phút** (BE-46) |
+| Người thắng không biết mình thắng | Vẫn bị phạt sau 48 giờ | Thắng lô có **mail báo**. Tới hạn mà mail chưa gửi được **và** thông báo trong app chưa đọc: **không phạt, gia hạn 24 giờ một lần**, nhắc lại, báo Admin. Mail đang tắt thì coi như đã báo bằng app (như cũ) |
 | Trả tiền rồi **từ chối nhận hàng** | Hoàn đủ, không phạt (rẻ hơn bỏ thanh toán) | Staff ghi lỗi người mua: hoàn tiền rồi **phạt như bỏ thanh toán** + thu phí giao chiều đi (BE-45) |
 | Người được mời mua lần hai | Người cao thứ hai, kể cả người bị cấm / nợ / người ký gửi | Người hợp lệ kế tiếp: không bị cấm, không nợ, không phải người bán, **không bị khoá** |
 | Giá mời mua lần hai | Đúng giá người về nhì đã trả | **Giá công bằng**: max(giá sàn, min(giá người về nhì, giá người kế tiếp + 1 bước)); không có người kế tiếp thì bằng giá sàn (BR-6.5) |
@@ -205,6 +210,8 @@ Hết 48 giờ chưa trả ──▶ (đang mở ZaloPay? hỏi lại cổng, â
 | Nhận lại sách | 14 ngày miễn phí, 5.000đ/ngày sau đó | Ngày 53 nhắc, ngày 60 thanh lý | Không giới hạn |
 | Nhắc trước hạn | 24 giờ trước: giao hàng, trả lời huỷ, thanh toán hoá đơn, chọn hướng lô | | Không có |
 | Đối soát ví với sổ cái | Mỗi đêm | Cảnh báo khi lệch | Không có |
+| Gửi mail trong hàng đợi | Mỗi 30 giây | Lỗi thì thử lại sau 1 phút, 5 phút, 30 phút, 2 giờ; lần 5 vẫn lỗi thì `FAILED` | Không có mail |
+| Tiền bán hàng của shop mới | 7 ngày từ lúc giải ngân | Rút được | Rút ngay |
 
 ## 7. Cấu hình hiện hành
 
@@ -220,6 +227,7 @@ Giá trị mặc định trên DB dev ngày 2026-11-06. Hai khoá lịch phiên 
 | COD | `order.cod_max_amount` / `cod_new_buyer_max_amount` / `cod_max_failures` / `cod_failure_window_days` | 3.000.000đ / 500.000đ / 2 / 90 ngày | |
 | Ship | `shipping.same_province` / `other_province` / `extra_per_500g` | 20.000đ / 30.000đ / 5.000đ | |
 | Ví | `wallet.topup_hold_hours` / `withdraw_daily_limit` | 24 giờ / 20.000.000đ | |
+| Shop mới | `wallet.seller_hold_days` / `seller_hold_min_orders` / `seller_hold_shop_days` | 7 ngày (0 = tắt) / 10 đơn / 30 ngày | |
 | Ký gửi | `consignment.min_expected_price` / `appointment_days` / `seller_decision_days` / `max_rounds` | 300.000đ / 7 / 7 ngày / 2 phiên | 1 |
 | Đấu giá | `auction.payment_hours` / `second_chance_hours` / `unsold_decision_days` / `postpone_days` | 48 / 24 giờ / 7 / 7 ngày | 1 |
 | Phạt | `auction.default_penalty_percent` / `forfeit_seller_percent` / `ban_days` / `ban_days_repeat` | 10% / 0% / 90 / 365 ngày | |
@@ -229,13 +237,15 @@ Giá trị mặc định trên DB dev ngày 2026-11-06. Hai khoá lịch phiên 
 | Lịch phiên | `auction.min_publish_lead_hours` / `min_registration_close_hours` | 72 / 24 giờ (dev: 0 / 0) | |
 | Uy tín shop | `shop.fault_rate_percent` / `fault_min_orders` / `reputation_window_days` | 10% / 5 đơn / 90 ngày | |
 
-Hằng số trong code (chưa đưa vào cấu hình): ân hạn ZaloPay 15 phút; báo trước thanh lý sách 7 ngày; đăng nhập sai 10 / 30 / 100 lần trong 15 phút.
+Hằng số trong code (chưa đưa vào cấu hình): ân hạn ZaloPay 15 phút; báo trước thanh lý sách 7 ngày; đăng nhập sai 10 / 30 / 100 lần trong 15 phút; xin OTP 60 giây / 5 mã một giờ / 10 mã một ngày; gia hạn hoá đơn khi chưa báo được người thắng 24 giờ.
+
+Cấu hình theo máy (biến môi trường hoặc `apps/backend/.env`, mẫu ở `apps/backend/env.example`): `MAIL_ENABLED`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM`.
 
 ## 8. Chưa có trong hệ thống
 
 Những luật đã bàn nhưng chưa làm. Chi tiết và mức nặng ở [DANH_GIA_BA_TESTER.md](DANH_GIA_BA_TESTER.md) phần A.
 
-- **Cần dịch vụ ngoài:** OTP SMS thật, định danh CCCD, thông báo push / email (hiện chỉ có thông báo trong app), hãng vận chuyển thật để kiểm mã vận đơn, xử lý ngân hàng đòi lại tiền nạp.
-- **Cần chủ sàn quyết:** shop chịu ship chiều về khi sách sai mô tả; ngày nghỉ và công suất kho; giữ tiền bán của shop mới N ngày.
+- **Cần dịch vụ ngoài:** OTP SMS thật, định danh CCCD, thông báo push, hãng vận chuyển thật để kiểm mã vận đơn, nhận báo chargeback tự động từ cổng thanh toán (hiện Admin ghi tay). Mail đã có, cần tài khoản SMTP và tên miền có SPF / DKIM khi chạy thật.
+- **Cần chủ sàn quyết:** shop chịu ship chiều về khi sách sai mô tả; ngày nghỉ và công suất kho.
 - **Cần frontend làm cùng:** hoàn một phần khi khiếu nại, xác nhận khi trả giá lớn, bán sau phiên cho người chưa đạt giá sàn, hai Admin cùng duyệt khoản rút lớn, OTP khi thêm tài khoản ngân hàng.
-- **Frontend chưa theo kịp backend:** lựa chọn "Không nhận được hàng", ô "ai gây lỗi" khi báo giao thất bại, gửi `expectedTotal`, hiện lỗi `LOT_DEPOSIT_REQUIRED` / `PRICE_CHANGED`.
+- **Frontend chưa theo kịp backend:** lựa chọn "Không nhận được hàng", ô "ai gây lỗi" khi báo giao thất bại, gửi `expectedTotal`, hiện lỗi `LOT_DEPOSIT_REQUIRED` / `PRICE_CHANGED`; màn rút tiền hiện `saleHeld` / `saleUnlockAt` và lỗi `SALE_HELD`; màn OTP hiện `TOO_MANY_REQUESTS` / `EMAIL_SEND_FAILED`; màn Admin ghi nợ chargeback.

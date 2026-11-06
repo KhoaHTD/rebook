@@ -112,9 +112,11 @@ Cột "Ở đâu": tên lớp test tầng A, hoặc mã ca tầng B. Trạng th�
 | T-AUTH-02 | N | Sai mật khẩu; tài khoản bị khoá; không token; USER gọi `/admin` | 401 / 403 / 401 / 403 | AUTH-02..05, `SecurityAuditTest` | ✅ |
 | T-AUTH-03 | L | Dò mật khẩu 10 lần từ một IP | IP đó bị chặn 15 phút; chủ tài khoản ở IP khác vẫn vào được | `BaReviewBatch2Test` | ✅ |
 | T-AUTH-04 | L | Dò OTP | Sai 5 lần thì mã đúng cũng bị từ chối | `SecurityAuditTest` | ✅ |
-| T-AUTH-05 | L | Xin OTP mới liên tục | Nên giới hạn tần suất | | ⚠ BE-26 |
+| T-AUTH-05 | L | Xin OTP mới liên tục; quên mật khẩu liên tục (kể cả email không tồn tại) | Cách nhau ≥ 60 giây, tối đa 5 mã / giờ, 10 mã / ngày: `TOO_MANY_REQUESTS` | `OtpAndEmailRulesTest` | ✅ |
+| T-AUTH-05b | H/X | Xin OTP: mã tới hộp thư; SMTP lỗi | Thư chứa mã, tiêu đề không chứa mã, log không có mã / 503 `EMAIL_SEND_FAILED`, không giữ mã | `MailOutboxTest` | ✅ |
+| T-AUTH-05c | L | Đăng ký bằng biến thể hộp thư đã có (`a.b+1@gmail.com` khi đã có `ab@gmail.com`) | `EMAIL_TAKEN` | `OtpAndEmailRulesTest` | ✅ |
 | T-AUTH-06 | X | Bị khoá khi đang đăng nhập | Token cũ hết tác dụng ngay ở request kế tiếp | AUTH-06 | ✅ |
-| T-AUTH-07 | L | Tạo tài khoản mới để lách cấm / nợ | Phải chặn theo CCCD / SĐT | | ⚠ BR-1.3 |
+| T-AUTH-07 | L | Tạo tài khoản mới để lách cấm / nợ | Phải chặn theo CCCD / SĐT (hiện chỉ chặn biến thể của cùng hộp thư, T-AUTH-05c) | | ⚠ BR-1.3 |
 
 #### 4.2 Ví và thanh toán
 
@@ -129,8 +131,8 @@ Cột "Ở đâu": tên lớp test tầng A, hoặc mã ca tầng B. Trạng th�
 | T-WAL-07 | H/N | Admin duyệt rút: thiếu biên lai, sai số tiền, giờ tương lai, duyệt hai lần, từ chối | Bị chặn đúng từng trường hợp; từ chối thì hoàn tiền | WAL-06, `WithdrawApprovalTest` | ✅ |
 | T-WAL-07b | H | Còn nợ: nạp tiền rồi thu nợ | Nợ PAID, hết bị chặn đăng ký phiên | WAL-07, AUC-29b | ✅ |
 | T-WAL-08 | Đ | Thu nợ song song | Chỉ trừ ví một lần | `ConcurrencyTest` | ✅ |
-| T-WAL-09 | L | Nạp thẻ trộm, mua của shop phụ, rút tiền bán | Nên giữ tiền bán của shop mới N ngày | | ⚠ mục 4 bản đánh giá |
-| T-WAL-10 | X | Ngân hàng đòi lại tiền nạp (chargeback) | Ghi nợ / khoá tài khoản | | ⚠ |
+| T-WAL-09 | L | Nạp thẻ trộm, mua của shop phụ, rút tiền bán | Shop mới bị giữ tiền bán 7 ngày (`SALE_HELD`), tiền cũ vẫn rút được; shop uy tín không bị giữ | `SellerHoldAndChargebackTest` | ✅ |
+| T-WAL-10 | X | Ngân hàng đòi lại tiền nạp (chargeback) | Admin ghi nợ `CHARGEBACK`: thu ngay phần ví có, phần còn lại chặn rút (`DEBT_OPEN`); người không phải Admin bị 403 | `SellerHoldAndChargebackTest` | ✅ (ghi tay, chưa nhận tự động từ cổng) |
 
 #### 4.3 Mua bán giá cố định
 
@@ -182,6 +184,7 @@ Cột "Ở đâu": tên lớp test tầng A, hoặc mã ca tầng B. Trạng th�
 | T-AUC-09 | X | Người thắng không trả 48 giờ (cọc lớn / nhỏ hơn phạt, ví thiếu thì nợ) | Mất cọc về sàn, phạt, cấm; mời người về nhì ở giá công bằng; người về nhì trả được | AUC-27, `AuctionMoneyTest`, S7 | ✅ |
 | T-AUC-10 | X | Vi phạm lần 2, lần 3 trong 12 tháng | Cấm 365 ngày / vĩnh viễn | `BaReviewBatch2Test` | ✅ |
 | T-AUC-11 | X | Trả ZaloPay sát hạn, cổng báo chậm | Ân hạn 15 phút, không phạt oan | `AuctionMoneyTest` | ✅ |
+| T-AUC-11b | X | Người thắng không nhận được mail báo thắng và chưa đọc thông báo trong app | Không phạt, gia hạn 24 giờ một lần, báo Admin; quá hạn lần hai thì phạt. Đã nhận mail hoặc đã đọc: phạt đúng hạn | `MailOutboxTest` | ✅ |
 | T-AUC-12 | X | Thắng, trả tiền rồi từ chối nhận hàng | Phạt như bỏ thanh toán + thu ship chiều đi | `AuctionMoneyTest` | ✅ |
 | T-AUC-13 | X | Người thắng bị khoá khi hoá đơn chưa trả | Huỷ không phạt, hoàn cọc, mời người kế tiếp | AUC-25, `BaReviewGapsTest` | ✅ |
 | T-AUC-14 | X | Huỷ đăng ký trước hạn; phiên thiếu người: dời một lần rồi huỷ | Hoàn cọc, lô về hàng chờ, không tính lượt | AUC-29, S8 | ✅ |
@@ -200,6 +203,8 @@ Cột "Ở đâu": tên lớp test tầng A, hoặc mã ca tầng B. Trạng th�
 | T-ADM-03 | X | Hoá đơn đấu giá đã trả mà kho quá hạn xử lý | Báo Staff / Admin một lần | `BaReviewGapsTest` | ✅ |
 | T-ADM-04 | X | Job lỗi một bản ghi | Các bản ghi khác vẫn chạy (mỗi bản ghi một giao dịch) | Cấu trúc `each(...)` trong job; chưa có test tiêm lỗi | ⏳ |
 | T-ADM-05 | L | Admin tự duyệt khoản rút lớn của mình | Cần người thứ hai | | ⚠ BE-28 |
+| T-ADM-06 | X | Hàng đợi mail: việc quan trọng có thư, việc thường không; email chưa xác thực không có thư; giao dịch huỷ không có thư; SMTP lỗi | Gửi đúng một lần; thử lại sau 1 phút, 5 phút, 30 phút, 2 giờ rồi `FAILED` | `MailOutboxTest` | ✅ |
+| T-ADM-07 | H | Gửi qua SMTP thật (Gmail / Brevo), thư vào hộp thư đến | | | ⏳ cần tài khoản SMTP |
 
 ### 5. Checklist thủ công trên app (tầng C)
 
@@ -230,6 +235,17 @@ Bản mở rộng thêm các luồng chưa chạy đầu cuối trước đó: k
 Không tìm thấy lỗi nghiệp vụ khi chạy. Một lỗi tìm thấy khi đọc code rồi đã sửa: T-AUC-19 (backend tắt lâu hơn thời gian còn lại của lô thì lô bị chốt ngay khi bật lại). Sau khi sửa: `./mvnw test` 185/185; `e2e_restart.sh` với 75 giây tắt máy 7/7.
 
 Còn chưa tự động: T-ADM-04 (tiêm lỗi vào job); tầng C trên app; các mục ⚠ (cần dịch vụ ngoài hoặc quyết định của chủ sàn).
+
+**Lần chạy tối 2026-11-06 (đợt gửi mail, máy Windows, PostgreSQL 18 tạm ở cổng 5433, JDK 21):** `./mvnw test` **199/200 đạt**; ca còn lại là `SeedDataTest` (gắn cứng cổng 5432). Ba lớp mới: `MailOutboxTest` (8 ca, bật mail với SMTP giả), `OtpAndEmailRulesTest` (4 ca), `SellerHoldAndChargebackTest` (3 ca). Hai lỗi tìm thấy khi chạy rồi đã sửa: health check mail của actuator làm hỏng khởi động khi SMTP là bean giả (và sẽ báo DOWN khi SMTP chậm), nên đã tắt; test gọi ví ngoài giao dịch. Chưa chạy lại tầng B (`e2e_flows.sh`).
+
+Chạy test trên máy không có mật khẩu DB đúng (không cần sửa file nào):
+
+```bash
+initdb -D <thư mục tạm> -U postgres -A trust -E UTF8 --locale=C
+pg_ctl -D <thư mục tạm> -o "-p 5433" start
+psql -h localhost -p 5433 -U postgres -c "CREATE ROLE rebook LOGIN PASSWORD 'rebook';" -c "CREATE DATABASE rebook_dev OWNER rebook TEMPLATE template0;"
+DB_URL=jdbc:postgresql://localhost:5433/rebook_dev TEST_DB_URL="jdbc:postgresql://localhost:5433/rebook_dev?currentSchema=rebook_test" ./mvnw test
+```
 
 ---
 
@@ -469,7 +485,7 @@ Mở bằng `admin@rebook.vn`, giao diện quản trị riêng:
 
 #### 3.8. Việc phụ nên lướt qua
 
-- **Đăng ký tài khoản**: nhập thông tin → nhận mã **OTP** xác thực email. Môi trường dev không gửi mail thật nên mã in ở **log backend** (có dòng `devOtp`). Chuẩn bị sẵn mã trước nếu định demo.
+- **Đăng ký tài khoản**: nhập thông tin → nhận mã **OTP** xác thực email. Bật mail (`MAIL_ENABLED=true` trong `apps/backend/.env`) thì mã tới hộp thư thật; không bật thì profile `dev` trả mã trong phản hồi API (trường `devOtp`), log backend **không còn in mã**. Xin lại mã phải chờ 60 giây.
 - **Thông báo**: chuông ở thanh bên, hiện sự kiện đơn hàng, bị trả giá vượt, trúng đấu giá…
 - **Hồ sơ / Địa chỉ**: sửa tên, SĐT, quản lý nhiều địa chỉ, chọn mặc định.
 - **Giao diện**: kiểu **Liquid Glass** (kính mờ), chạy **responsive**: màn rộng có thanh bên, điện thoại có thanh tab dưới. Thu nhỏ cửa sổ Chrome để cho thấy.
@@ -499,6 +515,8 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 | Chống bắn tỉa phút chót? | Soft close: còn dưới 15 giây mà có người trả thì đồng hồ về 15 giây. |
 | Tiền người mua đi đâu? | Vào ví sàn, giữ ở trạng thái "held", chỉ giải ngân cho người bán khi hoàn tất đơn. |
 | Người thắng không trả tiền? | Mất cọc hoặc phạt 10% giá búa (lấy mức lớn hơn), tiền về sàn; thiếu thì ghi nợ, còn nợ thì không đăng ký, trả giá, rút tiền được; bị cấm đấu giá 90 ngày. Người trả cao thứ hai được mời mua ở giá công bằng; lô bán thấp hơn thì sàn bù chênh cho người bán. |
+| Người thắng tắt app, không biết mình thắng thì sao? | Có mail báo thắng và mail nhắc trước hạn. Tới hạn mà mail chưa gửi được và người đó chưa đọc thông báo trong app thì không phạt, hệ thống gia hạn 24 giờ một lần và báo Admin. |
+| Lấy thẻ trộm nạp ví, mua của shop phụ rồi rút? | Tiền mới nạp khoá 24 giờ; tiền bán hàng của shop mới giữ 7 ngày. Ngân hàng đòi lại tiền thì Admin ghi nợ chargeback, người đó không rút được tới khi trả. |
 | Người bán dùng tài khoản phụ đẩy giá rồi bỏ? | Không còn lợi: cọc bị thu về sàn hết (không chia cho người bán), và người mua thật chỉ được mời ở giá họ lẽ ra phải trả, không phải giá tối đa họ đã đặt. |
 | Nhân viên có đấu giá được không? | Không. Tài khoản Staff / Admin bị chặn đăng ký và trả giá (`STAFF_CANNOT_BID`), vì họ biết giá sàn. |
 | Kho làm mất / hỏng sách thì sao? | Staff khai báo sự cố, Admin duyệt rồi sàn bồi thường theo giai đoạn: chưa kiểm định = giá mong muốn (tối đa 2 triệu); đã kiểm định = mức thấp của giá ước tính; người thắng đã trả tiền = hoàn đủ + 10% giá búa, người bán nhận giá búa − hoa hồng. |
@@ -514,7 +532,7 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 ### 6. Những điều KHÔNG nên hứa / nên nói thật (tránh bị hỏi vặn)
 
 - **VNPay** chưa nối cổng thật: dùng nút giả lập thanh toán thành công (chế độ dev).
-- **Email / SMS OTP**: chưa gửi thật, mã hiện ở log / phản hồi dev.
+- **Email**: gửi thật qua SMTP khi bật `MAIL_ENABLED` (OTP, thắng đấu giá, nhắc hạn). **SMS** chưa có: mã xác thực SĐT tạm gửi qua email. Không bật mail thì mã nằm trong phản hồi dev (`devOtp`).
 - **Upload ảnh**: backend chưa có dịch vụ lưu ảnh (Cloudinary). Ảnh người dùng chọn hiện được trên máy nhưng gửi lên server là **ảnh mẫu thay thế**.
 - **Vận chuyển**: giả lập bằng nút bấm (đã giao / giao thất bại), chưa nối hãng vận chuyển.
 - **Thông báo đẩy (FCM)**: chưa làm; thông báo trong app qua WebSocket.
@@ -535,6 +553,8 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 | Mở phiên ngay báo `DEMO_ONLY` | Backend không chạy profile `dev`. Chạy lại backend profile `dev` (mặc định). |
 | Công bố phiên báo "phải công bố ít nhất 72 giờ…" | DB không có dữ liệu demo (seed `V13_1`). Chạy profile `dev`, hoặc Admin đặt `auction.min_publish_lead_hours` và `auction.min_registration_close_hours` bằng 0 ở màn Cấu hình. |
 | Tài khoản Staff / Admin trả giá bị chặn | Đúng luật mới: dùng tài khoản người mua (`buyer1`…) để đấu giá. |
+| Shop rút tiền bán hàng báo `SALE_HELD` | Đúng luật mới: shop mới (chưa uy tín, mở dưới 30 ngày hoặc dưới 10 đơn hoàn tất) bị giữ tiền bán 7 ngày. Demo thì dùng shop uy tín (`seller1`), hoặc Admin đặt `wallet.seller_hold_days` = 0. |
+| Backend không khởi động, báo "app.mail.enabled=true nhưng chưa đặt MAIL_HOST" | Đặt `MAIL_HOST` trong `.env`, hoặc `MAIL_ENABLED=false`. |
 | Trả giá bị từ chối "vượt hạn mức" | Cọc chưa đủ (hạn mức = cọc × 10). Đặt cọc thêm. |
 | Đăng nhập báo sai mật khẩu | Mật khẩu mẫu là `Rebook@123` (phân biệt hoa thường). |
 | Dữ liệu lộn xộn sau nhiều lần test | Chạy lại lệnh **làm sạch dữ liệu** ở mục 2. |
