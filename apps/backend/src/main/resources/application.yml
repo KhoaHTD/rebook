@@ -56,6 +56,11 @@ app:
   storage:
     # Thư mục lưu ảnh tải lên (biên lai chuyển khoản...)
     dir: ${STORAGE_DIR:uploads}
+  cloudinary:
+    # cloudinary://<api_key>:<api_secret>@<cloud_name>. Để trống = lưu ảnh vào thư mục trên.
+    # Đặt bằng biến môi trường CLOUDINARY_URL, không commit.
+    url: ${CLOUDINARY_URL:}
+    folder: ${CLOUDINARY_FOLDER:rebook}
   jwt:
     # Đổi bằng biến môi trường JWT_SECRET (>= 32 ký tự) khi deploy.
     secret: ${JWT_SECRET:rebook-dev-secret-change-me-please-0123456789abcdef}

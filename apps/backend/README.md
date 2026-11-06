@@ -18,6 +18,10 @@ psql -U postgres -h localhost -f scripts/create-database.sql
 - API: http://localhost:8080 · Swagger UI: http://localhost:8080/swagger-ui.html
 - Spec OpenAPI: http://localhost:8080/v3/api-docs.yaml (bản xuất sẵn: [openapi.yaml](openapi.yaml))
 - Đổi kết nối DB bằng biến môi trường `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`.
+- Ảnh tải lên (`POST /files`) mặc định lưu vào thư mục `uploads` (đổi bằng `STORAGE_DIR`). Muốn lưu lên Cloudinary thì đặt
+  biến môi trường `CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>` trước khi chạy (tuỳ chọn `CLOUDINARY_FOLDER`, mặc định `rebook`);
+  ảnh nằm trong thư mục `rebook/` trên Cloudinary, URL lưu vào database là link https đầy đủ. Không đặt biến này thì vẫn lưu cục bộ.
+  Đừng ghi API secret vào file nằm trong repo.
 - Muốn làm lại dữ liệu mẫu từ đầu: xoá và tạo lại database `rebook_dev`, rồi chạy lại.
 
 ## Tài khoản mẫu (mật khẩu `Rebook@123`)

@@ -38,6 +38,9 @@ public class FileController {
     private final Path dir;
 
     @org.springframework.beans.factory.annotation.Autowired
+    private CloudinaryStorage cloudinary;
+
+    @org.springframework.beans.factory.annotation.Autowired
     private com.rebook.audit.AuditLog audit;
 
     public FileController(@Value("${app.storage.dir:uploads}") String dir) {
@@ -47,7 +50,7 @@ public class FileController {
     public record FileResponse(String url, String contentType, long size) {
     }
 
-    @Operation(summary = "Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL tương đối để gắn vào nghiệp vụ")
+    @Operation(summary = "Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL (tương đối khi lưu cục bộ, https đầy đủ khi bật Cloudinary) để gắn vào nghiệp vụ")
     @PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public FileResponse upload(@RequestParam("file") MultipartFile file) throws IOException {
         String ext = TYPES.get(file.getContentType());
@@ -55,6 +58,12 @@ public class FileController {
             audit.recordDenied(com.rebook.audit.EventCode.FILE_REJECTED, "INVALID_FILE", "FILE", null, "Tệp tải lên bị từ chối",
                     "contentType", file.getContentType(), "size", file.getSize());
             throw ApiException.badRequest("INVALID_FILE", "Chỉ nhận ảnh PNG, JPEG hoặc WebP");
+        }
+        if (cloudinary.enabled()) {
+            String url = cloudinary.upload(file);
+            audit.record(com.rebook.audit.EventCode.FILE_UPLOADED, "FILE", url, null, "Tải ảnh lên Cloudinary",
+                    "contentType", file.getContentType(), "size", file.getSize());
+            return new FileResponse(url, file.getContentType(), file.getSize());
         }
         Files.createDirectories(dir);
         String name = UUID.randomUUID() + "." + ext;
