@@ -277,15 +277,19 @@ INSERT INTO account_debts (user_id, type, amount, paid_amount, status, ref_type,
 -- ---------------------------------------------------------------------
 -- Tin đăng chờ duyệt / bị từ chối (shop 2 chưa là shop uy tín)
 -- ---------------------------------------------------------------------
-INSERT INTO books (id, owner_id, title, author, publisher, publish_year, language, pages, category_id, condition_grade, description, weight_gram) VALUES
-    (95, 4, 'Tuổi Thơ Dữ Dội', 'Phùng Quán', 'NXB Kim Đồng', 2018, 'Tiếng Việt', 420, 2, 'GOOD', 'Bìa mềm, gáy hơi sờn, ruột sạch.', 380),
-    (96, 4, 'Dạy Con Làm Giàu - Tập 1', 'Robert Kiyosaki', 'NXB Trẻ', 2019, 'Tiếng Việt', 280, 67, 'VERY_GOOD', 'Có ghi chú bút chì nhẹ vài trang.', 330),
-    (97, 4, 'Lược Sử Loài Người', 'Yuval Noah Harari', 'NXB Tri Thức', 2020, 'Tiếng Việt', 548, 61, 'LIKE_NEW', 'Gần như mới, đọc một lần.', 600),
-    (98, 4, 'Cho Tôi Xin Một Vé Đi Tuổi Thơ', 'Nguyễn Nhật Ánh', 'NXB Trẻ', 2017, 'Tiếng Việt', 208, 2, 'ACCEPTABLE', 'Bìa trầy, ố nhiều, thiếu tờ lót.', 240);
+-- Dùng lại thông tin và ảnh bìa của 4 đầu sách có sẵn (đúng tên, đúng bìa) nhưng là bản của shop 2, chưa có ISBN
+INSERT INTO books (id, owner_id, title, author, publisher, publish_year, language, pages, category_id, condition_grade, description, weight_gram)
+SELECT 95 + v.n, 4, b.title, b.author, b.publisher, b.publish_year, b.language, b.pages, b.category_id, v.grade, v.descr, b.weight_gram
+FROM (VALUES
+    (0, 20, 'GOOD',       'Bìa mềm, gáy hơi sờn, ruột sạch.'),
+    (1, 33, 'VERY_GOOD',  'Có ghi chú bút chì nhẹ vài trang.'),
+    (2, 41, 'LIKE_NEW',   'Gần như mới, đọc một lần.'),
+    (3, 12, 'ACCEPTABLE', 'Bìa trầy, ố nhiều, thiếu tờ lót.')
+) AS v(n, src, grade, descr) JOIN books b ON b.id = v.src;
 
 INSERT INTO book_images (book_id, url, sort_order, source)
-SELECT b.id, (SELECT bi.url FROM book_images bi WHERE bi.book_id = ((b.id - 95) * 7 + 3) LIMIT 1), 0, 'SELLER'
-FROM books b WHERE b.id BETWEEN 95 AND 98;
+SELECT 95 + v.n, (SELECT bi.url FROM book_images bi WHERE bi.book_id = v.src ORDER BY bi.sort_order LIMIT 1), 0, 'SELLER'
+FROM (VALUES (0, 20), (1, 33), (2, 41), (3, 12)) AS v(n, src);
 
 INSERT INTO listings (book_id, shop_id, price, stock, status, reject_reason, created_at, updated_at, reviewed_by, reviewed_at) VALUES
     (95, 2, 85000,  1, 'PENDING_REVIEW', NULL, now() - interval '3 hours',  now() - interval '3 hours', NULL, NULL),
@@ -303,7 +307,7 @@ INSERT INTO notifications (user_id, type, title, body, is_read, created_at) VALU
     (7, 'ORDER',   'Đơn hàng đã hoàn tất', 'Cảm ơn bạn đã mua sắm. Hãy đánh giá shop nhé!', TRUE, now() - interval '3 days'),
     (3, 'ORDER',   'Có đơn mới', 'Bạn có đơn hàng mới đang chờ xác nhận.', FALSE, now() - interval '2 hours'),
     (3, 'WALLET',  'Yêu cầu rút tiền đang chờ duyệt', 'Yêu cầu rút 1.200.000 ₫ của bạn đang được Admin xem xét.', FALSE, now() - interval '5 hours'),
-    (4, 'LISTING', 'Tin đăng bị từ chối', 'Tin "Cho Tôi Xin Một Vé Đi Tuổi Thơ" bị từ chối: ảnh mờ.', FALSE, now() - interval '1 day'),
+    (4, 'LISTING', 'Tin đăng bị từ chối', 'Tin "' || (SELECT title FROM books WHERE id = 98) || '" bị từ chối: ảnh mờ.', FALSE, now() - interval '1 day'),
     (8, 'WALLET',  'Yêu cầu rút tiền bị từ chối', 'Số tài khoản không khớp tên chủ shop.', TRUE, now() - interval '3 days'),
     (13, 'WALLET', 'Tiền nạp bị đòi lại', 'Ngân hàng đã đòi lại khoản nạp của bạn, khoản nợ 500.000 ₫ đã được ghi nhận.', FALSE, now() - interval '2 days'),
     (15, 'AUCTION', 'Bạn bị cấm đấu giá', 'Bạn bỏ thanh toán lô thắng nên bị cấm đấu giá 60 ngày.', TRUE, now() - interval '12 days');
@@ -311,7 +315,7 @@ INSERT INTO notifications (user_id, type, title, body, is_read, created_at) VALU
 INSERT INTO admin_activity_logs (admin_id, action, target_type, target_id, summary, created_at) VALUES
     (1, 'APPROVE_LISTING',   'LISTING',    '12', 'Duyệt tin "Dế Mèn Phiêu Lưu Ký"', now() - interval '6 days'),
     (1, 'APPROVE_LISTING',   'LISTING',    '33', 'Duyệt tin "Nhà Giả Kim"', now() - interval '5 days'),
-    (1, 'REJECT_LISTING',    'LISTING',    '73', 'Từ chối tin "Cho Tôi Xin Một Vé Đi Tuổi Thơ": ảnh mờ', now() - interval '1 day'),
+    (1, 'REJECT_LISTING',    'LISTING',    '73', 'Từ chối tin "' || (SELECT title FROM books WHERE id = 98) || '": ảnh mờ', now() - interval '1 day'),
     (1, 'LOCK_USER',         'USER',       '14', 'Khoá locked@rebook.vn: Nhiều lần đăng thông tin sai sự thật', now() - interval '8 days'),
     (1, 'APPROVE_WITHDRAWAL','WITHDRAWAL', '1',  'Duyệt rút tiền 1.500.000 ₫ cho Trần Minh Thư', now() - interval '9 days'),
     (1, 'APPROVE_WITHDRAWAL','WITHDRAWAL', '2',  'Duyệt rút tiền 900.000 ₫ cho Lê Hoàng Nam', now() - interval '5 days'),
@@ -519,8 +523,7 @@ INSERT INTO books (id, owner_id, title, author, publisher, publish_year, languag
     (109, 4, 'Sách ôn thi đại học (tuyển tập)', 'Nhiều tác giả', 'NXB Giáo Dục', 2012, 'Tiếng Việt', 300, 10, 'GOOD', 'Sách phổ thông.', 400),
     (110, 3, 'Hồn Bướm Mơ Tiên', 'Khái Hưng', 'Đời Nay', 1933, 'Tiếng Việt', 200, 10, 'GOOD', 'Bìa gốc.', 260);
 
-INSERT INTO book_images (book_id, url, sort_order, source)
-SELECT b.id, (SELECT bi.url FROM book_images bi WHERE bi.book_id = 71 + ((b.id - 99) % 20) LIMIT 1), 0, 'SELLER' FROM books b WHERE b.id BETWEEN 99 AND 110;
+-- Sách ký gửi chưa nhập kho không có ảnh: app tự vẽ bìa theo tên sách (không dùng nhầm bìa của sách khác)
 
 INSERT INTO consignments (code, seller_id, book_id, expected_price, provenance, status, review_note, appointment_at, appointment_code, approved_at, received_at,
                           received_by, created_at, updated_at) VALUES
