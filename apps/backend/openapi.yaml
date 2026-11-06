@@ -2120,6 +2120,25 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/AuthResponse"
+  /auth/google/exchange:
+    post:
+      tags:
+      - Auth
+      summary: Đổi vé đăng nhập Google (nhận từ liên kết quay về app) lấy token
+      operationId: googleExchange
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoogleExchangeRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
   /auth/forgot-password:
     post:
       tags:
@@ -3439,6 +3458,64 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CategoryResponse"
+  /auth/google/status:
+    get:
+      tags:
+      - Auth
+      summary: Đăng nhập Google đã cấu hình chưa
+      operationId: googleStatus
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+  /auth/google/login:
+    get:
+      tags:
+      - Auth
+      summary: "Bắt đầu đăng nhập Google: chuyển hướng sang Google (platform = app\
+        \ | web)"
+      operationId: googleLogin
+      parameters:
+      - name: platform
+        in: query
+        required: false
+        schema:
+          type: string
+          default: app
+      responses:
+        "200":
+          description: OK
+  /auth/google/callback:
+    get:
+      tags:
+      - Auth
+      summary: Google gọi về sau khi người dùng đồng ý; chuyển hướng về app / web
+        kèm vé một lần
+      operationId: googleCallback
+      parameters:
+      - name: code
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: error
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
   /admin/withdrawals:
     get:
       tags:
@@ -5794,6 +5871,14 @@ components:
       required:
       - email
       - password
+    GoogleExchangeRequest:
+      type: object
+      properties:
+        ticket:
+          type: string
+          minLength: 1
+      required:
+      - ticket
     ForgotPasswordRequest:
       type: object
       properties:

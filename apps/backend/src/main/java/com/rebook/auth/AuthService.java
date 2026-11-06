@@ -127,6 +127,44 @@ public class AuthService {
         return tokens(user, null);
     }
 
+    /**
+     * Đăng nhập bằng Google (email đã được Google xác minh): có tài khoản cùng email thì dùng luôn (không hỏi OTP),
+     * chưa có thì tạo tài khoản USER mới lấy tên + ảnh Google, mật khẩu ngẫu nhiên (đặt lại qua "quên mật khẩu" nếu cần).
+     */
+    @Transactional
+    public AuthResponse loginWithGoogle(String rawEmail, String name, String picture) {
+        String email = rawEmail.trim().toLowerCase();
+        User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+        boolean created = false;
+        if (user == null) {
+            if (userRepository.existsByNormalizedEmail(normalizeEmail(email))) {
+                throw ApiException.conflict("EMAIL_TAKEN", "Email này trùng với một tài khoản đã đăng ký");
+            }
+            user = new User();
+            user.setEmail(email);
+            user.setFullName(name == null || name.isBlank() ? email.substring(0, email.indexOf('@')) : name.trim());
+            user.setAvatarUrl(picture);
+            user.setEmailVerified(true);
+            byte[] noise = new byte[32];
+            RANDOM.nextBytes(noise);
+            user.setPasswordHash(passwordEncoder.encode(Base64.getUrlEncoder().withoutPadding().encodeToString(noise)));
+            user = userRepository.save(user);
+            walletService.createFor(user.getId());
+            created = true;
+        } else {
+            ensureActive(user);
+            if (!user.isEmailVerified()) {
+                user.setEmailVerified(true);
+            }
+            if (user.getAvatarUrl() == null && picture != null) {
+                user.setAvatarUrl(picture);
+            }
+        }
+        audit.recordBy(user.getId(), user.getRole(), created ? EventCode.AUTH_REGISTER_SUCCESS : EventCode.AUTH_LOGIN_SUCCESS, "USER",
+                user.getId(), null, created ? "Đăng ký bằng Google" : "Đăng nhập bằng Google");
+        return tokens(user, null);
+    }
+
     /** Đổi refresh token cũ lấy cặp token mới (token cũ bị thu hồi — rotation). */
     @Transactional
     public AuthResponse refresh(String refreshToken) {

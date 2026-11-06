@@ -36,6 +36,7 @@ import 'package:book_marketplace/features/auction/presentation/screens/register_
 import 'package:book_marketplace/features/auction/presentation/screens/results_screen.dart';
 import 'package:book_marketplace/features/auction/presentation/screens/session_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:book_marketplace/features/auth/presentation/screens/google_callback_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/login_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/register_screen.dart';
 import 'package:book_marketplace/features/auth/presentation/screens/verify_otp_screen.dart';
@@ -117,6 +118,13 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
       GoRoute(path: Routes.register, builder: (_, _) => const RegisterScreen()),
+      GoRoute(
+        path: Routes.googleCallback,
+        builder: (_, s) => GoogleCallbackScreen(
+          ticket: s.uri.queryParameters['ticket'],
+          error: s.uri.queryParameters['error'],
+        ),
+      ),
       GoRoute(
         path: Routes.verifyOtp,
         builder: (_, s) =>

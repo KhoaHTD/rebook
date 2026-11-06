@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:book_marketplace/core/auth/auth_tokens.dart';
@@ -31,6 +32,26 @@ class AuthController extends _$AuthController {
     final result = await ref
         .read(authRepositoryProvider)
         .login(email.trim(), password);
+    await _signIn(result);
+  });
+
+  /// Địa chỉ trang đăng nhập Google, null nếu chưa cấu hình (lỗi mạng nằm trong `state`).
+  Future<Uri?> googleLoginUri() async {
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(
+      () => ref.read(authRepositoryProvider).googleLoginUri(web: kIsWeb),
+    );
+    state = result.hasError
+        ? AsyncError(result.error!, result.stackTrace!)
+        : const AsyncData(null);
+    return result.value;
+  }
+
+  /// Đổi vé Google lấy phiên đăng nhập.
+  Future<bool> loginWithGoogleTicket(String ticket) => _run(() async {
+    final result = await ref
+        .read(authRepositoryProvider)
+        .googleExchange(ticket);
     await _signIn(result);
   });
 

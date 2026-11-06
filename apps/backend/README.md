@@ -56,6 +56,16 @@ cd apps/backend
 Script bật container Postgres `rebook-db`, xoá và tạo lại database, chạy backend profile dev với `REBOOK_DEMO=,classpath:db/demo` rồi đợi API sẵn sàng. Chạy lại trước mỗi buổi demo.
 Tài khoản demo thêm: seller3 (shop Đà Nẵng), seller4 (shop mới, tiền bán còn bị giữ), buyer4..7, locked@ (bị khoá), banned@ (bị cấm đấu giá, có nợ phạt); mật khẩu `Rebook@123`.
 
+## Đăng nhập bằng Google
+
+Luồng `authorization code` chạy ở server (app không cần SDK Google): app mở `GET /auth/google/login?platform=app|web` bằng trình duyệt → Google → `GET /auth/google/callback` (server đổi code lấy ID token, bắt buộc email đã xác minh) → chuyển về app (`rebook:///auth/google?ticket=…`) hoặc web (`<APP_URL>/auth/google?ticket=…`) → app gọi `POST /auth/google/exchange` đổi vé một lần (sống 2 phút) lấy token. Email trùng tài khoản cũ thì vào luôn tài khoản đó; chưa có thì tạo tài khoản USER (tên + ảnh Google, không cần OTP).
+
+Cấu hình (để trống = tắt, `GET /auth/google/status` trả `enabled:false` và nút trong app báo chưa cấu hình):
+
+1. Google Cloud Console → APIs & Services → Credentials → Create OAuth client ID → loại **Web application**.
+2. Authorized redirect URI: `http://localhost:8080/auth/google/callback` (đổi cổng theo `PORT`). Máy ảo Android không gọi được `localhost` của máy host, nên với app Android dùng địa chỉ công khai (ngrok / tunnel) và khai báo URI đó.
+3. Đặt biến môi trường (hoặc `.env.local`): `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` (đúng URI đã khai báo), tuỳ chọn `GOOGLE_APP_REDIRECT` (mặc định `rebook:///auth/google`). Không ghi secret vào file nằm trong repo.
+
 ## Cấu trúc
 
 Modular monolith, mỗi package một module (entity, repository, service, controller, DTO):

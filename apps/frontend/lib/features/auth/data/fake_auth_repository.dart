@@ -29,6 +29,14 @@ class FakeAuthRepository implements AuthRepository {
     required String password,
   }) => fakeCall(() => _store.register(fullName, email, phone, password));
 
+  /// Bản giả không có Google: nút báo "chưa cấu hình".
+  @override
+  Future<Uri?> googleLoginUri({required bool web}) async => null;
+
+  @override
+  Future<(AuthTokens, AppUser)> googleExchange(String ticket) =>
+      fakeCall(() => _session(_store.login('minhanh@rebook.vn', '123456')));
+
   @override
   Future<(AuthTokens, AppUser)> verifyOtp(String email, String code) =>
       fakeCall(() => _session(_store.verifyOtp(email, code)));

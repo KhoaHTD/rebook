@@ -7,6 +7,7 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/auth_response.dart';
 import '../models/forgot_password_request.dart';
+import '../models/google_exchange_request.dart';
 import '../models/login_request.dart';
 import '../models/otp_sent_response.dart';
 import '../models/refresh_request.dart';
@@ -52,8 +53,32 @@ abstract class AuthClient {
   @POST('/auth/login')
   Future<AuthResponse> postAuthLogin({@Body() required LoginRequest body});
 
+  /// Đổi vé đăng nhập Google (nhận từ liên kết quay về app) lấy token
+  @POST('/auth/google/exchange')
+  Future<AuthResponse> postAuthGoogleExchange({
+    @Body() required GoogleExchangeRequest body,
+  });
+
   @POST('/auth/forgot-password')
   Future<OtpSentResponse> postAuthForgotPassword({
     @Body() required ForgotPasswordRequest body,
+  });
+
+  /// Đăng nhập Google đã cấu hình chưa
+  @GET('/auth/google/status')
+  Future<Map<String, bool>> getAuthGoogleStatus();
+
+  /// Bắt đầu đăng nhập Google: chuyển hướng sang Google (platform = app | web)
+  @GET('/auth/google/login')
+  Future<void> getAuthGoogleLogin({
+    @Query('platform') String? platform = 'app',
+  });
+
+  /// Google gọi về sau khi người dùng đồng ý; chuyển hướng về app / web kèm vé một lần
+  @GET('/auth/google/callback')
+  Future<void> getAuthGoogleCallback({
+    @Query('code') String? code,
+    @Query('state') String? state,
+    @Query('error') String? error,
   });
 }

@@ -16,6 +16,9 @@ abstract final class Routes {
   static const verifyOtp = '/verify-otp';
   static const forgotPassword = '/forgot-password';
 
+  /// Đích quay về của đăng nhập Google (web: `/auth/google?ticket=`, app: deep link `rebook:///auth/google?ticket=`).
+  static const googleCallback = '/auth/google';
+
   // Nhánh 1 — Khám phá & mua
   static const home = '/home';
   static const search = '/home/search';
@@ -83,7 +86,13 @@ abstract final class Routes {
   static const newConsignment = '/account/consignments/new';
   static String consignment(String id) => '/account/consignments/$id';
 
-  static const _authPaths = [login, register, verifyOtp, forgotPassword];
+  static const _authPaths = [
+    login,
+    register,
+    verifyOtp,
+    forgotPassword,
+    googleCallback,
+  ];
   static bool isAuthPage(String location) => _authPaths.contains(location);
 
   /// Cần đăng nhập. Khách vào các đường này thì khung hiện [GuestGate] thay vì chuyển sang đăng nhập.

@@ -83,4 +83,12 @@ void main() {
     expect(AuthValidators.otp('123456'), isTrue);
     expect(AuthValidators.password('12345'), isFalse);
   });
+
+  test('Google: bản giả chưa cấu hình (không có địa chỉ), đổi vé thì vào tài khoản mẫu', () async {
+    expect(await repo.googleLoginUri(web: false), isNull);
+    expect(await repo.googleLoginUri(web: true), isNull);
+    final (tokens, user) = await repo.googleExchange('ticket');
+    expect(tokens.accessToken, isNotEmpty);
+    expect(user.email, 'minhanh@rebook.vn');
+  });
 }

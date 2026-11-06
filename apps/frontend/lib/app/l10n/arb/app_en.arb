@@ -1392,7 +1392,10 @@
   "obSignUpFree": "Sign up for free",
   "obOrLogIn": "Or log in",
   "authContinueGoogle": "Continue with Google",
-  "authGoogleSoon": "Google sign-in is coming soon.",
+  "authGoogleSoon": "Google sign-in is not configured on the server.",
   "authOrEmail": "Or use your email",
-  "authSkipAsGuest": "Skip, browse books first"
+  "authSkipAsGuest": "Skip, browse books first",
+  "authGoogleWorking": "Signing in with Google…",
+  "authGoogleCancelled": "You cancelled Google sign-in.",
+  "authGoogleFailed": "Google sign-in failed. Please try again."
 }

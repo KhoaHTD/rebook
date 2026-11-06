@@ -17,7 +17,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -30,6 +32,38 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final GoogleAuthService google;
+
+    @Operation(summary = "Đăng nhập Google đã cấu hình chưa")
+    @GetMapping("/google/status")
+    public java.util.Map<String, Boolean> googleStatus() {
+        return java.util.Map.of("enabled", google.enabled());
+    }
+
+    @Operation(summary = "Bắt đầu đăng nhập Google: chuyển hướng sang Google (platform = app | web)")
+    @GetMapping("/google/login")
+    public org.springframework.http.ResponseEntity<Void> googleLogin(@RequestParam(defaultValue = "app") String platform) {
+        return org.springframework.http.ResponseEntity.status(HttpStatus.FOUND)
+                .location(java.net.URI.create(google.loginUrl(platform))).build();
+    }
+
+    @Operation(summary = "Google gọi về sau khi người dùng đồng ý; chuyển hướng về app / web kèm vé một lần")
+    @GetMapping("/google/callback")
+    public org.springframework.http.ResponseEntity<Void> googleCallback(@RequestParam(required = false) String code,
+                                                                       @RequestParam(required = false) String state,
+                                                                       @RequestParam(required = false) String error) {
+        return org.springframework.http.ResponseEntity.status(HttpStatus.FOUND)
+                .location(java.net.URI.create(google.callback(code, state, error))).build();
+    }
+
+    public record GoogleExchangeRequest(@jakarta.validation.constraints.NotBlank String ticket) {
+    }
+
+    @Operation(summary = "Đổi vé đăng nhập Google (nhận từ liên kết quay về app) lấy token")
+    @PostMapping("/google/exchange")
+    public AuthResponse googleExchange(@Valid @RequestBody GoogleExchangeRequest req) {
+        return google.exchange(req.ticket());
+    }
 
     @Operation(summary = "Đăng ký — gửi OTP xác thực email")
     @PostMapping("/register")

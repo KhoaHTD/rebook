@@ -46,6 +46,24 @@ class ApiAuthRepository implements AuthRepository {
       });
 
   @override
+  Future<Uri?> googleLoginUri({required bool web}) => guardApi(() async {
+    final status = await _client.auth.getAuthGoogleStatus();
+    if (status['enabled'] != true) return null;
+    return Uri.parse(
+      '${Env.apiBaseUrl}/auth/google/login?platform=${web ? 'web' : 'app'}',
+    );
+  });
+
+  @override
+  Future<(AuthTokens, AppUser)> googleExchange(String ticket) =>
+      guardApi(() async {
+        final res = await _client.auth.postAuthGoogleExchange(
+          body: api.GoogleExchangeRequest(ticket: ticket),
+        );
+        return res.toDomain();
+      });
+
+  @override
   Future<void> register({
     required String fullName,
     required String email,

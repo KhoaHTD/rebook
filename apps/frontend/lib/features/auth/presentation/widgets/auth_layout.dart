@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:book_marketplace/app/env.dart';
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/app/theme/soft_palette.dart';
+import 'package:book_marketplace/features/auth/presentation/providers/auth_controller.dart';
 
 /// Khung các màn đăng nhập / đăng ký / OTP / quên mật khẩu, dùng chung điện thoại và web: nền trắng với vòng tròn xanh nhạt,
 /// ô nhập gạch chân, nút đen bo tròn. Màn rộng (web / máy tính bảng) đặt form trong một thẻ trắng nổi ở giữa nền xanh nhạt.
@@ -194,17 +197,36 @@ extension on AuthLayout {
   }
 }
 
-/// "Tiếp tục với Google": hiện đúng chỗ trong mẫu; nối đăng nhập Google thật làm ở bước sau.
-class _GoogleButton extends StatelessWidget {
+/// "Tiếp tục với Google": mở trang đăng nhập Google ở trình duyệt; xong backend đưa về app / web kèm vé (xem
+/// `GoogleCallbackScreen`). Máy chủ chưa cấu hình Google thì báo thay vì mở trang.
+class _GoogleButton extends ConsumerWidget {
   const _GoogleButton();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final busy = ref.watch(authControllerProvider).isLoading;
+    Future<void> start() async {
+      final messenger = ScaffoldMessenger.of(context);
+      final uri = await ref
+          .read(authControllerProvider.notifier)
+          .googleLoginUri();
+      if (uri == null) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.authGoogleSoon)));
+        return;
+      }
+      final ok = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+        webOnlyWindowName: '_self',
+      );
+      if (!ok) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.authGoogleSoon)));
+      }
+    }
+
     return OutlinedButton(
-      onPressed: () =>
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(l10n.authGoogleSoon))),
+      onPressed: busy ? null : start,
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(54),
         shape: const StadiumBorder(),

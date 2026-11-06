@@ -15,6 +15,12 @@ abstract interface class AuthRepository {
 
   Future<(AuthTokens, AppUser)> verifyOtp(String email, String code);
 
+  /// Địa chỉ bắt đầu đăng nhập Google (mở bằng trình duyệt); null nếu máy chủ chưa cấu hình Google.
+  Future<Uri?> googleLoginUri({required bool web});
+
+  /// Đổi vé một lần (từ liên kết Google quay về app) lấy token.
+  Future<(AuthTokens, AppUser)> googleExchange(String ticket);
+
   Future<void> resendOtp(String email);
 
   /// Gửi OTP đặt lại mật khẩu.

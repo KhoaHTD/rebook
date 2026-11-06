@@ -2392,7 +2392,10 @@
   "obSignUpFree": "Đăng ký miễn phí",
   "obOrLogIn": "Hoặc đăng nhập",
   "authContinueGoogle": "Tiếp tục với Google",
-  "authGoogleSoon": "Đăng nhập bằng Google sẽ có sớm.",
+  "authGoogleSoon": "Đăng nhập bằng Google chưa được cấu hình trên máy chủ.",
   "authOrEmail": "Hoặc dùng email",
-  "authSkipAsGuest": "Bỏ qua, xem sách trước"
+  "authSkipAsGuest": "Bỏ qua, xem sách trước",
+  "authGoogleWorking": "Đang đăng nhập bằng Google…",
+  "authGoogleCancelled": "Bạn đã huỷ đăng nhập bằng Google.",
+  "authGoogleFailed": "Đăng nhập bằng Google không thành công. Hãy thử lại."
 }

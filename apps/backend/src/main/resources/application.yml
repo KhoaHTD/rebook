@@ -71,6 +71,13 @@ management:
       enabled: false
 
 app:
+  # Đăng nhập Google (luồng authorization code chạy ở server). Để trống = tắt; app hiện "chưa cấu hình".
+  # redirect-uri phải được khai báo trong Google Cloud Console; app-redirect là deep link quay về app.
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/auth/google/callback}
+    app-redirect: ${GOOGLE_APP_REDIRECT:rebook:///auth/google}
   storage:
     # Thư mục lưu ảnh tải lên (biên lai chuyển khoản...)
     dir: ${STORAGE_DIR:uploads}

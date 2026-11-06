@@ -136,6 +136,7 @@ export 'models/register_request.dart';
 export 'models/auth_response.dart';
 export 'models/refresh_request.dart';
 export 'models/login_request.dart';
+export 'models/google_exchange_request.dart';
 export 'models/forgot_password_request.dart';
 export 'models/process_request.dart';
 export 'models/incident_reject_request.dart';
