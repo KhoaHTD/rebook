@@ -25,8 +25,11 @@ import com.rebook.user.Address;
 import com.rebook.user.AddressRepository;
 import com.rebook.user.User;
 import com.rebook.user.UserService;
+import com.rebook.user.UserStatus;
 import com.rebook.wallet.AccountDebt;
 import com.rebook.wallet.DebtService;
+import com.rebook.wallet.Payment;
+import com.rebook.wallet.PaymentService;
 import com.rebook.wallet.WalletService;
 import com.rebook.wallet.WalletTxType;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +58,9 @@ import java.util.Set;
 public class AuctionSettlement {
 
     private static final String REF = "ORDER";
+    /** shortcut: ân hạn cố định 15 phút cho ZaloPay báo về chậm; đưa vào system_configs nếu cần chỉnh. */
+    private static final Duration GATEWAY_GRACE = Duration.ofMinutes(15);
+    static final Instant PERMANENT_BAN = Instant.parse("9999-12-31T00:00:00Z");
 
     private final LotRepository lotRepository;
     private final AuctionSessionRepository sessionRepository;
@@ -74,6 +81,7 @@ public class AuctionSettlement {
     private final ProxyBidRepository proxyRepository;
     private final AuctionViews views;
     private final AuditLog audit;
+    private final PaymentService payments;
 
     // =====================================================================
     // Sau khi phiên kết thúc
@@ -109,7 +117,7 @@ public class AuctionSettlement {
         return createInvoice(lot, buyerId, hammer, secondChance, applyDeposit, 0);
     }
 
-    /** priorWeightGram: khối lượng các lô cùng phiên đã lập hoá đơn cho người này, để gộp phí giao (docs/AUCTION_MONEY_FLOW.md 3.5). */
+    /** priorWeightGram: khối lượng các lô cùng phiên đã lập hoá đơn cho người này, để gộp phí giao (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần B 3.5). */
     public Order createInvoice(Lot lot, Long buyerId, BigDecimal hammer, boolean secondChance, boolean applyDeposit,
                                int priorWeightGram) {
         Book book = bookRepository.findById(lot.getBookId()).orElseThrow();
@@ -174,12 +182,37 @@ public class AuctionSettlement {
         if (o.getStatus() != OrderStatus.PENDING_PAYMENT || o.getOrderType() != Order.Type.AUCTION) {
             return;
         }
-        o.setCancelReason(o.isSecondChance() ? "Không nhận lời mời mua lần hai" : "Quá hạn thanh toán lô thắng");
-        orderService.transition(o, OrderStatus.CANCELLED, null, o.getCancelReason());
+        if (awaitingGateway(o)) {
+            return; // job chạy lại ở lượt sau
+        }
+        // Người bị khoá không đăng nhập được để trả: không phạt
+        boolean locked = userService.getUser(o.getBuyerId()).getStatus() != UserStatus.ACTIVE;
+        cancelUnpaid(o, !locked, o.isSecondChance() ? "Không nhận lời mời mua lần hai" : "Quá hạn thanh toán lô thắng");
+    }
+
+    /** Khoá tài khoản người thắng: huỷ hoá đơn lô chưa trả ngay, không phạt, hoàn cọc, mời người kế tiếp. */
+    @Transactional
+    public void cancelForLockedBuyer(Long orderId) {
+        Order o = orderService.lock(orderId);
+        if (o.getStatus() == OrderStatus.PENDING_PAYMENT && o.getOrderType() == Order.Type.AUCTION) {
+            cancelUnpaid(o, false, "Tài khoản người thắng bị khoá");
+        }
+    }
+
+    /** Huỷ hoá đơn lô chưa trả. penalize: mất cọc, phạt, cấm; không thì hoàn cọc. Rồi mời người về nhì hoặc trả lô về hàng chờ. */
+    private void cancelUnpaid(Order o, boolean penalize, String reason) {
+        o.setCancelReason(reason);
+        orderService.transition(o, OrderStatus.CANCELLED, null, reason);
 
         Lot lot = lotRepository.lockById(o.getLotId()).orElseThrow();
         if (!o.isSecondChance()) {
-            forfeitAndBan(lot, o.getBuyerId(), o);
+            if (penalize) {
+                forfeitAndBan(lot, o.getBuyerId(), o, "không thanh toán lô thắng đúng hạn");
+            } else {
+                registrationRepository.lockBySessionIdAndUserId(lot.getSessionId(), o.getBuyerId())
+                        .filter(r -> r.getStatus() == AuctionRegistration.Status.APPROVED)
+                        .ifPresent(r -> refundDeposit(r, "Hoàn cọc: " + reason));
+            }
             // Giá người về nhì dưới giá sàn thì người bán chưa đồng ý bán ở mức đó → không mời.
             // Người đang bị cấm đấu giá, đang nợ hoặc là người ký gửi cũng bị bỏ qua → mời người kế tiếp.
             Bid second = eligibleRunnerUp(lot, o.getBuyerId());
@@ -193,6 +226,43 @@ public class AuctionSettlement {
         }
         lot.resetToReady();
         notifySeller(lot, "Người mua không thanh toán, lô quay lại chờ xếp phiên sau");
+    }
+
+    /**
+     * Người mua đã mở ZaloPay cho hoá đơn: hỏi lại ZaloPay trước khi phạt. Đã trả thì hoá đơn được ghi nhận ngay;
+     * còn chờ (hoặc vừa hết hạn phía sàn) thì cho thêm thời gian ân hạn vì cổng có thể báo về chậm.
+     */
+    private boolean awaitingGateway(Order o) {
+        if (o.getPaymentId() == null || o.getPaymentMethod() != Payment.Method.ZALOPAY) {
+            return false;
+        }
+        Payment.Status s = payments.refresh(o.getPaymentId());
+        if (o.getStatus() != OrderStatus.PENDING_PAYMENT) {
+            return true; // ZaloPay vừa báo đã trả, hoá đơn đã được ghi nhận
+        }
+        return (s == Payment.Status.PENDING || s == Payment.Status.EXPIRED)
+                && Instant.now().isBefore(o.getPaymentDueAt().plus(GATEWAY_GRACE));
+    }
+
+    /**
+     * Staff báo giao lô đấu giá thất bại. fault = BUYER: lỗi người mua (từ chối nhận, sai địa chỉ, không liên lạc được):
+     * vẫn hoàn tiền và trả lô về kiểm định lại như cũ, rồi phạt như bỏ thanh toán (% giá búa, cấm đấu giá) và thu
+     * phí giao chiều đi (SRS bổ sung BR-3.5). Không phạt thì trả tiền rồi từ chối nhận rẻ hơn hẳn bỏ thanh toán.
+     */
+    @Transactional
+    public OrderDetail deliveryFailed(Long staffId, Long orderId, String reason, Order.DeliveryFault fault) {
+        orderService.markDeliveryFailed(staffId, true, orderId, reason, fault);
+        Order o = orderService.lock(orderId);
+        if (fault == Order.DeliveryFault.BUYER && o.getOrderType() == Order.Type.AUCTION && o.getPaidAt() != null) {
+            Lot lot = lotRepository.lockById(o.getLotId()).orElseThrow();
+            forfeitAndBan(lot, o.getBuyerId(), o, "từ chối nhận lô đã thắng");
+            // refType riêng để phí giao không bị tính vào trần bù chênh cho người bán (chỉ tính tiền phạt, refType ORDER)
+            if (o.getShippingFee().signum() > 0) { // nợ 0đ sẽ treo OPEN mãi và chặn người dùng
+                debts.create(o.getBuyerId(), AccountDebt.Type.AUCTION_PENALTY, o.getShippingFee(), "ORDER_SHIPPING", o.getId(), null,
+                        BigDecimal.ZERO, "Phí giao chiều đi lô " + lot.getLotNumber() + " (người mua không nhận hàng, đơn " + o.getCode() + ")");
+            }
+        }
+        return orderService.toDetail(o);
     }
 
     /** Người được mời mua lần hai từ chối. */
@@ -227,7 +297,8 @@ public class AuctionSettlement {
                 return null; // danh sách giảm dần: từ đây trở xuống đều dưới giá sàn
             }
             User u = userService.getUser(b.getUserId());
-            if (!u.isAuctionBanned() && !u.getId().equals(sellerId) && !debts.hasOpenDebt(u.getId())) {
+            if (u.getStatus() == UserStatus.ACTIVE && !u.isAuctionBanned() && !u.getId().equals(sellerId)
+                    && !debts.hasOpenDebt(u.getId())) {
                 return b;
             }
         }
@@ -251,6 +322,20 @@ public class AuctionSettlement {
         return wouldPay.min(runnerUp.getAmount()).max(lot.getReservePrice());
     }
 
+    /**
+     * Người bán bị khoá: rút các lô của họ khỏi phiên chưa chạy, lô về chờ xếp phiên và không tính lượt.
+     * shortcut: phiên còn lại không lô nào vẫn chạy và kết thúc ngay khi mở (hoàn cọc); Admin nên huỷ phiên đó.
+     */
+    @Transactional
+    public int withdrawSellerLots(Long sellerId) {
+        List<Lot> lots = lotRepository.findScheduledInUpcomingSessionsOfSeller(sellerId);
+        for (Lot lot : lots) {
+            lot.setRounds(Math.max(0, lot.getRounds() - 1));
+            lot.resetToReady();
+        }
+        return lots.size();
+    }
+
     /** Hoàn cọc và huỷ đăng ký ở các phiên chưa chốt khi người dùng bị khoá hoặc bị cấm đấu giá (không để họ bị kẹt vốn). */
     @Transactional
     public int releaseFutureRegistrations(Long userId, String reason) {
@@ -267,9 +352,10 @@ public class AuctionSettlement {
         return released;
     }
 
-    private void forfeitAndBan(Lot lot, Long userId, Order order) {
+    /** why: lý do ghi trong thông báo cho người bị phạt. */
+    private void forfeitAndBan(Lot lot, Long userId, Order order, String why) {
         User user = userService.getUser(userId);
-        user.setAuctionBannedUntil(Instant.now().plus(config.days(SystemConfigService.AUCTION_BAN_DAYS)));
+        applyStrike(user);
         BigDecimal[] forfeited = {BigDecimal.ZERO}; // cọc còn giữ đã bị thu ở lô này
         registrationRepository.lockBySessionIdAndUserId(lot.getSessionId(), userId)
                 .filter(r -> r.getStatus() == AuctionRegistration.Status.APPROVED)
@@ -304,11 +390,33 @@ public class AuctionSettlement {
         }
         audit.record(EventCode.AUCTION_DEFAULT_PENALIZED, "ORDER", order.getId(), order.getCode(), "Phạt bỏ thanh toán lô thắng",
                 "hammer", order.getSubtotal(), "penaltyPercent", pct, "penalty", penalty, "fromDeposit", forfeited[0],
-                "chargedToWalletOrDebt", extra, "bannedUntil", user.getAuctionBannedUntil());
+                "chargedToWalletOrDebt", extra, "bannedUntil", user.getAuctionBannedUntil(), "strikes", user.getAuctionStrikes());
         notifications.notify(userId, NotificationService.AUCTION, "Bạn bị phạt vì không thanh toán lô thắng",
-                "Do không thanh toán lô thắng đúng hạn, bạn bị phạt " + penalty.toPlainString()
-                        + "đ (trừ vào tiền cọc, ví hoặc ghi nợ) và bị cấm đấu giá đến "
-                        + user.getAuctionBannedUntil(), Map.of("lotId", lot.getId()));
+                "Do " + why + ", bạn bị phạt " + penalty.toPlainString()
+                        + "đ (trừ vào tiền cọc, ví hoặc ghi nợ) và bị cấm đấu giá "
+                        + (PERMANENT_BAN.equals(user.getAuctionBannedUntil()) ? "vĩnh viễn" : "đến " + user.getAuctionBannedUntil()),
+                Map.of("lotId", lot.getId()));
+    }
+
+    /**
+     * Cấm luỹ tiến (BR-6.4): lần 1 cấm auction.ban_days, lần 2 trong 12 tháng cấm auction.ban_days_repeat, lần 3 cấm vĩnh viễn.
+     * Nhiều lô bỏ trong lúc đang bị cấm (thường là cùng một phiên) chỉ tính một lần.
+     */
+    private void applyStrike(User user) {
+        Instant now = Instant.now();
+        if (!user.isAuctionBanned()) {
+            boolean recent = user.getAuctionLastStrikeAt() != null && user.getAuctionLastStrikeAt().isAfter(now.minus(Duration.ofDays(365)));
+            user.setAuctionStrikes(recent ? user.getAuctionStrikes() + 1 : 1);
+            user.setAuctionLastStrikeAt(now);
+        }
+        Instant until = switch (Math.min(Math.max(user.getAuctionStrikes(), 1), 3)) {
+            case 1 -> now.plus(config.days(SystemConfigService.AUCTION_BAN_DAYS));
+            case 2 -> now.plus(config.days(SystemConfigService.AUCTION_BAN_DAYS_REPEAT));
+            default -> PERMANENT_BAN;
+        };
+        if (user.getAuctionBannedUntil() == null || until.isAfter(user.getAuctionBannedUntil())) {
+            user.setAuctionBannedUntil(until);
+        }
     }
 
     // =====================================================================
@@ -392,7 +500,7 @@ public class AuctionSettlement {
                     wh.setCheckedOutAt(null);
                     wh.setCheckoutReason(null);
                 }
-                // Sách đã qua tay người mua: phải kiểm định lại trước khi xếp phiên sau (docs/AUCTION_MONEY_FLOW.md 3.6)
+                // Sách đã qua tay người mua: phải kiểm định lại trước khi xếp phiên sau (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần B 3.6)
                 lot.setStatus(lot.getStatus().moveTo(LotStatus.INSPECTING));
                 notifySeller(lot, "Lô " + lot.getLotNumber() + " bị trả lại kho, sẽ được kiểm định lại trước khi xếp phiên sau");
             }
@@ -479,7 +587,7 @@ public class AuctionSettlement {
 
     /**
      * Gộp kiện sau khi người mua đổi cách nhận: các hoá đơn giao tận nơi của cùng phiên được tính phí như một kiện,
-     * lô sau chỉ trả phần tăng thêm so với các lô trước (docs/AUCTION_MONEY_FLOW.md 3.5). Chỉ đổi hoá đơn chưa thanh toán;
+     * lô sau chỉ trả phần tăng thêm so với các lô trước (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần B 3.5). Chỉ đổi hoá đơn chưa thanh toán;
      * hoá đơn đã trả vẫn được tính vào khối lượng của kiện.
      * shortcut: phí tính theo tỉnh nhận của từng hoá đơn, giả định cùng một nơi nhận; khác tỉnh vẫn ra số hợp lý nhưng không tối ưu.
      */

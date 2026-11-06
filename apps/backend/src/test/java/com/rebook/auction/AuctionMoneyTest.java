@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Luồng tiền đấu giá (docs/AUCTION_MONEY_FLOW.md): phạt bỏ thanh toán, nợ, huỷ đăng ký, lô không bán, gộp ship, kiểm định lại. */
+/** Luồng tiền đấu giá (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần B): phạt bỏ thanh toán, nợ, huỷ đăng ký, lô không bán, gộp ship, kiểm định lại. */
 class AuctionMoneyTest extends IntegrationTest {
 
     private static final long RESERVE = 100_000;
@@ -386,6 +386,99 @@ class AuctionMoneyTest extends IntegrationTest {
         assertThat(feeA).isEqualTo(shipping.fee(shipping.warehouseProvince(), province, 600).longValue());
         assertThat(feeA + feeB).isEqualTo(shipping.fee(shipping.warehouseProvince(), province, 1300).longValue());
         assertThat(feeB).isLessThan(feeA);
+    }
+
+    // ---- ZaloPay báo về chậm ----
+
+    private long zaloPayInvoice(Scene s, String dueAgo) {
+        long payment = jdbc.queryForObject("""
+                INSERT INTO payments (code, user_id, purpose, method, amount, status, expires_at)
+                VALUES (?, ?, 'ORDER', 'ZALOPAY', 120000, 'PENDING', now() - interval '1 minute') RETURNING id""",
+                Long.class, code("PM"), s.winner());
+        return jdbc.queryForObject("""
+                INSERT INTO orders (code, buyer_id, lot_id, order_type, status, payment_method, payment_id, subtotal, total,
+                                    payment_due_at, pickup_at_warehouse)
+                VALUES (?, ?, ?, 'AUCTION', 'PENDING_PAYMENT', 'ZALOPAY', ?, 120000, 120000, now() - interval '""" + dueAgo + "', TRUE) RETURNING id",
+                Long.class, code("OD-"), s.winner(), s.lot(), payment);
+    }
+
+    @Test
+    void zaloPayStillPendingRightAfterTheDeadlineIsNotPenalizedYet() {
+        Scene s = scene(120_000, 0, 50_000, "APPROVED");
+        long order = zaloPayInvoice(s, "5 minutes");
+
+        settlement.handleOverdue(order);
+
+        assertThat(jdbc.queryForObject("SELECT status FROM orders WHERE id = ?", String.class, order)).isEqualTo("PENDING_PAYMENT");
+        assertThat(regStatus(s.registration())).as("chưa mất cọc trong thời gian ân hạn").isEqualTo("APPROVED");
+    }
+
+    @Test
+    void zaloPayStillPendingAfterTheGracePeriodIsPenalized() {
+        Scene s = scene(120_000, 0, 50_000, "APPROVED");
+        long order = zaloPayInvoice(s, "30 minutes");
+
+        settlement.handleOverdue(order);
+
+        assertThat(jdbc.queryForObject("SELECT status FROM orders WHERE id = ?", String.class, order)).isEqualTo("CANCELLED");
+        assertThat(regStatus(s.registration())).isEqualTo("FORFEITED");
+    }
+
+    // ---- Giao lô thất bại do người mua ----
+
+    private record Shipped(long order, long lot, long buyer, long staff) {
+    }
+
+    /** Lô 100.000 đã trả bằng ví (cọc đã áp), phí người mua 10.000, phí giao 20.000, đang giao. */
+    private Shipped shippedLot() {
+        long seller = createUser(Role.USER, "Người ký gửi", 0);
+        long buyer = createUser(Role.USER, "Người mua", 0);
+        long book = book(seller, category(), 300);
+        long consignment = consignment(seller, book);
+        long session = endedSession();
+        long lot = soldLot(session, consignment, book, 1, 100_000, buyer);
+        jdbc.update("UPDATE lots SET status = 'PAID' WHERE id = ?", lot);
+        registration(session, buyer, 1, "APPLIED");
+        jdbc.update("INSERT INTO warehouse_items (consignment_id, code, status) VALUES (?, ?, 'SHIPPED')", consignment, code("WH"));
+        jdbc.update("UPDATE wallets SET held_balance = 100000 WHERE user_id = ?", seller);
+        jdbc.update("UPDATE wallets SET available_balance = available_balance + 200000 WHERE user_id IS NULL"); // ví sàn đủ để hoàn phí
+        long order = jdbc.queryForObject("""
+                INSERT INTO orders (code, buyer_id, lot_id, order_type, status, payment_method, paid_at, subtotal, buyer_premium,
+                                    shipping_fee, total, shipped_at)
+                VALUES (?, ?, ?, 'AUCTION', 'SHIPPING', 'WALLET', now(), 100000, 10000, 20000, 130000, now() - interval '1 day')
+                RETURNING id""", Long.class, code("OD-"), buyer, lot);
+        return new Shipped(order, lot, buyer, createUser(Role.STAFF, "Nhân viên kho", 0));
+    }
+
+    private void deliveryFailed(Shipped s, String body) throws Exception {
+        mvc.perform(post("/staff/orders/" + s.order() + "/delivery-failed").with(as(s.staff(), Role.STAFF))
+                .contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk());
+    }
+
+    @Test
+    void winnerRefusingDeliveryIsPenalizedLikeADefault() throws Exception {
+        Shipped s = shippedLot();
+        long platformBefore = platform();
+
+        deliveryFailed(s, "{\"reason\":\"Người mua từ chối nhận\",\"fault\":\"BUYER\"}");
+
+        // Hoàn 130.000, rồi thu phạt 10% giá búa (10.000) và phí giao chiều đi (20.000)
+        assertThat(walletAvailable(s.buyer())).isEqualTo(100_000);
+        assertThat(platform()).as("sàn hoàn 30.000 phí rồi thu lại 30.000").isEqualTo(platformBefore);
+        assertThat(jdbc.queryForObject("SELECT auction_banned_until IS NOT NULL FROM users WHERE id = ?", Boolean.class, s.buyer())).isTrue();
+        assertThat(jdbc.queryForMap("SELECT status, defaulted_hammer::bigint AS dh FROM lots WHERE id = ?", s.lot()))
+                .containsEntry("status", "INSPECTING").containsEntry("dh", 100_000L);
+        assertThat(debtCount(s.buyer(), "OPEN")).isZero();
+    }
+
+    @Test
+    void deliveryFailureNotCausedByTheBuyerRefundsInFull() throws Exception {
+        Shipped s = shippedLot();
+
+        deliveryFailed(s, "{\"reason\":\"Hãng vận chuyển làm thất lạc\"}");
+
+        assertThat(walletAvailable(s.buyer())).isEqualTo(130_000);
+        assertThat(jdbc.queryForObject("SELECT auction_banned_until IS NULL FROM users WHERE id = ?", Boolean.class, s.buyer())).isTrue();
     }
 
     // ---- Trả hàng → kiểm định lại ----

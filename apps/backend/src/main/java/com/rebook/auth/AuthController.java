@@ -39,8 +39,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest req) {
-        return authService.login(req);
+    public AuthResponse login(@Valid @RequestBody LoginRequest req, jakarta.servlet.http.HttpServletRequest http) {
+        return authService.login(req, http.getRemoteAddr());
     }
 
     @Operation(summary = "Đổi refresh token lấy cặp token mới")

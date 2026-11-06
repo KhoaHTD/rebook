@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Luật tiền (docs/SESSION_LOG_2026-11-05.md): COD đối soát với hãng vận chuyển, khoá tiền mới nạp, trả hàng theo bước,
+ * Luật tiền (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần E): COD đối soát với hãng vận chuyển, khoá tiền mới nạp, trả hàng theo bước,
  * xác nhận giao hàng, chụp tỷ lệ phí, đối soát ví, ghi sự kiện.
  */
 class MoneyRulesTest extends IntegrationTest {

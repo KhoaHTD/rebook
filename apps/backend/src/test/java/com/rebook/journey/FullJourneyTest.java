@@ -10,7 +10,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Các câu chuyện đi hết một vòng đời, từ nạp tiền tới nhận tiền, kiểm bảo toàn tiền ở cuối (docs/E2E_TEST_PLAN.md mục A). */
+/** Các câu chuyện đi hết một vòng đời, từ nạp tiền tới nhận tiền, kiểm bảo toàn tiền ở cuối (docs/ra-soat-nghiep-vu/TEST_PLAN_TOAN_DIEN.md phần B mục A). */
 class FullJourneyTest extends JourneySupport {
 
     @Autowired

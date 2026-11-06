@@ -23,6 +23,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u.status as status, u.role as role from User u where u.id = :id")
     Optional<StatusRole> findStatusRoleById(@Param("id") Long id);
 
+    @Query("select u.id from User u where u.role in :roles and u.status = com.rebook.user.UserStatus.ACTIVE")
+    java.util.List<Long> findActiveIdsByRoleIn(@Param("roles") java.util.Collection<Role> roles);
+
     interface StatusRole {
         UserStatus getStatus();
 

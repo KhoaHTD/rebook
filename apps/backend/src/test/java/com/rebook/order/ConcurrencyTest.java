@@ -128,6 +128,24 @@ class ConcurrencyTest extends IntegrationTest {
         assertThat(jdbc.queryForObject("SELECT count(*) FROM withdraw_requests WHERE user_id = ?", Long.class, me)).isEqualTo(1);
     }
 
+    @Test
+    void parallelDebtCollectionsChargeTheDebtOnlyOnce() throws Exception {
+        long user = createUser(Role.USER, "Người nợ", 100_000);
+        jdbc.update("INSERT INTO account_debts (user_id, type, amount, note) VALUES (?, 'AUCTION_PENALTY', 50000, 'Phạt test')", user);
+        long platformBefore = jdbc.queryForObject("SELECT available_balance FROM wallets WHERE user_id IS NULL", Long.class);
+
+        List<Callable<Integer>> calls = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            calls.add(() -> post("/me/debts/collect", user, Role.USER, "{}"));
+        }
+        assertThat(race(calls)).containsOnly(200);
+
+        assertThat(walletAvailable(user)).as("nợ 50.000 chỉ bị trừ một lần").isEqualTo(50_000);
+        assertThat(jdbc.queryForObject("SELECT available_balance FROM wallets WHERE user_id IS NULL", Long.class))
+                .isEqualTo(platformBefore + 50_000);
+        assertThat(jdbc.queryForObject("SELECT status FROM account_debts WHERE user_id = ?", String.class, user)).isEqualTo("PAID");
+    }
+
     // ---- Trả giá ----
 
     @Test

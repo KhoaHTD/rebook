@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Sự cố kho: mất / hỏng sách ký gửi (docs/SRS_BO_SUNG_NGHIEP_VU.md BR-4.2, BR-4.8, BR-4.9).
+ * Sự cố kho: mất / hỏng sách ký gửi (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần C BR-4.2, BR-4.8, BR-4.9).
  * Staff khai báo; Admin duyệt thì sàn chi bồi thường từ ví sàn theo giai đoạn của sách:
  * chưa kiểm định = giá mong muốn (có trần) · đã kiểm định = mức thấp giá ước tính ·
  * đã bán và người thắng đã trả tiền = giá búa − hoa hồng cho người bán, người mua được hoàn đủ + % giá búa.

@@ -12,7 +12,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Luật nghiệp vụ đợt 2026-11-06 (docs/SRS_BO_SUNG_NGHIEP_VU.md): chặn giá ≤ 0 (BR-4.6, BR-5.5), lịch tối thiểu và chốt
+ * Luật nghiệp vụ đợt 2026-11-06 (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần C): chặn giá ≤ 0 (BR-4.6, BR-5.5), lịch tối thiểu và chốt
  * điều khoản lúc công bố (BR-5.1–5.3), ISBN làm tin duyệt lại (BR-2.5), sự cố kho và bồi thường (BR-4.2, BR-4.8, BR-4.9).
  */
 class BusinessRulesBatchTest extends JourneySupport {

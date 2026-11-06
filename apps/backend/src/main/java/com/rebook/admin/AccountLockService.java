@@ -3,6 +3,7 @@ package com.rebook.admin;
 import com.rebook.audit.AuditLog;
 import com.rebook.audit.EventCode;
 import com.rebook.auction.AuctionSettlement;
+import com.rebook.auction.ProxyBidRepository;
 import com.rebook.catalog.ListingRepository;
 import com.rebook.order.OrderRepository;
 import com.rebook.order.OrderService;
@@ -28,6 +29,7 @@ public class AccountLockService {
     private final OrderRepository orderRepository;
     private final OrderService orderService;
     private final AuctionSettlement auctionSettlement;
+    private final ProxyBidRepository proxyRepository;
     private final AuditLog audit;
 
     @Transactional
@@ -48,8 +50,15 @@ public class AccountLockService {
             orderService.cancelBySystem(id, "Tài khoản người mua bị khoá");
         }
         int registrations = auctionSettlement.releaseFutureRegistrations(userId, "Tài khoản bị khoá");
+        // Đấu giá: hoá đơn lô chưa trả huỷ không phạt (người bị khoá không đăng nhập được để trả), mời người kế tiếp.
+        // Lô người đó đang dẫn trong phiên đang chạy vẫn có thể thắng; hoá đơn đó cũng được huỷ không phạt khi quá hạn.
+        List<Long> invoices = orderRepository.findUnpaidAuctionOrderIdsOfBuyer(userId);
+        invoices.forEach(auctionSettlement::cancelForLockedBuyer);
+        int proxies = proxyRepository.deactivateAllForUser(userId);
+        int lots = auctionSettlement.withdrawSellerLots(userId);
         audit.record(EventCode.ACCOUNT_LOCK_CLEANUP, "USER", userId, null, "Dọn việc dở khi khoá tài khoản",
                 "listingsHidden", hidden, "sellerOrdersCancelled", sellerOrders, "buyerOrdersCancelled", unpaid.size(),
-                "auctionRegistrationsReleased", registrations);
+                "auctionRegistrationsReleased", registrations, "auctionInvoicesCancelled", invoices.size(),
+                "proxyBidsCancelled", proxies, "lotsWithdrawn", lots);
     }
 }

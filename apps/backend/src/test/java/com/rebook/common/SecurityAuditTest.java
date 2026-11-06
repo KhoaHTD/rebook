@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Nhật ký bảo mật (docs/LOGGING_DESIGN.md mục 5.1): đăng ký, đăng nhập, OTP, mật khẩu, khoá tài khoản, 403, upload. */
+/** Nhật ký bảo mật (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần D mục 5.1): đăng ký, đăng nhập, OTP, mật khẩu, khoá tài khoản, 403, upload. */
 class SecurityAuditTest extends IntegrationTest {
 
     private static final String PASSWORD = "Matkhau@123";

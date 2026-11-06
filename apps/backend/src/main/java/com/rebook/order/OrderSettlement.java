@@ -67,7 +67,14 @@ public class OrderSettlement {
                 }
             }
             case CANCELLED, FAILED_DELIVERY, RETURNED -> {
-                if (o.isPaidOnline()) {
+                if (e.to() == OrderStatus.FAILED_DELIVERY && o.isPaidOnline() && o.getDeliveryFault() == Order.DeliveryFault.BUYER) {
+                    // BR-3.5: lỗi người mua thì hoàn tiền sách, phí giao chiều đi về shop (shop đã trả hãng vận chuyển)
+                    walletService.removeHeld(sellerId, WalletTxType.REFUND, o.getSubtotal(), REF, o.getId(), "Huỷ tiền chờ đơn " + o.getCode());
+                    walletService.release(sellerId, WalletTxType.SALE_RELEASE, o.getShippingFee(), REF, o.getId(),
+                            "Phí giao chiều đi đơn " + o.getCode() + " (người mua không nhận hàng)");
+                    walletService.credit(o.getBuyerId(), WalletTxType.REFUND, o.getSubtotal(), REF, o.getId(),
+                            "Hoàn tiền đơn " + o.getCode() + " (đã trừ phí giao chiều đi)");
+                } else if (o.isPaidOnline()) {
                     walletService.removeHeld(sellerId, WalletTxType.REFUND, gross, REF, o.getId(), "Huỷ tiền chờ đơn " + o.getCode());
                     walletService.credit(o.getBuyerId(), WalletTxType.REFUND, o.getTotal(), REF, o.getId(), "Hoàn tiền đơn " + o.getCode());
                 } else if (e.to() == OrderStatus.RETURNED && o.getPaymentMethod() == Payment.Method.COD) {

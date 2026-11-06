@@ -42,6 +42,8 @@ public class AuthService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private static final int MAX_LOGIN_FAILURES = 10;
+    private static final int MAX_LOGIN_FAILURES_PER_IP = 30;
+    private static final int MAX_LOGIN_FAILURES_PER_EMAIL = 100;
     private static final Duration LOGIN_WINDOW = Duration.ofMinutes(15);
 
     private final UserRepository userRepository;
@@ -79,10 +81,19 @@ public class AuthService {
         return tokens(user, otp);
     }
 
+    /**
+     * Chặn dò mật khẩu bằng ba bộ đếm sai: theo email + IP (10 lần), theo IP (30 lần, chặn dò nhiều email),
+     * theo email trên mọi IP (100 lần, chặn dò phân tán). Kẻ xấu ở một IP không còn khoá được tài khoản người khác (BE-42).
+     */
     @Transactional
-    public AuthResponse login(LoginRequest req) {
-        String key = "login:" + req.email().trim().toLowerCase();
-        if (limiter.count(key) >= MAX_LOGIN_FAILURES) {
+    public AuthResponse login(LoginRequest req, String clientIp) {
+        String email = req.email().trim().toLowerCase();
+        String ip = clientIp == null ? "?" : clientIp;
+        String pairKey = "login:" + email + "|" + ip;
+        String ipKey = "login-ip:" + ip;
+        String emailKey = "login:" + email;
+        if (limiter.count(pairKey) >= MAX_LOGIN_FAILURES || limiter.count(ipKey) >= MAX_LOGIN_FAILURES_PER_IP
+                || limiter.count(emailKey) >= MAX_LOGIN_FAILURES_PER_EMAIL) {
             audit.recordDeniedBy(null, null, EventCode.AUTH_LOGIN_THROTTLED, "THROTTLED", "USER", null, "Đăng nhập bị chặn tạm vì sai quá nhiều lần",
                     "emailHash", emailHash(req.email()), "windowMinutes", LOGIN_WINDOW.toMinutes());
             throw ApiException.tooMany("Sai mật khẩu quá nhiều lần, vui lòng thử lại sau 15 phút");
@@ -91,12 +102,14 @@ public class AuthService {
                 .filter(u -> passwordEncoder.matches(req.password(), u.getPasswordHash()))
                 .orElse(null);
         if (user == null) {
-            limiter.hit(key, LOGIN_WINDOW);
+            limiter.hit(pairKey, LOGIN_WINDOW);
+            limiter.hit(ipKey, LOGIN_WINDOW);
+            limiter.hit(emailKey, LOGIN_WINDOW);
             audit.recordDeniedBy(null, null, EventCode.AUTH_LOGIN_FAILED, "BAD_CREDENTIALS", "USER", null, "Đăng nhập sai",
-                    "emailHash", emailHash(req.email()), "failuresInWindow", limiter.count(key));
+                    "emailHash", emailHash(req.email()), "failuresInWindow", limiter.count(pairKey));
             throw new BadCredentialsException("bad credentials");
         }
-        limiter.reset(key);
+        limiter.reset(pairKey);
         if (user.getStatus() != UserStatus.ACTIVE) {
             audit.recordDeniedBy(user.getId(), user.getRole(), EventCode.AUTH_LOGIN_FAILED, "ACCOUNT_LOCKED", "USER", user.getId(),
                     "Đăng nhập vào tài khoản bị khoá");

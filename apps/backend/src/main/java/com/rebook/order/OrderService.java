@@ -16,6 +16,7 @@ import com.rebook.order.OrderDtos.ReturnResponse;
 import com.rebook.order.OrderDtos.ReviewRequest;
 import com.rebook.order.OrderDtos.ReviewResponse;
 import com.rebook.system.SystemConfigService;
+import com.rebook.user.Role;
 import com.rebook.user.Shop;
 import com.rebook.user.ShopRepository;
 import com.rebook.user.User;
@@ -269,11 +270,20 @@ public class OrderService {
         if (o.getStatus() != OrderStatus.DELIVERED || !withinComplaintWindow(o)) {
             throw ApiException.conflict("RETURN_NOT_ALLOWED", "Chỉ yêu cầu trả hàng trong thời hạn khiếu nại sau khi giao");
         }
+        boolean notReceived = req.reason() == ReturnRequest.Reason.NOT_RECEIVED;
+        if (notReceived && o.getOrderType() != Order.Type.NORMAL) {
+            // Đơn đấu giá do kho của sàn giao: hàng thất lạc xử lý bằng sự cố kho / vận chuyển, không qua shop
+            throw ApiException.badRequest("RETURN_NOT_ALLOWED", "Đơn đấu giá không nhận được hàng, hãy liên hệ ReBook để được xử lý");
+        }
+        List<String> images = req.images() == null ? List.of() : req.images();
+        if (!notReceived && images.isEmpty()) {
+            throw ApiException.badRequest("IMAGES_REQUIRED", "Cần 1–10 ảnh minh chứng");
+        }
         ReturnRequest r = new ReturnRequest();
         r.setOrderId(o.getId());
         r.setReason(req.reason());
         r.setDescription(req.description());
-        r.setImages(req.images());
+        r.setImages(images);
         returnRepository.save(r);
         transition(o, OrderStatus.RETURN_REQUESTED, userId, "Yêu cầu trả hàng: " + req.reason());
         notifyShop(o, "Đơn " + o.getCode() + " có yêu cầu trả hàng");
@@ -393,9 +403,10 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDetail markDeliveryFailed(Long userId, boolean staff, Long orderId, String reason) {
+    public OrderDetail markDeliveryFailed(Long userId, boolean staff, Long orderId, String reason, Order.DeliveryFault fault) {
         Order o = requireHandlerOrder(userId, staff, orderId);
         o.setCancelReason(reason);
+        o.setDeliveryFault(fault); // đặt trước khi chuyển trạng thái: OrderSettlement chia tiền theo lỗi
         transition(o, OrderStatus.FAILED_DELIVERY, userId, "Giao thất bại: " + reason);
         audit.record(EventCode.ORDER_DELIVERY_MARKED, "ORDER", o.getId(), o.getCode(), "Đánh dấu giao thất bại",
                 "outcome", "FAILED", "byStaff", staff, "simulated", !staff, "reason", reason);
@@ -551,6 +562,16 @@ public class OrderService {
     // =====================================================================
 
     private void approveReturn(Order o, ReturnRequest r, Long actorId, String resolution) {
+        if (r.getReason() == ReturnRequest.Reason.NOT_RECEIVED) {
+            // Không có sách để gửi về: đồng ý là hoàn tiền ngay
+            r.setStatus(ReturnRequest.Status.APPROVED);
+            r.setApprovedAt(Instant.now());
+            r.setResolution(resolution);
+            transition(o, OrderStatus.RETURNED, actorId, "Không nhận được hàng, hoàn tiền: " + resolution);
+            audit.record(EventCode.ORDER_RETURN_APPROVED, "ORDER", o.getId(), o.getCode(), "Hoàn tiền đơn không nhận được hàng",
+                    "refund", o.getTotal(), "decidedBy", actorId);
+            return;
+        }
         r.setStatus(ReturnRequest.Status.AWAITING_GOODS);
         r.setApprovedAt(Instant.now());
         r.setResolution(resolution);
@@ -693,6 +714,25 @@ public class OrderService {
         }
     }
 
+    /**
+     * Job: hoá đơn đấu giá đã trả mà kho chưa xác nhận / chưa giao đúng hạn (cùng hạn với shop): báo mọi Staff và Admin một lần.
+     * Không tự huỷ: sách nằm ở kho của sàn, huỷ là sàn bỏ đơn của chính mình.
+     */
+    @Transactional
+    public void alertWarehouseSla(Long orderId) {
+        Order o = lock(orderId);
+        if (o.getSlaAlertedAt() != null || o.getOrderType() != Order.Type.AUCTION) {
+            return;
+        }
+        o.setSlaAlertedAt(Instant.now());
+        String step = o.getStatus() == OrderStatus.PENDING_CONFIRM ? "chưa được xác nhận" : "chưa được giao cho vận chuyển";
+        notifications.notifyAll(userRepository.findActiveIdsByRoleIn(List.of(Role.STAFF, Role.ADMIN)), NotificationService.ORDER,
+                "Hoá đơn đấu giá quá hạn xử lý", "Hoá đơn " + o.getCode() + " đã thanh toán nhưng " + step + " đúng hạn",
+                Map.of("orderId", o.getId()));
+        audit.record(EventCode.ORDER_WAREHOUSE_SLA_BREACHED, "ORDER", o.getId(), o.getCode(), "Kho quá hạn xử lý hoá đơn đấu giá",
+                "status", o.getStatus(), "paidAt", o.getPaidAt());
+    }
+
     /** Hệ thống huỷ đơn chưa giao cho vận chuyển (vd khoá tài khoản): hoàn tiền, trả tồn kho, không tính lỗi shop. */
     @Transactional
     public void cancelBySystem(Long orderId, String reason) {
@@ -733,7 +773,7 @@ public class OrderService {
      * Đơn COD không tự coi là đã giao nên đây là đường duy nhất để đơn đi tiếp hoặc để ghi nhận người nhận bom hàng.
      */
     @Transactional
-    public OrderDetail carrierConfirm(Long staffId, Long orderId, boolean delivered, String reason) {
+    public OrderDetail carrierConfirm(Long staffId, Long orderId, boolean delivered, String reason, Order.DeliveryFault fault) {
         Order o = lock(orderId);
         if (o.getOrderType() != Order.Type.NORMAL) {
             throw ApiException.conflict("NOT_NORMAL_ORDER", "Đơn đấu giá do kho xử lý bằng thao tác giao của kho");
@@ -746,11 +786,15 @@ public class OrderService {
             transition(o, OrderStatus.DELIVERED, staffId, "Đối chiếu hãng vận chuyển: giao thành công");
         } else {
             o.setCancelReason(reason);
+            o.setDeliveryFault(fault); // đặt trước khi chuyển trạng thái: OrderSettlement chia tiền theo lỗi
             transition(o, OrderStatus.FAILED_DELIVERY, staffId, "Đối chiếu hãng vận chuyển: giao thất bại: " + reason);
+            if (fault == Order.DeliveryFault.SHOP) {
+                markSellerFault(o);
+            }
         }
         audit.record(EventCode.ORDER_DELIVERY_MARKED, "ORDER", o.getId(), o.getCode(), "Staff xác nhận kết quả giao theo hãng vận chuyển",
                 "outcome", delivered ? "DELIVERED" : "FAILED", "source", "CARRIER_CHECK", "byStaff", true, "simulated", false,
-                "shipToDeliverSec", shipToConfirmSec, "reason", reason);
+                "shipToDeliverSec", shipToConfirmSec, "reason", reason, "fault", fault);
         return toDetail(o);
     }
 

@@ -3,6 +3,7 @@ package com.rebook.order;
 import com.rebook.common.PageResponse;
 import com.rebook.order.OrderDtos.CancelRequest;
 import com.rebook.order.OrderDtos.DecisionRequest;
+import com.rebook.order.OrderDtos.DeliveryFailedRequest;
 import com.rebook.order.OrderDtos.OrderDetail;
 import com.rebook.order.OrderDtos.OrderSummary;
 import com.rebook.order.OrderDtos.ReturnResponse;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderManagementController {
 
     private final OrderService orderService;
+    private final com.rebook.auction.AuctionSettlement auctionSettlement;
 
     /** Hai nút giả lập hãng vận chuyển của shop chỉ bật ở môi trường dev / test. */
     @org.springframework.beans.factory.annotation.Value("${app.shipping.simulate-enabled:false}")
@@ -70,7 +72,7 @@ public class OrderManagementController {
     public OrderDetail sellerFailed(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
                                     @Valid @RequestBody CancelRequest req) {
         requireShippingSimulation();
-        return orderService.markDeliveryFailed(me.id(), false, id, req.reason());
+        return orderService.markDeliveryFailed(me.id(), false, id, req.reason(), null);
     }
 
     @PostMapping("/seller/orders/{id}/cancel")
@@ -134,10 +136,11 @@ public class OrderManagementController {
         return orderService.markDelivered(me.id(), true, id);
     }
 
+    @Operation(summary = "[Staff] Giao lô đấu giá thất bại. fault=BUYER: phạt như bỏ thanh toán và thu phí giao chiều đi")
     @PostMapping("/staff/orders/{id}/delivery-failed")
     public OrderDetail staffFailed(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
-                                   @Valid @RequestBody CancelRequest req) {
-        return orderService.markDeliveryFailed(me.id(), true, id, req.reason());
+                                   @Valid @RequestBody DeliveryFailedRequest req) {
+        return auctionSettlement.deliveryFailed(me.id(), id, req.reason(), req.fault());
     }
 
     @Operation(summary = "[Staff] Xử lý trả hàng lô đấu giá (sàn chịu trách nhiệm)")
@@ -163,14 +166,14 @@ public class OrderManagementController {
     @Operation(summary = "[Staff] Đối chiếu hãng vận chuyển: đơn thường đã giao thành công (đường chính để COD đi tiếp)")
     @PostMapping("/staff/orders/{id}/carrier-delivered")
     public OrderDetail carrierDelivered(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
-        return orderService.carrierConfirm(me.id(), id, true, null);
+        return orderService.carrierConfirm(me.id(), id, true, null, null);
     }
 
-    @Operation(summary = "[Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại (người nhận từ chối, thất lạc). Hoàn tiền nếu đã trả trước")
+    @Operation(summary = "[Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại. fault=BUYER: hoàn trừ phí giao chiều đi (phí đó về shop); SHOP: tính lỗi shop")
     @PostMapping("/staff/orders/{id}/carrier-failed")
     public OrderDetail carrierFailed(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
-                                     @Valid @RequestBody CancelRequest req) {
-        return orderService.carrierConfirm(me.id(), id, false, req.reason());
+                                     @Valid @RequestBody DeliveryFailedRequest req) {
+        return orderService.carrierConfirm(me.id(), id, false, req.reason(), req.fault());
     }
 
     // ---- Admin ----

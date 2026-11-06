@@ -41,8 +41,9 @@ public final class OrderDtos {
     // ---- Checkout ----
 
     /** listingIds = null → đặt toàn bộ giỏ. paymentMethod: COD | WALLET | ZALOPAY. */
+    /** expectedTotal: tổng tiền người mua thấy ở bước xem trước; gửi kèm thì giá đổi sẽ bị từ chối (PRICE_CHANGED). */
     public record CheckoutRequest(@NotNull Long addressId, @NotNull Payment.Method paymentMethod,
-                                  List<Long> listingIds, @Size(max = 500) String note) {
+                                  List<Long> listingIds, @Size(max = 500) String note, java.math.BigDecimal expectedTotal) {
     }
 
     public record CheckoutPreviewRequest(@NotNull Long addressId, List<Long> listingIds) {
@@ -97,6 +98,10 @@ public final class OrderDtos {
     public record CancelRequest(@NotBlank @Size(max = 500) String reason) {
     }
 
+    /** fault: ai gây giao thất bại. BUYER = người mua từ chối nhận, sai địa chỉ, không liên lạc được. Không gửi = không rõ, coi như không phải lỗi người mua. */
+    public record DeliveryFailedRequest(@NotBlank @Size(max = 500) String reason, Order.DeliveryFault fault) {
+    }
+
     public record ShipRequest(@Size(max = 50) String trackingCode) {
     }
 
@@ -107,7 +112,8 @@ public final class OrderDtos {
 
     public record ReturnCreateRequest(@NotNull ReturnRequest.Reason reason,
                                       @NotBlank @Size(max = 1000) String description,
-                                      @NotNull @Size(min = 1, max = 10, message = "Cần 1–10 ảnh minh chứng") List<@NotBlank String> images) {
+                                      // Bắt buộc 1–10 ảnh, trừ lý do NOT_RECEIVED (kiểm ở OrderService.requestReturn)
+                                      @Size(max = 10, message = "Tối đa 10 ảnh minh chứng") List<@NotBlank String> images) {
     }
 
     /**

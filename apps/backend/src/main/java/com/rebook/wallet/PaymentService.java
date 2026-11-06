@@ -160,6 +160,17 @@ public class PaymentService {
         return PaymentResponse.of(p, null, false);
     }
 
+    /** Hỏi lại cổng cho một thanh toán đang chờ, trả trạng thái sau khi hỏi. Thành công thì đơn liên quan được ghi nhận qua sự kiện. */
+    @Transactional
+    public Payment.Status refresh(Long paymentId) {
+        Payment p = paymentRepository.lockById(paymentId).orElse(null);
+        if (p == null) {
+            return null;
+        }
+        syncQuietly(p);
+        return p.getStatus();
+    }
+
     /** Hỏi ZaloPay rồi cập nhật thanh toán đang chờ; ZaloPay không trả lời thì giữ nguyên để lần sau hỏi tiếp. */
     private void syncQuietly(Payment p) {
         if (p.getStatus() != Payment.Status.PENDING || p.getMethod() != Payment.Method.ZALOPAY

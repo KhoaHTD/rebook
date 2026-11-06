@@ -87,8 +87,17 @@ public class Order {
 
     /** Hạn shop giao cho vận chuyển sau khi xác nhận; lúc người mua gửi yêu cầu huỷ; đơn hỏng do lỗi của shop. */
     private Instant shipDueAt;
+    /** Đã báo Staff / Admin hoá đơn đấu giá quá hạn xử lý của kho (một lần). */
+    private Instant slaAlertedAt;
     private Instant cancelRequestedAt;
     private boolean sellerFault;
+
+    /** Ai gây giao thất bại (Staff ghi theo hãng vận chuyển, BR-3.7). null = đơn cũ / không rõ. */
+    @io.swagger.v3.oas.annotations.media.Schema(name = "DeliveryFault", enumAsRef = true)
+    public enum DeliveryFault { BUYER, CARRIER, SHOP }
+
+    @Enumerated(EnumType.STRING)
+    private DeliveryFault deliveryFault;
 
     /** Đã gửi nhắc trước hạn (mỗi loại một lần). */
     private boolean shipReminderSent;

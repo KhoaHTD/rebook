@@ -16,7 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Cửa duy nhất để ghi sự kiện (docs/LOGGING_DESIGN.md).
+ * Cửa duy nhất để ghi sự kiện (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần D).
  * {@link #record} chạy chung giao dịch với việc nghiệp vụ (việc lỗi thì log cũng rollback);
  * {@link #recordDenied} chạy giao dịch riêng để việc bị từ chối vẫn có dấu vết.
  * Người làm lấy từ phiên đăng nhập hiện tại; không có thì là SYSTEM (job tự động).

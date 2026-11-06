@@ -106,6 +106,27 @@ public class AuctionRunner {
         log.info("Phiên {} LIVE", sessionId);
     }
 
+    /**
+     * Gọi một lần ở nhịp đầu tiên sau khi backend khởi động. Trong lúc backend tắt không ai trả giá được, nên lô đang mở
+     * được kéo dài để còn ít nhất thời gian soft close; nếu không, nhịp đầu tiên sẽ chốt ngay lô đã quá giờ cũ.
+     */
+    @Transactional
+    public void recoverAfterRestart(Long sessionId) {
+        AuctionSession s = lock(sessionId);
+        if (s.getStatus() != SessionStatus.LIVE || s.getCurrentLotId() == null) {
+            return;
+        }
+        Lot lot = lotRepository.lockById(s.getCurrentLotId()).orElse(null);
+        Instant minEnd = Instant.now().plus(Duration.ofSeconds(s.getSoftCloseSec()));
+        if (lot == null || lot.getStatus() != LotStatus.OPEN || lot.getEndsAt().isAfter(minEnd)) {
+            return;
+        }
+        log.warn("Phiên {} lô {}: backend vừa khởi động lại, kéo dài lô từ {} đến {}", sessionId, lot.getId(), lot.getEndsAt(), minEnd);
+        lot.setEndsAt(minEnd);
+        views.broadcast(s, "SESSION_RESUMED", lot, "Hệ thống vừa khởi động lại, lô " + lot.getLotNumber()
+                + " được kéo dài để mọi người kịp trả giá");
+    }
+
     /** Một nhịp của phiên đang chạy: chốt lô hết giờ, mở lô kế tiếp, hoặc đóng phiên. */
     @Transactional
     public void tick(Long sessionId) {

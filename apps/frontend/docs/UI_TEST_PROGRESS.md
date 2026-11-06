@@ -8,7 +8,7 @@ Cập nhật lần cuối: 05/11/2026. File này để phiên làm việc sau đ
   - `3ea1ff6`: frontend đồng bộ từ `interface` + các sửa lỗi sau test.
   - `48e8087`: màn Mở shop khi backend trả 403 + chữ gợi ý ô giới thiệu.
 - Bản backend cũ hơn (đã bỏ theo ý người dùng, gồm COD, trả hàng có bước gửi lại, mặc định không dev, test end-to-end): nhánh `backup/before-rollback-2026-11-05`.
-- Hai file audit nghiệp vụ (`AUDIT_BACKEND.md`, `AUDIT_FRONTEND.md`) **gác lại**, làm sau. Kết quả đối chiếu: gần như chưa mục nào xong. Gói 13 mục an toàn đã đề xuất (BE-32, BE-26 còn lại, BE-33, BE-35 + FE-07, BE-05, BE-13, BE-29, BE-40, FE-01, FE-02, FE-11, FE-09) chưa làm.
+- Hai file audit nghiệp vụ (`DANH_GIA_BA_TESTER.md phần B`, `DANH_GIA_BA_TESTER.md phần C`) **gác lại**, làm sau. Kết quả đối chiếu: gần như chưa mục nào xong. Gói 13 mục an toàn đã đề xuất (BE-32, BE-26 còn lại, BE-33, BE-35 + FE-07, BE-05, BE-13, BE-29, BE-40, FE-01, FE-02, FE-11, FE-09) chưa làm.
 
 ## Lưu ý khi mở lại máy
 - Sau khi máy khởi động lại: mở Docker Desktop, `docker start rebook-db`, chạy backend `PORT=8081 ./mvnw spring-boot:run` trong `apps/backend` (KHÔNG chạy `resetdb.sh`, nó xoá dữ liệu test), bật lại máy ảo Android và cài lại app nếu cần.

@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Ca ngắn: dữ liệu sai, sai quyền, sai trạng thái (docs/E2E_TEST_PLAN.md mục B). */
+/** Ca ngắn: dữ liệu sai, sai quyền, sai trạng thái (docs/ra-soat-nghiep-vu/TEST_PLAN_TOAN_DIEN.md phần B mục B). */
 class JourneyEdgeCasesTest extends JourneySupport {
 
     @Autowired

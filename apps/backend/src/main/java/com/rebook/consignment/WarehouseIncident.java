@@ -20,7 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Sự cố kho: mất / hỏng sách ký gửi. Staff khai báo, Admin duyệt rồi mới chi bồi thường (docs/SRS_BO_SUNG_NGHIEP_VU.md 4.2). */
+/** Sự cố kho: mất / hỏng sách ký gửi. Staff khai báo, Admin duyệt rồi mới chi bồi thường (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần C 4.2). */
 @Entity
 @Table(name = "warehouse_incidents")
 @Getter

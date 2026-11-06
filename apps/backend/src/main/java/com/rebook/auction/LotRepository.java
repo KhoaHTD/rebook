@@ -58,6 +58,16 @@ public interface LotRepository extends JpaRepository<Lot, Long> {
     int applyBid(@Param("lotId") Long lotId, @Param("version") Long version, @Param("amount") BigDecimal amount,
                  @Param("userId") Long userId, @Param("softCloseEnd") Instant softCloseEnd, @Param("now") Instant now);
 
+    /** Lô của một người ký gửi đã xếp vào phiên chưa chạy (khi khoá tài khoản người bán). */
+    @Query("""
+            select l from Lot l, com.rebook.consignment.Consignment c
+            where l.consignmentId = c.id and c.sellerId = :sellerId and l.status = com.rebook.auction.LotStatus.SCHEDULED
+              and l.sessionId in (select s.id from AuctionSession s where s.status in (
+                  com.rebook.auction.SessionStatus.DRAFT, com.rebook.auction.SessionStatus.PUBLISHED,
+                  com.rebook.auction.SessionStatus.POSTPONED, com.rebook.auction.SessionStatus.CONFIRMED))
+            """)
+    List<Lot> findScheduledInUpcomingSessionsOfSeller(@Param("sellerId") Long sellerId);
+
     /** Tổng giá gõ búa các lô người dùng đã thắng trong phiên (tính hạn mức). */
     @Query("""
             select coalesce(sum(l.hammerPrice), 0) from Lot l

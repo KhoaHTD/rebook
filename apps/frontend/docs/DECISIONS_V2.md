@@ -229,6 +229,6 @@ và lớp API của `main`, rồi làm thêm phía backend cho các tính năng 
 - Mục Tài khoản (mua sách và đấu giá) của khách là `GuestAccountView` ("Tài khoản khách" + Đăng nhập / Đăng ký + Cài đặt). Không có thay đổi API.
 
 ## 2026-11-06 — Bổ sung nghiệp vụ cho SRS (chủ sàn chốt)
-- Quyết định: các chỗ SRS thiếu về định danh, ISBN, chính sách nội dung, phí ship trả hàng, hoàn một phần, phiếu kiểm định, bồi thường kho, lịch phiên, cọc lô cao giá, tiền phạt về sàn, giá mời mua lần hai, bán sau phiên được ghi tập trung ở `docs/SRS_BO_SUNG_NGHIEP_VU.md` (mã BR-x.y, nhãn [Chốt] / [Đã có] / [Đề xuất]).
+- Quyết định: các chỗ SRS thiếu về định danh, ISBN, chính sách nội dung, phí ship trả hàng, hoàn một phần, phiếu kiểm định, bồi thường kho, lịch phiên, cọc lô cao giá, tiền phạt về sàn, giá mời mua lần hai, bán sau phiên được ghi tập trung ở `docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần C` (mã BR-x.y, nhãn [Chốt] / [Đã có] / [Đề xuất]).
 - Đổi so với SRS: cọc bị thu về sàn 100% (thay 50/50; sàn bù chênh cho người bán khi lô bán lại thấp hơn); mời mua lần hai ở "giá công bằng" thay cho giá cao nhất của người về nhì; nhân viên sàn không được đấu giá.
-- Backend đã làm nhóm 1 và nhóm 4 (mục 11 của tài liệu trên; cột ✅). Frontend chưa đổi: chuỗi `offersHint` trong `app_vi.arb` còn ghi "mời mua với giá đã trả", chưa có màn sự cố kho, chưa có nhãn cho mã lỗi mới (xem `docs/BACKLOG_LATER.md`).
+- Backend đã làm nhóm 1 và nhóm 4 (mục 11 của tài liệu trên; cột ✅). Frontend chưa đổi: chuỗi `offersHint` trong `app_vi.arb` còn ghi "mời mua với giá đã trả", chưa có màn sự cố kho, chưa có nhãn cho mã lỗi mới (xem `docs/ra-soat-nghiep-vu/DANH_GIA_BA_TESTER.md phần D`).

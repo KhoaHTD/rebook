@@ -67,6 +67,32 @@ public class SystemConfigService {
     public static final String MIN_REGISTRATION_CLOSE_HOURS = "auction.min_registration_close_hours";
     public static final String COMPENSATION_CAP_UNINSPECTED = "warehouse.compensation_cap_uninspected";
     public static final String COMPENSATION_BUYER_PERCENT = "warehouse.compensation_buyer_percent";
+    public static final String CONSIGN_SELLER_DECISION_DAYS = "consignment.seller_decision_days";
+    public static final String WAREHOUSE_ABANDON_DAYS = "warehouse.abandon_days";
+    public static final String HIGH_VALUE_LOT_THRESHOLD = "auction.high_value_lot_threshold";
+    public static final String HIGH_VALUE_DEPOSIT_PERCENT = "auction.high_value_deposit_percent";
+    public static final String AUCTION_BAN_DAYS_REPEAT = "auction.ban_days_repeat";
+
+    /** Mức nhỏ nhất của khoá số nguyên: đặt 0 là phá luật (vd thời hạn thanh toán 0 phút thì mọi đơn bị huỷ ngay). Khoá khác: ≥ 0. */
+    private static final Map<String, Integer> MIN_VALUES = Map.ofEntries(
+            Map.entry(BID_LIMIT_MULTIPLIER, 1),
+            Map.entry(PAYMENT_TIMEOUT_MIN, 5),
+            Map.entry(CONFIRM_TIMEOUT_HOURS, 1),
+            Map.entry(AUTO_COMPLETE_DAYS, 1),
+            Map.entry(RETURN_RESPONSE_DAYS, 1),
+            Map.entry(AUTO_DELIVER_DAYS, 1),
+            Map.entry(RETURN_SHIP_DAYS, 1),
+            Map.entry(RETURN_CONFIRM_DAYS, 1),
+            Map.entry(SHIP_DEADLINE_DAYS, 1),
+            Map.entry(CANCEL_RESPONSE_HOURS, 1),
+            Map.entry(AUCTION_PAYMENT_HOURS, 1),
+            Map.entry(SECOND_CHANCE_HOURS, 1),
+            Map.entry(CONSIGN_APPOINTMENT_DAYS, 1),
+            Map.entry(CONSIGN_MAX_ROUNDS, 1),
+            Map.entry(UNSOLD_DECISION_DAYS, 1),
+            Map.entry(CONSIGN_SELLER_DECISION_DAYS, 1),
+            Map.entry(AUCTION_BAN_DAYS_REPEAT, 1),
+            Map.entry(WAREHOUSE_ABANDON_DAYS, 14)); // phải dài hơn 7 ngày báo trước khi thanh lý
 
     private final SystemConfigRepository repository;
     private final Map<String, String> cache = new ConcurrentHashMap<>();
@@ -144,7 +170,8 @@ public class SystemConfigService {
                 BigDecimal p = new BigDecimal(v);
                 if (p.signum() < 0 || p.compareTo(BigDecimal.valueOf(100)) > 0) throw new IllegalArgumentException("0–100");
             } else {
-                if (Integer.parseInt(v) < (key.equals(BID_LIMIT_MULTIPLIER) ? 1 : 0)) throw new IllegalArgumentException("số nguyên không âm");
+                int min = MIN_VALUES.getOrDefault(key, 0);
+                if (Integer.parseInt(v) < min) throw new IllegalArgumentException("số nguyên ≥ " + min);
             }
         } catch (RuntimeException e) {
             throw ApiException.badRequest("INVALID_CONFIG", "Giá trị không hợp lệ cho " + key + " (" + e.getMessage() + ")");

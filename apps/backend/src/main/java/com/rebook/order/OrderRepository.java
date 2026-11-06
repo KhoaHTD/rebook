@@ -90,6 +90,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             select count(o) from Order o
             where o.buyerId = :buyerId and o.paymentMethod = com.rebook.wallet.Payment.Method.COD
               and o.status = com.rebook.order.OrderStatus.FAILED_DELIVERY and o.cancelledAt >= :since
+              and (o.deliveryFault is null or o.deliveryFault = com.rebook.order.Order.DeliveryFault.BUYER)
             """)
     long countCodFailuresSince(@Param("buyerId") Long buyerId, @Param("since") Instant since);
 
@@ -139,6 +140,22 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
               and o.status = com.rebook.order.OrderStatus.PENDING_PAYMENT
             """)
     List<Long> findUnpaidNormalOrderIdsOfBuyer(@Param("buyerId") Long buyerId);
+
+    @Query("""
+            select o.id from Order o
+            where o.buyerId = :buyerId and o.orderType = com.rebook.order.Order.Type.AUCTION
+              and o.status = com.rebook.order.OrderStatus.PENDING_PAYMENT
+            """)
+    List<Long> findUnpaidAuctionOrderIdsOfBuyer(@Param("buyerId") Long buyerId);
+
+    /** Hoá đơn đấu giá đã trả mà kho chưa xác nhận / chưa giao đúng hạn, chưa báo lần nào. Nhận tại kho thì chờ người mua, không tính. */
+    @Query("""
+            select o.id from Order o
+            where o.orderType = com.rebook.order.Order.Type.AUCTION and o.slaAlertedAt is null
+              and ((o.status = com.rebook.order.OrderStatus.PENDING_CONFIRM and o.paidAt < :confirmBefore)
+                or (o.status = com.rebook.order.OrderStatus.PREPARING and o.pickupAtWarehouse = false and o.paidAt < :shipBefore))
+            """)
+    List<Long> findWarehouseSlaBreachIds(@Param("confirmBefore") Instant confirmBefore, @Param("shipBefore") Instant shipBefore);
 
     /** Đơn thường đang giao, cũ nhất trước: Staff đối chiếu với hãng vận chuyển. COD không tự coi là đã giao. */
     @Query("""

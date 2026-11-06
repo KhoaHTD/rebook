@@ -46,6 +46,8 @@ public class WarehouseItem {
     /** SHIPPED_TO_WINNER | RETURNED_TO_SELLER */
     private String checkoutReason;
     private Instant returnNotifiedAt;
+    /** Đã nhắc người bán: quá hạn không nhận thì sàn thanh lý sách. */
+    private Instant abandonWarnedAt;
     private BigDecimal storageFee;
     /** Kho làm hỏng sách rồi trả lại người bán: không tính phí lưu kho (BR-4.2). */
     private boolean storageFeeWaived;

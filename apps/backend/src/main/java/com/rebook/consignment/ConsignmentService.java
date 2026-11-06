@@ -50,6 +50,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ConsignmentService {
 
+    /** Số ngày từ lúc nhắc tới lúc thanh lý sách vô chủ. */
+    static final int ABANDON_NOTICE_DAYS = 7;
+
     private static final LocalTime OPEN_HOUR = LocalTime.of(8, 0);
     private static final LocalTime CLOSE_HOUR = LocalTime.of(17, 0);
 
@@ -114,6 +117,9 @@ public class ConsignmentService {
         }
         Instant deadline = c.getApprovedAt().plus(config.days(SystemConfigService.CONSIGN_APPOINTMENT_DAYS));
         LocalTime time = req.appointmentAt().atZone(CodeGenerator.VN).toLocalTime();
+        if (!req.appointmentAt().isAfter(Instant.now())) {
+            throw ApiException.badRequest("APPOINTMENT_IN_PAST", "Lịch hẹn phải ở tương lai");
+        }
         if (req.appointmentAt().isAfter(deadline)) {
             throw ApiException.badRequest("APPOINTMENT_TOO_LATE", "Lịch hẹn phải trước " + deadline);
         }
@@ -377,12 +383,18 @@ public class ConsignmentService {
             throw ApiException.conflict("NOT_RETURNABLE", "Sách này không ở trạng thái chờ người bán nhận lại");
         }
         Consignment c = lock(w.getConsignmentId());
+        checkOut(c, w, "RETURNED_TO_SELLER");
+        notifySeller(c, "Bạn đã nhận lại sách của yêu cầu " + c.getCode());
+        return toWarehouse(w);
+    }
+
+    /** Xuất kho: thu phí lưu kho quá hạn miễn phí (thiếu thì ghi nợ nhưng vẫn xuất, docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần B 3.2). */
+    private void checkOut(Consignment c, WarehouseItem w, String reason) {
         long days = Duration.between(w.getReturnNotifiedAt(), Instant.now()).toDays();
         long chargeable = Math.max(0, days - config.integer(SystemConfigService.STORAGE_FREE_DAYS));
         BigDecimal fee = w.isStorageFeeWaived() ? BigDecimal.ZERO
                 : config.decimal(SystemConfigService.STORAGE_PER_DAY).multiply(BigDecimal.valueOf(chargeable));
         if (fee.signum() > 0) {
-            // Thu từ ví nếu có; thiếu thì ghi nợ nhưng vẫn trả sách (docs/AUCTION_MONEY_FLOW.md 3.2)
             debts.create(c.getSellerId(), AccountDebt.Type.STORAGE_FEE, fee, "WAREHOUSE", w.getId(), null, BigDecimal.ZERO,
                     "Phí lưu kho quá hạn " + chargeable + " ngày (" + c.getCode() + ")");
             audit.record(EventCode.WAREHOUSE_STORAGE_FEE_CHARGED, "WAREHOUSE", w.getId(), c.getCode(), "Phí lưu kho quá hạn",
@@ -391,10 +403,69 @@ public class ConsignmentService {
         w.setStorageFee(fee);
         w.setStatus(WarehouseItem.Status.RETURNED);
         w.setCheckedOutAt(Instant.now());
-        w.setCheckoutReason("RETURNED_TO_SELLER");
+        w.setCheckoutReason(reason);
         c.setStatus(c.getStatus().moveTo(ConsignmentStatus.RETURNED));
-        notifySeller(c, "Bạn đã nhận lại sách của yêu cầu " + c.getCode());
-        return toWarehouse(w);
+    }
+
+    /** Job: kiểm định đạt mà người bán không chấp nhận hay rút đúng hạn → coi như rút, bắt đầu tính hạn nhận lại sách. */
+    @Transactional
+    public void expireSellerDecision(Long id) {
+        Consignment c = lock(id);
+        if (c.getStatus() != ConsignmentStatus.AWAITING_SELLER) {
+            return;
+        }
+        Inspection insp = inspectionRepository.findByConsignmentId(id).orElseThrow();
+        insp.setSellerDecision(Inspection.SellerDecision.WITHDRAWN);
+        insp.setDecidedAt(Instant.now());
+        c.setStatus(c.getStatus().moveTo(ConsignmentStatus.WITHDRAWN));
+        markReturnPending(c);
+        int days = config.integer(SystemConfigService.CONSIGN_SELLER_DECISION_DAYS);
+        notifySeller(c, "Bạn chưa trả lời đề xuất giá của yêu cầu " + c.getCode() + " trong " + days
+                + " ngày nên yêu cầu được coi là rút. Hãy đến kho nhận lại sách trong "
+                + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày, sau đó tính phí lưu kho");
+        audit.record(EventCode.CONSIGNMENT_DECISION_EXPIRED, "CONSIGNMENT", id, c.getCode(), "Người bán không quyết định sau kiểm định",
+                "afterDays", days);
+    }
+
+    /** Job: sách chờ nhận lại sắp tới hạn thanh lý: nhắc người bán một lần. */
+    @Transactional
+    public void warnAbandon(Long warehouseId) {
+        WarehouseItem w = warehouseRepository.findById(warehouseId).orElseThrow();
+        if (w.getStatus() != WarehouseItem.Status.IN_STOCK || w.getReturnNotifiedAt() == null || w.getAbandonWarnedAt() != null) {
+            return;
+        }
+        w.setAbandonWarnedAt(Instant.now());
+        Consignment c = get(w.getConsignmentId());
+        notifySeller(c, "Sách của yêu cầu " + c.getCode()
+                + " vẫn chưa được nhận lại. Sau " + ABANDON_NOTICE_DAYS + " ngày nữa, theo hợp đồng ký gửi, sàn sẽ thanh lý sách"
+                + " và thu phí lưu kho đến ngày đó");
+    }
+
+    /**
+     * Job: đã nhắc mà quá hạn vẫn không nhận: thu phí kho đến hôm nay (thiếu thì nợ), xuất kho để sàn thanh lý.
+     * shortcut: dùng trạng thái RETURNED với lý do ABANDONED thay vì trạng thái riêng, để giao diện không gặp giá trị lạ.
+     */
+    @Transactional
+    public void abandon(Long warehouseId) {
+        WarehouseItem w = warehouseRepository.findById(warehouseId).orElseThrow();
+        if (w.getStatus() != WarehouseItem.Status.IN_STOCK || w.getReturnNotifiedAt() == null || w.getAbandonWarnedAt() == null) {
+            return;
+        }
+        Consignment c = lock(w.getConsignmentId());
+        if (!c.getStatus().nextStates().contains(ConsignmentStatus.RETURNED)) {
+            return; // đang ở bước khác (vd chờ duyệt sự cố kho): không đụng
+        }
+        checkOut(c, w, "ABANDONED");
+        // Lô đã chuyển sang bán thường: tin chờ duyệt không còn sách để bán
+        listingRepository.findByBookId(c.getBookId()).filter(l -> l.getStatus() == ListingStatus.PENDING_REVIEW).ifPresent(l -> {
+            l.setStatus(l.getStatus().moveTo(ListingStatus.REJECTED));
+            l.setRejectReason("Người bán không nhận lại sách đúng hạn, sàn đã thanh lý");
+            l.setStock(0);
+        });
+        notifySeller(c, "Sách của yêu cầu " + c.getCode() + " không được nhận lại đúng hạn nên sàn đã thanh lý theo hợp đồng ký gửi"
+                + (w.getStorageFee().signum() > 0 ? ". Phí lưu kho " + w.getStorageFee().toPlainString() + "đ" : ""));
+        audit.record(EventCode.WAREHOUSE_ITEM_ABANDONED, "WAREHOUSE", warehouseId, c.getCode(), "Thanh lý sách vô chủ",
+                "storageFee", w.getStorageFee());
     }
 
     /** Job: lô không bán / bị huỷ mà người bán không chọn hướng xử lý đúng hạn → tự chuyển sang trả sách. */

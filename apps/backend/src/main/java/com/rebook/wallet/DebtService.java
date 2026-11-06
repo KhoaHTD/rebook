@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Nợ phạt / nợ phí kho (docs/AUCTION_MONEY_FLOW.md mục 3.2). Phần chưa thu đủ ghi thành nợ; thu dần từ số dư dùng được,
+ * Nợ phạt / nợ phí kho (docs/ra-soat-nghiep-vu/THAY_DOI_SO_VOI_CODE_CU.md phần B mục 3.2). Phần chưa thu đủ ghi thành nợ; thu dần từ số dư dùng được,
  * cũ nhất trước. Mỗi lần thu là các dòng sổ cái bình thường qua {@link WalletService}.
  */
 @Service
@@ -60,11 +60,9 @@ public class DebtService {
     /** Thu nợ từ số dư dùng được, cũ nhất trước. Trả về số tiền đã thu lần này. */
     @Transactional
     public BigDecimal collect(Long userId) {
-        List<AccountDebt> open = repository.findByUserIdAndStatusOrderByIdAsc(userId, AccountDebt.Status.OPEN);
-        if (open.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
+        // Khoá ví trước rồi mới đọc nợ: đọc trước thì lượt thu chạy song song thấy số đã trả cũ và trừ ví lần nữa
         walletService.lock(userId);
+        List<AccountDebt> open = repository.findByUserIdAndStatusOrderByIdAsc(userId, AccountDebt.Status.OPEN);
         BigDecimal total = BigDecimal.ZERO;
         for (AccountDebt d : open) {
             BigDecimal pay = d.remaining().min(walletService.get(userId).getAvailableBalance());
