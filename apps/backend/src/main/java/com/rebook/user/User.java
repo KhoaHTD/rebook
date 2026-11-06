@@ -52,4 +52,9 @@ public class User {
     public boolean isAuctionBanned() {
         return auctionBannedUntil != null && auctionBannedUntil.isAfter(Instant.now());
     }
+
+    /** Nhân viên sàn (Staff / Admin) không được tham gia đấu giá: họ kiểm định lô và biết giá sàn. */
+    public boolean isPlatformOperator() {
+        return role != Role.USER;
+    }
 }

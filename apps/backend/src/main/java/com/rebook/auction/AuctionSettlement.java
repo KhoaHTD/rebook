@@ -56,6 +56,7 @@ public class AuctionSettlement {
     private static final String REF = "ORDER";
 
     private final LotRepository lotRepository;
+    private final AuctionSessionRepository sessionRepository;
     private final AuctionRegistrationRepository registrationRepository;
     private final BidRepository bidRepository;
     private final ConsignmentRepository consignmentRepository;
@@ -71,6 +72,7 @@ public class AuctionSettlement {
     private final NotificationService notifications;
     private final DebtService debts;
     private final ProxyBidRepository proxyRepository;
+    private final AuctionViews views;
     private final AuditLog audit;
 
     // =====================================================================
@@ -121,7 +123,7 @@ public class AuctionSettlement {
         o.setStatus(OrderStatus.PENDING_PAYMENT);
         o.setSecondChance(secondChance);
         o.setSubtotal(hammer);
-        o.setBuyerPremium(Money.percent(hammer, config.decimal(SystemConfigService.BUYER_PREMIUM)));
+        o.setBuyerPremium(Money.percent(hammer, buyerPremiumPercent(lot)));
         if (address != null) {
             o.setAddressSnapshot(CheckoutService.snapshot(address));
             BigDecimal fullFee = shipping.fee(shipping.warehouseProvince(), address.getProvince(), priorWeightGram + book.getWeightGram());
@@ -182,9 +184,10 @@ public class AuctionSettlement {
             // Người đang bị cấm đấu giá, đang nợ hoặc là người ký gửi cũng bị bỏ qua → mời người kế tiếp.
             Bid second = eligibleRunnerUp(lot, o.getBuyerId());
             if (second != null) {
+                BigDecimal price = fairSecondChancePrice(lot, o.getBuyerId(), second);
                 lot.setWinnerId(second.getUserId());
-                lot.setHammerPrice(second.getAmount());
-                createInvoice(lot, second.getUserId(), second.getAmount(), true, false);
+                lot.setHammerPrice(price);
+                createInvoice(lot, second.getUserId(), price, true, false);
                 return;
             }
         }
@@ -231,6 +234,23 @@ public class AuctionSettlement {
         return null;
     }
 
+    /**
+     * Giá mời mua lần hai = giá người về nhì lẽ ra phải trả nếu không có người bỏ (BR-6.5):
+     * max(giá sàn, min(giá cao nhất của người về nhì, giá cao nhất của người kế tiếp + 1 bước)).
+     * Không có người kế tiếp thì bằng giá sàn. Kẻ đẩy giá rồi bỏ không còn ép được người mua thật trả giá tối đa của họ.
+     */
+    BigDecimal fairSecondChancePrice(Lot lot, Long defaultedBuyerId, Bid runnerUp) {
+        BigDecimal other = null;
+        for (Bid b : bidRepository.findTopExcluding(lot.getId(), lot.getOpenedAt(), defaultedBuyerId, PageRequest.of(0, 50))) {
+            if (!b.getUserId().equals(runnerUp.getUserId())) {
+                other = b.getAmount();
+                break;
+            }
+        }
+        BigDecimal wouldPay = other == null ? lot.getStartPrice() : other.add(views.increment(lot, other));
+        return wouldPay.min(runnerUp.getAmount()).max(lot.getReservePrice());
+    }
+
     /** Hoàn cọc và huỷ đăng ký ở các phiên chưa chốt khi người dùng bị khoá hoặc bị cấm đấu giá (không để họ bị kẹt vốn). */
     @Transactional
     public int releaseFutureRegistrations(Long userId, String reason) {
@@ -266,7 +286,12 @@ public class AuctionSettlement {
                             "Bồi thường từ tiền cọc người thắng bỏ thanh toán");
                     walletService.credit(null, WalletTxType.DEPOSIT_FORFEIT, deposit.subtract(sellerShare), "REGISTRATION",
                             reg.getId(), "Thu cọc người thắng bỏ thanh toán");
+                    lot.setForfeitedPlatformTake(lot.getForfeitedPlatformTake().add(deposit.subtract(sellerShare)));
                 });
+        // Ghi lại để bù chênh cho người bán nếu lô bán lại thấp hơn (BR-6.2)
+        if (lot.getDefaultedHammer() == null || lot.getDefaultedHammer().compareTo(order.getSubtotal()) < 0) {
+            lot.setDefaultedHammer(order.getSubtotal());
+        }
         releaseFutureRegistrations(userId, "Tài khoản bị cấm đấu giá"); // không để cọc các phiên khác bị kẹt
         // Phạt = % giá búa của lô; còn cọc thì mất cọc (SRS) và phạt không thấp hơn cọc. Phần vượt cọc thu từ ví, thiếu thì ghi nợ.
         BigDecimal pct = config.decimal(SystemConfigService.DEFAULT_PENALTY_PERCENT);
@@ -351,6 +376,7 @@ public class AuctionSettlement {
                 walletService.release(sellerId, WalletTxType.SALE_RELEASE, hammer, REF, o.getId(), "Giải ngân lô " + lot.getLotNumber());
                 walletService.debit(sellerId, WalletTxType.FEE, commission, REF, o.getId(), "Hoa hồng đấu giá lô " + lot.getLotNumber());
                 walletService.credit(null, WalletTxType.FEE, commission, REF, o.getId(), "Hoa hồng đấu giá đơn " + o.getCode());
+                compensateSellerForDefault(lot, sellerId, hammer, o);
                 lot.setStatus(lot.getStatus().moveTo(LotStatus.COMPLETED));
                 notifySeller(lot, "Lô " + lot.getLotNumber() + " đã hoàn tất. Bạn nhận "
                         + hammer.subtract(commission).toPlainString() + "đ vào ví");
@@ -373,6 +399,30 @@ public class AuctionSettlement {
             default -> {
             }
         }
+    }
+
+    /**
+     * Lô từng bị người thắng bỏ thanh toán rồi bán lại thấp hơn: sàn bù cho người bán phần chênh sau hoa hồng,
+     * tối đa bằng số sàn thực thu từ người bỏ cho lô này (cọc bị thu + phạt đã thu được). BR-6.2.
+     * shortcut: phạt thu được sau thời điểm hoàn tất không được bù thêm; làm job bù bổ sung nếu chủ sàn cần.
+     */
+    private void compensateSellerForDefault(Lot lot, Long sellerId, BigDecimal hammer, Order o) {
+        if (lot.getDefaultedHammer() == null || hammer.compareTo(lot.getDefaultedHammer()) >= 0) {
+            return;
+        }
+        BigDecimal diff = lot.getDefaultedHammer().subtract(hammer);
+        BigDecimal pct = lot.getCommissionPercent() != null ? lot.getCommissionPercent() : config.decimal(SystemConfigService.SELLER_COMMISSION);
+        BigDecimal owed = diff.subtract(Money.percent(diff, pct));
+        BigDecimal collected = lot.getForfeitedPlatformTake().add(debts.platformPenaltyCollectedForLot(lot.getId()));
+        BigDecimal pay = owed.min(collected).min(walletService.platformAvailable());
+        if (pay.signum() <= 0) {
+            return;
+        }
+        walletService.debit(null, WalletTxType.COMPENSATION, pay, REF, o.getId(), "Bù chênh lô " + lot.getLotNumber() + " bị bỏ thanh toán");
+        walletService.credit(sellerId, WalletTxType.COMPENSATION, pay, REF, o.getId(),
+                "Sàn bù chênh giá do người thắng trước bỏ thanh toán lô " + lot.getLotNumber());
+        audit.record(EventCode.AUCTION_SELLER_COMPENSATED, "ORDER", o.getId(), o.getCode(), "Bù chênh cho người bán",
+                "defaultedHammer", lot.getDefaultedHammer(), "hammer", hammer, "owed", owed, "collected", collected, "paid", pay);
     }
 
     /** Cọc được trừ vào hoá đơn: chuyển phần đã áp khỏi held, trả lại phần dư (nếu cọc > hoá đơn). */
@@ -456,6 +506,12 @@ public class AuctionSettlement {
     }
 
     // ---- Nội bộ ----
+
+    /** % phí người mua đã chốt vào phiên lúc công bố (BR-5.3); phiên cũ thì dùng cấu hình hiện tại. */
+    private BigDecimal buyerPremiumPercent(Lot lot) {
+        BigDecimal p = sessionRepository.findById(lot.getSessionId()).map(AuctionSession::getBuyerPremiumPercent).orElse(null);
+        return p != null ? p : config.decimal(SystemConfigService.BUYER_PREMIUM);
+    }
 
     public Long sellerOf(Lot lot) {
         return consignmentRepository.findById(lot.getConsignmentId()).map(Consignment::getSellerId).orElseThrow();

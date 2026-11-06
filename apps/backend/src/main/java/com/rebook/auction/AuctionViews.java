@@ -36,6 +36,7 @@ public class AuctionViews {
     private final BidRepository bidRepository;
     private final BookRepository bookRepository;
     private final SystemConfigService config;
+    private final AuctionSessionRepository sessionRepository;
     private final RealtimeHub hub;
 
     public SessionSummary summary(AuctionSession s) {
@@ -54,13 +55,17 @@ public class AuctionViews {
                 .collect(Collectors.toMap(AuctionRegistration::getUserId, AuctionRegistration::paddle));
     }
 
-    public BigDecimal increment(BigDecimal price) {
-        return config.bidIncrement(price == null ? BigDecimal.ZERO : price);
+    /** Bước giá theo bảng đã chốt vào phiên của lô lúc công bố (BR-5.3); phiên cũ chưa chốt thì dùng cấu hình hiện tại. */
+    public BigDecimal increment(Lot l, BigDecimal price) {
+        BigDecimal p = price == null ? BigDecimal.ZERO : price;
+        String tiers = l.getSessionId() == null ? null
+                : sessionRepository.findById(l.getSessionId()).map(AuctionSession::getBidIncrementTiers).orElse(null);
+        return tiers == null ? config.bidIncrement(p) : SystemConfigService.bidIncrement(tiers, p);
     }
 
     /** Giá tối thiểu cho lượt kế tiếp = giá hiện tại + bước giá (hoặc giá khởi điểm nếu chưa ai trả). */
     public BigDecimal nextMinBid(Lot l) {
-        return l.getCurrentPrice() == null ? l.getStartPrice() : l.getCurrentPrice().add(increment(l.getCurrentPrice()));
+        return l.getCurrentPrice() == null ? l.getStartPrice() : l.getCurrentPrice().add(increment(l, l.getCurrentPrice()));
     }
 
     public LotPublic lotPublic(Lot l, Map<Long, String> paddles, Set<Long> watched) {
@@ -86,7 +91,7 @@ public class AuctionViews {
         boolean open = l.getStatus() == LotStatus.OPEN;
         boolean sold = l.getCloseResult() == Lot.CloseResult.SOLD;
         return new LotLive(l.getId(), l.getLotNumber(), b.getTitle(), b.coverUrl(), l.getStatus(), l.getStartPrice(),
-                l.getCurrentPrice(), open ? nextMinBid(l) : null, open ? increment(l.getCurrentPrice() == null ? l.getStartPrice() : l.getCurrentPrice()) : null,
+                l.getCurrentPrice(), open ? nextMinBid(l) : null, open ? increment(l, l.getCurrentPrice() == null ? l.getStartPrice() : l.getCurrentPrice()) : null,
                 l.getBidCount(), l.getEndsAt(), paddles.get(l.getCurrentWinnerId()), recent, l.getCloseResult(),
                 sold ? l.getHammerPrice() : null);
     }

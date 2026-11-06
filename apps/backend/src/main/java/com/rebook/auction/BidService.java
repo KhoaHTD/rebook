@@ -194,7 +194,7 @@ public class BidService {
                     autoBid(lot, session, winner, cMax, true); // bằng giá tối đa: người đặt trước giữ giá ở mức này
                 } else {
                     autoBid(lot, session, challenger.getUserId(), cMax);
-                    BigDecimal answer = cMax.add(views.increment(cMax)).min(wMax);
+                    BigDecimal answer = cMax.add(views.increment(lot, cMax)).min(wMax);
                     autoBid(lot, session, winner, answer, true);
                 }
                 outbid.add(challenger.getUserId());
@@ -208,7 +208,7 @@ public class BidService {
                     winnerProxy.setActive(false);
                 }
                 BigDecimal target = winner == null ? nextMin
-                        : wMax.add(views.increment(wMax)).min(cMax).max(views.nextMinBid(lot));
+                        : wMax.add(views.increment(lot, wMax)).min(cMax).max(views.nextMinBid(lot));
                 if (target.compareTo(cMax) > 0) {
                     target = cMax;
                 }
@@ -298,6 +298,9 @@ public class BidService {
 
     private AuctionRegistration requireBidder(Long userId, Lot lot, AuctionSession session) {
         User user = userService.getUser(userId);
+        if (user.isPlatformOperator()) {
+            throw ApiException.forbidden("STAFF_CANNOT_BID", "Tài khoản nhân viên sàn không được tham gia đấu giá");
+        }
         if (user.isAuctionBanned()) {
             throw ApiException.forbidden("AUCTION_BANNED", "Tài khoản đang bị cấm tham gia đấu giá đến " + user.getAuctionBannedUntil());
         }

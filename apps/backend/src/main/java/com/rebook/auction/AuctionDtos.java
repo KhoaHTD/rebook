@@ -30,7 +30,7 @@ public final class AuctionDtos {
             @NotNull Instant startAt,
             @NotNull Instant registrationDeadline,
             @NotNull @Min(1) Integer minParticipants,
-            @NotNull @WholeVnd @DecimalMin("0") BigDecimal depositAmount,
+            @NotNull @WholeVnd @DecimalMin(value = "1000", message = "Tiền cọc tối thiểu 1.000đ") BigDecimal depositAmount,
             @Min(10) @Max(600) Integer lotDurationSec,
             @Min(5) @Max(120) Integer softCloseSec,
             @Min(0) @Max(60) Integer lotGapSec) {

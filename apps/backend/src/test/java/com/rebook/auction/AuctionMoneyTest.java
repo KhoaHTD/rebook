@@ -24,6 +24,12 @@ class AuctionMoneyTest extends IntegrationTest {
     @Autowired
     AuctionSettlement settlement;
     @Autowired
+    AuctionViews views;
+    @Autowired
+    LotRepository lotRepository;
+    @Autowired
+    com.rebook.order.OrderService orderService;
+    @Autowired
     AuctionMaintenanceJob maintenance;
     @Autowired
     AuctionSessionRepository sessions;
@@ -125,8 +131,8 @@ class AuctionMoneyTest extends IntegrationTest {
 
         assertThat(regStatus(s.registration())).isEqualTo("FORFEITED");
         assertThat(held(s.winner())).isZero();
-        assertThat(walletAvailable(s.seller())).isEqualTo(25_000);
-        assertThat(platform()).isEqualTo(platformBefore + 25_000);
+        assertThat(walletAvailable(s.seller())).as("BR-6.1: cọc về sàn hết").isZero();
+        assertThat(platform()).isEqualTo(platformBefore + 50_000);
         assertThat(debtCount(s.winner(), "OPEN")).isZero();
         assertThat(jdbc.queryForObject("SELECT auction_banned_until IS NOT NULL FROM users WHERE id = ?", Boolean.class, s.winner())).isTrue();
         assertThat(jdbc.queryForObject("SELECT count(*) FROM audit_events WHERE event_code = 'AUCTION.DEFAULT.PENALIZED' AND target_id = ?",
@@ -141,8 +147,8 @@ class AuctionMoneyTest extends IntegrationTest {
         settlement.handleOverdue(overdueInvoice(s, 1_000_000));
 
         assertThat(walletAvailable(s.winner())).isEqualTo(30_000);
-        assertThat(walletAvailable(s.seller())).isEqualTo(50_000);
-        assertThat(platform()).isEqualTo(platformBefore + 50_000);
+        assertThat(walletAvailable(s.seller())).isZero();
+        assertThat(platform()).isEqualTo(platformBefore + 100_000);
         assertThat(debtCount(s.winner(), "OPEN")).isZero();
     }
 
@@ -169,15 +175,15 @@ class AuctionMoneyTest extends IntegrationTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("DEBT_OPEN"));
 
-        // Nạp tiền rồi thu nợ: hết chặn, tiền phạt chia người bán / sàn như phần cọc.
+        // Nạp tiền rồi thu nợ: hết chặn, tiền phạt về sàn (BR-6.1).
         jdbc.update("UPDATE wallets SET available_balance = available_balance + 100000 WHERE user_id = ?", s.winner());
         mvc.perform(post("/me/debts/collect").with(as(s.winner(), Role.USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.collected").value(30000))
                 .andExpect(jsonPath("$.stillOwed").value(0));
         assertThat(debtCount(s.winner(), "PAID")).isEqualTo(1);
-        assertThat(walletAvailable(s.seller())).isEqualTo(50_000); // 25.000 từ cọc + 10.000 + 15.000 từ nợ
-        assertThat(platform()).isEqualTo(platformBefore + 50_000);
+        assertThat(walletAvailable(s.seller())).isZero();
+        assertThat(platform()).isEqualTo(platformBefore + 100_000); // 50.000 cọc + 20.000 + 30.000 từ nợ
         mvcWithdraw(s.winner(), 50_000).andExpect(status().isCreated());
     }
 
@@ -195,8 +201,8 @@ class AuctionMoneyTest extends IntegrationTest {
 
         assertThat(regStatus(s.registration())).isEqualTo("APPLIED"); // không còn cọc để thu
         assertThat(walletAvailable(s.winner())).isEqualTo(300_000);    // phạt 10% × 2.000.000 = 200.000
-        assertThat(walletAvailable(s.seller())).isEqualTo(100_000);
-        assertThat(platform()).isEqualTo(platformBefore + 100_000);
+        assertThat(walletAvailable(s.seller())).isZero();
+        assertThat(platform()).isEqualTo(platformBefore + 200_000);
         assertThat(debtCount(s.winner(), "OPEN")).isZero();
     }
 
@@ -216,6 +222,59 @@ class AuctionMoneyTest extends IntegrationTest {
         assertThat(jdbc.queryForObject("SELECT buyer_id FROM orders WHERE lot_id = ? AND second_chance", Long.class, s.lot()))
                 .isEqualTo(good);
         assertThat(jdbc.queryForObject("SELECT hammer_price FROM lots WHERE id = ?", Long.class, s.lot())).isEqualTo(150_000);
+    }
+
+    @Test
+    void secondChanceIsOfferedAtTheFairPriceAndTheSellerIsCompensatedOnCompletion() {
+        Scene s = scene(300_000, 0, 50_000, "APPROVED"); // phạt 10% = 30.000 < cọc 50.000 → mất cọc, về sàn
+        long runner = createUser(Role.USER, "Người về nhì", 0);
+        long third = createUser(Role.USER, "Người thứ ba", 0);
+        long runnerReg = registration(s.session(), runner, 2, "REFUNDED");
+        long thirdReg = registration(s.session(), third, 3, "REFUNDED");
+        jdbc.update("INSERT INTO bids (lot_id, user_id, registration_id, amount) VALUES (?, ?, ?, 250000)", s.lot(), runner, runnerReg);
+        jdbc.update("INSERT INTO bids (lot_id, user_id, registration_id, amount) VALUES (?, ?, ?, 150000)", s.lot(), third, thirdReg);
+
+        settlement.handleOverdue(overdueInvoice(s, 300_000));
+
+        // BR-6.5: không có người bỏ thì người về nhì chỉ cần vượt người thứ ba: 150.000 + bước 10.000
+        long offer = jdbc.queryForObject("SELECT id FROM orders WHERE lot_id = ? AND second_chance", Long.class, s.lot());
+        assertThat(jdbc.queryForObject("SELECT subtotal::bigint FROM orders WHERE id = ?", Long.class, offer)).isEqualTo(160_000);
+        assertThat(jdbc.queryForMap("SELECT defaulted_hammer::bigint AS h, forfeited_platform_take::bigint AS t FROM lots WHERE id = ?", s.lot()))
+                .containsEntry("h", 300_000L).containsEntry("t", 50_000L);
+
+        // Người về nhì trả tiền, nhận tại kho, hoàn tất (đi tắt qua chuyển trạng thái; dòng tiền chạy qua listener như thật)
+        for (com.rebook.order.OrderStatus to : new com.rebook.order.OrderStatus[]{com.rebook.order.OrderStatus.PENDING_CONFIRM,
+                com.rebook.order.OrderStatus.PREPARING, com.rebook.order.OrderStatus.DELIVERED, com.rebook.order.OrderStatus.COMPLETED}) {
+            tx.executeWithoutResult(st -> orderService.transition(orderService.lock(offer), to, null, "test"));
+        }
+        // BR-6.2: 160.000 − 15% = 136.000; bù min((300.000 − 160.000) × 85% = 119.000; sàn đã thu 50.000) = 50.000
+        assertThat(walletAvailable(s.seller())).isEqualTo(186_000);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM wallet_transactions t JOIN wallets w ON w.id = t.wallet_id"
+                + " WHERE w.user_id = ? AND t.type = 'COMPENSATION'", Long.class, s.seller())).isEqualTo(1);
+    }
+
+    @Test
+    void secondChanceWithoutAThirdBidderIsOfferedAtTheReserve() {
+        Scene s = scene(300_000, 0, 50_000, "APPROVED");
+        long runner = createUser(Role.USER, "Người về nhì", 0);
+        long runnerReg = registration(s.session(), runner, 2, "REFUNDED");
+        jdbc.update("INSERT INTO bids (lot_id, user_id, registration_id, amount) VALUES (?, ?, ?, 280000)", s.lot(), runner, runnerReg);
+
+        settlement.handleOverdue(overdueInvoice(s, 300_000));
+
+        assertThat(jdbc.queryForObject("SELECT subtotal::bigint FROM orders WHERE lot_id = ? AND second_chance", Long.class, s.lot()))
+                .isEqualTo(RESERVE);
+    }
+
+    @Test
+    void termsFrozenOnTheSessionWinOverTheCurrentConfig() {
+        Scene s = scene(1_000_000, 0, 0, "APPROVED");
+        jdbc.update("UPDATE auction_sessions SET buyer_premium_percent = 20, bid_increment_tiers = '0:7000' WHERE id = ?", s.session());
+        Lot lot = lotRepository.findById(s.lot()).orElseThrow();
+        assertThat(views.increment(lot, java.math.BigDecimal.valueOf(500_000))).isEqualByComparingTo("7000");
+        var invoice = tx.execute(st -> settlement.createInvoice(lotRepository.findById(s.lot()).orElseThrow(), s.winner(),
+                java.math.BigDecimal.valueOf(1_000_000), false, false));
+        assertThat(invoice.getBuyerPremium()).isEqualByComparingTo("200000");
     }
 
     // ---- Huỷ đăng ký ----

@@ -54,6 +54,11 @@ public class AuctionSession {
     private Instant endedAt;
     private Long createdBy;
 
+    /** Điều khoản chốt lúc công bố (BR-5.3); null = phiên cũ, đọc cấu hình hiện tại. */
+    private BigDecimal buyerPremiumPercent;
+    private String bidIncrementTiers;
+    private Integer bidLimitMultiplier;
+
     @Version
     private Long version;
 

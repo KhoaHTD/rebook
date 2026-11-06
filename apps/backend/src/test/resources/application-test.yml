@@ -11,6 +11,7 @@ spring:
 app:
   auction:
     engine-enabled: false
+    demo-enabled: true
   storage:
     dir: target/test-uploads
   payment:

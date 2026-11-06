@@ -128,6 +128,36 @@ class MultiBidderTest extends IntegrationTest {
     }
 
     @Test
+    void platformStaffCannotRegisterOrBid() throws Exception {
+        long published = jdbc.queryForObject("""
+                INSERT INTO auction_sessions (title, start_at, registration_deadline, deposit_amount, status)
+                VALUES ('Phiên sắp tới', now() + interval '2 day', now() + interval '1 day', ?, 'PUBLISHED') RETURNING id""",
+                Long.class, DEPOSIT);
+        for (Role role : new Role[]{Role.STAFF, Role.ADMIN}) {
+            long op = createUser(role, "Nhân viên " + role, 1_000_000);
+            jdbc.update("UPDATE users SET phone_verified = true WHERE id = ?", op);
+            var res = mvc.perform(MockMvcRequestBuilders.post("/sessions/" + published + "/register").with(as(op, role))
+                    .contentType(MediaType.APPLICATION_JSON).content("{\"agreeRules\":true}")).andReturn().getResponse();
+            assertThat(res.getStatus()).as(role + " đăng ký phiên").isEqualTo(403);
+            assertThat(res.getContentAsString()).contains("STAFF_CANNOT_BID");
+            assertThat(walletHeld(op)).as("không bị khoá cọc").isZero();
+
+            // Kể cả đã có đăng ký từ trước (dữ liệu cũ) cũng không trả giá được
+            register(op, role == Role.STAFF ? 21 : 22, 10_000_000);
+            assertThat(bidAs(op, role, 50_000)).as(role + " trả giá tay").isEqualTo(403);
+            assertThat(mvc.perform(MockMvcRequestBuilders.put("/lots/" + lot + "/proxy-bid").with(as(op, role))
+                    .contentType(MediaType.APPLICATION_JSON).content("{\"maxAmount\":200000}")).andReturn().getResponse().getStatus())
+                    .as(role + " đặt giá tối đa").isEqualTo(403);
+        }
+        assertThat(lotRow(lot).get("bid_count")).isEqualTo(0);
+    }
+
+    private int bidAs(long user, Role role, long amount) throws Exception {
+        return mvc.perform(MockMvcRequestBuilders.post("/lots/" + lot + "/bids").with(as(user, role))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"amount\":" + amount + "}")).andReturn().getResponse().getStatus();
+    }
+
+    @Test
     void outsidersCannotBid() throws Exception {
         long stranger = createUser(Role.USER, "Chưa đăng ký", 1_000_000);
         long banned = createUser(Role.USER, "Bị cấm", 1_000_000);

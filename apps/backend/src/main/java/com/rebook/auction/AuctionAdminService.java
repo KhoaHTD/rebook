@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -115,8 +116,21 @@ public class AuctionAdminService {
         if (lots.isEmpty()) {
             throw ApiException.badRequest("NO_LOTS", "Phiên chưa có lô nào");
         }
+        // Lịch tối thiểu (BR-5.1, BR-5.2); dữ liệu demo đặt hai khoá này bằng 0
+        int lead = config.integer(SystemConfigService.MIN_PUBLISH_LEAD_HOURS);
+        if (s.getStartAt().isBefore(now.plus(Duration.ofHours(lead)))) {
+            throw ApiException.badRequest("INVALID_SCHEDULE", "Catalogue phải công bố ít nhất " + lead + " giờ trước giờ mở phiên");
+        }
+        int close = config.integer(SystemConfigService.MIN_REGISTRATION_CLOSE_HOURS);
+        if (s.getRegistrationDeadline().isAfter(s.getStartAt().minus(Duration.ofHours(close)))) {
+            throw ApiException.badRequest("INVALID_SCHEDULE", "Hạn đăng ký phải trước giờ mở phiên ít nhất " + close + " giờ");
+        }
         s.setStatus(s.getStatus().moveTo(SessionStatus.PUBLISHED));
         s.setPublishedAt(now);
+        // Chốt điều khoản người trả giá đã đồng ý: Admin đổi cấu hình sau đó không ảnh hưởng phiên này (BR-5.3)
+        s.setBuyerPremiumPercent(config.decimal(SystemConfigService.BUYER_PREMIUM));
+        s.setBidIncrementTiers(config.get(SystemConfigService.BID_TIERS));
+        s.setBidLimitMultiplier(config.integer(SystemConfigService.BID_LIMIT_MULTIPLIER));
         lots.forEach(l -> l.setRounds(l.getRounds() + 1));
         return views.summary(s);
     }

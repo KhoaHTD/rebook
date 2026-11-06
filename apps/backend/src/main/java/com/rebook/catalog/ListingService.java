@@ -269,9 +269,12 @@ public class ListingService {
             }
             if (q.q() != null && !q.q().isBlank()) {
                 String like = "%" + q.q().trim().toLowerCase() + "%";
+                // Gõ ISBN có gạch hoặc ISBN-10 vẫn ra sách (ISBN lưu dạng 13 số, BR-2.3)
+                String isbn13 = com.rebook.common.Isbn.toIsbn13(q.q());
                 ps.add(cb.or(cb.like(cb.lower(book.get("title")), like),
                         cb.like(cb.lower(book.get("author")), like),
-                        cb.like(cb.lower(book.get("isbn")), like)));
+                        cb.like(cb.lower(book.get("isbn")), like),
+                        isbn13 == null ? cb.disjunction() : cb.equal(book.get("isbn"), isbn13)));
             }
             if (q.author() != null && !q.author().isBlank()) {
                 ps.add(cb.like(cb.lower(book.get("author")), "%" + q.author().trim().toLowerCase() + "%"));

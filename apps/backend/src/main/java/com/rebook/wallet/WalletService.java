@@ -194,6 +194,10 @@ public class WalletService {
         return WalletResponse.of(get(userId));
     }
 
+    public BigDecimal platformAvailable() {
+        return walletRepository.findPlatform().orElseThrow(() -> ApiException.notFound("ví sàn")).getAvailableBalance();
+    }
+
     public WalletResponse platformSummary() {
         return WalletResponse.of(walletRepository.findPlatform().orElseThrow(() -> ApiException.notFound("ví sàn")));
     }

@@ -63,6 +63,10 @@ public class SystemConfigService {
     public static final String SHOP_REPUTATION_WINDOW_DAYS = "shop.reputation_window_days";
     public static final String REMINDER_HOURS = "notify.reminder_hours";
     public static final String WAREHOUSE_ADDRESS = "shipping.warehouse_address";
+    public static final String MIN_PUBLISH_LEAD_HOURS = "auction.min_publish_lead_hours";
+    public static final String MIN_REGISTRATION_CLOSE_HOURS = "auction.min_registration_close_hours";
+    public static final String COMPENSATION_CAP_UNINSPECTED = "warehouse.compensation_cap_uninspected";
+    public static final String COMPENSATION_BUYER_PERCENT = "warehouse.compensation_buyer_percent";
 
     private final SystemConfigRepository repository;
     private final Map<String, String> cache = new ConcurrentHashMap<>();
@@ -99,8 +103,13 @@ public class SystemConfigService {
 
     /** Bước giá theo bậc, ví dụ "0:10000,200000:50000" → {0: 10000, 200000: 50000}. */
     public BigDecimal bidIncrement(BigDecimal currentPrice) {
+        return bidIncrement(get(BID_TIERS), currentPrice);
+    }
+
+    /** Bước giá theo một bảng bậc cụ thể (bảng đã chốt vào phiên lúc công bố). */
+    public static BigDecimal bidIncrement(String tierSpec, BigDecimal currentPrice) {
         TreeMap<BigDecimal, BigDecimal> tiers = new TreeMap<>();
-        for (String part : get(BID_TIERS).split(",")) {
+        for (String part : tierSpec.split(",")) {
             String[] kv = part.trim().split(":");
             tiers.put(new BigDecimal(kv[0].trim()), new BigDecimal(kv[1].trim()));
         }

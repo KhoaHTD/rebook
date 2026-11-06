@@ -65,6 +65,13 @@ public class Lot {
     /** Số phiên lô đã được xếp vào (sàn giữ tối đa 2 phiên). */
     private int rounds;
 
+    /**
+     * Giá búa cao nhất từng bị người thắng bỏ thanh toán, và phần cọc bị thu mà sàn giữ (BR-6.2).
+     * Không xoá khi lô quay lại hàng chờ: dùng để bù chênh cho người bán khi lô bán lại thấp hơn.
+     */
+    private BigDecimal defaultedHammer;
+    private BigDecimal forfeitedPlatformTake = BigDecimal.ZERO;
+
     @Version
     private Long version;
 

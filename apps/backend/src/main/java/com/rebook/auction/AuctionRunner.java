@@ -36,6 +36,7 @@ public class AuctionRunner {
     private final AuctionViews views;
     private final SystemConfigService config;
     private final NotificationService notifications;
+    private final com.rebook.config.AppProperties props;
 
     // ---- Giai đoạn D: hết hạn đăng ký → đủ người? ----
 
@@ -262,6 +263,9 @@ public class AuctionRunner {
     /** Demo: mở phiên ngay (bỏ qua chờ tới giờ). Phiên PUBLISHED sẽ kiểm tra đủ người trước. */
     @Transactional
     public AuctionSession startNow(Long sessionId) {
+        if (!props.auction().demoEnabled()) {
+            throw ApiException.forbidden("DEMO_ONLY", "Chỉ mở phiên ngay ở môi trường demo; phiên tự mở đúng giờ");
+        }
         AuctionSession s = lock(sessionId);
         Instant now = Instant.now();
         if (s.getStatus() == SessionStatus.PUBLISHED) {

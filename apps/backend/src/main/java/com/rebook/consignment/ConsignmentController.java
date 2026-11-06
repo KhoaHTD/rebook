@@ -5,6 +5,10 @@ import com.rebook.consignment.ConsignmentDtos.AppointmentRequest;
 import com.rebook.consignment.ConsignmentDtos.CheckInRequest;
 import com.rebook.consignment.ConsignmentDtos.ConsignmentCreateRequest;
 import com.rebook.consignment.ConsignmentDtos.ConsignmentResponse;
+import com.rebook.consignment.ConsignmentDtos.IncidentDecisionRequest;
+import com.rebook.consignment.ConsignmentDtos.IncidentRejectRequest;
+import com.rebook.consignment.ConsignmentDtos.IncidentRequest;
+import com.rebook.consignment.ConsignmentDtos.IncidentResponse;
 import com.rebook.consignment.ConsignmentDtos.InspectionRequest;
 import com.rebook.consignment.ConsignmentDtos.ReviewRequest;
 import com.rebook.consignment.ConsignmentDtos.SellerDecisionRequest;
@@ -38,6 +42,7 @@ import java.util.List;
 public class ConsignmentController {
 
     private final ConsignmentService service;
+    private final WarehouseIncidentService incidentService;
 
     // ---- Người bán ----
 
@@ -163,5 +168,37 @@ public class ConsignmentController {
     @PostMapping("/staff/warehouse/{id}/return")
     public WarehouseResponse returnToSeller(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id) {
         return service.returnToSeller(me.id(), id);
+    }
+
+    // ---- Sự cố kho: mất / hỏng sách (BR-4.2, BR-4.8) ----
+
+    @Operation(summary = "[Staff] Khai báo sự cố kho (mất / hỏng sách), chờ Admin duyệt")
+    @PostMapping("/staff/warehouse/{id}/incidents")
+    @ResponseStatus(HttpStatus.CREATED)
+    public IncidentResponse reportIncident(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
+                                           @Valid @RequestBody IncidentRequest req) {
+        return incidentService.report(me.id(), id, req);
+    }
+
+    @Operation(summary = "[Staff] Danh sách sự cố kho")
+    @GetMapping("/staff/warehouse-incidents")
+    public PageResponse<IncidentResponse> incidents(@RequestParam(required = false) WarehouseIncident.Status status,
+                                                    @RequestParam(defaultValue = "0") int page,
+                                                    @RequestParam(defaultValue = "20") int size) {
+        return incidentService.list(status, page, size);
+    }
+
+    @Operation(summary = "[Admin] Duyệt sự cố kho và chi bồi thường từ ví sàn (hỏng sách: chọn sellerPercent 0–100)")
+    @PostMapping("/admin/warehouse-incidents/{id}/approve")
+    public IncidentResponse approveIncident(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
+                                            @Valid @RequestBody(required = false) IncidentDecisionRequest req) {
+        return incidentService.approve(me.id(), id, req);
+    }
+
+    @Operation(summary = "[Admin] Từ chối sự cố kho")
+    @PostMapping("/admin/warehouse-incidents/{id}/reject")
+    public IncidentResponse rejectIncident(@AuthenticationPrincipal UserPrincipal me, @PathVariable Long id,
+                                           @Valid @RequestBody IncidentRejectRequest req) {
+        return incidentService.reject(me.id(), id, req.reason());
     }
 }

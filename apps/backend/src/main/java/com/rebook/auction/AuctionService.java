@@ -145,6 +145,9 @@ public class AuctionService {
             throw ApiException.conflict("REGISTRATION_CLOSED", "Phiên không còn nhận đăng ký");
         }
         User user = userService.getUser(userId);
+        if (user.isPlatformOperator()) {
+            throw ApiException.forbidden("STAFF_CANNOT_BID", "Tài khoản nhân viên sàn không được tham gia đấu giá");
+        }
         if (!user.isPhoneVerified()) {
             throw ApiException.forbidden("Cần xác thực số điện thoại trước khi tham gia đấu giá");
         }
@@ -170,7 +173,7 @@ public class AuctionService {
             reg.setPaddleNumber(registrationRepository.maxPaddle(sessionId) + 1);
         }
         reg.setDepositAmount(s.getDepositAmount());
-        reg.setBidLimit(s.getDepositAmount().multiply(config.decimal(SystemConfigService.BID_LIMIT_MULTIPLIER)));
+        reg.setBidLimit(s.getDepositAmount().multiply(bidLimitMultiplier(s)));
         reg = registrationRepository.saveAndFlush(reg);
         walletService.hold(userId, WalletTxType.DEPOSIT_HOLD, s.getDepositAmount(), "REGISTRATION", reg.getId(),
                 "Đặt cọc phiên " + s.getTitle());
@@ -210,7 +213,7 @@ public class AuctionService {
         }
         walletService.hold(userId, WalletTxType.DEPOSIT_HOLD, amount, "REGISTRATION", reg.getId(), "Cọc thêm phiên " + s.getTitle());
         reg.setDepositAmount(reg.getDepositAmount().add(amount));
-        reg.setBidLimit(reg.getDepositAmount().multiply(config.decimal(SystemConfigService.BID_LIMIT_MULTIPLIER)));
+        reg.setBidLimit(reg.getDepositAmount().multiply(bidLimitMultiplier(s)));
         return views.registration(reg, currentLot(s));
     }
 
@@ -270,6 +273,12 @@ public class AuctionService {
     }
 
     // ---- Nội bộ ----
+
+    /** Hệ số hạn mức đã chốt lúc công bố phiên (BR-5.3). */
+    private BigDecimal bidLimitMultiplier(AuctionSession s) {
+        return s.getBidLimitMultiplier() != null ? BigDecimal.valueOf(s.getBidLimitMultiplier())
+                : config.decimal(SystemConfigService.BID_LIMIT_MULTIPLIER);
+    }
 
     private AuctionSession publicSession(Long id) {
         AuctionSession s = sessionRepository.findById(id).orElseThrow(() -> ApiException.notFound("phiên đấu giá"));

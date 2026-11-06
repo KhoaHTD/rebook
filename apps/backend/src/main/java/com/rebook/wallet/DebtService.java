@@ -92,6 +92,10 @@ public class DebtService {
         return total;
     }
 
+    public BigDecimal platformPenaltyCollectedForLot(Long lotId) {
+        return repository.platformPenaltyCollectedForLot(lotId).setScale(0, java.math.RoundingMode.DOWN);
+    }
+
     public boolean hasOpenDebt(Long userId) {
         return repository.existsByUserIdAndStatus(userId, AccountDebt.Status.OPEN);
     }

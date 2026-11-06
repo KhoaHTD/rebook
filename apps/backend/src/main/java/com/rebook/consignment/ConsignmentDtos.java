@@ -75,6 +75,35 @@ public final class ConsignmentDtos {
     public record ShelfRequest(@NotBlank @Size(max = 30) String shelfCode) {
     }
 
+    // ---- Sự cố kho (BR-4.2, BR-4.8, BR-4.9) ----
+
+    public record IncidentRequest(@NotNull WarehouseIncident.Type type,
+                                  @NotBlank @Size(max = 2000) String description,
+                                  @Size(max = 10) List<@NotBlank String> photoUrls) {
+    }
+
+    /** sellerPercent: chỉ dùng cho sự cố hỏng (0–100% mức bồi thường); mất sách luôn bồi thường 100%. */
+    public record IncidentDecisionRequest(@jakarta.validation.constraints.Min(0) @jakarta.validation.constraints.Max(100) Integer sellerPercent,
+                                          @Size(max = 1000) String note) {
+    }
+
+    public record IncidentRejectRequest(@NotBlank @Size(max = 1000) String reason) {
+    }
+
+    public record IncidentResponse(Long id, Long warehouseItemId, Long consignmentId, String consignmentCode, String bookTitle,
+                                   WarehouseIncident.Type type, String description, List<String> images, Long reportedBy,
+                                   WarehouseIncident.Status status, WarehouseIncident.Stage stage, BigDecimal baseAmount,
+                                   Integer sellerPercent, BigDecimal sellerAmount, Long buyerId, BigDecimal buyerAmount,
+                                   Long orderId, Long decidedBy, Instant decidedAt, String decisionNote, Instant createdAt) {
+
+        public static IncidentResponse of(WarehouseIncident i, String consignmentCode, String bookTitle) {
+            return new IncidentResponse(i.getId(), i.getWarehouseItemId(), i.getConsignmentId(), consignmentCode, bookTitle,
+                    i.getType(), i.getDescription(), i.getImages(), i.getReportedBy(), i.getStatus(), i.getStage(),
+                    i.getBaseAmount(), i.getSellerPercent(), i.getSellerAmount(), i.getBuyerId(), i.getBuyerAmount(),
+                    i.getOrderId(), i.getDecidedBy(), i.getDecidedAt(), i.getDecisionNote(), i.getCreatedAt());
+        }
+    }
+
     // ---- Response ----
 
     public record InspectionResponse(Long id, Inspection.Result result, Map<String, Object> checklist,

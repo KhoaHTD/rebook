@@ -39,7 +39,8 @@ public final class CatalogDtos {
             @NotBlank @Size(max = 200) String author,
             @Size(max = 200) String publisher,
             @Min(1500) @Max(2100) Integer publishYear,
-            @Pattern(regexp = "^$|^(\\d{9}[\\dXx]|\\d{13})$", message = "ISBN gồm 10 hoặc 13 ký tự") String isbn,
+            // Cho phép dấu gạch / khoảng trắng; số kiểm tra được kiểm ở BookService (Isbn.normalize)
+            @Size(max = 20) @Pattern(regexp = "^[\\dXx\\s-]*$", message = "ISBN chỉ gồm chữ số, X và dấu gạch") String isbn,
             @Size(max = 50) String language,
             @Min(1) Integer pages,
             @NotNull Long categoryId,
@@ -55,13 +56,16 @@ public final class CatalogDtos {
     public record BookResponse(Long id, String title, String author, String publisher, Integer publishYear,
                                String isbn, String language, Integer pages, Long categoryId,
                                ConditionGrade conditionGrade, String description, int weightGram,
-                               String coverUrl, List<ImageResponse> images) {
+                               String coverUrl, List<ImageResponse> images,
+                               // Có ISBN mà năm xuất bản trước 1970 (trước khi có ISBN): cảnh báo người duyệt (BR-2.4)
+                               boolean isbnWarning) {
 
         public static BookResponse of(Book b) {
             return new BookResponse(b.getId(), b.getTitle(), b.getAuthor(), b.getPublisher(), b.getPublishYear(),
                     b.getIsbn(), b.getLanguage(), b.getPages(), b.getCategoryId(), b.getConditionGrade(),
                     b.getDescription(), b.getWeightGram(), b.coverUrl(),
-                    b.getImages().stream().map(i -> new ImageResponse(i.getUrl(), i.getSource())).toList());
+                    b.getImages().stream().map(i -> new ImageResponse(i.getUrl(), i.getSource())).toList(),
+                    b.getIsbn() != null && b.getPublishYear() != null && b.getPublishYear() < 1970);
         }
     }
 

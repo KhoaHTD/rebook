@@ -343,6 +343,9 @@ public class ConsignmentService {
         if (req.estimateLow() == null || req.estimateHigh() == null || req.proposedStart() == null || req.proposedReserve() == null) {
             throw ApiException.badRequest("PRICING_REQUIRED", "Kiểm định đạt cần giá ước tính, giá khởi điểm, giá sàn");
         }
+        if (req.estimateLow().signum() <= 0 || req.proposedStart().signum() <= 0) {
+            throw ApiException.badRequest("INVALID_PRICE", "Giá ước tính và giá khởi điểm phải lớn hơn 0");
+        }
         if (req.estimateLow().compareTo(req.estimateHigh()) > 0) {
             throw ApiException.badRequest("INVALID_ESTIMATE", "Giá ước tính thấp phải ≤ giá ước tính cao");
         }
@@ -376,7 +379,8 @@ public class ConsignmentService {
         Consignment c = lock(w.getConsignmentId());
         long days = Duration.between(w.getReturnNotifiedAt(), Instant.now()).toDays();
         long chargeable = Math.max(0, days - config.integer(SystemConfigService.STORAGE_FREE_DAYS));
-        BigDecimal fee = config.decimal(SystemConfigService.STORAGE_PER_DAY).multiply(BigDecimal.valueOf(chargeable));
+        BigDecimal fee = w.isStorageFeeWaived() ? BigDecimal.ZERO
+                : config.decimal(SystemConfigService.STORAGE_PER_DAY).multiply(BigDecimal.valueOf(chargeable));
         if (fee.signum() > 0) {
             // Thu từ ví nếu có; thiếu thì ghi nợ nhưng vẫn trả sách (docs/AUCTION_MONEY_FLOW.md 3.2)
             debts.create(c.getSellerId(), AccountDebt.Type.STORAGE_FEE, fee, "WAREHOUSE", w.getId(), null, BigDecimal.ZERO,
