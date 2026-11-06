@@ -112,9 +112,11 @@ Cột "Ở đâu": tên lớp test tầng A, hoặc mã ca tầng B. Trạng th�
 | T-AUTH-02 | N | Sai mật khẩu; tài khoản bị khoá; không token; USER gọi `/admin` | 401 / 403 / 401 / 403 | AUTH-02..05, `SecurityAuditTest` | ✅ |
 | T-AUTH-03 | L | Dò mật khẩu 10 lần từ một IP | IP đó bị chặn 15 phút; chủ tài khoản ở IP khác vẫn vào được | `BaReviewBatch2Test` | ✅ |
 | T-AUTH-04 | L | Dò OTP | Sai 5 lần thì mã đúng cũng bị từ chối | `SecurityAuditTest` | ✅ |
-| T-AUTH-05 | L | Xin OTP mới liên tục | Nên giới hạn tần suất | | ⚠ BE-26 |
+| T-AUTH-05 | L | Xin OTP mới liên tục; quên mật khẩu liên tục (kể cả email không tồn tại) | Cách nhau ≥ 60 giây, tối đa 5 mã / giờ, 10 mã / ngày: `TOO_MANY_REQUESTS` | `OtpAndEmailRulesTest` | ✅ |
+| T-AUTH-05b | H/X | Xin OTP: mã tới hộp thư; SMTP lỗi | Thư chứa mã, tiêu đề không chứa mã, log không có mã / 503 `EMAIL_SEND_FAILED`, không giữ mã | `MailOutboxTest` | ✅ |
+| T-AUTH-05c | L | Đăng ký bằng biến thể hộp thư đã có (`a.b+1@gmail.com` khi đã có `ab@gmail.com`) | `EMAIL_TAKEN` | `OtpAndEmailRulesTest` | ✅ |
 | T-AUTH-06 | X | Bị khoá khi đang đăng nhập | Token cũ hết tác dụng ngay ở request kế tiếp | AUTH-06 | ✅ |
-| T-AUTH-07 | L | Tạo tài khoản mới để lách cấm / nợ | Phải chặn theo CCCD / SĐT | | ⚠ BR-1.3 |
+| T-AUTH-07 | L | Tạo tài khoản mới để lách cấm / nợ | Phải chặn theo CCCD / SĐT (hiện chỉ chặn biến thể của cùng hộp thư, T-AUTH-05c) | | ⚠ BR-1.3 |
 
 #### 4.2 Ví và thanh toán
 
@@ -129,8 +131,8 @@ Cột "Ở đâu": tên lớp test tầng A, hoặc mã ca tầng B. Trạng th�
 | T-WAL-07 | H/N | Admin duyệt rút: thiếu biên lai, sai số tiền, giờ tương lai, duyệt hai lần, từ chối | Bị chặn đúng từng trường hợp; từ chối thì hoàn tiền | WAL-06, `WithdrawApprovalTest` | ✅ |
 | T-WAL-07b | H | Còn nợ: nạp tiền rồi thu nợ | Nợ PAID, hết bị chặn đăng ký phiên | WAL-07, AUC-29b | ✅ |
 | T-WAL-08 | Đ | Thu nợ song song | Chỉ trừ ví một lần | `ConcurrencyTest` | ✅ |
-| T-WAL-09 | L | Nạp thẻ trộm, mua của shop phụ, rút tiền bán | Nên giữ tiền bán của shop mới N ngày | | ⚠ mục 4 bản đánh giá |
-| T-WAL-10 | X | Ngân hàng đòi lại tiền nạp (chargeback) | Ghi nợ / khoá tài khoản | | ⚠ |
+| T-WAL-09 | L | Nạp thẻ trộm, mua của shop phụ, rút tiền bán | Shop mới bị giữ tiền bán 7 ngày (`SALE_HELD`), tiền cũ vẫn rút được; shop uy tín không bị giữ | `SellerHoldAndChargebackTest` | ✅ |
+| T-WAL-10 | X | Ngân hàng đòi lại tiền nạp (chargeback) | Admin ghi nợ `CHARGEBACK`: thu ngay phần ví có, phần còn lại chặn rút (`DEBT_OPEN`); người không phải Admin bị 403 | `SellerHoldAndChargebackTest` | ✅ (ghi tay, chưa nhận tự động từ cổng) |
 
 #### 4.3 Mua bán giá cố định
 
@@ -182,6 +184,7 @@ Cột "Ở đâu": tên lớp test tầng A, hoặc mã ca tầng B. Trạng th�
 | T-AUC-09 | X | Người thắng không trả 48 giờ (cọc lớn / nhỏ hơn phạt, ví thiếu thì nợ) | Mất cọc về sàn, phạt, cấm; mời người về nhì ở giá công bằng; người về nhì trả được | AUC-27, `AuctionMoneyTest`, S7 | ✅ |
 | T-AUC-10 | X | Vi phạm lần 2, lần 3 trong 12 tháng | Cấm 365 ngày / vĩnh viễn | `BaReviewBatch2Test` | ✅ |
 | T-AUC-11 | X | Trả ZaloPay sát hạn, cổng báo chậm | Ân hạn 15 phút, không phạt oan | `AuctionMoneyTest` | ✅ |
+| T-AUC-11b | X | Người thắng không nhận được mail báo thắng và chưa đọc thông báo trong app | Không phạt, gia hạn 24 giờ một lần, báo Admin; quá hạn lần hai thì phạt. Đã nhận mail hoặc đã đọc: phạt đúng hạn | `MailOutboxTest` | ✅ |
 | T-AUC-12 | X | Thắng, trả tiền rồi từ chối nhận hàng | Phạt như bỏ thanh toán + thu ship chiều đi | `AuctionMoneyTest` | ✅ |
 | T-AUC-13 | X | Người thắng bị khoá khi hoá đơn chưa trả | Huỷ không phạt, hoàn cọc, mời người kế tiếp | AUC-25, `BaReviewGapsTest` | ✅ |
 | T-AUC-14 | X | Huỷ đăng ký trước hạn; phiên thiếu người: dời một lần rồi huỷ | Hoàn cọc, lô về hàng chờ, không tính lượt | AUC-29, S8 | ✅ |
@@ -200,6 +203,8 @@ Cột "Ở đâu": tên lớp test tầng A, hoặc mã ca tầng B. Trạng th�
 | T-ADM-03 | X | Hoá đơn đấu giá đã trả mà kho quá hạn xử lý | Báo Staff / Admin một lần | `BaReviewGapsTest` | ✅ |
 | T-ADM-04 | X | Job lỗi một bản ghi | Các bản ghi khác vẫn chạy (mỗi bản ghi một giao dịch) | Cấu trúc `each(...)` trong job; chưa có test tiêm lỗi | ⏳ |
 | T-ADM-05 | L | Admin tự duyệt khoản rút lớn của mình | Cần người thứ hai | | ⚠ BE-28 |
+| T-ADM-06 | X | Hàng đợi mail: việc quan trọng có thư, việc thường không; email chưa xác thực không có thư; giao dịch huỷ không có thư; SMTP lỗi | Gửi đúng một lần; thử lại sau 1 phút, 5 phút, 30 phút, 2 giờ rồi `FAILED` | `MailOutboxTest` | ✅ |
+| T-ADM-07 | H | Gửi qua SMTP thật (Gmail / Brevo), thư vào hộp thư đến | | | ⏳ cần tài khoản SMTP |
 
 ### 5. Checklist thủ công trên app (tầng C)
 
@@ -230,6 +235,17 @@ Bản mở rộng thêm các luồng chưa chạy đầu cuối trước đó: k
 Không tìm thấy lỗi nghiệp vụ khi chạy. Một lỗi tìm thấy khi đọc code rồi đã sửa: T-AUC-19 (backend tắt lâu hơn thời gian còn lại của lô thì lô bị chốt ngay khi bật lại). Sau khi sửa: `./mvnw test` 185/185; `e2e_restart.sh` với 75 giây tắt máy 7/7.
 
 Còn chưa tự động: T-ADM-04 (tiêm lỗi vào job); tầng C trên app; các mục ⚠ (cần dịch vụ ngoài hoặc quyết định của chủ sàn).
+
+**Lần chạy tối 2026-11-06 (đợt gửi mail, máy Windows, PostgreSQL 18 tạm ở cổng 5433, JDK 21):** `./mvnw test` **199/200 đạt**; ca còn lại là `SeedDataTest` (gắn cứng cổng 5432). Ba lớp mới: `MailOutboxTest` (8 ca, bật mail với SMTP giả), `OtpAndEmailRulesTest` (4 ca), `SellerHoldAndChargebackTest` (3 ca). Hai lỗi tìm thấy khi chạy rồi đã sửa: health check mail của actuator làm hỏng khởi động khi SMTP là bean giả (và sẽ báo DOWN khi SMTP chậm), nên đã tắt; test gọi ví ngoài giao dịch. Chưa chạy lại tầng B (`e2e_flows.sh`).
+
+Chạy test trên máy không có mật khẩu DB đúng (không cần sửa file nào):
+
+```bash
+initdb -D <thư mục tạm> -U postgres -A trust -E UTF8 --locale=C
+pg_ctl -D <thư mục tạm> -o "-p 5433" start
+psql -h localhost -p 5433 -U postgres -c "CREATE ROLE rebook LOGIN PASSWORD 'rebook';" -c "CREATE DATABASE rebook_dev OWNER rebook TEMPLATE template0;"
+DB_URL=jdbc:postgresql://localhost:5433/rebook_dev TEST_DB_URL="jdbc:postgresql://localhost:5433/rebook_dev?currentSchema=rebook_test" ./mvnw test
+```
 
 ---
 
@@ -352,7 +368,7 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 4. Trước khi demo, đăng nhập thử cả 4 tài khoản một lần để chắc chắn chạy.
 
 **Mẹo:**
-- Dữ liệu mẫu chỉ có **một phiên đấu giá đã kết thúc**. Muốn demo đấu giá live thì **phải tạo phiên mới** (mục 3.5). Tập trước ít nhất một lần.
+- Dữ liệu mẫu (DB vừa làm sạch) có sẵn **phiên #1 "Sách cổ Việt Nam trước 1975"**: đã công bố, 3 lô, `buyer1`, `buyer2`, `buyer3` đã đăng ký và cọc 500.000đ. Mở ngay bằng Swagger (mục 3.5), không phải tạo phiên. Muốn tạo phiên mới thì dùng lô "sẵn sàng" có sẵn (dữ liệu mẫu có 1 lô, hiện ở bước **Xếp lô** của màn Phiên đấu giá). Tập trước ít nhất một lần; chạy xong phải làm sạch DB mới chạy lại được.
 - Dùng **hai cửa sổ**: Chrome cho admin, máy ảo (hoặc cửa sổ ẩn danh) cho người mua. Như vậy không phải đăng xuất liên tục.
 - Cắm sạc, tắt thông báo hệ thống, phóng to chữ nếu chiếu lên máy chiếu.
 
@@ -368,24 +384,45 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 4. Bấm vào một cuốn → **chi tiết**: ảnh bìa, tình trạng, giá, shop (điểm đánh giá), mô tả → **Thêm vào giỏ**.
 5. **Giỏ hàng**: giỏ chia theo shop, đổi số lượng, xóa. Nhớ: tin chỉ còn 1 cuốn thì không tăng được.
 6. **Thanh toán**: chọn địa chỉ nhận → app hiện **phí ship** (nội tỉnh rẻ hơn liên tỉnh, tính theo khối lượng) → chọn phương thức:
-   - **COD** (trả khi nhận), **Ví ReBook**, hoặc **VNPay**.
+   - **COD** (trả khi nhận), **Ví ReBook**, hoặc **ZaloPay** (sandbox).
    - Demo nên chọn **Ví ReBook** (nhanh, không cần cổng ngoài). buyer1 có ví khoảng 4,9 triệu.
 7. Đặt xong, hệ thống **tách đơn theo shop**. Vào **Đơn mua** xem trạng thái.
 
 > Điểm nói: "Giỏ nhiều shop thì tự tách thành nhiều đơn, mỗi shop giao riêng."
 
-#### 3.2. Người bán xử lý đơn (`seller1`)
+#### 3.1b. Đăng sách lên bán và duyệt tin (`seller2` → `admin`), có thể trình bày trước 3.1
+
+Dùng `seller2@rebook.vn` (shop "Tiệm Sách Hà Nội Xưa", **chưa uy tín**) để khán giả thấy bước duyệt. `seller1` là shop uy tín nên tin tự duyệt, không có bước này.
+
+1. `seller2` → **Bán sách** → **Tin đăng** → **Đăng sách**. Nhập:
+   - Bắt buộc: tên, tác giả, danh mục, **tình trạng** (5 bậc: Mới, Như mới, Tốt, Khá, Trung bình), cân nặng, **ít nhất 3 ảnh**, giá (≥ 1.000đ), số lượng.
+   - Tuỳ chọn: NXB, năm xuất bản, **ISBN**, ngôn ngữ, số trang, mô tả.
+2. Minh hoạ luật ISBN (nói khi gõ):
+   - Gõ ISBN có dấu gạch hoặc ISBN-10 vẫn nhận; hệ thống kiểm **số kiểm tra**, gõ sai một số là báo "ISBN không hợp lệ".
+   - ISBN-10 được đổi và lưu thành ISBN-13; ô tìm kiếm gõ kiểu nào cũng ra.
+   - Sách cũ trước 1970 thường **không có ISBN**: để trống vẫn đăng được. Có ISBN mà năm < 1970 thì hệ thống gắn cờ cảnh báo cho người duyệt (app chưa hiện cờ này).
+3. Lưu → app báo "Đã lưu. Tin đăng chờ ReBook duyệt." Tin ở trạng thái **Chờ duyệt**, người mua chưa thấy.
+4. `admin` → **Duyệt tin đăng**: mở tin vừa đăng (dữ liệu mẫu có sẵn một tin chờ duyệt của seller2) → **Duyệt**, hoặc **Từ chối** kèm lý do ("Ảnh không đạt", "Sai thông tin sách", "Nội dung bị cấm"). Shop nhận thông báo.
+5. Quay lại `seller2`: tin đã **Đang bán**. Sửa **giá / số lượng** thì vẫn đang bán; sửa **tên, tác giả, ISBN, NXB, năm, tình trạng, mô tả hoặc ảnh** thì tin quay lại Chờ duyệt. **Ẩn tin** / **Hiện lại** không phải duyệt lại.
+
+> Điểm nói: "Shop mới phải qua duyệt; shop uy tín được tự duyệt, nhưng tỷ lệ đơn lỗi vượt 10% thì tự mất uy tín."
+
+#### 3.2. Người bán xử lý và giao đơn (`seller1`)
 
 1. Đăng nhập `seller1`. **Kênh người bán**: thống kê (doanh thu, đơn chờ xác nhận, đang giao…).
-2. **Đơn của shop**: đơn mới ở trạng thái *Chờ xác nhận* → **Xác nhận** → **Giao hàng** (nhập mã vận đơn) → **Đã giao**.
-3. **Tin đăng**: xem 6 tin, thêm tin mới (cần tối thiểu 3 ảnh), sửa tồn kho, ẩn / hiện tin.
-   - Shop **uy tín** (seller1) thì tin **tự duyệt**. Shop mới thì tin vào hàng chờ admin duyệt.
+2. Mở đơn `buyer1` vừa đặt (mục 3.1), trạng thái **Chờ xác nhận** (shop có 24 giờ):
+   1. **Xác nhận đặt hàng** → đơn **Đang chuẩn bị**, bắt đầu hạn 3 ngày giao cho vận chuyển.
+   2. **Giao cho shipper** → ô "Mã vận đơn (không bắt buộc)", để trống thì hệ thống tự sinh mã `RB…` → đơn **Đang giao**.
+   3. **Giả lập: đã giao thành công** → đơn **Đã giao**. Nút này chỉ có ở môi trường dev (thay cho hãng vận chuyển báo về); môi trường thật nút trả lỗi, Staff đối chiếu với hãng.
+3. **Tin đăng**: xem tin, sửa tồn kho, ẩn / hiện tin. Tin về 0 cuốn tự chuyển **Hết hàng**.
 
 > Vòng đời đơn: `Chờ thanh toán → Chờ xác nhận → Đang chuẩn bị → Đang giao → Đã giao → Hoàn tất`. Có nhánh Hủy, Trả hàng, Giao thất bại.
+> Đơn COD: tiền chỉ về ví shop sau khi Admin xác nhận đã nhận tiền thu hộ, mà màn này **chưa có trên app** (gọi `POST /admin/cod/{orderId}/remit` bằng Swagger). Vì vậy demo nên trả bằng **Ví ReBook**.
 
 #### 3.3. Hoàn tất đơn, đánh giá, trả hàng (quay lại `buyer1`)
 
-1. **Đơn mua** → mở đơn đã giao → **Xác nhận đã nhận hàng**. Đơn hoàn tất, **tiền mới chuyển từ "giữ" sang ví người bán** (trừ phí sàn 5%).
+1. **Đơn mua** → mở đơn **Đã giao** → **Đã nhận hàng** → xác nhận. Đơn hoàn tất, **tiền mới chuyển từ "giữ" sang ví người bán** (trừ phí sàn 5%). Nút chỉ hiện sau khi shop bấm "Giả lập: đã giao thành công".
+   - Shop uy tín (`seller1`) rút được tiền này ngay. Shop mới (chưa uy tín, mở dưới 30 ngày hoặc dưới 10 đơn hoàn tất) bị giữ tiền bán **7 ngày** trước khi rút (chống rửa tiền qua shop phụ).
 2. **Đánh giá** shop (sao + nhận xét) sau khi hoàn tất.
 3. Hoặc **Yêu cầu trả hàng** (kèm lý do, ảnh) khi hàng không đúng mô tả. Người bán đồng ý / từ chối; không đồng thuận thì **admin phân xử** ở mục Khiếu nại.
 4. Nếu không bấm gì, đơn **tự hoàn tất sau 3 ngày**.
@@ -395,7 +432,7 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 #### 3.4. Ví ReBook (`buyer1`)
 
 - **Ví ReBook**: số dư khả dụng và số dư đang bị giữ (đặt cọc đấu giá, tiền chờ giải ngân).
-- **Nạp tiền**: tạo giao dịch nạp; môi trường dev có nút **giả lập thanh toán thành công** (không cần VNPay thật).
+- **Nạp tiền**: tạo giao dịch nạp; môi trường dev có nút **giả lập thanh toán thành công** (không cần ZaloPay thật). Tiền mới nạp bị khoá **24 giờ** trước khi rút.
 - **Lịch sử giao dịch**: mỗi dòng là một bút toán (nạp, thanh toán, hoàn tiền, cọc, phí…). Sổ cái **chỉ ghi thêm, không sửa**.
 - Người bán có thêm **Rút tiền** (dùng tài khoản ngân hàng đã khai khi mở shop), admin duyệt sau.
 
@@ -415,7 +452,13 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 - Người thắng trả thêm **phí người mua 10%**, người bán trả **hoa hồng 15%**.
 - Đồng hồ do **server giữ**, app chỉ đếm ngược theo giờ server (nên chạy máy nào cũng khớp).
 
-**Cách chuẩn bị một phiên LIVE (làm trước khi demo vài phút):**
+**Cách nhanh nhất: dùng phiên #1 có sẵn trong dữ liệu mẫu** (3 lô sách trước 1975, `buyer1/2/3` đã đăng ký):
+
+1. Mở `http://localhost:8080/swagger-ui.html` → `POST /auth/login` với `admin@rebook.vn` / `Rebook@123` → chép `accessToken` → **Authorize** (dán token).
+2. Gọi `POST /admin/sessions/1/start`: phiên chuyển sang chạy ngay (chỉ chạy ở profile `dev`).
+3. Mở `buyer1` và `buyer2` ở hai cửa sổ để tranh nhau (hạn mức mỗi người 5.000.000đ = cọc × 10). Mỗi lô 60 giây, nghỉ 7 giây giữa hai lô.
+
+**Hoặc tự tạo một phiên LIVE (làm trước khi demo vài phút):**
 
 1. Đăng nhập `admin@rebook.vn` → **Phiên đấu giá** → **Tạo phiên**:
    - Tên, mô tả; **giờ bắt đầu** là vài phút nữa; **hạn đăng ký** trước giờ bắt đầu; số người tối thiểu **1**; tiền cọc ví dụ **500.000**; thời gian mỗi lô **30 giây** cho nhanh.
@@ -435,6 +478,27 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 7. Admin có thể **Tạm dừng / Tiếp tục** phiên (nhắc: dùng khi có sự cố).
 
 > Nếu bị hỏi "hai người cùng trả đúng một mức thì sao": người đến sau nhận lỗi *giá đã thay đổi* (khóa lạc quan trong DB), không bao giờ bán trùng.
+
+#### 3.5b. Sau phiên: thanh toán hoá đơn và kho giao lô (`buyer1` → `staff` → `buyer1`)
+
+Sách đấu giá nằm ở **kho của sàn**, nên **nhân viên kho giao**, không phải người bán.
+
+1. **`buyer1` thắng một lô** → nhận thông báo (và mail nếu bật `MAIL_ENABLED`) "Bạn đã thắng đấu giá!" kèm hạn **48 giờ**. Người không thắng lô nào được hoàn cọc ngay khi phiên kết thúc.
+2. `buyer1` → **Đơn mua** → mở **Hóa đơn đấu giá**: hoá đơn = giá búa + **phí người mua 10%** + phí giao − **cọc 500.000đ** (cọc trừ vào hoá đơn đầu tiên).
+3. **Thanh toán hóa đơn** → chọn **Cách nhận sách**:
+   - **Giao tận nơi**: chọn địa chỉ; phí giao tính từ tỉnh của kho tới tỉnh người nhận. Thắng nhiều lô cùng phiên thì phí giao gộp thành một kiện.
+   - **Nhận tại kho ReBook**: phí giao 0đ.
+   - Trả bằng **Ví ReBook** (nhanh nhất) hoặc ZaloPay. Trả xong: hoá đơn **Chờ xác nhận**, sách trong kho được giữ cho người thắng, **giá búa vào túi "đang giữ" của người bán**.
+4. **`staff` → Giao lô đấu giá**:
+   1. **Xác nhận hoá đơn** (đơn Chờ xác nhận → Đang chuẩn bị). Màn này **chưa có nút cho bước này**: dùng Swagger, đăng nhập `staff@rebook.vn`, gọi `GET /staff/orders?status=PENDING_CONFIRM` lấy `id`, rồi `POST /staff/orders/{id}/confirm`. Hạn thật là 24 giờ, quá hạn hệ thống báo Staff và Admin.
+   2. **Xuất kho giao** → đơn **Đang giao**, mã vận đơn tự sinh, sách trong kho chuyển "đã xuất".
+   3. **Đã giao** → đơn **Đã giao**.
+   - Đơn **nhận tại kho**: không bấm "Xuất kho giao" (sẽ báo lỗi đơn nhận tại kho); khi người thắng tới lấy, gọi `POST /staff/orders/{id}/delivered` bằng Swagger (app chưa có nút bàn giao tại kho).
+5. **`buyer1` → Đã nhận hàng** → hoá đơn **Hoàn tất**. Lúc này người ký gửi mới nhận **giá búa − hoa hồng 15%**; sàn giữ phí người mua và phí giao. Không bấm thì tự hoàn tất sau 3 ngày.
+6. Đăng nhập người ký gửi của lô (lô "Truyện Kiều" và lô số 3 là của `seller1`, lô số 1 là của `seller2`) → **Ví**: thấy dòng giải ngân và dòng hoa hồng.
+
+> Điểm nói: "Người mua trả tiền vào sàn, sàn giữ tới khi người mua nhận sách. Vì sàn đã kiểm định, nếu sách khác báo cáo tình trạng thì **sàn chịu trách nhiệm**: Staff xử lý trả hàng, hoàn đủ cho người mua, lô quay về kiểm định lại."
+> Nếu bị hỏi "người thắng nhận rồi từ chối hàng": Staff báo giao thất bại do người mua → hoàn tiền nhưng **phạt như bỏ thanh toán** và thu phí giao chiều đi.
 
 #### 3.6. Ký gửi sách đi đấu giá (`seller1` → `staff`) — luồng nghiệp vụ dài, kể bằng lời kết hợp 2-3 màn hình
 
@@ -469,7 +533,7 @@ Mở bằng `admin@rebook.vn`, giao diện quản trị riêng:
 
 #### 3.8. Việc phụ nên lướt qua
 
-- **Đăng ký tài khoản**: nhập thông tin → nhận mã **OTP** xác thực email. Môi trường dev không gửi mail thật nên mã in ở **log backend** (có dòng `devOtp`). Chuẩn bị sẵn mã trước nếu định demo.
+- **Đăng ký tài khoản**: nhập thông tin → nhận mã **OTP** xác thực email. Bật mail (`MAIL_ENABLED=true` trong `apps/backend/.env`) thì mã tới hộp thư thật; không bật thì profile `dev` trả mã trong phản hồi API (trường `devOtp`), log backend **không còn in mã**. Xin lại mã phải chờ 60 giây.
 - **Thông báo**: chuông ở thanh bên, hiện sự kiện đơn hàng, bị trả giá vượt, trúng đấu giá…
 - **Hồ sơ / Địa chỉ**: sửa tên, SĐT, quản lý nhiều địa chỉ, chọn mặc định.
 - **Giao diện**: kiểu **Liquid Glass** (kính mờ), chạy **responsive**: màn rộng có thanh bên, điện thoại có thanh tab dưới. Thu nhỏ cửa sổ Chrome để cho thấy.
@@ -482,12 +546,14 @@ Mở bằng `admin@rebook.vn`, giao diện quản trị riêng:
 | Phút | Nội dung |
 |---|---|
 | 0–1 | Giới thiệu app + 3 vai trò |
-| 1–4 | **3.1 + 3.2 + 3.3**: mua, người bán xử lý, hoàn tất (nhấn escrow) |
-| 4–9 | **3.5 Đấu giá live** (admin Chrome + buyer máy ảo cạnh nhau) |
-| 9–11 | **3.6 Ký gửi** (kể ngắn, chỉ mở 2–3 màn của staff và seller) |
-| 11–12 | **3.7 Admin**: cấu hình phí, duyệt tin; kết luận |
+| 1–3 | **3.1b**: `seller2` đăng sách (nói luật ISBN, tình trạng, 3 ảnh) → `admin` duyệt |
+| 3–6 | **3.1 + 3.2 + 3.3**: `buyer1` mua bằng ví → `seller1` xác nhận, giao cho shipper, giả lập đã giao → `buyer1` đã nhận hàng, đánh giá (nhấn escrow) |
+| 6–10 | **3.5 Đấu giá live** trên phiên #1 có sẵn (`buyer1` và `buyer2` hai cửa sổ cạnh nhau) |
+| 10–12 | **3.5b**: `buyer1` thanh toán hoá đơn (giao tận nơi) → `staff` xác nhận (Swagger), xuất kho giao, đã giao → `buyer1` đã nhận hàng → ví người ký gửi |
+| 12–13 | **3.6 Ký gửi** (kể ngắn, chỉ mở 2–3 màn của staff và seller) |
+| 13–14 | **3.7 Admin**: cấu hình phí; kết luận |
 
-Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
+Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá và 3.5b. Mở sẵn Swagger đã Authorize bằng tài khoản `staff` trước khi demo để bước xác nhận hoá đơn không bị chậm.
 
 ---
 
@@ -499,6 +565,8 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 | Chống bắn tỉa phút chót? | Soft close: còn dưới 15 giây mà có người trả thì đồng hồ về 15 giây. |
 | Tiền người mua đi đâu? | Vào ví sàn, giữ ở trạng thái "held", chỉ giải ngân cho người bán khi hoàn tất đơn. |
 | Người thắng không trả tiền? | Mất cọc hoặc phạt 10% giá búa (lấy mức lớn hơn), tiền về sàn; thiếu thì ghi nợ, còn nợ thì không đăng ký, trả giá, rút tiền được; bị cấm đấu giá 90 ngày. Người trả cao thứ hai được mời mua ở giá công bằng; lô bán thấp hơn thì sàn bù chênh cho người bán. |
+| Người thắng tắt app, không biết mình thắng thì sao? | Có mail báo thắng và mail nhắc trước hạn. Tới hạn mà mail chưa gửi được và người đó chưa đọc thông báo trong app thì không phạt, hệ thống gia hạn 24 giờ một lần và báo Admin. |
+| Lấy thẻ trộm nạp ví, mua của shop phụ rồi rút? | Tiền mới nạp khoá 24 giờ; tiền bán hàng của shop mới giữ 7 ngày. Ngân hàng đòi lại tiền thì Admin ghi nợ chargeback, người đó không rút được tới khi trả. |
 | Người bán dùng tài khoản phụ đẩy giá rồi bỏ? | Không còn lợi: cọc bị thu về sàn hết (không chia cho người bán), và người mua thật chỉ được mời ở giá họ lẽ ra phải trả, không phải giá tối đa họ đã đặt. |
 | Nhân viên có đấu giá được không? | Không. Tài khoản Staff / Admin bị chặn đăng ký và trả giá (`STAFF_CANNOT_BID`), vì họ biết giá sàn. |
 | Kho làm mất / hỏng sách thì sao? | Staff khai báo sự cố, Admin duyệt rồi sàn bồi thường theo giai đoạn: chưa kiểm định = giá mong muốn (tối đa 2 triệu); đã kiểm định = mức thấp của giá ước tính; người thắng đã trả tiền = hoàn đủ + 10% giá búa, người bán nhận giá búa − hoa hồng. |
@@ -513,8 +581,10 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 
 ### 6. Những điều KHÔNG nên hứa / nên nói thật (tránh bị hỏi vặn)
 
-- **VNPay** chưa nối cổng thật: dùng nút giả lập thanh toán thành công (chế độ dev).
-- **Email / SMS OTP**: chưa gửi thật, mã hiện ở log / phản hồi dev.
+- **ZaloPay** chỉ là sandbox (không trừ tiền thật); demo thường dùng ví hoặc nút giả lập thanh toán thành công (chế độ dev).
+- **Màn Staff chưa đủ nút** cho hoá đơn đấu giá vừa thanh toán và cho bàn giao tại kho; **chưa có màn đối chiếu hãng vận chuyển và đối soát COD**. Các bước này đang gọi bằng Swagger.
+- **Bộ sách** (nhiều tập) chưa có khái niệm riêng: đăng thành một tin / một lô đặt tên "Bộ X (n tập)".
+- **Email**: gửi thật qua SMTP khi bật `MAIL_ENABLED` (OTP, thắng đấu giá, nhắc hạn). **SMS** chưa có: mã xác thực SĐT tạm gửi qua email. Không bật mail thì mã nằm trong phản hồi dev (`devOtp`).
 - **Upload ảnh**: backend chưa có dịch vụ lưu ảnh (Cloudinary). Ảnh người dùng chọn hiện được trên máy nhưng gửi lên server là **ảnh mẫu thay thế**.
 - **Vận chuyển**: giả lập bằng nút bấm (đã giao / giao thất bại), chưa nối hãng vận chuyển.
 - **Thông báo đẩy (FCM)**: chưa làm; thông báo trong app qua WebSocket.
@@ -535,6 +605,8 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 | Mở phiên ngay báo `DEMO_ONLY` | Backend không chạy profile `dev`. Chạy lại backend profile `dev` (mặc định). |
 | Công bố phiên báo "phải công bố ít nhất 72 giờ…" | DB không có dữ liệu demo (seed `V13_1`). Chạy profile `dev`, hoặc Admin đặt `auction.min_publish_lead_hours` và `auction.min_registration_close_hours` bằng 0 ở màn Cấu hình. |
 | Tài khoản Staff / Admin trả giá bị chặn | Đúng luật mới: dùng tài khoản người mua (`buyer1`…) để đấu giá. |
+| Shop rút tiền bán hàng báo `SALE_HELD` | Đúng luật mới: shop mới (chưa uy tín, mở dưới 30 ngày hoặc dưới 10 đơn hoàn tất) bị giữ tiền bán 7 ngày. Demo thì dùng shop uy tín (`seller1`), hoặc Admin đặt `wallet.seller_hold_days` = 0. |
+| Backend không khởi động, báo "app.mail.enabled=true nhưng chưa đặt MAIL_HOST" | Đặt `MAIL_HOST` trong `.env`, hoặc `MAIL_ENABLED=false`. |
 | Trả giá bị từ chối "vượt hạn mức" | Cọc chưa đủ (hạn mức = cọc × 10). Đặt cọc thêm. |
 | Đăng nhập báo sai mật khẩu | Mật khẩu mẫu là `Rebook@123` (phân biệt hoa thường). |
 | Dữ liệu lộn xộn sau nhiều lần test | Chạy lại lệnh **làm sạch dữ liệu** ở mục 2. |

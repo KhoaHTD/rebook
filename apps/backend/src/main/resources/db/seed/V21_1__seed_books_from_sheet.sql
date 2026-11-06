@@ -10,7 +10,7 @@ TRUNCATE TABLE
     cart_items, listing_favorites, notifications, audit_events, admin_activity_logs, otp_codes, refresh_tokens
     RESTART IDENTITY CASCADE;
 
--- Thể loại cũ chỉ còn vì có sách dùng (V19 không xoá được): giờ xoá nốt.
+-- Thể loại cũ chỉ còn vì có sách dùng (V20 không xoá được): giờ xoá nốt.
 DELETE FROM categories c
  WHERE c.slug NOT IN ('van-hoc', 'tieu-thuyet-viet-nam', 'tieu-thuyet-nuoc-ngoai', 'van-hoc-kinh-dien', 'van-hoc-duong-dai', 'trinh-tham-kinh-di', 'ky-ao-gia-tuong', 'ngon-tinh-lang-man', 'tieu-thuyet-lich-su', 'truyen-ngan', 'tho', 'lich-su-chinh-tri', 'lich-su-viet-nam', 'lich-su-the-gioi', 'chinh-tri', 'tieu-su-hoi-ky', 'hoi-ky-tu-truyen', 'chan-dung-nhan-vat', 'ky-nang-song', 'phat-trien-ban-than', 'tam-ly-hoc', 'gia-dinh-nuoi-day-con', 'am-thuc-nau-an', 'nau-an-gia-dinh', 'am-thuc-quoc-te', 'an-chay-dinh-duong', 'hai-huoc-tieu-luan', 'hai-huoc', 'tieu-luan-tuyen-tap', 'kinh-te-kinh-doanh', 'kinh-te-hoc', 'quan-tri-khoi-nghiep', 'marketing-ban-hang', 'khoa-hoc-cong-nghe', 'khoa-hoc-tu-nhien', 'khoa-hoc-thong-tin', 'truyen-thong-xa-hoi-hoc', 'triet-hoc-ton-giao', 'triet-hoc-phuong-tay', 'van-hoa-hoc', 'ton-giao-tam-linh', 'giao-trinh', 'cong-nghe-thong-tin', 'kinh-te-quan-tri', 'khoa-hoc-ky-thuat', 'y-duoc', 'luat-hanh-chinh', 'ngoai-ngu', 'so-thich-giai-tri', 'tro-choi-giai-do', 'thu-cung-thien-nhien', 'nghe-thuat', 'nhiep-anh', 'am-nhac', 'hoi-hoa-thiet-ke', 'thieu-nhi', 'truyen-thieu-nhi', 'sach-to-mau-ky-nang-cho-be', 'tham-khao', 'tu-dien-bach-khoa', 'sach-tra-cuu', 'truyen-tranh-manga', 'suc-khoe-doi-song', 'sach-hiem-sach-co')
    AND NOT EXISTS (SELECT 1 FROM books b WHERE b.category_id = c.id)

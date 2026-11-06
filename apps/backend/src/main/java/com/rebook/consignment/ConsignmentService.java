@@ -276,7 +276,7 @@ public class ConsignmentService {
             c.setStatus(c.getStatus().moveTo(ConsignmentStatus.APPROVED));
             c.setApprovedAt(Instant.now());
             notifySeller(c, "Yêu cầu ký gửi " + c.getCode() + " đã được duyệt. Hãy đặt lịch mang sách tới kho trong "
-                    + config.integer(SystemConfigService.CONSIGN_APPOINTMENT_DAYS) + " ngày");
+                    + config.integer(SystemConfigService.CONSIGN_APPOINTMENT_DAYS) + " ngày", true);
         } else {
             c.setStatus(c.getStatus().moveTo(ConsignmentStatus.REJECTED));
             notifySeller(c, "Yêu cầu ký gửi " + c.getCode() + " bị từ chối" + (note != null ? ": " + note : ""));
@@ -333,13 +333,14 @@ public class ConsignmentService {
             }
             c.setStatus(c.getStatus().moveTo(ConsignmentStatus.AWAITING_SELLER));
             notifySeller(c, "Sách của bạn đạt kiểm định. Giá ước tính " + req.estimateLow().toPlainString() + "–"
-                    + req.estimateHigh().toPlainString() + "đ. Hãy xem và chấp nhận đề xuất");
+                    + req.estimateHigh().toPlainString() + "đ. Hãy xem và trả lời đề xuất trong "
+                    + config.integer(SystemConfigService.CONSIGN_SELLER_DECISION_DAYS) + " ngày", true);
         } else {
             insp.setSellerDecision(Inspection.SellerDecision.WITHDRAWN);
             c.setStatus(c.getStatus().moveTo(ConsignmentStatus.INSPECTION_FAILED));
             markReturnPending(c);
             notifySeller(c, "Sách không đạt kiểm định. Vui lòng đến kho nhận lại trong "
-                    + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày");
+                    + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày", true);
         }
         inspectionRepository.save(insp);
         return toResponse(c);
@@ -422,7 +423,7 @@ public class ConsignmentService {
         int days = config.integer(SystemConfigService.CONSIGN_SELLER_DECISION_DAYS);
         notifySeller(c, "Bạn chưa trả lời đề xuất giá của yêu cầu " + c.getCode() + " trong " + days
                 + " ngày nên yêu cầu được coi là rút. Hãy đến kho nhận lại sách trong "
-                + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày, sau đó tính phí lưu kho");
+                + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày, sau đó tính phí lưu kho", true);
         audit.record(EventCode.CONSIGNMENT_DECISION_EXPIRED, "CONSIGNMENT", id, c.getCode(), "Người bán không quyết định sau kiểm định",
                 "afterDays", days);
     }
@@ -438,7 +439,7 @@ public class ConsignmentService {
         Consignment c = get(w.getConsignmentId());
         notifySeller(c, "Sách của yêu cầu " + c.getCode()
                 + " vẫn chưa được nhận lại. Sau " + ABANDON_NOTICE_DAYS + " ngày nữa, theo hợp đồng ký gửi, sàn sẽ thanh lý sách"
-                + " và thu phí lưu kho đến ngày đó");
+                + " và thu phí lưu kho đến ngày đó", true);
     }
 
     /**
@@ -479,7 +480,7 @@ public class ConsignmentService {
         lot.setStatus(lot.getStatus().moveTo(LotStatus.RETURNED));
         markReturnPending(c);
         notifySeller(c, "Bạn chưa chọn hướng xử lý cho lô của yêu cầu " + c.getCode() + " nên sàn chuyển sang trả sách. Hãy đến kho nhận trong "
-                + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày, sau đó tính phí lưu kho");
+                + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày, sau đó tính phí lưu kho", true);
         audit.record(EventCode.AUCTION_LOT_AUTO_RETURNED, "LOT", lotId, c.getCode(), "Tự chuyển sang trả sách vì người bán không quyết định",
                 "afterDays", config.integer(SystemConfigService.UNSOLD_DECISION_DAYS));
     }
@@ -499,7 +500,7 @@ public class ConsignmentService {
             lot.setStatus(lot.getStatus().moveTo(LotStatus.RETURNED));
             markReturnPending(c);
             notifySeller(c, "Sau khi kiểm định lại, sách của yêu cầu " + c.getCode() + " không còn phù hợp để đấu giá. Hãy đến kho nhận lại trong "
-                    + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày");
+                    + config.integer(SystemConfigService.STORAGE_FREE_DAYS) + " ngày", true);
         }
         audit.record(EventCode.AUCTION_LOT_REINSPECTED, "LOT", lotId, c.getCode(), report,
                 "passed", passed, "inspectorId", staffId);
@@ -514,7 +515,7 @@ public class ConsignmentService {
             lot.setDecisionReminderSent(true);
             Consignment c = lock(lot.getConsignmentId());
             notifySeller(c, "Lô của yêu cầu " + c.getCode() + " chưa có hướng xử lý. Hãy chọn: vào phiên sau, bán giá cố định hoặc nhận lại sách. "
-                    + "Sắp quá hạn " + config.integer(SystemConfigService.UNSOLD_DECISION_DAYS) + " ngày, sàn sẽ chuyển sang trả sách và tính hạn lưu kho");
+                    + "Sắp quá hạn " + config.integer(SystemConfigService.UNSOLD_DECISION_DAYS) + " ngày, sàn sẽ chuyển sang trả sách và tính hạn lưu kho", true);
         }
     }
 
@@ -568,8 +569,13 @@ public class ConsignmentService {
     }
 
     private void notifySeller(Consignment c, String text) {
+        notifySeller(c, text, false);
+    }
+
+    /** email = true: người bán phải làm gì đó trước một hạn, gửi thêm thư (THIET_KE_GUI_MAIL.md mục 3). */
+    private void notifySeller(Consignment c, String text, boolean email) {
         notifications.notify(c.getSellerId(), NotificationService.CONSIGNMENT, "Ký gửi đấu giá", text,
-                Map.of("consignmentId", c.getId()));
+                Map.of("consignmentId", c.getId()), email);
     }
 
     private WarehouseResponse toWarehouse(WarehouseItem w) {

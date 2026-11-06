@@ -5,8 +5,13 @@ import com.rebook.audit.AuditLog;
 import com.rebook.audit.EventCode;
 import com.rebook.common.ApiException;
 import com.rebook.common.CodeGenerator;
+import com.rebook.file.FileStorage;
+import com.rebook.security.UserPrincipal;
 import com.rebook.system.SystemConfigService;
 import com.rebook.common.PageResponse;
+import com.rebook.order.OrderRepository;
+import com.rebook.order.OrderStatus;
+import com.rebook.user.ShopRepository;
 import com.rebook.user.User;
 import com.rebook.user.UserRepository;
 import com.rebook.wallet.WalletDtos.BankAccountResponse;
@@ -50,6 +55,9 @@ public class WalletService {
     private final AuditLog audit;
     private final SystemConfigService config;
     private final AccountDebtRepository debtRepository;
+    private final ShopRepository shopRepository;
+    private final OrderRepository orderRepository;
+    private final FileStorage fileStorage;
 
     @Transactional
     public Wallet createFor(Long userId) {
@@ -171,9 +179,34 @@ public class WalletService {
                         .map(t -> t.getCreatedAt().plus(Duration.ofHours(hours))).orElse(null);
             }
         }
+        // Tiền bán hàng của shop mới giữ thêm vài ngày: chặn nạp thẻ trộm, mua của shop phụ rồi rút ngay (P0 mục 4)
+        // shortcut: cộng tiền gộp SALE_RELEASE trước phí sàn nên giữ dư tối đa bằng phí sàn; tách khi cần chính xác từng đồng
+        BigDecimal saleHeld = BigDecimal.ZERO;
+        Instant saleUnlockAt = null;
+        int holdDays = config.integer(SystemConfigService.SELLER_HOLD_DAYS);
+        if (holdDays > 0 && isNewSeller(userId)) {
+            Instant since = Instant.now().minus(Duration.ofDays(holdDays));
+            saleHeld = transactionRepository.sumAvailableChange(wallet.getId(), List.of(WalletTxType.SALE_RELEASE), since)
+                    .max(BigDecimal.ZERO);
+            if (saleHeld.signum() > 0) {
+                saleUnlockAt = transactionRepository
+                        .findFirstByWalletIdAndTypeAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(wallet.getId(), WalletTxType.SALE_RELEASE, since)
+                        .map(t -> t.getCreatedAt().plus(Duration.ofDays(holdDays))).orElse(null);
+            }
+        }
         BigDecimal available = wallet.getAvailableBalance();
-        return new WithdrawableResponse(available, locked, available.subtract(locked).max(BigDecimal.ZERO),
-                locked.signum() > 0 ? unlockAt : null);
+        return new WithdrawableResponse(available, locked, available.subtract(locked).subtract(saleHeld).max(BigDecimal.ZERO),
+                locked.signum() > 0 ? unlockAt : null, saleHeld, saleUnlockAt);
+    }
+
+    /** Shop mới: chưa được Admin gắn uy tín, và mở chưa đủ N ngày hoặc chưa đủ M đơn hoàn tất. */
+    private boolean isNewSeller(Long userId) {
+        Instant openedBefore = Instant.now().minus(Duration.ofDays(config.integer(SystemConfigService.SELLER_HOLD_SHOP_DAYS)));
+        return shopRepository.findByUserId(userId).filter(s -> !s.isTrusted())
+                .map(s -> s.getCreatedAt().isAfter(openedBefore)
+                        || orderRepository.countByShopIdAndStatus(s.getId(), OrderStatus.COMPLETED)
+                        < config.integer(SystemConfigService.SELLER_HOLD_MIN_ORDERS))
+                .orElse(false);
     }
 
     /** Che số tài khoản trong log, chỉ giữ 4 số cuối. */
@@ -220,6 +253,17 @@ public class WalletService {
         }
         WithdrawableResponse limit = withdrawable(userId);
         // Đủ số dư nhưng một phần là tiền mới nạp còn bị khoá. Thiếu số dư thì để bước khoá tiền báo INSUFFICIENT_BALANCE.
+        boolean overTopupLock = req.amount().compareTo(limit.available().subtract(limit.locked())) > 0;
+        if (req.amount().compareTo(limit.available()) <= 0 && req.amount().compareTo(limit.withdrawable()) > 0 && !overTopupLock) {
+            audit.recordDenied(EventCode.WITHDRAW_BLOCKED, "SALE_HELD", "WALLET", userId,
+                    "Rút vượt phần tiền được phép rút (shop mới, tiền bán hàng đang giữ)",
+                    "amount", req.amount(), "available", limit.available(), "saleHeld", limit.saleHeld(),
+                    "withdrawable", limit.withdrawable(), "saleUnlockAt", limit.saleUnlockAt());
+            throw ApiException.conflict("SALE_HELD", "Hiện rút được tối đa " + limit.withdrawable().toPlainString()
+                    + "đ. Shop mới: tiền bán hàng được rút sau " + config.integer(SystemConfigService.SELLER_HOLD_DAYS)
+                    + " ngày kể từ khi đơn hoàn tất" + (limit.saleUnlockAt() == null ? ""
+                    : ", khoản sớm nhất mở lúc " + limit.saleUnlockAt().atZone(CodeGenerator.VN).toLocalDateTime().toString().replace('T', ' ')));
+        }
         if (req.amount().compareTo(limit.available()) <= 0 && req.amount().compareTo(limit.withdrawable()) > 0) {
             audit.recordDenied(EventCode.WITHDRAW_BLOCKED, "TOPUP_LOCKED", "WALLET", userId,
                     "Rút vượt phần tiền được phép rút (còn khoá tiền mới nạp)",
@@ -355,8 +399,24 @@ public class WalletService {
         t.setSenderName(req.senderName().trim());
         t.setTransferTime(req.transferTime());
         t.setAmount(req.transferAmount());
-        t.setProofImageUrl(req.proofImageUrl().trim());
+        // Biên lai có số tài khoản: chuyển khỏi thư mục ảnh công khai (BE-34)
+        t.setProofImageUrl(fileStorage.makePrivate(req.proofImageUrl().trim()));
         return transferRepository.save(t);
+    }
+
+    /** Ảnh biên lai riêng tư: Admin / Staff xem được mọi biên lai, người dùng chỉ xem biên lai khoản rút của mình. */
+    @Transactional(readOnly = true)
+    public boolean canViewProof(UserPrincipal me, String url) {
+        if (me == null) {
+            return false;
+        }
+        if (me.isStaffOrAdmin()) {
+            return true;
+        }
+        return transferRepository.findFirstByProofImageUrl(url)
+                .flatMap(t -> withdrawRepository.findById(t.getWithdrawId()))
+                .map(w -> w.getUserId().equals(me.id()))
+                .orElse(false);
     }
 
     /** Gắn tên người rút, tên Admin duyệt và biên lai (nếu có) vào danh sách yêu cầu. */

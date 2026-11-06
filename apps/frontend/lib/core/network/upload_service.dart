@@ -43,6 +43,23 @@ String resolveImageUrl(String url) {
   return '$base$url';
 }
 
+/// Ảnh riêng tư (biên lai chuyển khoản có số tài khoản, BE-34): backend đòi token, nên không tải bằng URL trần.
+bool isPrivateFile(String url) => url.startsWith('/files/private/');
+
+/// Tải ảnh riêng tư kèm token qua Dio của app (có `AuthInterceptor`). Không có trong spec nên không qua client sinh.
+@riverpod
+Future<Uint8List> privateImage(Ref ref, String url) async {
+  final res = await guardApi(
+    () => ref
+        .watch(dioProvider)
+        .get<List<int>>(
+          url,
+          options: Options(responseType: ResponseType.bytes),
+        ),
+  );
+  return Uint8List.fromList(res.data ?? const []);
+}
+
 class FakeImageUploader implements ImageUploader {
   @override
   Future<String> upload(XFile file, {required String folder}) async =>

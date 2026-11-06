@@ -3,11 +3,11 @@
 //   node tools/books/gen.mjs            (chạy trong apps/backend)
 //
 // Đọc  tools/books/books.xlsx  và  tools/books/covers.json  (ISBN → URL ảnh bìa trên Cloudinary, do upload-covers.mjs ghi),
-// ghi  src/main/resources/db/migration/V19__category_tree.sql   (cây thể loại, mọi môi trường)
-//      src/main/resources/db/seed/V20_1__seed_books_from_sheet.sql  (xoá dữ liệu nghiệp vụ cũ + nạp sách, chỉ profile dev)
+// ghi  src/main/resources/db/migration/V20__category_tree.sql   (cây thể loại, mọi môi trường)
+//      src/main/resources/db/seed/V21_1__seed_books_from_sheet.sql  (xoá dữ liệu nghiệp vụ cũ + nạp sách, chỉ profile dev)
 //      tools/books/REPORT.md  (thể loại, shop, giá, tồn kho từng sách để duyệt).
 // Thêm / sửa sách: sửa Excel (hoặc các bảng cấu hình bên dưới) rồi chạy lại. Kết quả luôn giống nhau (không dùng số ngẫu nhiên).
-// Seed chạy sau V20 (cột favorite_count) nên đặt tên V20_1.
+// Seed chạy sau V21 (cột favorite_count) nên đặt tên V21_1.
 // Thêm sách mới có ảnh: chạy upload-covers.mjs trước để covers.json có URL của ISBN đó.
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -17,8 +17,8 @@ import { bookRows, readZip } from './xlsx.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..', '..');
-const OUT_MIGRATION = join(root, 'src/main/resources/db/migration/V19__category_tree.sql');
-const OUT_SEED = join(root, 'src/main/resources/db/seed/V20_1__seed_books_from_sheet.sql');
+const OUT_MIGRATION = join(root, 'src/main/resources/db/migration/V20__category_tree.sql');
+const OUT_SEED = join(root, 'src/main/resources/db/seed/V21_1__seed_books_from_sheet.sql');
 const OUT_REPORT = join(here, 'REPORT.md');
 
 // ───────────────────────── cấu hình ─────────────────────────
@@ -187,7 +187,7 @@ const rare = existsSync(rareFile) ? bookRows(readZip(rareFile)).map(({ stt, row 
 const noRareCover = rare.filter((b) => !b.cover);
 if (noRareCover.length) console.warn(`Cảnh báo: ${noRareCover.length} sách hiếm chưa có ảnh (chạy upload-covers.mjs).`);
 
-// ───────────────────────── V19: cây thể loại ─────────────────────────
+// ───────────────────────── V20: cây thể loại ─────────────────────────
 
 const allSlugs = [];
 const parentRows = [];
@@ -231,7 +231,7 @@ ${deleteOld}
 ${deleteOld}
 `;
 
-// ───────────────────────── V19_1: nạp sách ─────────────────────────
+// ───────────────────────── V21_1: nạp sách ─────────────────────────
 
 const bookRowsSql = books.map((b, i) => `    (${i + 1}, ${b.shop.ownerId}, ${sql(b.title)}, ${sql(b.author)}, ${sql(b.publisher)}, ${b.year}, ${sql(b.isbn)}, ${sql(b.language)}, ${b.pages},
         (SELECT id FROM categories WHERE slug = ${sql(slugify(b.category))}), ${sql(b.grade)}, ${sql(b.description)}, ${b.weight})`);
@@ -268,7 +268,7 @@ TRUNCATE TABLE
     cart_items, listing_favorites, notifications, audit_events, admin_activity_logs, otp_codes, refresh_tokens
     RESTART IDENTITY CASCADE;
 
--- Thể loại cũ chỉ còn vì có sách dùng (V19 không xoá được): giờ xoá nốt.
+-- Thể loại cũ chỉ còn vì có sách dùng (V20 không xoá được): giờ xoá nốt.
 ${deleteOld}
 ${deleteOld}
 

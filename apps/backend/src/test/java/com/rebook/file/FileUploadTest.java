@@ -34,6 +34,16 @@ class FileUploadTest extends IntegrationTest {
         assertThat(served).isEqualTo(PNG);
     }
 
+    /** Thư mục do app gửi kèm (vd. biên lai rút tiền) không làm hỏng việc tải lên; không có Cloudinary thì ảnh nằm trên máy chủ. */
+    @Test
+    void uploadAcceptsAFolderHint() throws Exception {
+        long admin = createUser(Role.ADMIN, "Admin", 0);
+        var file = new MockMultipartFile("file", "bien-lai.png", "image/png", PNG);
+        mvc.perform(multipart("/files").file(file).param("folder", "withdrawal-receipts").with(as(admin, Role.ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.url").value(org.hamcrest.Matchers.startsWith("/files/")));
+    }
+
     @Test
     void nonImageIsRejected() throws Exception {
         long admin = createUser(Role.ADMIN, "Admin", 0);

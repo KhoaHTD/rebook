@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/network/upload_service.dart';
@@ -22,12 +23,40 @@ class AppImage extends StatelessWidget {
     if (url.startsWith('assets/')) {
       return Image.asset(url, fit: fit, errorBuilder: (_, _, _) => placeholder);
     }
+    if (isPrivateFile(url)) {
+      return _PrivateImage(url: url, fit: fit, placeholder: placeholder);
+    }
     return CachedNetworkImage(
       imageUrl: resolveImageUrl(url),
       fit: fit,
       placeholder: (_, _) => placeholder,
       errorWidget: (_, _, _) => placeholder,
     );
+  }
+}
+
+/// Ảnh cần đăng nhập mới xem được (biên lai chuyển khoản): tải bytes kèm token, không cache xuống đĩa.
+class _PrivateImage extends ConsumerWidget {
+  const _PrivateImage({
+    required this.url,
+    required this.fit,
+    required this.placeholder,
+  });
+
+  final String url;
+  final BoxFit fit;
+  final Widget placeholder;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return switch (ref.watch(privateImageProvider(url))) {
+      AsyncData(:final value) when value.isNotEmpty => Image.memory(
+        value,
+        fit: fit,
+        errorBuilder: (_, _, _) => placeholder,
+      ),
+      _ => placeholder,
+    };
   }
 }
 

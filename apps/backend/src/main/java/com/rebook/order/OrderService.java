@@ -128,9 +128,14 @@ public class OrderService {
     }
 
     private void notifyShop(Order o, String text) {
+        notifyShop(o, text, false);
+    }
+
+    /** email = true: việc có hạn, gửi thêm thư (THIET_KE_GUI_MAIL.md mục 3). */
+    private void notifyShop(Order o, String text, boolean email) {
         if (o.getShopId() != null) {
             shopRepository.findById(o.getShopId()).ifPresent(s -> notifications.notify(s.getUserId(),
-                    NotificationService.ORDER, "Đơn hàng của shop", text, Map.of("orderId", o.getId())));
+                    NotificationService.ORDER, "Đơn hàng của shop", text, Map.of("orderId", o.getId()), email));
         }
     }
 
@@ -809,7 +814,7 @@ public class OrderService {
         if (o.getStatus() == OrderStatus.PREPARING && !o.isCancelRequested() && !o.isShipReminderSent() && o.getShipDueAt() != null) {
             o.setShipReminderSent(true);
             notifyShop(o, "Đơn " + o.getCode() + " cần giao cho vận chuyển trước " + vn(o.getShipDueAt())
-                    + ". Quá hạn đơn tự huỷ, hoàn tiền người mua và tính vào điểm uy tín của shop");
+                    + ". Quá hạn đơn tự huỷ, hoàn tiền người mua và tính vào điểm uy tín của shop", true);
         }
     }
 
@@ -820,7 +825,7 @@ public class OrderService {
         if (o.getStatus() == OrderStatus.PREPARING && o.isCancelRequested() && !o.isCancelReminderSent()) {
             o.setCancelReminderSent(true);
             notifyShop(o, "Người mua đang chờ bạn trả lời yêu cầu huỷ đơn " + o.getCode() + ". Sau "
-                    + config.integer(SystemConfigService.CANCEL_RESPONSE_HOURS) + " giờ không trả lời đơn sẽ tự huỷ");
+                    + config.integer(SystemConfigService.CANCEL_RESPONSE_HOURS) + " giờ không trả lời đơn sẽ tự huỷ", true);
         }
     }
 
@@ -835,7 +840,7 @@ public class OrderService {
                     "Hoá đơn " + o.getCode() + " hết hạn lúc " + vn(o.getPaymentDueAt()) + ". Quá hạn bạn bị phạt "
                             + config.decimal(SystemConfigService.DEFAULT_PENALTY_PERCENT).toPlainString()
                             + "% giá búa (mất cọc nếu cọc lớn hơn) và bị cấm đấu giá " + config.integer(SystemConfigService.AUCTION_BAN_DAYS) + " ngày",
-                    Map.of("orderId", o.getId()));
+                    Map.of("orderId", o.getId()), true);
         }
     }
 

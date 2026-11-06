@@ -11,4 +11,6 @@ public interface WithdrawTransferRepository extends JpaRepository<WithdrawTransf
     Optional<WithdrawTransfer> findByWithdrawId(Long withdrawId);
 
     List<WithdrawTransfer> findByWithdrawIdIn(Collection<Long> withdrawIds);
+
+    Optional<WithdrawTransfer> findFirstByProofImageUrl(String proofImageUrl);
 }

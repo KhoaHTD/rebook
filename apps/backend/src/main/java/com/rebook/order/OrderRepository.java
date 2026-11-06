@@ -96,6 +96,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     long countByBuyerIdAndStatus(Long buyerId, OrderStatus status);
 
+    long countByShopIdAndStatus(Long shopId, OrderStatus status);
+
     /** Đơn COD đã giao nhưng sàn chưa nhận tiền đối soát (cũ nhất trước). */
     @Query("""
             select o from Order o

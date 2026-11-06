@@ -11,6 +11,7 @@ import com.rebook.common.ApiException;
 import com.rebook.common.CodeGenerator;
 import com.rebook.common.RateLimiter;
 import com.rebook.config.AppProperties;
+import com.rebook.notification.MailService;
 import com.rebook.security.JwtService;
 import com.rebook.user.User;
 import com.rebook.user.UserRepository;
@@ -19,6 +20,8 @@ import com.rebook.user.UserStatus;
 import com.rebook.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.mail.MailException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,8 @@ import java.util.HexFormat;
 public class AuthService {
 
     private static final int MAX_OTP_ATTEMPTS = 5;
+    private static final int MAX_OTP_PER_HOUR = 5;
+    private static final int MAX_OTP_PER_DAY = 10;
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private static final int MAX_LOGIN_FAILURES = 10;
@@ -57,11 +62,13 @@ public class AuthService {
     private final RateLimiter limiter;
     private final OtpAttempts otpAttempts;
     private final AuditLog audit;
+    private final MailService mail;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
         String email = req.email().trim().toLowerCase();
-        if (userRepository.existsByEmailIgnoreCase(email)) {
+        // Biến thể a.b+1@gmail.com của một hộp thư đã đăng ký cũng bị chặn: không lách cấm / nợ bằng cùng hộp thư
+        if (userRepository.existsByEmailIgnoreCase(email) || userRepository.existsByNormalizedEmail(normalizeEmail(email))) {
             throw ApiException.conflict("EMAIL_TAKEN", "Email đã được đăng ký");
         }
         if (req.phone() != null && userRepository.existsByPhone(req.phone())) {
@@ -77,7 +84,8 @@ public class AuthService {
         audit.recordBy(user.getId(), user.getRole(), EventCode.AUTH_REGISTER_SUCCESS, "USER", user.getId(), null,
                 "Đăng ký tài khoản", "emailDomain", email.substring(email.indexOf('@') + 1));
 
-        String otp = issueOtp(user, OtpCode.Purpose.VERIFY_EMAIL);
+        // Mail lỗi không chặn đăng ký: tài khoản đã tạo, người dùng bấm "gửi lại mã"
+        String otp = issueOtp(user, OtpCode.Purpose.VERIFY_EMAIL, false);
         return tokens(user, otp);
     }
 
@@ -152,8 +160,14 @@ public class AuthService {
         if (purpose == OtpCode.Purpose.RESET_PASSWORD) {
             throw ApiException.badRequest("INVALID_PURPOSE", "Dùng /auth/forgot-password để đặt lại mật khẩu");
         }
-        String code = issueOtp(user, purpose);
-        return new OtpSentResponse("Đã gửi mã OTP", props.otp().exposeInResponse() ? code : null);
+        throttleOtp("u:" + userId, user);
+        String code = issueOtp(user, purpose, true);
+        return new OtpSentResponse("Đã gửi mã OTP tới email " + MailService.mask(user.getEmail()), exposeOtp(code));
+    }
+
+    /** Chỉ trả mã trong response khi bật cờ dev VÀ mail thật đang tắt: mail đã gửi đi thì không lộ mã lần nữa. */
+    private String exposeOtp(String code) {
+        return props.otp().exposeInResponse() && !mail.enabled() ? code : null;
     }
 
     @Transactional
@@ -171,13 +185,16 @@ public class AuthService {
     /** Luôn trả về thành công để không lộ email nào đã đăng ký. */
     @Transactional
     public OtpSentResponse forgotPassword(String email) {
+        // Giới hạn theo email kể cả khi email không tồn tại: hai trường hợp phải trả lời giống nhau
+        throttleOtp("e:" + email.trim().toLowerCase(), null);
         User known = userRepository.findByEmailIgnoreCase(email.trim()).orElse(null);
-        String code = known == null ? null : issueOtp(known, OtpCode.Purpose.RESET_PASSWORD);
+        // Mail lỗi cũng trả lời như thường, để không lộ email nào có tài khoản
+        String code = known == null ? null : issueOtp(known, OtpCode.Purpose.RESET_PASSWORD, false);
         audit.recordBy(known == null ? null : known.getId(), known == null ? null : known.getRole(), EventCode.AUTH_PASSWORD_RESET_REQUESTED,
                 "USER", known == null ? null : known.getId(), null, "Yêu cầu đặt lại mật khẩu",
                 "known", known != null, "emailHash", emailHash(email));
         return new OtpSentResponse("Nếu email tồn tại, mã OTP đã được gửi",
-                props.otp().exposeInResponse() ? code : null);
+                exposeOtp(code));
     }
 
     @Transactional
@@ -191,7 +208,12 @@ public class AuthService {
         audit.recordBy(user.getId(), user.getRole(), EventCode.AUTH_PASSWORD_RESET, "USER", user.getId(), null, "Đặt lại mật khẩu");
     }
 
-    private String issueOtp(User user, OtpCode.Purpose purpose) {
+    /**
+     * Tạo mã và gửi mail ngay trong giao dịch (mail lỗi thì mã cũng bị huỷ cùng giao dịch).
+     * strict: mail lỗi thì báo EMAIL_SEND_FAILED; không thì ghi log và vẫn trả về (đăng ký, quên mật khẩu).
+     * Không ghi mã vào log; dev lấy mã qua devOtp (app.otp.expose-in-response).
+     */
+    private String issueOtp(User user, OtpCode.Purpose purpose, boolean strict) {
         OtpCode otp = new OtpCode();
         otp.setUserId(user.getId());
         otp.setPurpose(purpose);
@@ -199,9 +221,66 @@ public class AuthService {
         otp.setExpiresAt(Instant.now().plus(Duration.ofMinutes(props.otp().ttlMinutes())));
         otpRepository.save(otp);
         audit.recordBy(user.getId(), user.getRole(), EventCode.AUTH_OTP_SENT, "USER", user.getId(), null, "Gửi OTP", "purpose", purpose);
-        // Chưa tích hợp dịch vụ gửi email/SMS: ghi log để dev lấy mã.
-        log.info("[OTP] {} cho {}: {}", purpose, user.getEmail(), otp.getCode());
+        try {
+            mail.send(user.getEmail(), "ReBook: mã xác thực",otpMailBody(purpose, otp.getCode()));
+        } catch (MailException e) {
+            audit.recordDeniedBy(user.getId(), user.getRole(), EventCode.MAIL_FAILED, "SMTP_ERROR", "USER", user.getId(),
+                    "Không gửi được mail OTP", "purpose", purpose);
+            if (strict) {
+                throw new ApiException(HttpStatus.SERVICE_UNAVAILABLE, "EMAIL_SEND_FAILED",
+                        "Chưa gửi được mail chứa mã OTP, vui lòng thử lại sau ít phút");
+            }
+            log.warn("Không gửi được mail OTP {} cho user #{}: {}", purpose, user.getId(), e.getMessage());
+        }
         return otp.getCode();
+    }
+
+    private String otpMailBody(OtpCode.Purpose purpose, String code) {
+        String what = switch (purpose) {
+            case VERIFY_EMAIL -> "xác thực email";
+            // shortcut: chưa có nhà cung cấp SMS nên mã xác thực SĐT gửi qua email; đổi sang SMS khi có (P0 mục 3)
+            case VERIFY_PHONE -> "xác thực số điện thoại (tạm gửi qua email vì chưa có SMS)";
+            case RESET_PASSWORD -> "đặt lại mật khẩu";
+        };
+        return "Mã OTP để " + what + " là: " + code + "\n\n"
+                + "Mã có hiệu lực " + props.otp().ttlMinutes() + " phút. Không chia sẻ mã này với bất kỳ ai, kể cả nhân viên ReBook.\n"
+                + "Nếu bạn không yêu cầu mã này, hãy bỏ qua thư.\n\n"
+                + "ReBook - Chợ sách cũ";
+    }
+
+    /** Xin mã cách nhau ≥ 60 giây, tối đa 5 mã / giờ và 10 mã / ngày cho mỗi tài khoản hoặc mỗi email (BE-26). */
+    private void throttleOtp(String key, User user) {
+        if (limiter.count("otp-gap:" + key) > 0 || limiter.count("otp-hour:" + key) >= MAX_OTP_PER_HOUR
+                || limiter.count("otp-day:" + key) >= MAX_OTP_PER_DAY) {
+            audit.recordDeniedBy(user == null ? null : user.getId(), user == null ? null : user.getRole(), EventCode.AUTH_OTP_THROTTLED,
+                    "THROTTLED", "USER", user == null ? null : user.getId(), "Xin mã OTP quá nhiều lần");
+            throw ApiException.tooMany("Bạn vừa xin mã, vui lòng chờ ít phút rồi thử lại");
+        }
+        limiter.hit("otp-gap:" + key, Duration.ofSeconds(60));
+        limiter.hit("otp-hour:" + key, Duration.ofHours(1));
+        limiter.hit("otp-day:" + key, Duration.ofDays(1));
+    }
+
+    /**
+     * Dạng chuẩn để so trùng hộp thư: chữ thường, bỏ phần sau dấu +, Gmail bỏ dấu chấm.
+     * Phải khớp biểu thức của cột sinh users.email_normalized (V17).
+     */
+    static String normalizeEmail(String email) {
+        String e = email.trim().toLowerCase();
+        int at = e.indexOf('@'); // như split_part(email, '@', 1) trong SQL
+        if (at < 0) {
+            return e;
+        }
+        String local = e.substring(0, at);
+        String domain = e.substring(at + 1);
+        int plus = local.indexOf('+');
+        if (plus >= 0) {
+            local = local.substring(0, plus);
+        }
+        if (domain.equals("gmail.com") || domain.equals("googlemail.com")) {
+            return local.replace(".", "") + "@gmail.com";
+        }
+        return local + "@" + domain;
     }
 
     private void consumeOtp(User user, OtpCode.Purpose purpose, String code) {
@@ -242,7 +321,7 @@ public class AuthService {
 
         String access = jwtService.createAccessToken(user.getId(), user.getEmail(), user.getRole());
         return new AuthResponse(access, refresh, "Bearer", jwtService.accessTokenSeconds(),
-                userService.me(user.getId()), props.otp().exposeInResponse() ? otp : null);
+                userService.me(user.getId()), exposeOtp(otp));
     }
 
     private static void ensureActive(User user) {

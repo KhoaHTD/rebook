@@ -17,8 +17,8 @@ node tools/books/gen.mjs
 
 | File sinh ra | Chạy khi nào | Nội dung |
 |---|---|---|
-| `src/main/resources/db/migration/V19__category_tree.sql` | mọi môi trường | cây thể loại hai cấp |
-| `src/main/resources/db/seed/V20_1__seed_books_from_sheet.sql` | chỉ profile dev | xoá dữ liệu nghiệp vụ cũ, nạp sách + tin đăng + ảnh bìa, đặt lại ví mẫu |
+| `src/main/resources/db/migration/V20__category_tree.sql` | mọi môi trường | cây thể loại hai cấp |
+| `src/main/resources/db/seed/V21_1__seed_books_from_sheet.sql` | chỉ profile dev | xoá dữ liệu nghiệp vụ cũ, nạp sách + tin đăng + ảnh bìa, đặt lại ví mẫu |
 | `tools/books/REPORT.md` | để duyệt | thể loại, shop, tình trạng, khối lượng, giá, tồn kho của từng sách |
 
 Kết quả luôn giống nhau (giá và tồn kho tính theo ISBN, không dùng số ngẫu nhiên), nên máy nào tạo DB mới cũng ra cùng dữ liệu.

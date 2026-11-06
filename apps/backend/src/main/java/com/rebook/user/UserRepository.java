@@ -16,6 +16,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByPhone(String phone);
 
+    /** Cột email_normalized là cột sinh tự động (V17): chữ thường, bỏ phần +..., Gmail bỏ dấu chấm. */
+    @Query(value = "SELECT EXISTS (SELECT 1 FROM users WHERE email_normalized = :normalized)", nativeQuery = true)
+    boolean existsByNormalizedEmail(@Param("normalized") String normalized);
+
     @Query("select u.status from User u where u.id = :id")
     Optional<UserStatus> findStatusById(@Param("id") Long id);
 
