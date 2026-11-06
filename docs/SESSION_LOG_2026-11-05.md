@@ -221,3 +221,76 @@ Không xoá dòng nào. Chỉ thêm annotation `@WholeVnd` vào tham số record
 
 ### Chưa kiểm
 Giao diện Flutter, ZaloPay thật, thông báo đẩy, tải lớn, WebSocket phòng đông, và đường ZaloPay trả tiền đơn thường (có `ZaloPayTest` riêng). Hoá đơn đấu giá có nhiều tỉnh nhận khác nhau tính theo từng tỉnh (ghi `shortcut` trong code).
+
+## K. Chặn nhân viên sàn đấu giá (2026-11-06)
+
+Phát hiện khi đối chiếu bản đánh giá của nhóm (`DANH_GIA_NGHIEP_VU_improve_bussinessrule.md`, mục 6.6): nhóm thấy Staff đăng ký phiên bị báo "Số dư ví không đủ", nhưng nguyên nhân thật là đăng ký / trả giá không kiểm vai trò. Staff, Admin có tiền và đã xác thực SĐT thì đấu giá được, dù Staff là người kiểm định lô và biết giá sàn. Chủ repo duyệt: chặn ngay.
+
+| # | Việc | File | Ghi chú |
+|---|---|---|---|
+| 73 | Tài khoản `STAFF` / `ADMIN` không đăng ký phiên, không trả giá tay, không đặt giá tối đa (403 `STAFF_CANNOT_BID`), kể cả khi đã có đăng ký từ trước; cọc thêm cần đăng ký hợp lệ nên bị chặn theo | `user/User.java` (`isPlatformOperator`), `auction/AuctionService.register`, `auction/BidService.requireBidder`; test `MultiBidderTest.platformStaffCannotRegisterOrBid` | Chặn trước khi khoá cọc nên hết luôn câu báo sai "Số dư ví không đủ" |
+
+**Kết quả:** 145/145 đạt (trừ `SeedDataTest`). Spec API không đổi (chỉ thêm mã lỗi).
+
+### Dòng code cũ bị thay trong đợt này
+Không thay dòng nào; chỉ thêm một khối `if` ở mỗi chỗ kiểm.
+
+## L. Luật nghiệp vụ nhóm 1 và nhóm 4 của SRS bổ sung (2026-11-06)
+
+Trước đó trong phiên: rà soát nghiệp vụ backend, hỏi chủ repo 12 quyết định, viết [SRS_BO_SUNG_NGHIEP_VU.md](SRS_BO_SUNG_NGHIEP_VU.md) (mã BR-x.y). Chủ repo yêu cầu làm nhóm 1 và nhóm 4 của mục 11 trước. Chi tiết luật và chỗ code làm khác thiết kế ghi ngay trong tài liệu đó (cột ✅).
+
+| # | Việc | File | Ghi chú |
+|---|---|---|---|
+| 74 | **Lỗi:** phiếu kiểm định nhận giá 0 / âm, đến lúc người bán chấp nhận mới vỡ ràng buộc DB và yêu cầu ký gửi kẹt ở `AWAITING_SELLER` (Staff không lập lại phiếu được). Nay chặn ngay lúc lập (`INVALID_PRICE`). Cọc phiên tối thiểu 1.000đ (trước cho 0 → hạn mức 0, không ai trả giá được) | `consignment/ConsignmentService.validatePricing`, `auction/AuctionDtos.SessionRequest` | BR-4.6, BR-5.5 |
+| 75 | ISBN: bỏ gạch / khoảng trắng, kiểm số kiểm tra (`INVALID_ISBN`), ISBN-10 đổi sang ISBN-13 để lưu; tìm kiếm nhận ISBN-10 hoặc có gạch; đổi ISBN / NXB / năm xuất bản thì tin duyệt lại; cờ `isbnWarning` khi có ISBN mà năm < 1970. ISBN đã lưu mà người bán giữ nguyên thì không kiểm lại (7/8 ISBN dữ liệu mẫu sai số kiểm tra) | `common/Isbn.java` (mới), `catalog/BookService.java`, `catalog/CatalogDtos.java`, `catalog/ListingService.buildSpec`; migration chuẩn hoá ISBN cũ | BR-2.2–2.5 |
+| 76 | Công bố phiên: phải trước giờ mở ≥ 72 giờ, hạn đăng ký trước giờ mở ≥ 24 giờ; chốt % phí người mua, bảng bước giá, hệ số hạn mức vào phiên. Bước giá, phí người mua (hoá đơn), hạn mức (đăng ký, cọc thêm) đọc từ phiên; phiên cũ chưa chốt thì đọc cấu hình | `auction/AuctionAdminService.publish`, `auction/AuctionSession.java`, `auction/AuctionViews.increment`, `auction/AuctionService`, `auction/AuctionSettlement.buyerPremiumPercent`, `system/SystemConfigService.bidIncrement` | BR-5.1–5.3 |
+| 77 | "Mở phiên ngay" chỉ khi `app.auction.demo-enabled=true` (bật ở profile `dev` và test), ngoài đó 403 `DEMO_ONLY`. Seed dev đặt hai mốc lịch về 0 để demo như cũ | `config/AppProperties.java`, `auction/AuctionRunner.startNow`, `application.yml`, `application-test.yml`, `db/seed/V13_1__demo_auction_schedule.sql` (mới); test `StartNowDemoGateTest` | BR-5.4 |
+| 78 | Cọc / phạt của người bỏ thanh toán về sàn 100% (`auction.forfeit_seller_percent` = 0). Ghi lên lô giá búa bị bỏ và phần cọc sàn giữ | migration V13, `auction/AuctionSettlement.forfeitAndBan`, `auction/Lot.java` | BR-6.1 |
+| 79 | Mời mua lần hai ở giá công bằng: `max(giá sàn, min(giá cao nhất người về nhì, giá cao nhất người kế tiếp + 1 bước))`; không có người kế tiếp thì bằng giá sàn | `auction/AuctionSettlement.fairSecondChancePrice` | BR-6.5 |
+| 80 | Bù chênh cho người bán khi lô bị bỏ rồi bán lại thấp hơn: phần chênh sau hoa hồng, trần = cọc sàn giữ + phạt sàn đã thu của lô, trả lúc đơn mới hoàn tất | `auction/AuctionSettlement.compensateSellerForDefault`, `wallet/AccountDebtRepository.platformPenaltyCollectedForLot`, `wallet/DebtService`, `wallet/WalletService.platformAvailable` | BR-6.2. `shortcut` trong code: phạt thu sau lúc hoàn tất không bù thêm |
+| 81 | Sự cố kho: Staff khai báo mất / hỏng (`POST /staff/warehouse/{id}/incidents`, danh sách `GET /staff/warehouse-incidents`), Admin duyệt / từ chối (`/admin/warehouse-incidents/{id}/approve`, `/reject`). Bồi thường theo giai đoạn (chưa kiểm định: giá mong muốn, trần 2.000.000đ; đã kiểm định: mức thấp giá ước tính; đã bán đã trả tiền: người bán giá búa − hoa hồng, người mua hoàn đủ + 10% giá búa). Mất → lô / ký gửi / kho `LOST`; hỏng → Admin chọn 0–100%, trả sách miễn phí lưu kho | `consignment/WarehouseIncident*.java` (3 file mới), `consignment/ConsignmentController.java`, `consignment/ConsignmentDtos.java`, `consignment/ConsignmentStatus.java`, `consignment/WarehouseItem.java`, `consignment/ConsignmentService.returnToSeller`, `auction/LotStatus.java`, `wallet/WalletTxType.java` (`COMPENSATION`), `audit/EventCode.java` (4 mã mới) | BR-4.2, BR-4.8, BR-4.9 |
+| 82 | Migration: cấu hình mới, cột chốt điều khoản của phiên, cột theo dõi tiền bỏ thanh toán của lô, trạng thái `LOST`, cột miễn phí lưu kho, loại giao dịch `COMPENSATION`, bảng `warehouse_incidents`, chuẩn hoá ISBN cũ | `db/migration/V13__business_rules_batch1.sql` (mới) | Khởi động thử profile `dev` trên DB trống: 16 migration chạy tốt, giá trị demo đúng |
+| 83 | Test mới: `IsbnTest` (2), `BusinessRulesBatchTest` (7: giá ≤ 0, lịch + chốt điều khoản, duyệt lại tin, 4 ca sự cố kho), 3 ca trong `AuctionMoneyTest` (giá mời công bằng + bù chênh, không có người thứ ba, điều khoản chốt thắng cấu hình), `StartNowDemoGateTest` (1) | `apps/backend/src/test/java/com/rebook/` | |
+| 84 | `apps/backend/openapi.yaml` xuất lại từ `/v3/api-docs.yaml`: thêm 4 endpoint sự cố kho, schema sự cố, `isbnWarning`; đổi mẫu ISBN và cọc tối thiểu | `apps/backend/openapi.yaml` | Frontend chưa chạy `/sync-api` |
+| 85 | Ghi tài liệu | `SRS_BO_SUNG_NGHIEP_VU.md` (đổi ⏳ → ✅, ghi chỗ làm khác), `AUDIT_BACKEND.md` (cập nhật 8, 9), `BACKLOG_LATER.md` (màn sự cố kho, mã lỗi mới), `apps/frontend/docs/DECISIONS_V2.md` (trỏ tới SRS bổ sung; xem #86), file này | |
+| 86 | Theo quy ước mới của chủ repo (file md tạo từ 2026-11-05 thì sửa thẳng, file có từ trước thì viết bản V2): sửa luật cũ "cọc chia 50/50", "mời mua với giá đã trả" trong `AUCTION_MONEY_FLOW.md` (thêm kịch bản K19), `BEFORE_AFTER.md`, `E2E_TEST_PLAN.md`, `BACKLOG_LATER.md`; viết `DEMO_V2.md` (kịch bản demo theo luật mới, thêm câu hỏi thầy có thể hỏi và cách xử lý lỗi `DEMO_ONLY`, lịch 72 giờ) và `apps/frontend/docs/DECISIONS_V2.md`; gỡ mục đã chèn vào `DECISIONS.md` gốc (khôi phục đúng bản trong git) | `docs/`, `apps/frontend/docs/` | `DEMO.md`, `DECISIONS.md`, `TEST_GUIDE.md`, `DEMO_ONLINE.md` giữ nguyên. Chuỗi `offersHint` trong `app_vi.arb` (không phải md) chưa sửa |
+
+**Kết quả:** toàn bộ **158/158 đạt** (145 cũ + 13 mới, trừ `SeedDataTest`). Chạy trên cụm PostgreSQL tạm cổng 5433 trong thư mục scratchpad, không đụng Postgres chính cổng 5432; đã tắt và xoá sau khi chạy.
+
+### Dòng code cũ bị thay trong đợt này
+- `catalog/CatalogDtos.java`: mẫu kiểm ISBN `^$|^(\d{9}[\dXx]|\d{13})$` thay bằng mẫu cho phép gạch / khoảng trắng (số kiểm tra kiểm ở `BookService`).
+- `catalog/BookService.java`: `apply(book, req)` thêm tham số ISBN đã chuẩn hoá; `book.setIsbn(req.isbn())` thành `book.setIsbn(isbn)`; điều kiện "nội dung đổi" thêm ISBN / NXB / năm.
+- `catalog/ListingService.java`: điều kiện tìm theo ISBN thêm một vế so khớp ISBN-13.
+- `auction/AuctionDtos.java`: cọc `@DecimalMin("0")` thành `@DecimalMin("1000")`.
+- `auction/AuctionViews.java`: `increment(price)` thành `increment(lot, price)`; hai chỗ gọi trong `AuctionViews` và hai chỗ trong `BidService` đổi theo.
+- `auction/AuctionService.java`: hai dòng tính hạn mức đọc hệ số từ phiên thay vì cấu hình.
+- `auction/AuctionSettlement.java`: dòng tính phí người mua đọc % từ phiên; mời mua lần hai dùng giá công bằng thay cho `second.getAmount()`.
+- `system/SystemConfigService.java`: thân `bidIncrement(price)` chuyển sang hàm tĩnh `bidIncrement(tiers, price)` (hành vi cũ giữ nguyên).
+- `config/AppProperties.java`: record `Auction` thêm `demoEnabled`.
+- `auction/LotStatus.java`, `consignment/ConsignmentStatus.java`: các dòng bước chuyển được mở rộng (thêm `LOST`, `PAID → RETURNED`, `RECEIVED → WITHDRAWN`); `consignment/WarehouseItem.java` thêm `LOST`.
+- `consignment/ConsignmentService.returnToSeller`: dòng tính phí lưu kho bỏ qua khi sách được miễn phí.
+- Test: `AuctionMoneyTest` sửa 4 cụm khẳng định chia cọc 50/50 sang 100% về sàn; `InputGuardsTest.bookIsbnMustBeTenOrThirteenCharactersWhenGiven` **bị thay** bằng `bookIsbnIsCheckedAndStoredAsIsbn13` (luật cũ không còn đúng).
+
+### Rủi ro
+- Đổi hành vi tiền: người bán không còn nhận 50% cọc bị thu; thay vào đó được bù chênh khi bán lại thấp hơn. Ví sàn không đủ thì không duyệt được bồi thường kho, và chưa có cách nạp vốn cho ví sàn.
+- Profile mặc định vẫn là `dev` (BE-32): deploy quên đặt profile thì nút mở phiên ngay và hai mốc lịch bằng 0 cũng có hiệu lực.
+- Bản sửa tìm kiếm không dấu của nhóm (đang là `V9__unaccent_search.sql`, chưa push) phải đổi số thành **V14**.
+
+### Chưa kiểm
+Giao diện Flutter (chưa có màn sự cố kho, chưa hiện `isbnWarning`, chưa có nhãn cho mã lỗi mới), chưa chạy `/sync-api`, chưa thử các luật mới trên app thật.
+
+## M. Việc trước buổi demo (2026-11-06)
+
+Chủ repo yêu cầu làm nhóm việc trước demo: vá hai lỗ nhỏ của sự cố kho, sửa câu chữ luật cũ trong app, chạy test backend (không chạy test frontend), chạy thử luồng demo, commit.
+
+| # | Việc | File | Ghi chú |
+|---|---|---|---|
+| 87 | Sự cố kho: sách đã trượt kiểm định mà bị mất thì Admin phải chọn mức 0–100% (`SELLER_PERCENT_REQUIRED`), không tự trả theo giá người bán tự khai; lô đã chuyển bán thường mà sách bị mất thì tin chờ duyệt chuyển `REJECTED` kèm lý do, tồn kho 0 | `consignment/WarehouseIncidentService.approve`; 2 test mới trong `BusinessRulesBatchTest` | |
+| 88 | Câu `offersHint` (vi, en) còn ghi "mời mua với giá đã trả" → giá công bằng; `flutter gen-l10n` | `apps/frontend/lib/app/l10n/arb/app_vi.arb`, `app_en.arb` | Chưa chạy `dart analyze` / `flutter test` theo yêu cầu chủ repo |
+| 89 | Chạy thử luồng đấu giá của `DEMO_V2.md` qua API trên DB mới (profile `dev`, dữ liệu mẫu): ký gửi ISBN có gạch → lưu ISBN-13; kiểm định giá 0 bị chặn; tạo phiên cọc 0 bị chặn; công bố phiên mở sau 5 phút được; buyer1, buyer2 đăng ký được, staff / admin bị `STAFF_CANNOT_BID`; mở phiên ngay; trả giá 1.000.000 → 1.100.000 đúng bước giá; tự đẩy giá mình bị `ALREADY_LEADING` | script tạm trong `C:btmp` (đã xoá) | Dữ liệu mẫu không có lô sẵn sàng: muốn demo đấu giá phải ký gửi và kiểm định trước (như `DEMO.md` mục 3.6) |
+
+**Kết quả:** test backend **160/160 đạt** (158 + 2 mới, trừ `SeedDataTest`).
+
+### Dòng code cũ bị thay trong đợt này
+- `WarehouseIncidentService.approve`: dòng `int percent = lost ? 100 : requirePercent(req);` thêm điều kiện sách chưa trượt kiểm định; câu báo lỗi `SELLER_PERCENT_REQUIRED` thêm "hoặc sách đã trượt kiểm định".
+- `app_vi.arb`, `app_en.arb`: đổi nội dung chuỗi `offersHint` (giữ nguyên key).

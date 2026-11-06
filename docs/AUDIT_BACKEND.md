@@ -143,3 +143,27 @@ Thêm `MultiBidderTest` và sửa 2 lỗi trong `BidService` (đặt giá tối 
 ## Cập nhật 7: ép số nguyên cho tiền, kiểm thử đầu cuối (2026-11-06)
 
 Thêm `@WholeVnd` cho mọi ô nhập tiền chính; sửa mất gộp kiện phí giao hoá đơn đấu giá; thêm 31 test luồng đầu cuối. **Đã chạy test: 144/144 đạt** (trừ `SeedDataTest`). Chi tiết: [SESSION_LOG_2026-11-05.md](SESSION_LOG_2026-11-05.md) mục J, kế hoạch [E2E_TEST_PLAN.md](E2E_TEST_PLAN.md).
+
+
+---
+
+## Cập nhật 8: chặn nhân viên sàn đấu giá (2026-11-06)
+
+Lỗ hổng mới (phát hiện khi đối chiếu bản đánh giá của nhóm, mục 6.6): đăng ký phiên và trả giá không kiểm vai trò, nên Staff / Admin có số dư và đã xác thực SĐT đăng ký và trả giá được, dù Staff là người kiểm định lô và biết giá sàn. Đã sửa: tài khoản `STAFF` / `ADMIN` bị chặn ở đăng ký phiên, trả giá tay và đặt giá tối đa (403 `STAFF_CANNOT_BID`), kể cả khi đã có đăng ký từ trước; cọc thêm cần đăng ký hợp lệ nên cũng bị chặn theo. `User.isPlatformOperator()`, `AuctionService.register`, `BidService.requireBidder`; test `MultiBidderTest.platformStaffCannotRegisterOrBid`. **Đã chạy test: 145/145 đạt** (trừ `SeedDataTest`). Spec API không đổi (chỉ thêm mã lỗi); frontend hiện câu thông báo của server nên không cần sửa.
+
+
+---
+
+## Cập nhật 9: luật nghiệp vụ nhóm 1 và nhóm 4 của SRS bổ sung (2026-11-06)
+
+Làm theo [SRS_BO_SUNG_NGHIEP_VU.md](SRS_BO_SUNG_NGHIEP_VU.md) mục 11, nhóm 1 và 4 (chi tiết và chỗ làm khác thiết kế ghi ngay trong tài liệu đó). Migration `V13__business_rules_batch1.sql` và seed dev `V13_1__demo_auction_schedule.sql`; `apps/backend/openapi.yaml` đã xuất lại (thêm 4 endpoint sự cố kho, trường `isbnWarning`; đổi mẫu ISBN và cọc tối thiểu). **Đã chạy test: 158/158 đạt** (trừ `SeedDataTest`); khởi động thử profile `dev` trên DB trống: 16 migration chạy tốt.
+
+| Luật | Đã làm |
+|---|---|
+| BR-2.2–2.5 | ISBN bỏ gạch, kiểm số kiểm tra (`INVALID_ISBN`), lưu dạng ISBN-13, tìm được bằng ISBN-10 / có gạch; đổi ISBN, NXB, năm thì tin duyệt lại; ISBN cũ giữ nguyên không bị kiểm lại (7/8 ISBN dữ liệu mẫu sai số kiểm tra) |
+| BR-4.6, BR-5.5 | Phiếu kiểm định chặn giá ≤ 0 ngay lúc lập (`INVALID_PRICE`), trước đây làm yêu cầu ký gửi kẹt; cọc phiên tối thiểu 1.000đ |
+| BR-5.1–5.4 | Công bố phải trước giờ mở 72 giờ, hạn đăng ký trước giờ mở 24 giờ; chốt % phí người mua, bảng bước giá, hệ số hạn mức vào phiên lúc công bố; "mở phiên ngay" chỉ khi `app.auction.demo-enabled` (`DEMO_ONLY`) |
+| BR-6.1, BR-6.2, BR-6.5 | Cọc / phạt người bỏ thanh toán về sàn 100%; mời mua lần hai ở giá công bằng; sàn bù chênh cho người bán khi lô bán lại thấp hơn (trần = số đã thu từ người bỏ) |
+| BR-4.2, BR-4.8, BR-4.9 | Sự cố kho: Staff khai báo, Admin duyệt; bồi thường theo giai đoạn; mất → lô / kho / ký gửi `LOST`; hỏng → Admin chọn 0–100%, trả sách miễn phí lưu kho |
+
+Việc đi kèm: frontend chưa có màn sự cố kho, chưa hiện `isbnWarning`, chưa biết các mã lỗi mới (ghi ở `BACKLOG_LATER.md`). Bản sửa tìm kiếm không dấu của nhóm (chưa push, đang là `V9__unaccent_search.sql`) phải đổi số thành **V14**.

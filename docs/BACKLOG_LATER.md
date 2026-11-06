@@ -30,6 +30,8 @@ Ngày 2026-11-06. Danh sách những việc **chưa làm**, tách theo lý do. M
 | Xoá / ẩn danh tài khoản, xuất dữ liệu cá nhân | BE-30 | Màn tài khoản |
 | Phạt luỹ tiến cho người tái phạm; hiển thị mức phạt cho người dùng | (chưa mã) | Cần chủ sàn chốt mức; giao diện cảnh báo |
 | Cấu hình mới hiện nhãn tiếng Việt ở màn Cấu hình phí | `AUDIT_FRONTEND.md` | `_configLabels` |
+| Màn sự cố kho: Staff khai báo mất / hỏng sách (ảnh, mô tả), Admin duyệt (chọn % khi hỏng) hoặc từ chối; hiện giai đoạn và số tiền bồi thường | BR-4.2, BR-4.8 | API đã có (`/staff/warehouse/{id}/incidents`, `/staff/warehouse-incidents`, `/admin/warehouse-incidents/{id}/approve | reject`), chưa có màn hình |
+| Mã lỗi mới: `INVALID_ISBN`, `INVALID_PRICE`, `DEMO_ONLY`, `STAFF_CANNOT_BID`, `INCIDENT_PENDING`, `INCIDENT_DECIDED`, `LOT_LIVE`, `LOT_AWAITING_PAYMENT`, `PLATFORM_FUNDS_INSUFFICIENT`, `SELLER_PERCENT_REQUIRED`; trạng thái `LOST` (lô, ký gửi, kho); loại giao dịch `COMPENSATION`; cờ `isbnWarning` ở màn duyệt tin | SRS bổ sung nhóm 1, 4 | Cần `/sync-api` và nhãn tiếng Việt |
 
 ## C. Cần quyết định của chủ sàn, quyền hạ tầng, hoặc người am hiểu luật
 
@@ -48,7 +50,7 @@ Ngày 2026-11-06. Danh sách những việc **chưa làm**, tách theo lý do. M
 
 | Việc | Ghi chú |
 |---|---|
-| Sàn huỷ hoá đơn đã thanh toán vì lỗi của sàn (mất, hỏng sách trong kho), hoàn tiền kèm bồi thường | Cần luồng riêng, phụ thuộc BE-24 |
+| ~~Sàn huỷ hoá đơn đã thanh toán vì lỗi của sàn (mất, hỏng sách trong kho), hoàn tiền kèm bồi thường~~ | Đã làm 2026-11-06 (sự cố kho, SRS bổ sung BR-4.2). Còn: chưa có cách nạp vốn ví sàn (hai lỗ nhỏ khác đã vá, SESSION_LOG #87) |
 | Bán sau phiên cho người trả giá cao nhất khi chưa đạt giá sàn | Cần luật mới và đồng ý của người bán |
 | Chuyển lô không bán sang bán thường do sàn giao hộ (đúng SRS 6.6) | BE-21: nay chỉ chặn duyệt tin khi sách còn trong kho |
 | Chống thông đồng đẩy giá: ghi IP / thiết bị lượt trả giá, cảnh báo tài khoản liên quan | BE-25; cần chốt chính sách thu thập IP |

@@ -50,14 +50,14 @@ Phạm vi: chỉ backend (Spring Boot). Frontend chưa đổi gì; việc fronte
 
 | Việc | Cũ làm gì | Hạn chế | Bây giờ |
 |---|---|---|---|
-| **Người thắng bỏ thanh toán** | Mất cọc đã đặt, bị cấm | Cọc chỉ áp vào lô đầu; thắng 5 lô bỏ 4 lô thì không còn gì để thu | Phạt = lớn hơn giữa cọc đang giữ và 10% giá búa, mỗi lô bỏ. Thiếu thì thu từ ví, vẫn thiếu thì ghi **công nợ** (chặn đăng ký, trả giá, rút tiền đến khi trả). Người bị cấm được hoàn cọc các phiên chưa chốt |
-| **Mời người trả giá thứ hai** | Mời người cao thứ hai nếu đạt giá sàn | Có thể mời người đang bị cấm hoặc đang nợ, hoặc chính người ký gửi | Chọn người đủ điều kiện kế tiếp (không bị cấm, không nợ, không phải người bán) |
+| **Người thắng bỏ thanh toán** | Mất cọc đã đặt, bị cấm | Cọc chỉ áp vào lô đầu; thắng 5 lô bỏ 4 lô thì không còn gì để thu | Phạt = lớn hơn giữa cọc đang giữ và 10% giá búa, mỗi lô bỏ. Thiếu thì thu từ ví, vẫn thiếu thì ghi **công nợ** (chặn đăng ký, trả giá, rút tiền đến khi trả). Người bị cấm được hoàn cọc các phiên chưa chốt. Từ 2026-11-06: cọc / phạt về sàn 100%, sàn bù chênh cho người bán khi lô bán lại thấp hơn |
+| **Mời người trả giá thứ hai** | Mời người cao thứ hai nếu đạt giá sàn | Có thể mời người đang bị cấm hoặc đang nợ, hoặc chính người ký gửi | Chọn người đủ điều kiện kế tiếp (không bị cấm, không nợ, không phải người bán). Từ 2026-11-06: giá mời là giá công bằng (giá người kế tiếp + 1 bước, không vượt giá người về nhì đã trả, không dưới giá sàn) |
 | **Huỷ đăng ký** | Không có | Cọc kẹt đến hết phiên | `DELETE /sessions/{id}/register` đến hạn đăng ký, hoàn đủ cọc, huỷ giá tối đa |
 | **Lô không bán** | Chờ người bán chọn mãi | Sách nằm kho vô hạn, không tính phí kho | Sau 7 ngày không chọn thì tự chuyển sang trả sách, bắt đầu tính hạn lưu kho miễn phí. Phí kho không đủ ví thì thành nợ, kho vẫn xuất sách được |
 | **Lô bị trả hàng** | Quay lại hàng chờ xếp phiên | Sách đã qua tay người mua nhưng dùng báo cáo cũ | Sang trạng thái `INSPECTING`, Staff kiểm định lại (`/staff/lots/inspecting`, `/reinspect`); không đạt thì trả người bán |
 | **Chuyển sang bán thường** | Tin được duyệt là lên bán | Sách vẫn nằm trong kho | Chặn duyệt tin khi sách còn trong kho (`BOOK_IN_WAREHOUSE`) |
 | **Mã lỗi** | Nhiều lỗi dùng chung `FORBIDDEN` | Frontend dò chuỗi tiếng Việt | Có mã riêng `AUCTION_BANNED`, `NOT_REGISTERED`, `DEBT_OPEN` |
-| **Còn lại** | | | Chuyển bán thường do kho giao hộ (đúng SRS 6.6), KYC người ký gửi, sự cố mất/hỏng sách trong kho, chống thông đồng đẩy giá bằng IP/thiết bị, hạn mức cọc theo giá trị lô (BE-21, 23, 24, 25) |
+| **Còn lại** | | | Chuyển bán thường do kho giao hộ (đúng SRS 6.6), KYC người ký gửi, ~~sự cố mất/hỏng sách trong kho~~ (đã làm 2026-11-06), chống thông đồng đẩy giá bằng IP/thiết bị, hạn mức cọc theo giá trị lô (BE-21, 23, 24, 25) |
 
 ## 5. Đấu giá: phiên trực tiếp nhiều người
 
@@ -96,7 +96,7 @@ Và nhóm kiểm lại số tiền: số lẻ (`50000.4`) bị làm tròn khi l�
 | **Nhóm 1 (hoãn theo yêu cầu chủ repo)** | BE-32 profile mặc định `dev`; gỡ mã OTP khỏi log; BE-33 khoảng giá trị cấu hình, cận trên giá và tồn kho | BE-32 là P0 |
 | **Làm cùng frontend** | Màn Staff đối chiếu COD (**bắt buộc, không có thì đơn COD không hoàn tất**), màn lô chờ kiểm định lại, hiện địa chỉ gửi trả, hiện hạn và uy tín shop, thông báo đẩy | [AUDIT_FRONTEND.md](AUDIT_FRONTEND.md) |
 | **Cần chủ repo / hạ tầng / luật** | Pháp lý giữ tiền hộ và thuế, KYC, Admin hai cấp, CI backend, deploy, nhiều instance | [BACKLOG_LATER.md](BACKLOG_LATER.md) mục C |
-| **Đấu giá dang dở** | Huỷ hoá đơn đã trả vì lỗi sàn, bán sau phiên cho người chưa đạt sàn, kho giao hộ, hạn mức cọc theo lô | [BACKLOG_LATER.md](BACKLOG_LATER.md) mục D |
+| **Đấu giá dang dở** | ~~Huỷ hoá đơn đã trả vì lỗi sàn~~ (đã làm 2026-11-06, sự cố kho), bán sau phiên cho người chưa đạt sàn, kho giao hộ, hạn mức cọc theo lô | [BACKLOG_LATER.md](BACKLOG_LATER.md) mục D |
 
 ## Nguồn chi tiết
 

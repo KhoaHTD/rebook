@@ -33,7 +33,7 @@ Hai lớp test, thư mục `src/test/java/com/rebook/journey/`:
 | Quyền đơn | Người lạ xem / huỷ đơn: 403/404; shop khác xác nhận: 403/404; sai thứ tự (giao trước khi xác nhận, nhận hàng trước khi giao, đánh giá khi chưa hoàn tất): 409 |
 | Trả hàng | Thiếu ảnh / mô tả: 400; đơn chưa giao: 409; trả lần hai: 409; quá hạn khiếu nại: 409 |
 | Ký gửi | Giá mong muốn dưới mức tối thiểu; email chưa xác thực; hẹn ngoài 8h–17h; hẹn quá hạn; xem ký gửi người khác; kiểm định khi chưa nhận sách; giá kiểm định sai (sàn > ước tính thấp, khởi điểm > sàn); không tích điều khoản; giá sàn đề nghị vượt / thấp hơn khởi điểm; kiểm định không đạt rồi không xếp được phiên |
-| Phiên | Xếp lô chưa sẵn sàng / trùng lô; công bố khi chưa có lô, khi hạn đăng ký ở quá khứ; sửa phiên đã công bố; đăng ký khi chưa xác thực SĐT, chưa đồng ý quy chế, ví không đủ cọc, đăng ký hai lần, sau hạn; mở phiên khi chưa đủ người |
+| Phiên | Xếp lô chưa sẵn sàng / trùng lô; công bố khi chưa có lô, khi hạn đăng ký ở quá khứ; sửa phiên đã công bố; đăng ký khi chưa xác thực SĐT, chưa đồng ý quy chế, ví không đủ cọc, đăng ký hai lần, sau hạn; mở phiên khi chưa đủ người. Từ 2026-11-06: công bố thiếu 72 giờ / hạn đăng ký sát giờ mở, cọc 0, Staff / Admin đăng ký hoặc trả giá, mở phiên ngay ngoài demo (`BusinessRulesBatchTest`, `StartNowDemoGateTest`, `MultiBidderTest`) |
 | Bảo mật | Mọi endpoint ví / đơn / đấu giá cần đăng nhập; vai USER không vào được `/staff`, `/admin` |
 
 ## C. Điều kiện hoàn thành

@@ -1,0 +1,234 @@
+# Các quyết định tự đưa ra khi làm theo SRS — bản V2
+
+> Bản V2 ngày 2026-11-06: giữ nguyên toàn bộ nội dung [DECISIONS.md](DECISIONS.md) (bản cũ không sửa) và thêm các quyết định từ ngày này ở cuối file. Quyết định mới ghi vào bản này.
+
+> **2026-10-22 — làm lại UI theo style Apple Books.** File này lấy từ tag `backup/srs-frontend-2026-10-22`; các mục về nghiệp vụ
+> vẫn giữ. Các mục về giao diện cũ (kính, theme tối tự động trên mobile, trang giới thiệu web) **không còn áp dụng**:
+> giao diện chuẩn là bản vẽ Apple Books cũ (đã xoá; nay thay bằng `docs/design/lg-*.png`), nền sáng, web mở thẳng trang chủ.
+> Nhánh làm việc hiện tại: `design/apple-books` (không phải `feat/srs-frontend`).
+
+Chủ dự án duyệt lại vào buổi sáng. Mỗi mục: quyết định, lý do, cách đổi nếu không đồng ý.
+
+## Đã chốt cùng chủ dự án (2026-10-22)
+
+- Web quản trị Staff/Admin nằm cùng project, entrypoint riêng `lib/main_admin.dart`.
+- App người mua/bán chạy cả web lẫn mobile; bản web mở đầu bằng trang giới thiệu.
+- Thêm package: stomp_dart_client, image_picker, url_launcher, firebase_core, firebase_messaging.
+- Frontend viết hợp đồng OpenAPI từ SRS; backend Spring Boot bám theo.
+- Chỉ làm frontend, dữ liệu giả (`USE_MOCK=true`); commit trên nhánh `feat/srs-frontend`, không push.
+
+## Tự quyết
+
+<!-- Thêm mục mới bên dưới theo dạng: ### Tiêu đề / Quyết định / Lý do / Đổi thế nào -->
+
+### Theme "tự động"
+- Quyết định: mặc định `ThemePref.auto` — cửa sổ hẹp (điện thoại) dùng theme tối, web rộng dùng theme sáng. Người dùng đổi được trong Cài đặt (Tự động / Theo hệ thống / Sáng / Tối).
+- Lý do: mockup đã chốt web sáng, mobile tối.
+- Đổi thế nào: `AppSettings.themeModeFor` trong `core/settings/app_settings_controller.dart`.
+
+### Cài đặt chưa lưu bền
+- Quyết định: theme / ngôn ngữ giữ trong bộ nhớ (mất khi mở lại app).
+- Lý do: allowlist không có shared_preferences; secure storage chỉ dành cho token.
+- Đổi thế nào: khi team duyệt shared_preferences, lưu trong `AppSettingsController`.
+
+### Backend giả (FakeStore)
+- Quyết định: một backend thu nhỏ trong `shared/data/fake/` cài đúng nghiệp vụ SRS (escrow, sổ cái ví, bước giá, soft close, ký gửi → kiểm định → lô). Mọi `Fake...Repository` gọi vào đây qua `fakeCall` (trễ ~220ms, lỗi thành AppException).
+- Lý do: feature không được import nhau, nhưng dữ liệu giữa chúng phải nhất quán (đặt hàng xong thì ví, đơn của shop, thông báo cùng đổi).
+- Tài khoản mẫu: mật khẩu và OTP đều là 123456 (xem đầu `fake_store.dart`).
+
+### Mapper DTO tập trung
+- Quyết định: mọi chuyển đổi DTO ↔ entity nằm ở `shared/data/api_mappers.dart` thay vì mỗi feature một file.
+- Lý do: entity dùng chung nhiều feature; backend đổi tên trường chỉ sửa một chỗ.
+
+### Đường dẫn và điều hướng
+- Quyết định: app người dùng có 4 nhánh (Khám phá / Đấu giá / Thông báo / Tài khoản). Giỏ hàng, chi tiết sách, shop nằm trong nhánh Khám phá; kênh người bán và ký gửi nằm trong nhánh Tài khoản. Web: `/` là trang giới thiệu; mobile mở thẳng `/home`.
+- Web quản trị dùng router riêng (`app/router/admin_router.dart`), tài khoản USER đăng nhập vào sẽ bị đăng xuất và báo không có quyền.
+
+### Không tự mua sách của shop mình
+- Quyết định: thêm giỏ sách của chính shop mình trả lỗi `OWN_LISTING` (409); đã ghi vào mô tả mã lỗi trong openapi.yaml.
+- Lý do: SRS không nói rõ, nhưng tự mua sẽ tạo đơn giả và tiền đi vòng trong ví.
+
+### Thanh toán VNPay ở chế độ mock
+- Quyết định: `paymentUrl` bắt đầu bằng `mock://` → app mở màn "Thanh toán" có cổng VNPay giả lập (Giao dịch thành công / thất bại). Chế độ thật: mở URL VNPay trong cùng tab, VNPay quay về `/home/payments/{id}` (cấu hình PAYMENT_RETURN_URL ở backend), app đọc lại trạng thái bằng GET /payments/{id}.
+
+### Đồng bộ dữ liệu giữa các feature
+- Quyết định: `core/utils/data_changes.dart` — bộ đếm phiên bản theo vùng (cart, orders, wallet...). Provider đọc dữ liệu gọi `ref.watchArea(DataArea.x)`; thao tác ghi gọi `bump`. Ở chế độ mock, FakeStore tự phát sự kiện đổi dữ liệu (kể cả từ bộ máy đấu giá).
+- Lý do: feature không import nhau nhưng thêm giỏ ở trang sách phải cập nhật số trên icon giỏ.
+
+### Preview web chạy bản release
+- Quyết định: `.claude/launch.json` chạy `flutter run -d web-server --release`: bản debug của web-server hay rớt kết nối dwds và trang trắng.
+
+### Phòng đấu giá
+- Quyết định: phòng LIVE là route phủ toàn màn hình (không dock/sidebar). Trạng thái = ảnh chụp GET /sessions/{id}/state + sự kiện STOMP áp qua `applyAuctionEvent` (features/auction/domain/live_reducer.dart, có test). Kết nối lại → tải lại ảnh chụp. Đồng hồ đếm theo giờ server (bù chênh lệch từ serverTime).
+- Nút trả giá luôn trả đúng mức tối thiểu kế tiếp (`nextBidAmount`); muốn trả cao hơn thì dùng trả giá tự động (proxy bid). Lý do: SRS mô tả nút "Trả Xđ" theo bước giá; tránh gõ nhầm số.
+- Mức cọc chọn nhanh ×1/×2/×5/×10 mức cọc tối thiểu của phiên; đăng ký lại với mức cao hơn = cọc thêm để tăng hạn mức.
+- Hóa đơn lô thắng là một đơn loại AUCTION trong "Đơn mua"; thanh toán (ví/VNPay, giao tận nơi/nhận tại kho) ở màn chi tiết đơn.
+
+### Người bán và ký gửi
+- Form thông tin sách dùng chung (shared/widgets/book_form.dart) cho đăng bán và ký gửi; tối thiểu 3 ảnh, 5 mức tình trạng có mô tả.
+- Ký gửi có giá mong muốn dưới 300.000đ bị từ chối sơ duyệt tự động (FakeStore làm như backend nên làm).
+- Đơn của shop đang giao: chế độ mock có nút "Giả lập: đã giao thành công" thay cho webhook đơn vị vận chuyển; chế độ thật ẩn nút này.
+- Spec chưa có GET một đơn của shop → ApiSellerRepository.shopOrder lấy từ danh sách. Nên thêm GET /seller/orders/{id} vào openapi.yaml.
+
+### Web quản trị
+- Hai feature riêng: `staff` (ký gửi, nhận sách, kiểm định, kho, giao lô) và `admin` (tổng quan, phiên, duyệt tin, người dùng, danh mục, cấu hình, rút tiền, khiếu nại). Staff thấy và vào được phần kho + danh sách phiên và màn giám sát (SRS 2: Staff / Auctioneer giám sát phiên tự động — tạm dừng / tiếp tục / hủy lô); tạo / sửa phiên và các trang Admin khác bị chuyển về "Yêu cầu ký gửi". Màn giám sát gọi các endpoint admin pause/resume/cancelLot — backend cần cho phép cả role STAFF.
+- Màn giám sát phiên hỏi lại GET /sessions/{id}/state mỗi 2 giây thay vì mở STOMP (đủ cho người vận hành, đỡ phụ thuộc feature auction).
+- Chạy: `flutter run -d chrome -t lib/main_admin.dart --dart-define-from-file=env/dev.json` (tài khoản staff@rebook.vn / admin@rebook.vn, mật khẩu 123456).
+
+### Giao diện Apple Books (2026-10-22)
+- Theme mặc định **sáng** (bỏ "tự động tối trên điện thoại" của UI cũ); người dùng vẫn chọn Tối / Theo hệ thống trong Cài đặt.
+- Ngôn ngữ mặc định **tiếng Việt** (không theo ngôn ngữ trình duyệt); đổi được sang tiếng Anh trong Cài đặt.
+- Điều hướng giữ 4 nhánh theo SRS 11.2 (Mua sách · Đấu giá · Thông báo · Tài khoản). Nhãn tab trong mockup mobile
+  (Thư viện, Chợ sách, Tìm kiếm) là minh họa; tìm kiếm nằm ở sidebar desktop và thanh đầu trang Mua sách trên mobile.
+- Desktop: sidebar nổi 3 nhóm — Khám phá (Tìm kiếm, Mua sách, Đấu giá, Thông báo, Giỏ hàng) · Của tôi (Đơn mua, Đấu giá của tôi,
+  Ví, Kênh người bán, Ký gửi) · Kệ sách (danh mục gốc). Người dùng / nút Đăng nhập ở đáy sidebar.
+- Web mở thẳng trang Mua sách (bỏ trang giới thiệu của UI cũ).
+- Sách chưa có ảnh (dữ liệu mẫu) dùng bìa tự vẽ `DrawnCover`: màu + hình chọn ổn định theo id sách.
+- Phòng đấu giá trực tiếp (`/auctions/sessions/:id/live`) **không cần đăng nhập** để xem — SRS mục 2: khách xem trực tiếp
+  phiên, không được trả giá. Chưa đăng ký thì phòng hiện lời nhắc + nút "Đăng ký tham gia" (đăng ký vẫn cần đăng nhập).
+- Màn hình con mở từ sidebar desktop (Đơn mua, Ví…) giữ sidebar; phòng đấu giá phủ toàn màn hình.
+
+### Giao diện Liquid Glass + chữ SF (2026-10-22)
+- Người dùng duyệt bản vẽ `docs/design/lg-desktop.png`, `lg-mobile.png`, thay style Apple Books (nền trắng, serif Newsreader).
+- Chữ: người dùng muốn toàn bộ chữ là San Francisco. Giấy phép SF của Apple chỉ cho dùng trên nền tảng Apple, không cho đóng gói
+  vào app web / Android → iPhone / Mac dùng SF có sẵn của hệ điều hành, web và Android dùng **Inter** (OFL, gần SF nhất). Người dùng đồng ý.
+- Thêm màu nhấn xanh (`AppColors.tint`) — trước đây chỉ đen trắng. Người dùng đồng ý.
+- Kính làm mờ tốn GPU → chỉ dùng cho phần nổi; khối trong danh sách dùng kính trong không làm mờ.
+- Mobile: chi tiết sách có thanh mua hàng kính nổi phía trên tab bar (nút mua trong trang chỉ còn ở desktop). Tab bar kèm nút tìm kiếm tròn kiểu iOS 26.
+
+### Sách mẫu thật + băng chuyền (2026-10-23)
+- Toàn bộ sách mock được thay bằng **16 cuốn** từ 16 thư mục Google Drive người dùng cung cấp. Tên sách = tên thư mục (các tên viết thường hoàn toàn được viết hoa chữ đầu mỗi từ cho đồng nhất: Dế Mèn Phiêu Lưu Ký, Số Đỏ, Đắc Nhân Tâm). Ảnh nén JPEG (cao ≤ 1000px, ~3 MB tổng) đặt ở `assets/books/`.
+- **Mỗi ảnh trong thư mục là một ấn bản (bìa) khác nhau** của cùng cuốn → mỗi ảnh thành một tin bán từ một shop khác nhau (32 tin), nên khối "Các bản khác của cuốn này" có dữ liệu thật. Ấn bản xếp theo: cổ điển → bìa khác → hiện đại → trừu tượng.
+- Tác giả, nhà xuất bản, năm, số trang, giá, mô tả tình trạng là **dữ liệu mẫu do dev điền** (thư mục chỉ cung cấp tên + ảnh) — nằm trong `lib/shared/data/fake/fake_catalog.dart`, sửa tại đó.
+- Danh mục không còn sách bị bỏ: Truyện tranh, Kinh tế, Ngoại ngữ. Còn: Văn học VN, Văn học nước ngoài, Giáo trình (CNTT), Kỹ năng sống, Thiếu nhi, Sách hiếm & cổ.
+- Phiên đấu giá, lô, ký gửi mẫu cũng dùng 16 cuốn này (tên phiên đổi theo: "Văn học Việt Nam bản xưa", "Sách hay, bìa hiện đại", "Ấn bản đặc biệt", "Giáo trình và tư liệu", "Sách hiếm Việt Nam").
+- Font: tiêu đề + dòng sự kiện đổi sang serif mềm Newsreader (theo ảnh tham chiếu Apple Books); nội dung vẫn SF / Inter. Sidebar tràn hết chiều cao thay cho khối bo góc.
+
+### Trang giới thiệu web (2026-10-23)
+- Người dùng gửi một video Pinterest (trang giới thiệu của một sàn tác phẩm nghệ thuật, 43 s) và yêu cầu dựng trang giới thiệu "giống video, animation y chang".
+  Video chỉ cho thấy bố cục và chuyển động, không có chữ của ReBook → nội dung được viết lại cho ReBook; ảnh là bìa sách mẫu; "membership" của video thành ba mức phí theo SRS 8.2 (5% bán thường, 15% hoa hồng ký gửi, 10% phí người mua đấu giá).
+- Bảng màu theo video (nền trắng ngà, cam, băng vàng chanh, hồng, xanh dương) — khác với phần còn lại của app (Liquid Glass + xanh); trang này là trang giới thiệu riêng.
+- Web mở `/` là trang giới thiệu; người đã đăng nhập vào thẳng `/home`; app điện thoại không có trang này. Đổi lại bằng `initialLocation` trong `app_router.dart`.
+
+### Backend: sửa lỗi nghiệp vụ sau rà soát (2026-10-29)
+- Mời người trả giá cao thứ hai mua lại lô chỉ khi giá của họ **≥ giá sàn**. SRS chỉ nói "mời người trả cao thứ hai", không nói giá sàn; dưới giá sàn thì người bán chưa đồng ý bán nên lô quay về chờ xếp phiên.
+- Người bán (hoặc kho) phải trả lời yêu cầu trả hàng trong **2 ngày** (cấu hình `order.return_response_days`); quá hạn thì tự chuyển Admin phân xử như khi người bán từ chối, tiền vẫn giữ ở sàn. SRS không có hạn này.
+- Người mua bấm "Đã nhận hàng" khi đang yêu cầu trả hàng = rút yêu cầu: yêu cầu đóng lại (REJECTED).
+- Thanh toán VNPay về muộn mà đơn đã được trả bằng cách khác (ví / link mới): phần tiền thừa hoàn vào ví người mua.
+
+### Cập nhật SRS 31/10 (file `docs/Đặc-tả-ứng-dụng-mua-bán-đấu-giá-sách-cũ.docx`)
+Năm điểm mới trong SRS. SRS **không liệt kê endpoint** cho các điểm này (mục 10.4 chỉ rút gọn), nên tên field / endpoint dưới đây do frontend
+đặt tạm trong `openapi/openapi.yaml` — **backend đối chiếu và sửa nếu khác**, rồi chạy `/sync-api`:
+- **Hạn trả lời yêu cầu trả hàng (4.4):** `ReturnRequestDto.respondBy` (date-time); cấu hình `SystemConfigDto.returnResponseDays` (mặc định 2,
+  `order.return_response_days`); quá hạn thì backend tự đổi `status` sang `ESCALATED`. Frontend chỉ hiển thị hạn (người bán: còn bao nhiêu giờ;
+  người mua: hạn shop trả lời) và có ô cấu hình ở màn Cấu hình phí của Admin.
+- **Rút yêu cầu trả hàng (4.4):** không thêm endpoint — người mua gọi lại `/orders/{id}/confirm-received` khi đơn đang `RETURN_REQUESTED`;
+  backend đóng yêu cầu với trạng thái mới `ReturnStatus.WITHDRAWN` và hoàn tất đơn. Nút hiện là "Đã nhận hàng, rút yêu cầu trả" kèm hộp xác nhận.
+- **Mời mua lần hai (6.6):** `GET /me/offers` (`listSecondChanceOffers`), `POST /me/offers/{id}/accept` (trả `OrderDto`, đơn AUCTION),
+  `POST /me/offers/{id}/decline`; `SecondChanceOfferDto` {id, lotId, lotNumber, bookTitle, coverUrl, amount, expiresAt, status}. Chỉ mời khi giá ≥ giá sàn
+  và hạn 24h — **do backend quyết định**, frontend chỉ hiện lời mời có sẵn. Màn ở hồ sơ đấu giá (`/auctions/account/offers`), có số lời mời còn hiệu lực.
+- **Biên lai rút tiền (8.1):** `POST /admin/withdrawals/{id}/complete` nay nhận `WithdrawalReceiptDto` {senderName, transferredAt, amount, proofImageUrl};
+  `WithdrawalDto.receipt` trả lại cho người bán xem trong lịch sử rút tiền. Số tiền phải đúng số yêu cầu (mã lỗi `RECEIPT_AMOUNT_MISMATCH`, HTTP 422).
+  Ảnh chứng từ upload qua `PhotoPickerField` như các ảnh khác.
+- **Nhật ký hoạt động Admin (8.1):** `GET /admin/activity-logs` → `ActivityLogDto` {id, adminName, action, target, note, createdAt}; `AdminAction` gồm 9 loại
+  theo SRS (duyệt/từ chối tin, khóa/mở khóa, đổi vai trò, gỡ cấm đấu giá, shop uy tín, duyệt rút tiền, đổi cấu hình). Màn `/activity` (sidebar "Nhật ký").
+  Giao diện hiện chưa có chỗ nào gọi "đổi vai trò", "gỡ cấm đấu giá", "shop uy tín" nên frontend giả chỉ ghi 6 loại; 3 loại kia (đổi vai trò, gỡ cấm, shop uy tín) vẫn có nhãn để hiển thị khi backend gửi.
+- **Không làm (SRS không yêu cầu giao diện):** ví của sàn; hoàn tiền VNPay muộn vào ví (dòng "Hoàn tiền" trong lịch sử ví đã có sẵn).
+- **Ngoài SRS, chưa làm theo yêu cầu người dùng:** chọn sản phẩm trong giỏ; trường ngân hàng / số tài khoản / tên chủ tài khoản / ghi chú khi tạo yêu cầu rút tiền.
+
+### Bảy mục ngoài SRS (yêu cầu của người dùng 31/10) — tên field / endpoint tạm trong `openapi/openapi.yaml`
+SRS chưa có các mục này; backend đối chiếu rồi chạy `/sync-api`.
+- **Sách yêu thích:** `POST /listings/{id}/favorite` {favorite}, `GET /me/favorites` → `ListingDto[]`. Tim ở trang chi tiết sách (điện thoại + máy tính),
+  màn "Sách yêu thích" ở Tài khoản (`/account/favorites`, menu ba chấm trên mỗi ô để bỏ tim). Trạng thái tim lấy từ danh sách yêu thích (`favoriteIds`),
+  không thêm field vào `ListingDto`.
+- **Phiên yêu thích:** `POST /sessions/{id}/watch` {watch}, `GET /me/watched-sessions` → `AuctionSessionDto[]`. Tim trên thẻ phiên và trang phiên.
+  Tab "Yêu thích" ở trang chủ đấu giá = phiên đã theo dõi **hoặc** phiên có lô đang theo dõi.
+- **Toạ độ địa chỉ:** `AddressDto` / `AddressRequest` thêm `latitude`, `longitude` (tuỳ chọn). Form địa chỉ có nút "Ghim vị trí trên bản đồ": chạm vào
+  sơ đồ Việt Nam tự vẽ (mặc định ở tâm tỉnh); bản đồ ở bước thanh toán ghim đúng điểm đã chọn, chưa ghim thì dùng tâm tỉnh như trước.
+- **Chọn món trong giỏ:** `GET /cart?itemIds=…` chỉ tính các món đã chọn (ship tính lại theo khối lượng các món này); `POST /orders/checkout` đã có `itemIds`.
+  Trạng thái chọn nằm ở frontend (mặc định chọn hết, món mới thêm tự được chọn), không lưu ở backend. Có chọn từng món, từng shop, "Chọn tất cả / Bỏ chọn tất cả".
+- **Rút tiền có thông tin ngân hàng:** `WithdrawalRequest` {amount, bankName, bankAccountNumber, bankAccountName, note}; `WithdrawalDto` trả lại các trường này.
+  Ngân hàng chọn từ danh sách cố định ở frontend (`shared/data/vietnam_banks.dart`); tên chủ tài khoản tự đổi sang IN HOA không dấu khi gõ.
+  Số tài khoản 6–19 chữ số.
+- **Trừ ví khi Admin duyệt (khác bản trước, theo ghi chú của người dùng):** tạo yêu cầu chỉ kiểm tra số dư khả dụng đủ; ví bị trừ lúc duyệt và duyệt
+  kiểm tra lại số dư (`INSUFFICIENT_BALANCE` nếu người bán đã tiêu mất). Trong lúc chờ, tiền vẫn nằm ở số dư khả dụng — backend nên cân nhắc khoá tạm nếu muốn chặn rút trùng.
+- **Người duyệt / thời gian duyệt:** `WithdrawalDto.approvedBy/approvedAt`, `ListingDto.reviewedBy/reviewedAt`, `ReturnRequestDto.resolvedBy/resolvedAt`;
+  `GET /admin/returns?resolved=true` trả các yêu cầu đã phân xử. Hiện ở bảng rút tiền, mục "Đã xử lý gần đây" của duyệt tin, mục "Đã phân xử" của khiếu nại; nhật ký hoạt động vẫn giữ.
+- **Rút tiền chia theo luồng (người dùng yêu cầu, theo ảnh ShopeePay):** `/account/wallet/withdraw/bank` (chọn ngân hàng, có ô tìm kiếm) →
+  `/account/wallet/withdraw/account` (số tài khoản + tên chủ tài khoản tự IN HOA không dấu; khối "Gần đây" chỉ hiện tài khoản của ngân hàng đang chọn) →
+  `/account/wallet/withdraw/amount` (số tiền, gợi ý 100k/500k/1tr + "Rút hết", nguồn tiền Ví ReBook, ghi chú 140 ký tự, tổng + nút Tiếp, ngôi sao yêu thích) →
+  `/account/wallet/withdraw/done` (kết quả, chờ duyệt). Không có màn xác nhận riêng. Nháp nhập liệu giữ trong `WithdrawDraftController`.
+  Logo ngân hàng là ô chữ viết tắt tự vẽ (`BankPalette`, `BankBadge`), không dùng logo thật; tên chủ tài khoản do người dùng nhập (chưa có cổng tra cứu ngân hàng).
+  Endpoint tạm: `GET /wallet/bank-accounts` (yêu thích đứng đầu, rồi lần dùng mới nhất; backend tự lưu / cập nhật khi tạo yêu cầu rút),
+  `POST /wallet/bank-accounts/{id}/favorite` {favorite}. Form rút tiền gộp một tờ trượt trước đó đã bỏ.
+
+## 2026-11-01 — Luật nhập liệu và chữ mờ gợi ý cho mọi ô nhập
+
+- Mọi ô nhập đi qua `Rules` (`lib/core/utils/input_rules.dart`) và `RuleField` (`shared/widgets/form_widgets.dart`): bàn phím, bộ lọc ký tự, độ dài, regex / khoảng số, chữ mờ gợi ý (`hintText`, tự mất khi gõ). Giá trị lưu đã chuẩn hoá bằng `rule.value(...)`.
+- Căn cứ SRS chỉ có: ngưỡng ký gửi ≥ 300.000đ (6.1) và ISBN tuỳ chọn. Mọi luật còn lại (email, SĐT VN `0` + 9 số, mật khẩu ≥ 6, OTP 6 số, STK 6–19 số, ISBN-10/13 có số kiểm tra, tiền tối thiểu 10.000đ, bội số 1.000đ...) là frontend đề xuất theo thông lệ; bảng đầy đủ ở `BACKEND_HANDOFF.md` mục B9.
+- Do frontend đề xuất, SRS không nêu (backend nên đối chiếu): mã kệ `^[A-Z]\d{1,2}-\d{1,3}$`, mã vận đơn `^[A-Z0-9]{8,20}$`, các cận số (năm, số trang, cân nặng, thời lượng lô 30–600 giây, soft-close 5–60 giây, cấu hình phí 0–100%), độ dài tên / mô tả / lý do.
+- Không dùng dấu phân cách hàng nghìn trong ô tiền.
+
+## 2026-11-01 — Bản đồ thật + tự định vị trong màn sửa địa chỉ
+
+- Người dùng chốt thêm `flutter_map` + `latlong2` (allowlist cập nhật) và bỏ qua luật "package phải duyệt" cho lần này; luật không đưa code backend lên nhánh `interface` vẫn giữ.
+- `OsmMap` (tile OSM) thay `VietnamMap` ở màn sửa địa chỉ; Hoàng Sa, Trường Sa luôn ghi tên "(Việt Nam)" phủ lên bản đồ. Màn thanh toán vẫn dùng sơ đồ tự vẽ.
+- `Geocoder` (`core/network/geocoder.dart`): Nominatim khi chạy thật, tâm tỉnh khi mock. Tự định vị sau khi ngừng gõ 1,5 giây; chạm bản đồ thì khoá tự định vị cho tới khi bấm nút "Định vị theo địa chỉ".
+
+## 2026-11-01 — Quận / huyện, phường / xã chọn từ danh sách (không gõ)
+
+- Màn sửa địa chỉ: tỉnh → quận / huyện → phường / xã là ba ô chọn xổ ra; chỉ "số nhà, tên đường" là gõ tay (lý do: gõ tiếng Việt có dấu trên máy ảo / bàn phím không ổn, và gõ tay dễ sai chính tả).
+- Danh sách lấy từ provinces.open-api.vn (miễn phí, không khoá, gọi thẳng từ app, có cache trong bộ nhớ): `core/network/admin_units.dart`. Đổi tỉnh thì xoá quận và phường, đổi quận thì xoá phường.
+- API không tải được thì sheet cho nhập tên thủ công (vẫn qua `Rules.district`). Dữ liệu nguồn là bản 63 tỉnh; nếu sau này SRS chuyển sang địa giới 2 cấp thì đổi nguồn ở đây.
+
+## 2026-11-01 — Chọn vị trí bằng cách kéo bản đồ (ghim cố định giữa khung)
+
+- `OsmMap`: ghim luôn ở giữa khung, người dùng kéo / chụm bản đồ cho tâm trúng chỗ cần chọn; toạ độ lưu là toạ độ ở tâm khi kéo xong. Không còn chạm để đặt ghim.
+- Định vị tự động chỉ di chuyển bản đồ tới điểm tìm được; không làm gì nếu điểm đó đã là tâm hiện tại (tránh giật khi chính cú kéo báo toạ độ lên). Kéo tay thì tự định vị dừng cho tới khi bấm "Định vị theo địa chỉ".
+- Địa chỉ chưa kéo lần nào thì lưu toạ độ tâm tỉnh / điểm tự định vị.
+
+## 2026-11-04 — Ghép lại nhánh interface với main (sau PR #1)
+
+PR #1 chép nguyên frontend của `interface` đè lên `main`, làm mất phần nối backend thật đã làm trên `main` (client sinh từ spec backend,
+WebSocket JSON thuần, không có tiền tố `/api`, các mapper). Đã merge 3 chiều lại (gốc là điểm rẽ nhánh), giữ giao diện mới của `interface`
+và lớp API của `main`, rồi làm thêm phía backend cho các tính năng mới:
+- Client API sinh từ `apps/backend/openapi.yaml` (spec thật); `openapi/openapi.yaml` giữ vai trò hợp đồng / danh sách việc (`tool/api_gap.dart`).
+- Backend dùng kiểu sẵn có `POST` bật / `DELETE` tắt (yêu thích sách, theo dõi phiên, sao tài khoản ngân hàng) thay cho body `{favorite}` trong spec frontend.
+- Lời mời mua lần hai không có bảng riêng: là hoá đơn lô cờ `secondChance` (backend có từ trước), frontend lọc từ `GET /orders`.
+- Chọn món trong giỏ: frontend lọc các món và gửi `listingIds` cho báo giá, không cần `GET /cart?itemIds`.
+- Thêm `AdminAction.withdrawalRejected` vì backend ghi cả "từ chối rút tiền" vào nhật ký.
+- Sau đó (cùng ngày) đã làm nốt: người duyệt tin (`GET /admin/listings/reviewed`), ghi chú của người rút (`userNote`), upload ảnh thật qua `POST /files`.
+  Ảnh trên backend lưu URL tương đối `/files/...`; app ghép với `API_BASE_URL` lúc hiển thị (`resolveImageUrl`), nên đổi máy chủ / tunnel / máy ảo không làm hỏng ảnh cũ.
+  Client sinh với `use_multipart_file: true` để upload chạy được trên web.
+
+## 2026-11-04 — VNPay sandbox thật
+
+- Mã sandbox để ở `apps/backend/.env` (không commit); backend đọc qua `spring.config.import`.
+- Có VNPay thật thì backend tắt `simulateAvailable`; app chỉ hiện cổng giả lập khi cờ này bật (trước đây app coi mọi thanh toán không có link là giả lập).
+- Web mở VNPay trong cùng tab, nên sau khi trả tiền trang `/payments/vnpay/return` của backend (HTML) đưa người dùng về `APP_URL/home/payments/{mã}`.
+  Điện thoại mở trình duyệt ngoài; màn kết quả trong app tự hỏi lại trạng thái mỗi 3 giây.
+- IPN không tới được máy dev (localhost), nên return URL cũng xác nhận giao dịch (đã có từ trước, có kiểm chữ ký, không cộng hai lần).
+
+## 2026-11-04 — Đổi cổng thanh toán từ VNPay sang ZaloPay
+
+- SRS ghi VNPay, nhưng tài khoản VNPay sandbox của nhóm bị từ chối (mã 71, website chưa được duyệt) và đăng ký mới bị lỗi. Người dùng quyết định
+  thay hẳn bằng ZaloPay: phương thức `VNPAY` thành `ZALOPAY` (migration V7 đổi cả dữ liệu cũ), ô thanh toán trong app thành "ZaloPay".
+- Dùng bộ khoá sandbox dùng thử công khai của ZaloPay (app 2554) làm mặc định để ai clone về cũng thanh toán thử được.
+- Không tin tham số trên redirect URL: backend luôn hỏi lại ZaloPay (`/v2/query`) trước khi cộng tiền / chuyển đơn.
+- Web mở trang ZaloPay ở tab mới (tab app chuyển sang màn kết quả và tự hỏi lại); màn kết quả có nút mở lại trang ZaloPay
+  (backend lưu `order_url`, migration V8) phòng khi trình duyệt chặn tab mới.
+
+## 2026-11-04 — Màn giới thiệu, màn loading và chế độ khách
+
+- Mở app vào `/start`: khung xương trang chủ (`SplashScreen`) hiện trong lúc đọc phiên đăng nhập và cờ "đã xem intro", rồi router chuyển tiếp.
+  Điện thoại lần đầu → `/intro` (3 trang vuốt ngang, tranh có mép rách; tranh dùng lại `assets/banners/{picks,shop,live}.jpg`); các lần sau → `/home`.
+  Web giữ trang giới thiệu `/` cho người chưa đăng nhập, không có intro. Cờ lưu trong `flutter_secure_storage` (khoá `intro_seen`, qua `TokenStorage`), không xoá khi đăng xuất.
+- Khách (chưa đăng nhập) vào app thấy hộp thoại mời đăng nhập / đăng ký một lần mỗi lần chạy; "Chỉ xem sách" để từ chối và xem tiếp.
+- Khách không còn bị đẩy sang `/login`: mục cần đăng nhập (`Routes.requiresAuth`) giữ nguyên khung, nội dung là `GuestGate` "Cần đăng nhập".
+  Việc cần tài khoản (thêm giỏ, yêu thích, theo dõi phiên) hiện hộp thoại `showLoginRequired` thay vì chuyển trang.
+- Mục Tài khoản (mua sách và đấu giá) của khách là `GuestAccountView` ("Tài khoản khách" + Đăng nhập / Đăng ký + Cài đặt). Không có thay đổi API.
+
+## 2026-11-06 — Bổ sung nghiệp vụ cho SRS (chủ sàn chốt)
+- Quyết định: các chỗ SRS thiếu về định danh, ISBN, chính sách nội dung, phí ship trả hàng, hoàn một phần, phiếu kiểm định, bồi thường kho, lịch phiên, cọc lô cao giá, tiền phạt về sàn, giá mời mua lần hai, bán sau phiên được ghi tập trung ở `docs/SRS_BO_SUNG_NGHIEP_VU.md` (mã BR-x.y, nhãn [Chốt] / [Đã có] / [Đề xuất]).
+- Đổi so với SRS: cọc bị thu về sàn 100% (thay 50/50; sàn bù chênh cho người bán khi lô bán lại thấp hơn); mời mua lần hai ở "giá công bằng" thay cho giá cao nhất của người về nhì; nhân viên sàn không được đấu giá.
+- Backend đã làm nhóm 1 và nhóm 4 (mục 11 của tài liệu trên; cột ✅). Frontend chưa đổi: chuỗi `offersHint` trong `app_vi.arb` còn ghi "mời mua với giá đã trả", chưa có màn sự cố kho, chưa có nhãn cho mã lỗi mới (xem `docs/BACKLOG_LATER.md`).
