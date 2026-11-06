@@ -27,7 +27,7 @@ Việc làm bám bảng "Việc frontend phải làm" trong `docs/AUDIT_FRONTEND
 - Ẩn nút giả lập giao hàng ở bản production (FE-12): chỉ chạy được khi backend bật chế độ giả lập (profile dev).
 - Cảnh báo ở hoá đơn lô thắng: quá 48 giờ bị phạt 10% giá búa và cấm đấu giá.
 
-## Test tay trên máy ảo Android (06/11/2026, backend nhánh này, database riêng , cổng 8081)
+## Test tay trên máy ảo Android (06/11/2026, backend nhánh này, database riêng `rebook_ui`, cổng 8081)
 
 | Luồng | Kết quả |
 |---|---|
@@ -40,9 +40,9 @@ Việc làm bám bảng "Việc frontend phải làm" trong `docs/AUDIT_FRONTEND
 | Khoản nợ trong ví: hiện khung nợ, "Thu nợ từ ví" thu đủ 250.000 ₫, khung biến mất | Đạt (nợ chèn thẳng vào database test) |
 
 Lỗi tìm thấy khi test và đã sửa:
-- Huỷ đăng ký xong màn hình vẫn hiện "Đã đăng ký": provider hành động bị huỷ giữa lúc gọi API (log: "Cannot use the Ref … after it has been disposed"). Sửa: màn phiên theo dõi .
-- Lịch sử đơn hiện mã thô : nay dịch sang "sai tình trạng sách", "thiếu trang", "sai ấn bản", "không đúng mô tả".
+- Huỷ đăng ký xong màn hình vẫn hiện "Đã đăng ký": provider hành động bị huỷ giữa lúc gọi API (log: "Cannot use the Ref … after it has been disposed"). Sửa: màn phiên theo dõi `auctionActionsProvider`.
+- Lịch sử đơn hiện mã thô `WRONG_CONDITION`: nay dịch sang "sai tình trạng sách", "thiếu trang", "sai ấn bản", "không đúng mô tả".
 
 Còn thấy nhưng chưa sửa: dòng sổ cái của khoản thu nợ vẫn mang nhãn chung "Thanh toán".
 
-Cách chạy lại: bật Docker Desktop, , tạo database mới (), chạy backend ở  với  (nếu báo trùng migration V9 thì xoá  cũ), build app bằng file env .
+Cách chạy lại: bật Docker Desktop, `docker start rebook-db`, tạo database mới (`CREATE DATABASE rebook_ui OWNER rebook ENCODING 'UTF8' TEMPLATE template0`), chạy backend ở `apps/backend` với `DB_URL=jdbc:postgresql://localhost:5432/rebook_ui PORT=8081 ./mvnw spring-boot:run` (nếu báo trùng migration V9 thì xoá file cũ `target/classes/db/migration/V9__unaccent_search.sql`), build app bằng file env trỏ `10.0.2.2:8081`.
