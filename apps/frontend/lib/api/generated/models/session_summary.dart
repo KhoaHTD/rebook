@@ -24,10 +24,9 @@ class SessionSummary {
     this.registeredCount,
     this.endedAt,
   });
-
-  factory SessionSummary.fromJson(Map<String, Object?> json) =>
-      _$SessionSummaryFromJson(json);
-
+  
+  factory SessionSummary.fromJson(Map<String, Object?> json) => _$SessionSummaryFromJson(json);
+  
   final int? id;
   final String? title;
   final String? description;

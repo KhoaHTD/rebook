@@ -8,11 +8,12 @@ part 'reject_request.g.dart';
 
 @JsonSerializable()
 class RejectRequest {
-  const RejectRequest({required this.reason});
-
-  factory RejectRequest.fromJson(Map<String, Object?> json) =>
-      _$RejectRequestFromJson(json);
-
+  const RejectRequest({
+    required this.reason,
+  });
+  
+  factory RejectRequest.fromJson(Map<String, Object?> json) => _$RejectRequestFromJson(json);
+  
   final String reason;
 
   Map<String, Object?> toJson() => _$RejectRequestToJson(this);

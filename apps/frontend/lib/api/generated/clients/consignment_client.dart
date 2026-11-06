@@ -11,9 +11,18 @@ import '../models/consignment_create_request.dart';
 import '../models/consignment_response.dart';
 import '../models/consignment_review_request.dart';
 import '../models/consignment_status.dart';
+import '../models/incident_decision_request.dart';
+import '../models/incident_reject_request.dart';
+import '../models/incident_request.dart';
+import '../models/incident_response.dart';
+import '../models/incident_status.dart';
 import '../models/inspection_request.dart';
+import '../models/lot_brief.dart';
 import '../models/page_response_consignment_response.dart';
+import '../models/page_response_incident_response.dart';
+import '../models/page_response_inspecting_lot.dart';
 import '../models/page_response_warehouse_response.dart';
+import '../models/reinspect_request.dart';
 import '../models/seller_decision_request.dart';
 import '../models/shelf_request.dart';
 import '../models/unsold_decision_request.dart';
@@ -37,6 +46,20 @@ abstract class ConsignmentClient {
   @POST('/staff/warehouse/{id}/return')
   Future<WarehouseResponse> postStaffWarehouseIdReturn({
     @Path('id') required int id,
+  });
+
+  /// [Staff] Khai báo sự cố kho (mất / hỏng sách), chờ Admin duyệt
+  @POST('/staff/warehouse/{id}/incidents')
+  Future<IncidentResponse> postStaffWarehouseIdIncidents({
+    @Path('id') required int id,
+    @Body() required IncidentRequest body,
+  });
+
+  /// [Staff] Kiểm định lại lô bị trả về kho sau khi bán: đạt → chờ xếp phiên, không đạt → trả người bán
+  @POST('/staff/lots/{id}/reinspect')
+  Future<LotBrief> postStaffLotsIdReinspect({
+    @Path('id') required int id,
+    @Body() required ReinspectRequest body,
   });
 
   /// [Staff] Sơ duyệt online
@@ -95,12 +118,41 @@ abstract class ConsignmentClient {
     @Body() required AppointmentRequest body,
   });
 
+  /// [Admin] Từ chối sự cố kho
+  @POST('/admin/warehouse-incidents/{id}/reject')
+  Future<IncidentResponse> postAdminWarehouseIncidentsIdReject({
+    @Path('id') required int id,
+    @Body() required IncidentRejectRequest body,
+  });
+
+  /// [Admin] Duyệt sự cố kho và chi bồi thường từ ví sàn (hỏng sách: chọn sellerPercent 0–100)
+  @POST('/admin/warehouse-incidents/{id}/approve')
+  Future<IncidentResponse> postAdminWarehouseIncidentsIdApprove({
+    @Path('id') required int id,
+    @Body() IncidentDecisionRequest? body,
+  });
+
   /// [Staff] Sách trong kho
   @GET('/staff/warehouse')
   Future<PageResponseWarehouseResponse> getStaffWarehouse({
     @Query('page') int? page = 0,
     @Query('size') int? size = 20,
     @Query('status') WarehouseStatus? status,
+  });
+
+  /// [Staff] Danh sách sự cố kho
+  @GET('/staff/warehouse-incidents')
+  Future<PageResponseIncidentResponse> getStaffWarehouseIncidents({
+    @Query('page') int? page = 0,
+    @Query('size') int? size = 20,
+    @Query('status') IncidentStatus? status,
+  });
+
+  /// [Staff] Các lô bị trả về kho sau khi bán, đang chờ kiểm định lại
+  @GET('/staff/lots/inspecting')
+  Future<PageResponseInspectingLot> getStaffLotsInspecting({
+    @Query('page') int? page = 0,
+    @Query('size') int? size = 20,
   });
 
   /// [Staff] Danh sách yêu cầu ký gửi
@@ -126,5 +178,7 @@ abstract class ConsignmentClient {
 
   /// Chi tiết ký gửi: kết quả kiểm định, lô, kho
   @GET('/consignments/{id}')
-  Future<ConsignmentResponse> getConsignmentsId({@Path('id') required int id});
+  Future<ConsignmentResponse> getConsignmentsId({
+    @Path('id') required int id,
+  });
 }

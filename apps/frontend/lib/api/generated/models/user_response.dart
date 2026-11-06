@@ -25,10 +25,9 @@ class UserResponse {
     this.shopId,
     this.createdAt,
   });
-
-  factory UserResponse.fromJson(Map<String, Object?> json) =>
-      _$UserResponseFromJson(json);
-
+  
+  factory UserResponse.fromJson(Map<String, Object?> json) => _$UserResponseFromJson(json);
+  
   final int? id;
   final String? email;
   final String? phone;

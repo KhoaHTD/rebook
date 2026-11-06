@@ -14,10 +14,9 @@ class TransferReceipt {
     this.amount,
     this.proofImageUrl,
   });
-
-  factory TransferReceipt.fromJson(Map<String, Object?> json) =>
-      _$TransferReceiptFromJson(json);
-
+  
+  factory TransferReceipt.fromJson(Map<String, Object?> json) => _$TransferReceiptFromJson(json);
+  
   final String? senderName;
   final DateTime? transferTime;
   final num? amount;

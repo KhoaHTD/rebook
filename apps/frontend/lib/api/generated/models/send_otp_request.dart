@@ -10,11 +10,12 @@ part 'send_otp_request.g.dart';
 
 @JsonSerializable()
 class SendOtpRequest {
-  const SendOtpRequest({required this.purpose});
-
-  factory SendOtpRequest.fromJson(Map<String, Object?> json) =>
-      _$SendOtpRequestFromJson(json);
-
+  const SendOtpRequest({
+    required this.purpose,
+  });
+  
+  factory SendOtpRequest.fromJson(Map<String, Object?> json) => _$SendOtpRequestFromJson(json);
+  
   final OtpPurpose purpose;
 
   Map<String, Object?> toJson() => _$SendOtpRequestToJson(this);

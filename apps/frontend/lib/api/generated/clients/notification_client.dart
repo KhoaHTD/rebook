@@ -14,7 +14,9 @@ abstract class NotificationClient {
   factory NotificationClient(Dio dio, {String? baseUrl}) = _NotificationClient;
 
   @POST('/notifications/{id}/read')
-  Future<void> postNotificationsIdRead({@Path('id') required int id});
+  Future<void> postNotificationsIdRead({
+    @Path('id') required int id,
+  });
 
   @POST('/notifications/read-all')
   Future<void> postNotificationsReadAll();

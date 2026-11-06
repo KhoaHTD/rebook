@@ -17,10 +17,9 @@ class PageResponseLotPublic {
     this.totalItems,
     this.totalPages,
   });
-
-  factory PageResponseLotPublic.fromJson(Map<String, Object?> json) =>
-      _$PageResponseLotPublicFromJson(json);
-
+  
+  factory PageResponseLotPublic.fromJson(Map<String, Object?> json) => _$PageResponseLotPublicFromJson(json);
+  
   final List<LotPublic>? items;
   final int? page;
   final int? size;

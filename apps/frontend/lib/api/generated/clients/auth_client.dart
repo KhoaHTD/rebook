@@ -23,7 +23,9 @@ abstract class AuthClient {
 
   /// Xác thực OTP email / SĐT (cần đăng nhập)
   @POST('/auth/verify-otp')
-  Future<void> postAuthVerifyOtp({@Body() required VerifyOtpRequest body});
+  Future<void> postAuthVerifyOtp({
+    @Body() required VerifyOtpRequest body,
+  });
 
   /// Gửi OTP xác thực email / SĐT (cần đăng nhập)
   @POST('/auth/send-otp')
@@ -44,13 +46,19 @@ abstract class AuthClient {
 
   /// Đổi refresh token lấy cặp token mới
   @POST('/auth/refresh')
-  Future<AuthResponse> postAuthRefresh({@Body() required RefreshRequest body});
+  Future<AuthResponse> postAuthRefresh({
+    @Body() required RefreshRequest body,
+  });
 
   @POST('/auth/logout')
-  Future<void> postAuthLogout({@Body() required RefreshRequest body});
+  Future<void> postAuthLogout({
+    @Body() required RefreshRequest body,
+  });
 
   @POST('/auth/login')
-  Future<AuthResponse> postAuthLogin({@Body() required LoginRequest body});
+  Future<AuthResponse> postAuthLogin({
+    @Body() required LoginRequest body,
+  });
 
   @POST('/auth/forgot-password')
   Future<OtpSentResponse> postAuthForgotPassword({

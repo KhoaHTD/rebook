@@ -16,10 +16,9 @@ class ReviewResponse {
     this.comment,
     this.createdAt,
   });
-
-  factory ReviewResponse.fromJson(Map<String, Object?> json) =>
-      _$ReviewResponseFromJson(json);
-
+  
+  factory ReviewResponse.fromJson(Map<String, Object?> json) => _$ReviewResponseFromJson(json);
+  
   final int? id;
   final int? orderId;
   final String? reviewerName;

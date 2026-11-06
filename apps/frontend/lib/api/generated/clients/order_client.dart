@@ -19,6 +19,7 @@ import '../models/pay_request.dart';
 import '../models/pay_response.dart';
 import '../models/reason_request.dart';
 import '../models/return_create_request.dart';
+import '../models/return_shipment_request.dart';
 import '../models/review_request.dart';
 import '../models/review_response.dart';
 import '../models/update_cart_request.dart';
@@ -52,6 +53,13 @@ abstract class OrderClient {
   Future<OrderDetail> postOrdersIdReturn({
     @Path('id') required int id,
     @Body() required ReturnCreateRequest body,
+  });
+
+  /// Gửi hàng trả (sau khi shop đồng ý trả): nhập mã vận đơn. Tiền hoàn khi shop nhận lại sách
+  @POST('/orders/{id}/return/shipment')
+  Future<OrderDetail> postOrdersIdReturnShipment({
+    @Path('id') required int id,
+    @Body() required ReturnShipmentRequest body,
   });
 
   /// Thanh toán đơn đang chờ (cả hoá đơn lô đấu giá) bằng WALLET hoặc ZALOPAY
@@ -93,7 +101,9 @@ abstract class OrderClient {
   Future<CartResponse> getCart();
 
   @POST('/cart')
-  Future<CartResponse> postCart({@Body() required AddCartRequest body});
+  Future<CartResponse> postCart({
+    @Body() required AddCartRequest body,
+  });
 
   @DELETE('/cart')
   Future<void> deleteCart();
@@ -115,5 +125,7 @@ abstract class OrderClient {
 
   /// Chi tiết đơn + lịch sử trạng thái
   @GET('/orders/{id}')
-  Future<OrderDetail> getOrdersId({@Path('id') required int id});
+  Future<OrderDetail> getOrdersId({
+    @Path('id') required int id,
+  });
 }

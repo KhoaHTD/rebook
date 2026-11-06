@@ -34,10 +34,9 @@ class ConsignmentResponse {
     this.createdAt,
     this.updatedAt,
   });
-
-  factory ConsignmentResponse.fromJson(Map<String, Object?> json) =>
-      _$ConsignmentResponseFromJson(json);
-
+  
+  factory ConsignmentResponse.fromJson(Map<String, Object?> json) => _$ConsignmentResponseFromJson(json);
+  
   final int? id;
   final String? code;
   final ConsignmentStatus? status;

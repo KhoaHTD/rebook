@@ -4,7 +4,6 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -26,5 +25,7 @@ abstract class FilesClient {
   /// Xem ảnh đã tải lên
   @GET('/files/{name}')
   @DioResponseType(ResponseType.stream)
-  Stream<String> getFilesName({@Path('name') required String name});
+  Stream<String> getFilesName({
+    @Path('name') required String name,
+  });
 }

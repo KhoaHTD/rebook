@@ -8,6 +8,7 @@ import 'package:retrofit/retrofit.dart';
 import '../models/decision_request.dart';
 import '../models/order_detail.dart';
 import '../models/order_status.dart';
+import '../models/page_response_in_transit_order.dart';
 import '../models/page_response_order_summary.dart';
 import '../models/page_response_return_response.dart';
 import '../models/reason_request.dart';
@@ -17,14 +18,19 @@ part 'order_management_client.g.dart';
 
 @RestApi()
 abstract class OrderManagementClient {
-  factory OrderManagementClient(Dio dio, {String? baseUrl}) =
-      _OrderManagementClient;
+  factory OrderManagementClient(Dio dio, {String? baseUrl}) = _OrderManagementClient;
 
   /// [Staff] Xuất kho, giao cho shipper
   @POST('/staff/orders/{id}/ship')
   Future<OrderDetail> postStaffOrdersIdShip({
     @Path('id') required int id,
     @Body() ShipRequest? body,
+  });
+
+  /// [Staff] Xác nhận kho đã nhận lại sách người mua gửi trả → hoàn tiền người mua
+  @POST('/staff/orders/{id}/return-received')
+  Future<OrderDetail> postStaffOrdersIdReturnReceived({
+    @Path('id') required int id,
   });
 
   /// [Staff] Xử lý trả hàng lô đấu giá (sàn chịu trách nhiệm)
@@ -42,16 +48,39 @@ abstract class OrderManagementClient {
 
   /// [Staff] Giao thành công / bàn giao tại kho
   @POST('/staff/orders/{id}/delivered')
-  Future<OrderDetail> postStaffOrdersIdDelivered({@Path('id') required int id});
+  Future<OrderDetail> postStaffOrdersIdDelivered({
+    @Path('id') required int id,
+  });
 
   @POST('/staff/orders/{id}/confirm')
-  Future<OrderDetail> postStaffOrdersIdConfirm({@Path('id') required int id});
+  Future<OrderDetail> postStaffOrdersIdConfirm({
+    @Path('id') required int id,
+  });
+
+  /// [Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại (người nhận từ chối, thất lạc). Hoàn tiền nếu đã trả trước
+  @POST('/staff/orders/{id}/carrier-failed')
+  Future<OrderDetail> postStaffOrdersIdCarrierFailed({
+    @Path('id') required int id,
+    @Body() required ReasonRequest body,
+  });
+
+  /// [Staff] Đối chiếu hãng vận chuyển: đơn thường đã giao thành công (đường chính để COD đi tiếp)
+  @POST('/staff/orders/{id}/carrier-delivered')
+  Future<OrderDetail> postStaffOrdersIdCarrierDelivered({
+    @Path('id') required int id,
+  });
 
   /// Đã giao cho shipper (nhập mã vận đơn, bỏ trống để tự sinh)
   @POST('/seller/orders/{id}/ship')
   Future<OrderDetail> postSellerOrdersIdShip({
     @Path('id') required int id,
     @Body() ShipRequest? body,
+  });
+
+  /// Xác nhận đã nhận lại sách người mua gửi trả → hoàn tiền người mua
+  @POST('/seller/orders/{id}/return-received')
+  Future<OrderDetail> postSellerOrdersIdReturnReceived({
+    @Path('id') required int id,
   });
 
   /// Đồng ý / từ chối trả hàng (từ chối → Admin phân xử)
@@ -76,7 +105,9 @@ abstract class OrderManagementClient {
 
   /// Xác nhận đơn (trong 24h)
   @POST('/seller/orders/{id}/confirm')
-  Future<OrderDetail> postSellerOrdersIdConfirm({@Path('id') required int id});
+  Future<OrderDetail> postSellerOrdersIdConfirm({
+    @Path('id') required int id,
+  });
 
   @POST('/seller/orders/{id}/cancel')
   Future<OrderDetail> postSellerOrdersIdCancel({
@@ -104,6 +135,13 @@ abstract class OrderManagementClient {
     @Query('page') int? page = 0,
     @Query('size') int? size = 20,
     @Query('status') OrderStatus? status,
+  });
+
+  /// [Staff] Đơn thường đang giao, cũ nhất trước, để đối chiếu với hãng vận chuyển
+  @GET('/staff/orders/in-transit')
+  Future<PageResponseInTransitOrder> getStaffOrdersInTransit({
+    @Query('page') int? page = 0,
+    @Query('size') int? size = 20,
   });
 
   @GET('/seller/orders')

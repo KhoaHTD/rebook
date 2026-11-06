@@ -18,10 +18,9 @@ class CategoryResponse {
     this.sortOrder,
     this.children,
   });
-
-  factory CategoryResponse.fromJson(Map<String, Object?> json) =>
-      _$CategoryResponseFromJson(json);
-
+  
+  factory CategoryResponse.fromJson(Map<String, Object?> json) => _$CategoryResponseFromJson(json);
+  
   final int? id;
   final String? name;
   final String? slug;

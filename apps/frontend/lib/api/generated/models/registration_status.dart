@@ -16,21 +16,22 @@ enum RegistrationStatus {
   applied('APPLIED'),
   @JsonValue('FORFEITED')
   forfeited('FORFEITED'),
-
+  @JsonValue('CANCELLED')
+  cancelled('CANCELLED'),
   /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
   $unknown(null);
 
   const RegistrationStatus(this.json);
 
-  factory RegistrationStatus.fromJson(String json) =>
-      values.firstWhere((e) => e.json == json, orElse: () => $unknown);
+  factory RegistrationStatus.fromJson(String json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
 
   final String? json;
 
   @override
   String toString() => json?.toString() ?? super.toString();
-
   /// Returns all defined enum values excluding the $unknown value.
-  static List<RegistrationStatus> get $valuesDefined =>
-      values.where((value) => value != $unknown).toList();
+  static List<RegistrationStatus> get $valuesDefined => values.where((value) => value != $unknown).toList();
 }

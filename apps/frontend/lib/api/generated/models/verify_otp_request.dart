@@ -10,11 +10,13 @@ part 'verify_otp_request.g.dart';
 
 @JsonSerializable()
 class VerifyOtpRequest {
-  const VerifyOtpRequest({required this.purpose, required this.code});
-
-  factory VerifyOtpRequest.fromJson(Map<String, Object?> json) =>
-      _$VerifyOtpRequestFromJson(json);
-
+  const VerifyOtpRequest({
+    required this.purpose,
+    required this.code,
+  });
+  
+  factory VerifyOtpRequest.fromJson(Map<String, Object?> json) => _$VerifyOtpRequestFromJson(json);
+  
   final OtpPurpose purpose;
   final String code;
 

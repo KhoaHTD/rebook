@@ -15,10 +15,9 @@ class ShopQuote {
     this.shippingFee,
     this.total,
   });
-
-  factory ShopQuote.fromJson(Map<String, Object?> json) =>
-      _$ShopQuoteFromJson(json);
-
+  
+  factory ShopQuote.fromJson(Map<String, Object?> json) => _$ShopQuoteFromJson(json);
+  
   final int? shopId;
   final String? shopName;
   final num? subtotal;

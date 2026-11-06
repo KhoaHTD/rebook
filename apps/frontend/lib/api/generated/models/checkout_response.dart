@@ -11,11 +11,13 @@ part 'checkout_response.g.dart';
 
 @JsonSerializable()
 class CheckoutResponse {
-  const CheckoutResponse({this.orders, this.payment});
-
-  factory CheckoutResponse.fromJson(Map<String, Object?> json) =>
-      _$CheckoutResponseFromJson(json);
-
+  const CheckoutResponse({
+    this.orders,
+    this.payment,
+  });
+  
+  factory CheckoutResponse.fromJson(Map<String, Object?> json) => _$CheckoutResponseFromJson(json);
+  
   final List<OrderSummary>? orders;
   final PaymentResponse? payment;
 

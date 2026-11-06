@@ -17,10 +17,9 @@ class HistoryResponse {
     this.note,
     this.createdAt,
   });
-
-  factory HistoryResponse.fromJson(Map<String, Object?> json) =>
-      _$HistoryResponseFromJson(json);
-
+  
+  factory HistoryResponse.fromJson(Map<String, Object?> json) => _$HistoryResponseFromJson(json);
+  
   final OrderStatus? fromStatus;
   final OrderStatus? toStatus;
   final int? actorId;

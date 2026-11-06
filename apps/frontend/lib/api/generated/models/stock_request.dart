@@ -8,11 +8,12 @@ part 'stock_request.g.dart';
 
 @JsonSerializable()
 class StockRequest {
-  const StockRequest({required this.stock});
-
-  factory StockRequest.fromJson(Map<String, Object?> json) =>
-      _$StockRequestFromJson(json);
-
+  const StockRequest({
+    required this.stock,
+  });
+  
+  factory StockRequest.fromJson(Map<String, Object?> json) => _$StockRequestFromJson(json);
+  
   final int stock;
 
   Map<String, Object?> toJson() => _$StockRequestToJson(this);

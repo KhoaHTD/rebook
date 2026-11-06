@@ -8,11 +8,15 @@ part 'bid_view.g.dart';
 
 @JsonSerializable()
 class BidView {
-  const BidView({this.paddle, this.amount, this.auto, this.at});
-
-  factory BidView.fromJson(Map<String, Object?> json) =>
-      _$BidViewFromJson(json);
-
+  const BidView({
+    this.paddle,
+    this.amount,
+    this.auto,
+    this.at,
+  });
+  
+  factory BidView.fromJson(Map<String, Object?> json) => _$BidViewFromJson(json);
+  
   final String? paddle;
   final num? amount;
   final bool? auto;

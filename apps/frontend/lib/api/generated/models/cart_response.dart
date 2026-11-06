@@ -10,11 +10,14 @@ part 'cart_response.g.dart';
 
 @JsonSerializable()
 class CartResponse {
-  const CartResponse({this.shops, this.totalQuantity, this.subtotal});
-
-  factory CartResponse.fromJson(Map<String, Object?> json) =>
-      _$CartResponseFromJson(json);
-
+  const CartResponse({
+    this.shops,
+    this.totalQuantity,
+    this.subtotal,
+  });
+  
+  factory CartResponse.fromJson(Map<String, Object?> json) => _$CartResponseFromJson(json);
+  
   final List<CartShopGroup>? shops;
   final int? totalQuantity;
   final num? subtotal;

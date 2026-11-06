@@ -24,10 +24,9 @@ class BookRequest {
     this.pages,
     this.description,
   });
-
-  factory BookRequest.fromJson(Map<String, Object?> json) =>
-      _$BookRequestFromJson(json);
-
+  
+  factory BookRequest.fromJson(Map<String, Object?> json) => _$BookRequestFromJson(json);
+  
   final String title;
   final String author;
   final String? publisher;

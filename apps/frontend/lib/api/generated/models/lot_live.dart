@@ -29,10 +29,9 @@ class LotLive {
     this.closeResult,
     this.hammerPrice,
   });
-
-  factory LotLive.fromJson(Map<String, Object?> json) =>
-      _$LotLiveFromJson(json);
-
+  
+  factory LotLive.fromJson(Map<String, Object?> json) => _$LotLiveFromJson(json);
+  
   final int? id;
   final int? lotNumber;
   final String? title;

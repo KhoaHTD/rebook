@@ -11,11 +11,14 @@ part 'bid_response.g.dart';
 
 @JsonSerializable()
 class BidResponse {
-  const BidResponse({this.lot, this.leading, this.me});
-
-  factory BidResponse.fromJson(Map<String, Object?> json) =>
-      _$BidResponseFromJson(json);
-
+  const BidResponse({
+    this.lot,
+    this.leading,
+    this.me,
+  });
+  
+  factory BidResponse.fromJson(Map<String, Object?> json) => _$BidResponseFromJson(json);
+  
   final LotLive? lot;
   final bool? leading;
   final RegistrationResponse? me;

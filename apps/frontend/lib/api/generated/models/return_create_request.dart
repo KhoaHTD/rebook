@@ -15,10 +15,9 @@ class ReturnCreateRequest {
     required this.description,
     required this.images,
   });
-
-  factory ReturnCreateRequest.fromJson(Map<String, Object?> json) =>
-      _$ReturnCreateRequestFromJson(json);
-
+  
+  factory ReturnCreateRequest.fromJson(Map<String, Object?> json) => _$ReturnCreateRequestFromJson(json);
+  
   final ReturnReason reason;
   final String description;
   final List<String> images;

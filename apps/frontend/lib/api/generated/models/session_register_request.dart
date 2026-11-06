@@ -8,11 +8,12 @@ part 'session_register_request.g.dart';
 
 @JsonSerializable()
 class SessionRegisterRequest {
-  const SessionRegisterRequest({this.agreeRules});
-
-  factory SessionRegisterRequest.fromJson(Map<String, Object?> json) =>
-      _$SessionRegisterRequestFromJson(json);
-
+  const SessionRegisterRequest({
+    this.agreeRules,
+  });
+  
+  factory SessionRegisterRequest.fromJson(Map<String, Object?> json) => _$SessionRegisterRequestFromJson(json);
+  
   final bool? agreeRules;
 
   Map<String, Object?> toJson() => _$SessionRegisterRequestToJson(this);

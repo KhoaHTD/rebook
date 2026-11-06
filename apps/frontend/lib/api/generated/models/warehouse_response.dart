@@ -23,10 +23,9 @@ class WarehouseResponse {
     this.returnNotifiedAt,
     this.storageFee,
   });
-
-  factory WarehouseResponse.fromJson(Map<String, Object?> json) =>
-      _$WarehouseResponseFromJson(json);
-
+  
+  factory WarehouseResponse.fromJson(Map<String, Object?> json) => _$WarehouseResponseFromJson(json);
+  
   final int? id;
   final String? code;
   final int? consignmentId;

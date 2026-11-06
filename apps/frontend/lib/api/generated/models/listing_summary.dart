@@ -28,10 +28,9 @@ class ListingSummary {
     this.reviewedByName,
     this.reviewedAt,
   });
-
-  factory ListingSummary.fromJson(Map<String, Object?> json) =>
-      _$ListingSummaryFromJson(json);
-
+  
+  factory ListingSummary.fromJson(Map<String, Object?> json) => _$ListingSummaryFromJson(json);
+  
   final int? id;
   final String? title;
   final String? author;

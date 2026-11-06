@@ -25,11 +25,16 @@ class ReturnResponse {
     this.resolvedBy,
     this.resolvedByName,
     this.resolvedAt,
+    this.returnTrackingCode,
+    this.returnShippedAt,
+    this.returnReceivedAt,
+    this.shipBy,
+    this.returnToName,
+    this.returnToAddress,
   });
-
-  factory ReturnResponse.fromJson(Map<String, Object?> json) =>
-      _$ReturnResponseFromJson(json);
-
+  
+  factory ReturnResponse.fromJson(Map<String, Object?> json) => _$ReturnResponseFromJson(json);
+  
   final int? id;
   final int? orderId;
   final ReturnReason? reason;
@@ -43,6 +48,12 @@ class ReturnResponse {
   final int? resolvedBy;
   final String? resolvedByName;
   final DateTime? resolvedAt;
+  final String? returnTrackingCode;
+  final DateTime? returnShippedAt;
+  final DateTime? returnReceivedAt;
+  final DateTime? shipBy;
+  final String? returnToName;
+  final String? returnToAddress;
 
   Map<String, Object?> toJson() => _$ReturnResponseToJson(this);
 }

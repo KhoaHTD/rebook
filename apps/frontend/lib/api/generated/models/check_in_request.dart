@@ -8,11 +8,13 @@ part 'check_in_request.g.dart';
 
 @JsonSerializable()
 class CheckInRequest {
-  const CheckInRequest({this.shelfCode, this.photoUrls});
-
-  factory CheckInRequest.fromJson(Map<String, Object?> json) =>
-      _$CheckInRequestFromJson(json);
-
+  const CheckInRequest({
+    this.shelfCode,
+    this.photoUrls,
+  });
+  
+  factory CheckInRequest.fromJson(Map<String, Object?> json) => _$CheckInRequestFromJson(json);
+  
   final String? shelfCode;
   final List<String>? photoUrls;
 

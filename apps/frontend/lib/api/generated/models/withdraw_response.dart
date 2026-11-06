@@ -28,10 +28,9 @@ class WithdrawResponse {
     this.transfer,
     this.userNote,
   });
-
-  factory WithdrawResponse.fromJson(Map<String, Object?> json) =>
-      _$WithdrawResponseFromJson(json);
-
+  
+  factory WithdrawResponse.fromJson(Map<String, Object?> json) => _$WithdrawResponseFromJson(json);
+  
   final int? id;
   final int? userId;
   final String? userName;

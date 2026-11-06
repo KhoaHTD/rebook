@@ -40,10 +40,14 @@ abstract class AuctionClient {
   });
 
   @DELETE('/lots/{id}/proxy-bid')
-  Future<void> deleteLotsIdProxyBid({@Path('id') required int id});
+  Future<void> deleteLotsIdProxyBid({
+    @Path('id') required int id,
+  });
 
   @GET('/admin/sessions/{id}')
-  Future<SessionDetail> getAdminSessionsId({@Path('id') required int id});
+  Future<SessionDetail> getAdminSessionsId({
+    @Path('id') required int id,
+  });
 
   @PUT('/admin/sessions/{id}')
   Future<SessionSummary> putAdminSessionsId({
@@ -79,7 +83,9 @@ abstract class AuctionClient {
 
   /// Theo dõi cả phiên (phiên yêu thích)
   @POST('/sessions/{id}/watch')
-  Future<Map<String, bool>> postSessionsIdWatch({@Path('id') required int id});
+  Future<Map<String, bool>> postSessionsIdWatch({
+    @Path('id') required int id,
+  });
 
   @DELETE('/sessions/{id}/watch')
   Future<Map<String, bool>> deleteSessionsIdWatch({
@@ -91,6 +97,12 @@ abstract class AuctionClient {
   Future<RegistrationResponse> postSessionsIdRegister({
     @Path('id') required int id,
     @Body() required SessionRegisterRequest body,
+  });
+
+  /// Huỷ đăng ký (trước hạn đăng ký của phiên), hoàn toàn bộ cọc
+  @DELETE('/sessions/{id}/register')
+  Future<RegistrationResponse> deleteSessionsIdRegister({
+    @Path('id') required int id,
   });
 
   /// Cọc thêm để nâng hạn mức trả giá
@@ -109,14 +121,20 @@ abstract class AuctionClient {
 
   /// Từ chối lời mời mua lần hai (second chance offer)
   @POST('/orders/{id}/decline-second-chance')
-  Future<void> postOrdersIdDeclineSecondChance({@Path('id') required int id});
+  Future<void> postOrdersIdDeclineSecondChance({
+    @Path('id') required int id,
+  });
 
   /// Theo dõi lô (nhận nhắc trước phiên)
   @POST('/lots/{id}/watch')
-  Future<Map<String, bool>> postLotsIdWatch({@Path('id') required int id});
+  Future<Map<String, bool>> postLotsIdWatch({
+    @Path('id') required int id,
+  });
 
   @DELETE('/lots/{id}/watch')
-  Future<Map<String, bool>> deleteLotsIdWatch({@Path('id') required int id});
+  Future<Map<String, bool>> deleteLotsIdWatch({
+    @Path('id') required int id,
+  });
 
   /// Trả giá. 409 PRICE_CHANGED nếu người khác vừa trả trước
   @POST('/lots/{id}/bids')
@@ -164,17 +182,23 @@ abstract class AuctionClient {
 
   /// Catalogue phiên: danh sách lô, ảnh, giá ước tính
   @GET('/sessions/{id}')
-  Future<SessionDetail> getSessionsId({@Path('id') required int id});
+  Future<SessionDetail> getSessionsId({
+    @Path('id') required int id,
+  });
 
   /// Ảnh chụp trạng thái phòng đấu giá (gọi khi vào phòng / kết nối lại WebSocket).
   ///
   /// Sau đó nghe ws://<host>/ws/sessions/{id} để nhận LOT_OPENED, BID_PLACED, LOT_CLOSED, SESSION_*.
   @GET('/sessions/{id}/state')
-  Future<SessionState> getSessionsIdState({@Path('id') required int id});
+  Future<SessionState> getSessionsIdState({
+    @Path('id') required int id,
+  });
 
   /// Bảng kết quả phiên (số bài + giá)
   @GET('/sessions/{id}/results')
-  Future<List<LotResult>> getSessionsIdResults({@Path('id') required int id});
+  Future<List<LotResult>> getSessionsIdResults({
+    @Path('id') required int id,
+  });
 
   @GET('/me/watching')
   Future<List<LotPublic>> getMeWatching();
@@ -188,7 +212,9 @@ abstract class AuctionClient {
 
   /// Chi tiết lô + báo cáo tình trạng
   @GET('/lots/{id}')
-  Future<LotDetail> getLotsId({@Path('id') required int id});
+  Future<LotDetail> getLotsId({
+    @Path('id') required int id,
+  });
 
   /// [Admin] Lô chờ xếp phiên
   @GET('/admin/lots/ready')

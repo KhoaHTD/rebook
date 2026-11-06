@@ -17,10 +17,9 @@ class PageResponseWithdrawResponse {
     this.totalItems,
     this.totalPages,
   });
-
-  factory PageResponseWithdrawResponse.fromJson(Map<String, Object?> json) =>
-      _$PageResponseWithdrawResponseFromJson(json);
-
+  
+  factory PageResponseWithdrawResponse.fromJson(Map<String, Object?> json) => _$PageResponseWithdrawResponseFromJson(json);
+  
   final List<WithdrawResponse>? items;
   final int? page;
   final int? size;

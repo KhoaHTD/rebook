@@ -18,10 +18,9 @@ class AuthResponse {
     this.user,
     this.devOtp,
   });
-
-  factory AuthResponse.fromJson(Map<String, Object?> json) =>
-      _$AuthResponseFromJson(json);
-
+  
+  factory AuthResponse.fromJson(Map<String, Object?> json) => _$AuthResponseFromJson(json);
+  
   final String? accessToken;
   final String? refreshToken;
   final String? tokenType;

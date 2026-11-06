@@ -8,11 +8,13 @@ part 'delivery_option_request.g.dart';
 
 @JsonSerializable()
 class DeliveryOptionRequest {
-  const DeliveryOptionRequest({this.addressId, this.pickupAtWarehouse});
-
-  factory DeliveryOptionRequest.fromJson(Map<String, Object?> json) =>
-      _$DeliveryOptionRequestFromJson(json);
-
+  const DeliveryOptionRequest({
+    this.addressId,
+    this.pickupAtWarehouse,
+  });
+  
+  factory DeliveryOptionRequest.fromJson(Map<String, Object?> json) => _$DeliveryOptionRequestFromJson(json);
+  
   final int? addressId;
   final bool? pickupAtWarehouse;
 

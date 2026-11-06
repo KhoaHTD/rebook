@@ -8,11 +8,13 @@ part 'decision_request.g.dart';
 
 @JsonSerializable()
 class DecisionRequest {
-  const DecisionRequest({this.approve, this.note});
-
-  factory DecisionRequest.fromJson(Map<String, Object?> json) =>
-      _$DecisionRequestFromJson(json);
-
+  const DecisionRequest({
+    this.approve,
+    this.note,
+  });
+  
+  factory DecisionRequest.fromJson(Map<String, Object?> json) => _$DecisionRequestFromJson(json);
+  
   final bool? approve;
   final String? note;
 
