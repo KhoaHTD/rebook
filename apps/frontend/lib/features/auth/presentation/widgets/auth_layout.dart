@@ -112,7 +112,7 @@ extension on AuthLayout {
   Widget _softBuild(BuildContext context) {
     final l10n = context.l10n;
     final base = Theme.of(context);
-    const ink = SoftPalette.ink;
+    const ink = SoftPalette.night;
     const line = UnderlineInputBorder(
       borderSide: BorderSide(color: SoftPalette.underline),
     );
@@ -120,7 +120,7 @@ extension on AuthLayout {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: ink,
-          foregroundColor: SoftPalette.paper,
+          foregroundColor: SoftPalette.cream,
           disabledBackgroundColor: ink.withValues(alpha: 0.25),
           minimumSize: const Size.fromHeight(54),
           shape: const StadiumBorder(),
@@ -146,84 +146,93 @@ extension on AuthLayout {
       data: theme,
       child: Scaffold(
         backgroundColor: SoftPalette.paper,
-        body: SafeArea(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.sm,
-                AppSpacing.lg,
-                AppSpacing.xl,
-              ),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 440),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        body: Stack(
+          children: [
+            const Positioned(
+              top: -90,
+              right: -70,
+              child: _Blob(260, SoftPalette.mist),
+            ),
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (showBack)
-                          IconButton(
-                            tooltip: l10n.back,
-                            onPressed: () => context.canPop()
-                                ? context.pop()
-                                : context.go(Routes.home),
-                            icon: const Icon(Icons.arrow_back_rounded),
-                          )
-                        else
-                          const SizedBox(height: 48),
-                        if (onSkip != null)
-                          TextButton(
-                            onPressed: onSkip,
-                            child: Text(l10n.introSkip),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (showBack)
+                              IconButton(
+                                tooltip: l10n.back,
+                                onPressed: () => context.canPop()
+                                    ? context.pop()
+                                    : context.go(Routes.home),
+                                icon: const Icon(Icons.arrow_back_rounded),
+                              )
+                            else
+                              const SizedBox(height: 48),
+                            if (onSkip != null)
+                              TextButton(
+                                onPressed: onSkip,
+                                child: Text(l10n.introSkip),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          title,
+                          style: context.textStyles.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: ink,
                           ),
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            subtitle!,
+                            style: context.textStyles.bodyMedium?.copyWith(
+                              color: ink.withValues(alpha: 0.65),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.xl),
+                        if (showGoogle) ...[
+                          const _GoogleButton(),
+                          const SizedBox(height: AppSpacing.lg),
+                          Text(
+                            l10n.authOrEmail,
+                            style: context.textStyles.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: ink,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                        ],
+                        ...children,
+                        if (Env.useMock) ...[
+                          const SizedBox(height: AppSpacing.xl),
+                          Text(
+                            l10n.mockAccountsHint,
+                            style: context.textStyles.bodySmall,
+                          ),
+                        ],
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    Text(
-                      title,
-                      style: context.textStyles.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: ink,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        subtitle!,
-                        style: context.textStyles.bodyMedium?.copyWith(
-                          color: ink.withValues(alpha: 0.65),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: AppSpacing.xl),
-                    if (showGoogle) ...[
-                      const _GoogleButton(),
-                      const SizedBox(height: AppSpacing.lg),
-                      Text(
-                        l10n.authOrEmail,
-                        style: context.textStyles.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: ink,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                    ],
-                    ...children,
-                    if (Env.useMock) ...[
-                      const SizedBox(height: AppSpacing.xl),
-                      Text(
-                        l10n.mockAccountsHint,
-                        style: context.textStyles.bodySmall,
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -244,9 +253,9 @@ class _GoogleButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(54),
         shape: const StadiumBorder(),
-        foregroundColor: SoftPalette.ink,
-        backgroundColor: SoftPalette.paper,
-        side: const BorderSide(color: SoftPalette.outline),
+        foregroundColor: SoftPalette.night,
+        backgroundColor: SoftPalette.mist,
+        side: const BorderSide(color: SoftPalette.sky),
         textStyle: context.textStyles.titleSmall?.copyWith(
           fontWeight: FontWeight.w700,
         ),
@@ -258,7 +267,7 @@ class _GoogleButton extends StatelessWidget {
             'G',
             style: context.textStyles.titleLarge?.copyWith(
               fontWeight: FontWeight.w900,
-              color: SoftPalette.ink,
+              color: SoftPalette.skyDeep,
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -382,6 +391,22 @@ class AuthError extends StatelessWidget {
       style: context.textStyles.bodyMedium?.copyWith(
         color: context.appColors.live,
       ),
+    ),
+  );
+}
+
+/// Vòng tròn xanh nhạt làm nền trang trí ở góc màn đăng nhập / đăng ký.
+class _Blob extends StatelessWidget {
+  const _Blob(this.size, this.color);
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: size,
+    child: DecoratedBox(
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     ),
   );
 }

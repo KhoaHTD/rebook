@@ -7,6 +7,11 @@ abstract final class SoftPalette {
   static const cream = Color(0xFFFBF6F2);
   static const paper = Color(0xFFFFFFFF);
   static const underline = Color(0x33000000);
+  // Màu của màn đăng nhập / đăng ký: đen, trắng và xanh nhạt.
+  static const night = Color(0xFF14181F);
+  static const mist = Color(0xFFEAF3FC);
+  static const sky = Color(0xFFBFDDF7);
+  static const skyDeep = Color(0xFF3B82C4);
   static const outline = Color(0x1F000000);
 
   // Nền ba trang giới thiệu.

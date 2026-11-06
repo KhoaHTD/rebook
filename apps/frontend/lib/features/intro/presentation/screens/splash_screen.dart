@@ -89,9 +89,7 @@ class _BrandSplash extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: l10n.splashTaglineAccent,
-                      style: TextStyle(
-                        color: SoftPalette.ink.withValues(alpha: 0.5),
-                      ),
+                      style: const TextStyle(color: SoftPalette.brick),
                     ),
                   ],
                 ),
@@ -112,7 +110,7 @@ class _OpenBook extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final p = Paint()
-      ..color = SoftPalette.ink
+      ..color = SoftPalette.brick
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.2
       ..strokeCap = StrokeCap.round;
