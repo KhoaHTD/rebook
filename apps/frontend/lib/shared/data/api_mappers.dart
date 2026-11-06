@@ -147,6 +147,7 @@ RegistrationStatus registrationStatusToDomain(api.RegistrationStatus? s) =>
       api.RegistrationStatus.refunded => RegistrationStatus.refunded,
       api.RegistrationStatus.applied => RegistrationStatus.applied,
       api.RegistrationStatus.forfeited => RegistrationStatus.forfeited,
+      api.RegistrationStatus.cancelled => RegistrationStatus.cancelled,
       _ => RegistrationStatus.pendingDeposit,
     };
 

@@ -139,6 +139,9 @@ enum RegistrationStatus {
   refunded,
   applied,
   forfeited,
+
+  /// Người dùng huỷ đăng ký trước hạn: hoàn đủ cọc.
+  cancelled,
 }
 
 enum WarehouseStatus { inStock, reserved, shipped, returned }

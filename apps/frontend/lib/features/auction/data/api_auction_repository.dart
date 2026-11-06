@@ -83,6 +83,11 @@ class ApiAuctionRepository implements AuctionRepository {
 
   /// Backend lấy tiền cọc theo cấu hình phiên. Chọn cọc cao hơn → cọc thêm phần chênh.
   @override
+  Future<void> cancelRegistration(String sessionId) => guardApi(
+    () => _client.auction.deleteSessionsIdRegister(id: apiId(sessionId)),
+  );
+
+  @override
   Future<Registration> register(String sessionId, int deposit) =>
       guardApi(() async {
         final id = apiId(sessionId);

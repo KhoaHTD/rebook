@@ -15,6 +15,8 @@ import 'package:book_marketplace/shared/domain/auction.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/layout/breakpoints.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
+import 'package:book_marketplace/shared/widgets/error_view.dart';
+import 'package:book_marketplace/shared/widgets/sheets.dart';
 import 'package:book_marketplace/shared/widgets/poster_grid.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -74,9 +76,11 @@ class _Header extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final signedIn = ref.watch(sessionControllerProvider).isSignedIn;
-    final reg = signedIn
+    final regRaw = signedIn
         ? ref.watch(sessionRegistrationProvider(session.id)).value
         : null;
+    // Đã huỷ đăng ký thì coi như chưa đăng ký.
+    final reg = regRaw?.status == RegistrationStatus.cancelled ? null : regRaw;
     final compact = context.windowSize.isCompact;
 
     final actions = Wrap(
@@ -89,14 +93,37 @@ class _Header extends ConsumerWidget {
             icon: const Icon(Icons.sensors_rounded, size: 18),
             label: Text(l10n.enterLiveRoom),
           ),
-        if (reg != null)
+        if (reg != null) ...[
           OutlinedButton(
             onPressed: null,
             child: Text(
               '${l10n.registered} · ${l10n.paddle(reg.paddleNumber)}',
             ),
-          )
-        else if (session.acceptsRegistration || session.isLive)
+          ),
+          if (session.acceptsRegistration && !session.isLive)
+            TextButton(
+              onPressed: () async {
+                final ok = await confirmDialog(
+                  context,
+                  l10n.cancelRegistrationQuestion,
+                );
+                if (!ok || !context.mounted) return;
+                final done = await ref
+                    .read(auctionActionsProvider.notifier)
+                    .cancelRegistration(session.id);
+                if (!context.mounted) return;
+                if (done) {
+                  showInfoSnack(context, l10n.cancelRegistrationDone);
+                } else {
+                  showErrorSnack(
+                    context,
+                    ref.read(auctionActionsProvider).error!,
+                  );
+                }
+              },
+              child: Text(l10n.cancelRegistration),
+            ),
+        ] else if (session.acceptsRegistration || session.isLive)
           (session.isLive ? OutlinedButton.new : FilledButton.new)(
             onPressed: () => context.go(Routes.sessionRegister(session.id)),
             child: Text(l10n.registerToBid),

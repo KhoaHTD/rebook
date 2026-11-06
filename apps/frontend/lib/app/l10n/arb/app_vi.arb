@@ -1945,5 +1945,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "regCancelled": "Đã huỷ đăng ký",
+  "cancelRegistration": "Huỷ đăng ký",
+  "cancelRegistrationQuestion": "Huỷ đăng ký phiên này? Cọc sẽ được hoàn đủ vào ví.",
+  "cancelRegistrationDone": "Đã huỷ đăng ký và hoàn cọc."
 }

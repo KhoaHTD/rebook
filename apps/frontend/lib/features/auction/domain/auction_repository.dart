@@ -20,6 +20,9 @@ abstract interface class AuctionRepository {
   /// Đồng ý quy chế + khóa cọc trong ví → nhận số bài. Gọi lại với cọc lớn hơn để tăng hạn mức.
   Future<Registration> register(String sessionId, int deposit);
 
+  /// Huỷ đăng ký trước hạn đăng ký: hoàn đủ cọc.
+  Future<void> cancelRegistration(String sessionId);
+
   Future<Lot> watch(String lotId, {required bool on});
 
   /// Phiên tôi theo dõi (phiên yêu thích) và bật / tắt theo dõi cả phiên.

@@ -37,6 +37,10 @@ class FakeAuctionRepository implements AuctionRepository {
       fakeCall(_store.myRegistrations);
 
   @override
+  Future<void> cancelRegistration(String sessionId) =>
+      fakeCall(() => _store.cancelRegistration(sessionId));
+
+  @override
   Future<Registration> register(String sessionId, int deposit) =>
       fakeCall(() => _store.registerSession(sessionId, deposit), ms: 500);
 

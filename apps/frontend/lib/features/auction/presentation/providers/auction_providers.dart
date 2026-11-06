@@ -184,6 +184,20 @@ class AuctionActions extends _$AuctionActions {
     return reg;
   }
 
+  /// Huỷ đăng ký phiên trước hạn: hoàn đủ cọc.
+  Future<bool> cancelRegistration(String sessionId) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(auctionRepositoryProvider).cancelRegistration(sessionId),
+    );
+    if (state.hasError) return false;
+    final changes = ref.read(dataChangesProvider.notifier);
+    for (final area in [DataArea.auctions, DataArea.wallet]) {
+      changes.bump(area);
+    }
+    return true;
+  }
+
   Future<void> watch(String lotId, {required bool on}) async {
     state = await AsyncValue.guard(
       () => ref.read(auctionRepositoryProvider).watch(lotId, on: on),

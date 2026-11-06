@@ -257,8 +257,8 @@ class _Actions extends ConsumerWidget {
     final returnAwaiting =
         s == OrderStatus.returnRequested &&
         order.returnRequest?.status == ReturnStatus.awaitingGoods;
-    final returnShipped = returnAwaiting &&
-        order.returnRequest?.returnShippedAt != null;
+    final returnShipped =
+        returnAwaiting && order.returnRequest?.returnShippedAt != null;
     final buttons = <Widget>[
       if (s == OrderStatus.pendingConfirm)
         FilledButton(

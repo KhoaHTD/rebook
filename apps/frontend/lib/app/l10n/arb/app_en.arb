@@ -1186,5 +1186,9 @@
   "returnReceivedDone": "The buyer has been refunded.",
   "returnWaitingBuyerShip": "You agreed. Waiting for the buyer to ship the book back (by {time}).",
   "returnWaitingBuyerShipNoTime": "You agreed. Waiting for the buyer to ship the book back.",
-  "returnBuyerShipped": "The buyer shipped the book back, tracking {code}."
+  "returnBuyerShipped": "The buyer shipped the book back, tracking {code}.",
+  "regCancelled": "Registration cancelled",
+  "cancelRegistration": "Cancel registration",
+  "cancelRegistrationQuestion": "Cancel your registration? The full deposit goes back to your wallet.",
+  "cancelRegistrationDone": "Registration cancelled and deposit refunded."
 }

@@ -55,12 +55,14 @@ extension RegistrationStatusL10n on RegistrationStatus {
     RegistrationStatus.refunded => l.regRefunded,
     RegistrationStatus.applied => l.regApplied,
     RegistrationStatus.forfeited => l.regForfeited,
+    RegistrationStatus.cancelled => l.regCancelled,
   };
 
   StatusTone get tone => switch (this) {
     RegistrationStatus.pendingDeposit => StatusTone.warning,
     RegistrationStatus.approved => StatusTone.success,
     RegistrationStatus.refunded ||
+    RegistrationStatus.cancelled ||
     RegistrationStatus.applied => StatusTone.neutral,
     RegistrationStatus.forfeited => StatusTone.danger,
   };

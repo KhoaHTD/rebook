@@ -504,6 +504,27 @@ extension FakeAuction on FakeStore {
     return reg;
   }
 
+  /// Huỷ đăng ký trước hạn đăng ký: hoàn đủ cọc, bỏ đăng ký.
+  void cancelRegistration(String sessionId) {
+    final uid = currentUserId ?? fail(ErrorCodes.notFound, 401);
+    final s = sessions[sessionId] ?? fail(ErrorCodes.notFound, 404);
+    final reg = _regOf(uid, sessionId) ?? fail(ErrorCodes.notRegistered, 404);
+    if (!DateTime.now().isBefore(s.registrationDeadline)) {
+      fail(ErrorCodes.registrationClosed);
+    }
+    _ledger(
+      uid,
+      WalletTxnType.depositRelease,
+      availableDelta: reg.depositAmount,
+      heldDelta: -reg.depositAmount,
+      note: 'Huỷ đăng ký phiên "${s.title}"',
+      refType: 'SESSION',
+      refId: sessionId,
+    );
+    registrations.remove(reg.id);
+    _registrationOwner.remove(reg.id);
+  }
+
   Registration? _regOf(String userId, String sessionId) => registrations.values
       .where(
         (r) => r.sessionId == sessionId && _registrationOwner[r.id] == userId,
