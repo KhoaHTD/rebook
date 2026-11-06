@@ -980,7 +980,7 @@
   "receiptNoImage": "No proof image",
   "offersTitle": "Second-chance offers",
   "offersEmpty": "No offers yet",
-  "offersHint": "When the winner does not pay, you (the runner-up whose bid reached the reserve) may buy at your bid within 24 hours.",
+  "offersHint": "When the winner does not pay, you (the runner-up whose bid reached the reserve) may buy within 24 hours at the price you would have paid without the defaulter: one increment above the next bidder, never above your own bid and never below the reserve.",
   "offerLotLine": "Lot {n} · {price}",
   "offerExpires": "Expires {time}",
   "offerAccept": "Buy at this price",
