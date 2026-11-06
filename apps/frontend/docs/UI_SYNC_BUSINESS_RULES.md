@@ -38,6 +38,8 @@ Việc làm bám bảng "Việc frontend phải làm" trong `docs/AUDIT_FRONTEND
 | COD: shop giao → Staff đánh dấu "Đã giao thành công" ở màn Đối chiếu vận chuyển (giao diện) → người mua nhận → Admin bấm "Đã nhận tiền COD" (giao diện) → tiền về ví shop | Đạt |
 | Huỷ đăng ký đấu giá trước hạn: hoàn đủ cọc, nút quay lại "Đăng ký tham gia", có thông báo | Đạt sau khi sửa lỗi (bên dưới) |
 | Khoản nợ trong ví: hiện khung nợ, "Thu nợ từ ví" thu đủ 250.000 ₫, khung biến mất | Đạt (nợ chèn thẳng vào database test) |
+| Admin: nút "Mở ngay" ở danh sách phiên đấu giá, phiên chuyển sang đang diễn ra, hiện nút "Giám sát" | Đạt |
+| Trả hàng "Chưa nhận được hàng": form ẩn phần ảnh, gửi được không cần ảnh, đơn sang "Yêu cầu trả hàng" | Đạt |
 
 Lỗi tìm thấy khi test và đã sửa:
 - Huỷ đăng ký xong màn hình vẫn hiện "Đã đăng ký": provider hành động bị huỷ giữa lúc gọi API (log: "Cannot use the Ref … after it has been disposed"). Sửa: màn phiên theo dõi `auctionActionsProvider`.
