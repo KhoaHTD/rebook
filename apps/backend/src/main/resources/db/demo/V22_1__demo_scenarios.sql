@@ -336,7 +336,7 @@ INSERT INTO auction_sessions (id, title, description, start_at, registration_dea
         now() - interval '20 hours', now() - interval '22 hours', 3, 500000, 120, 30, 20, 'ENDED',
         now() - interval '5 days', now() - interval '20 hours', now() - interval '20 hours' + interval '30 minutes', 1, 10,
         '0:10000,200000:50000,1000000:100000,5000000:500000', 10, TRUE, now() - interval '7 days'),
-    (3, 'Hemingway & Steinbeck — Sắp mở', 'Phiên sắp bắt đầu: vào phòng chờ để chuẩn bị trả giá.',
+    (3, 'Hemingway & Steinbeck — Phiên tối nay', 'Phiên tự mở sau vài phút kể từ lúc reset: vào phòng chờ để chuẩn bị trả giá.',
         now() + interval '4 minutes', now() - interval '30 minutes', 3, 300000, 120, 30, 20, 'CONFIRMED',
         now() - interval '2 days', NULL, NULL, 1, 10,
         '0:10000,200000:50000,1000000:100000,5000000:500000', 10, FALSE, now() - interval '3 days'),

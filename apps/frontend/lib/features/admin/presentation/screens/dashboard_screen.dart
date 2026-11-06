@@ -15,6 +15,7 @@ import 'package:book_marketplace/shared/widgets/admin_charts.dart';
 import 'package:book_marketplace/shared/widgets/admin_scope.dart';
 import 'package:book_marketplace/shared/widgets/admin_kit.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
+import 'package:book_marketplace/shared/widgets/skeleton.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -131,7 +132,12 @@ class _Body extends ConsumerWidget {
       children: [
         _KpiRow(d: d, report: report.value),
         const SizedBox(height: AppSpacing.md),
-        _PerformanceCard(report: report, days: days, onDays: onDays),
+        _PerformanceCard(
+          report: report,
+          days: days,
+          onDays: onDays,
+          onRetry: () => ref.invalidate(adminReportProvider(from, to)),
+        ),
         const SizedBox(height: AppSpacing.md),
         _TodoCard(d: d),
       ],
@@ -243,7 +249,10 @@ class _PerformanceCard extends StatelessWidget {
     required this.report,
     required this.days,
     required this.onDays,
+    this.onRetry,
   });
+
+  final VoidCallback? onRetry;
 
   final AsyncValue<AdminReport> report;
   final int days;
@@ -286,6 +295,11 @@ class _PerformanceCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           AsyncValueView(
             value: report,
+            onRetry: onRetry,
+            loading: const Padding(
+              padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+              child: Skeleton(height: 220, radius: 16),
+            ),
             data: (r) => r.orders == 0
                 ? SizedBox(
                     height: 200,

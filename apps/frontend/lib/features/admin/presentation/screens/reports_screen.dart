@@ -13,6 +13,7 @@ import 'package:book_marketplace/features/admin/presentation/screens/dashboard_s
 import 'package:book_marketplace/shared/widgets/admin_charts.dart';
 import 'package:book_marketplace/shared/widgets/admin_kit.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
+import 'package:book_marketplace/shared/widgets/skeleton.dart';
 import 'package:book_marketplace/shared/widgets/status_labels.dart';
 import 'package:book_marketplace/shared/widgets/ui.dart';
 
@@ -136,9 +137,42 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         AsyncValueView(
           value: report,
           onRetry: () => ref.invalidate(adminReportProvider(_from, _to)),
+          loading: const _ReportSkeleton(),
           data: (r) => _ReportBody(r: r),
         ),
       ],
+    );
+  }
+}
+
+/// Khung xương của trang báo cáo: hàng ô số liệu, biểu đồ lớn và hai thẻ nhỏ.
+class _ReportSkeleton extends StatelessWidget {
+  const _ReportSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, box) {
+        final cols = box.maxWidth >= 1000 ? 6 : (box.maxWidth >= 640 ? 3 : 2);
+        final w = (box.maxWidth - AppSpacing.md * (cols - 1)) / cols;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              spacing: AppSpacing.md,
+              runSpacing: AppSpacing.md,
+              children: [
+                for (var i = 0; i < cols * 2; i++)
+                  Skeleton(width: w, height: 104, radius: 20),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            const Skeleton(height: 320, radius: 20),
+            const SizedBox(height: AppSpacing.md),
+            const Skeleton(height: 200, radius: 20),
+          ],
+        );
+      },
     );
   }
 }
