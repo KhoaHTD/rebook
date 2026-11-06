@@ -159,8 +159,8 @@ BEGIN
                 CASE WHEN st = 'PREPARING' THEN now() + interval '2 days' END,
                 CASE WHEN st IN ('SHIPPING', 'DELIVERED', 'COMPLETED', 'RETURN_REQUESTED', 'FAILED_DELIVERY') THEN created + interval '1 day' END,
                 CASE WHEN st IN ('DELIVERED', 'COMPLETED', 'RETURN_REQUESTED') THEN
-                    CASE WHEN st = 'DELIVERED' THEN now() - interval '1 day' WHEN st = 'RETURN_REQUESTED' THEN now() - interval '3 days' ELSE created + interval '3 days' END END,
-                CASE WHEN st = 'COMPLETED' THEN created + interval '6 days' END,
+                    CASE WHEN st = 'DELIVERED' THEN now() - interval '1 day' WHEN st = 'RETURN_REQUESTED' THEN now() - interval '3 days' ELSE LEAST(created + interval '3 days', now() - interval '3 hours') END END,
+                CASE WHEN st = 'COMPLETED' THEN LEAST(created + interval '6 days', now() - interval '1 hour') END,
                 CASE WHEN st = 'CANCELLED' THEN created + interval '3 hours' END,
                 created, created + interval '1 hour',
                 -- COD đã hoàn tất: một nửa đã đối soát, nửa còn lại chờ Admin đối soát

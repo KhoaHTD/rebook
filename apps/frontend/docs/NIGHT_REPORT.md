@@ -22,9 +22,16 @@ node scripts/smoke.mjs http://localhost:8081              # kiểm tra nhanh API
 Rồi chạy app bằng `env/local.8081.json` (web: `--web-port 5199`; Android: build với file env trỏ `10.0.2.2:8081`).
 Mật khẩu mọi tài khoản demo: `Rebook@123`.
 
+## Đã bấm tay thêm trên máy ảo (buổi sáng)
+
+- Seller1: thông báo (có thông báo kết quả đấu giá do engine tự gửi), kênh người bán (số liệu), danh sách đơn của shop, chi tiết đơn, **Xác nhận đơn** (sang Đang chuẩn bị), **Giao cho shipper** (mã vận đơn bắt buộc 8–20 ký tự: nhập ngắn bị chặn đúng, nhập đủ thì sang Đang giao). Kết quả khớp DB.
+- Buyer1: đặt đơn bằng ví (thêm giỏ → giỏ → thanh toán → đơn hiện trong Đơn mua).
+- Phiên đấu giá #3 tự LIVE đúng giờ, phòng đấu giá hiện lô, giá, đồng hồ, nút trả giá; hết giờ lô không ai trả thì "Không bán được" và engine tự gửi thông báo cho người bán.
+- Sửa dữ liệu demo: đơn hoàn tất không còn mốc `completed_at` ở tương lai (làm "Doanh thu tháng này" của shop sai).
+
 ## Chưa làm / chưa kiểm tra (nói thật)
 
-- **Chưa bấm tay từng nút** của seller, staff (web và mobile), các luồng đăng ký sách / ký gửi, trả hàng, rút tiền của người dùng trên máy ảo. Phần này chỉ được phủ bằng API smoke + test tự động (198 test frontend, test backend) chứ không phải test tay từng màn.
+- **Chưa bấm tay**: đăng bán sách (chụp ảnh), ký gửi, trả hàng, màn Ví / rút tiền của người dùng, và các màn Staff (web). Admin trên điện thoại đã duyệt hết màn; Staff dùng chung khung và nhiều màn với Admin nên chưa chắc đã đủ. Phần này chỉ được phủ bằng API smoke + test tự động (198 test frontend, test backend) chứ không phải test tay từng màn.
 - Đăng nhập Google chưa thử với Google thật (cần client ID). Chỉ có test backend (6 test với Google giả) và đã kiểm deep link vào app.
 - Bản PDF chưa xem bằng mắt (máy không có công cụ vẽ PDF); font tiếng Việt tải từ Google Fonts lúc xuất nên cần có mạng.
 - `apps/backend/mvnw test` với `.env.local` đã nạp (có `CLOUDINARY_URL`) làm 3 test upload đỏ vì ảnh lên Cloudinary thật; chạy không có biến này thì xanh. Chạy test backend bằng `env -u CLOUDINARY_URL ./mvnw test`.
