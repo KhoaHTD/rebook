@@ -120,7 +120,7 @@ extension on AuthLayout {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: ink,
-          foregroundColor: SoftPalette.cream,
+          foregroundColor: SoftPalette.paper,
           disabledBackgroundColor: ink.withValues(alpha: 0.25),
           minimumSize: const Size.fromHeight(54),
           shape: const StadiumBorder(),
@@ -145,7 +145,7 @@ extension on AuthLayout {
     return Theme(
       data: theme,
       child: Scaffold(
-        backgroundColor: SoftPalette.cream,
+        backgroundColor: SoftPalette.paper,
         body: SafeArea(
           child: Align(
             alignment: Alignment.topCenter,
@@ -258,7 +258,7 @@ class _GoogleButton extends StatelessWidget {
             'G',
             style: context.textStyles.titleLarge?.copyWith(
               fontWeight: FontWeight.w900,
-              color: SoftPalette.brick,
+              color: SoftPalette.ink,
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
