@@ -88,7 +88,7 @@ public final class CatalogDtos {
 
     /** reviewedBy / reviewedByName / reviewedAt: Admin duyệt hoặc từ chối tin (tên chỉ có ở danh sách của Admin). */
     public record ListingSummary(Long id, String title, String author, String coverUrl, ConditionGrade conditionGrade,
-                                 BigDecimal price, int stock, int soldCount, ListingStatus status, ShopBrief shop,
+                                 BigDecimal price, int stock, int soldCount, int favoriteCount, ListingStatus status, ShopBrief shop,
                                  Instant createdAt, Long reviewedBy, String reviewedByName, Instant reviewedAt) {
 
         public static ListingSummary of(Listing l) {
@@ -99,7 +99,7 @@ public final class CatalogDtos {
             Book b = l.getBook();
             var s = l.getShop();
             return new ListingSummary(l.getId(), b.getTitle(), b.getAuthor(), b.coverUrl(), b.getConditionGrade(),
-                    l.getPrice(), l.getStock(), l.getSoldCount(), l.getStatus(),
+                    l.getPrice(), l.getStock(), l.getSoldCount(), l.getFavoriteCount(), l.getStatus(),
                     new ShopBrief(s.getId(), s.getName(), s.getPickupProvince(), s.getRatingAvg(), s.getRatingCount()),
                     l.getCreatedAt(), l.getReviewedBy(), reviewedByName, l.getReviewedAt());
         }
@@ -122,7 +122,7 @@ public final class CatalogDtos {
         }
     }
 
-    /** Tham số tìm kiếm / lọc / sắp xếp. sort: newest | price_asc | price_desc | best_selling */
+    /** Tham số tìm kiếm / lọc / sắp xếp. sort: newest | price_asc | price_desc | best_selling | popular */
     public record ListingQuery(String q, Long categoryId, String author, ConditionGrade condition,
                                BigDecimal minPrice, BigDecimal maxPrice, Long shopId, String sort) {
     }

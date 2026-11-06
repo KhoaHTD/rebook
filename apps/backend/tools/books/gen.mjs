@@ -4,9 +4,10 @@
 //
 // Đọc  tools/books/books.xlsx  và  tools/books/covers.json  (ISBN → URL ảnh bìa trên Cloudinary, do upload-covers.mjs ghi),
 // ghi  src/main/resources/db/migration/V19__category_tree.sql   (cây thể loại, mọi môi trường)
-//      src/main/resources/db/seed/V19_1__seed_books_from_sheet.sql  (xoá dữ liệu nghiệp vụ cũ + nạp sách, chỉ profile dev)
+//      src/main/resources/db/seed/V20_1__seed_books_from_sheet.sql  (xoá dữ liệu nghiệp vụ cũ + nạp sách, chỉ profile dev)
 //      tools/books/REPORT.md  (thể loại, shop, giá, tồn kho từng sách để duyệt).
 // Thêm / sửa sách: sửa Excel (hoặc các bảng cấu hình bên dưới) rồi chạy lại. Kết quả luôn giống nhau (không dùng số ngẫu nhiên).
+// Seed chạy sau V20 (cột favorite_count) nên đặt tên V20_1.
 // Thêm sách mới có ảnh: chạy upload-covers.mjs trước để covers.json có URL của ISBN đó.
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -17,7 +18,7 @@ import { bookRows, readZip } from './xlsx.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..', '..');
 const OUT_MIGRATION = join(root, 'src/main/resources/db/migration/V19__category_tree.sql');
-const OUT_SEED = join(root, 'src/main/resources/db/seed/V19_1__seed_books_from_sheet.sql');
+const OUT_SEED = join(root, 'src/main/resources/db/seed/V20_1__seed_books_from_sheet.sql');
 const OUT_REPORT = join(here, 'REPORT.md');
 
 // ───────────────────────── cấu hình ─────────────────────────
@@ -89,6 +90,10 @@ const CONDITIONS = {
   'Đã qua sử dụng, góc bìa hơi mòn': 'GOOD',
 };
 const GRADE_VALUE = { NEW: 1.0, LIKE_NEW: 0.85, VERY_GOOD: 0.7, GOOD: 0.55, ACCEPTABLE: 0.4 };
+
+/** Lượt yêu thích mẫu: khoảng 36% sách được 1 – 3 người mua thích, chọn theo ISBN nên không đổi giữa các lần chạy. */
+const FAVORITE_SHARE_PERCENT = 36;
+const FAVORITE_USERS = [5, 6, 7];
 
 /** Số dư ví mẫu của ba người mua sau khi xoá dữ liệu cũ (nạp một lần, sổ cái khớp). */
 const BUYER_WALLETS = [
@@ -204,6 +209,16 @@ ${deleteOld}
 const bookRowsSql = books.map((b, i) => `    (${i + 1}, ${b.shop.ownerId}, ${sql(b.title)}, ${sql(b.author)}, ${sql(b.publisher)}, ${b.year}, ${sql(b.isbn)}, ${sql(b.language)}, ${b.pages},
         (SELECT id FROM categories WHERE slug = ${sql(slugify(b.category))}), ${sql(b.grade)}, ${sql(b.description)}, ${b.weight})`);
 const imageRows = books.map((b, i) => (b.cover ? `    (${i + 1}, ${sql(b.cover)}, 0, 'SELLER')` : null)).filter(Boolean);
+const favoriteRows = [];
+books.forEach((b, i) => {
+  const h = hash(b.isbn + 'f');
+  if (h % 100 >= FAVORITE_SHARE_PERCENT) return;
+  const count = 1 + ((h >>> 8) % 3);
+  const start = (h >>> 4) % FAVORITE_USERS.length;
+  for (let k = 0; k < count; k++) {
+    favoriteRows.push(`    (${FAVORITE_USERS[(start + k) % FAVORITE_USERS.length]}, ${i + 1}, now() - interval '${1 + ((h >>> 12) + k) % 10} days')`);
+  }
+});
 const listingRows = books.map((b, i) => `    (${i + 1}, ${i + 1}, ${b.shop.shopId}, ${b.price}, ${b.stock}, 0, 'ACTIVE', now() - interval '${b.daysAgo} days')`);
 
 const walletRows = BUYER_WALLETS.map((w, i) => `    (${sql('PMDEMO00000' + (i + 1))}, ${w.userId}, 'TOP_UP', 'ZALOPAY', ${w.amount}, 'SUCCESS', ${sql('SEED-1400000' + (i + 1))}, now() - interval '${15 - i} days', now() - interval '${15 - i} days')`);
@@ -253,6 +268,12 @@ ${imageRows.join(',\n')};
 INSERT INTO listings (id, book_id, shop_id, price, stock, sold_count, status, created_at) VALUES
 ${listingRows.join(',\n')};
 
+-- Lượt yêu thích mẫu (để thứ tự "phổ biến" có dữ liệu thật); favorite_count khớp bảng listing_favorites.
+INSERT INTO listing_favorites (user_id, listing_id, created_at) VALUES
+${favoriteRows.join(',\n')};
+
+UPDATE listings l SET favorite_count = (SELECT count(*) FROM listing_favorites f WHERE f.listing_id = l.id);
+
 SELECT setval(pg_get_serial_sequence('books', 'id'),    (SELECT max(id) FROM books));
 SELECT setval(pg_get_serial_sequence('listings', 'id'), (SELECT max(id) FROM listings));
 `;
@@ -287,5 +308,6 @@ const byCat = {};
 books.forEach((b) => { byCat[b.category] = (byCat[b.category] ?? 0) + 1; });
 console.log(`Đã ghi ${books.length} sách, ${allSlugs.length} thể loại, ${imageRows.length} ảnh.`);
 console.log('Giá thấp nhất / cao nhất:', Math.min(...books.map((b) => b.price)), Math.max(...books.map((b) => b.price)));
+console.log('Sách có yêu thích:', new Set(favoriteRows.map((r) => r.split(', ')[1])).size, ' lượt:', favoriteRows.length);
 console.log('Shop 1 / 2:', books.filter((b) => b.shop.shopId === 1).length, '/', books.filter((b) => b.shop.shopId === 2).length);
 console.log(byCat);

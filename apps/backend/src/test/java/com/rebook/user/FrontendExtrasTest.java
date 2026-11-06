@@ -65,6 +65,40 @@ class FrontendExtrasTest extends IntegrationTest {
         mvc.perform(post("/listings/999999999/favorite").with(as(me, Role.USER))).andExpect(status().isNotFound());
     }
 
+    /** Thả tim / bỏ tim giữ favorite_count khớp, và sort=popular xếp cuốn nhiều lượt thích lên trước. */
+    @Test
+    void favoriteCountFollowsFavoritesAndSortsPopular() throws Exception {
+        long a = createUser(Role.USER, "Người thích A", 0);
+        long b = createUser(Role.USER, "Người thích B", 0);
+        long liked = createListing("ACTIVE");
+        long lonely = createListing("ACTIVE");
+        long popular = createListing("ACTIVE");
+
+        for (long who : new long[]{a, b}) {
+            mvc.perform(post("/listings/" + popular + "/favorite").with(as(who, Role.USER))).andExpect(status().isOk());
+        }
+        mvc.perform(post("/listings/" + liked + "/favorite").with(as(a, Role.USER))).andExpect(status().isOk());
+        // Thả tim hai lần không cộng hai lần.
+        mvc.perform(post("/listings/" + liked + "/favorite").with(as(a, Role.USER))).andExpect(status().isOk());
+
+        assertThat(jdbc.queryForObject("SELECT favorite_count FROM listings WHERE id = ?", Integer.class, popular)).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT favorite_count FROM listings WHERE id = ?", Integer.class, liked)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT favorite_count FROM listings WHERE id = ?", Integer.class, lonely)).isZero();
+
+        String body = mvc.perform(get("/listings").param("sort", "popular").param("size", "100"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(body.indexOf("\"id\":" + popular + ",")).isLessThan(body.indexOf("\"id\":" + liked + ","));
+        assertThat(body.indexOf("\"id\":" + liked + ",")).isLessThan(body.indexOf("\"id\":" + lonely + ","));
+        assertThat(body).contains("\"favoriteCount\":2");
+
+        // Bỏ tim thì trừ lại; bỏ tim cuốn chưa thích không làm số âm.
+        mvc.perform(delete("/listings/" + popular + "/favorite").with(as(a, Role.USER))).andExpect(status().isOk());
+        mvc.perform(delete("/listings/" + lonely + "/favorite").with(as(a, Role.USER))).andExpect(status().isOk());
+        assertThat(jdbc.queryForObject("SELECT favorite_count FROM listings WHERE id = ?", Integer.class, popular)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT favorite_count FROM listings WHERE id = ?", Integer.class, lonely)).isZero();
+    }
+
     @Test
     void watchingWholeSessions() throws Exception {
         long me = createUser(Role.USER, "Người theo dõi", 0);

@@ -46,6 +46,9 @@ public class Listing {
     private int stock;
     private int soldCount;
 
+    /** Số lượt yêu thích, giữ khớp với listing_favorites (xem ListingService.setFavorite). Dùng cho sort=popular. */
+    private int favoriteCount;
+
     @Enumerated(EnumType.STRING)
     private ListingStatus status = ListingStatus.PENDING_REVIEW;
 

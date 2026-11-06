@@ -143,9 +143,12 @@ public class ListingService {
             Listing l = listingRepository.findById(listingId).orElseThrow(() -> ApiException.notFound("tin đăng"));
             if (!favoriteRepository.existsById(key)) {
                 favoriteRepository.save(new ListingFavorite(userId, l.getId()));
+                l.setFavoriteCount(l.getFavoriteCount() + 1);
             }
-        } else {
+        } else if (favoriteRepository.existsById(key)) {
             favoriteRepository.deleteById(key);
+            listingRepository.findById(listingId)
+                    .ifPresent(l -> l.setFavoriteCount(Math.max(0, l.getFavoriteCount() - 1)));
         }
         return on;
     }
@@ -255,6 +258,9 @@ public class ListingService {
             case "price_asc" -> Sort.by("price").ascending();
             case "price_desc" -> Sort.by("price").descending();
             case "best_selling" -> Sort.by("soldCount").descending();
+            // Phổ biến: nhiều lượt yêu thích nhất, ngang nhau thì bán nhiều hơn, rồi mới hơn.
+            case "popular" -> Sort.by("favoriteCount").descending().and(Sort.by("soldCount").descending())
+                    .and(Sort.by("createdAt").descending());
             default -> Sort.by("createdAt").descending();
         };
         return PageRequest.of(page, Math.min(size, 100), s.and(Sort.by("id").descending()));

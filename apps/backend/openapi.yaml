@@ -726,7 +726,8 @@ paths:
     post:
       tags:
       - Order management
-      summary: "[Staff] Giao lô đấu giá thất bại. fault=BUYER: phạt như bỏ thanh toán và thu phí giao chiều đi"
+      summary: "[Staff] Giao lô đấu giá thất bại. fault=BUYER: phạt như bỏ thanh toá\
+        n và thu phí giao chiều đi"
       operationId: staffFailed
       parameters:
       - name: id
@@ -791,8 +792,8 @@ paths:
     post:
       tags:
       - Order management
-      summary: "[Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại (ngườ\
-        i nhận từ chối, thất lạc). Hoàn tiền nếu đã trả trước"
+      summary: "[Staff] Đối chiếu hãng vận chuyển: đơn thường giao thất bại. fault=BUYER:\
+        \ hoàn trừ phí giao chiều đi (phí đó về shop); SHOP: tính lỗi shop"
       operationId: carrierFailed
       parameters:
       - name: id
@@ -1808,8 +1809,8 @@ paths:
     post:
       tags:
       - Files
-      summary: "Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL tương đối\
-        \ để gắn vào nghiệp vụ"
+      summary: "Tải ảnh lên (PNG / JPEG / WebP, tối đa 5MB). Trả về URL (tương đố\
+        i khi lưu cục bộ, https đầy đủ khi bật Cloudinary) để gắn vào nghiệp vụ"
       operationId: upload
       requestBody:
         content:
@@ -3248,8 +3249,8 @@ paths:
       tags:
       - Catalog
       summary: Tìm kiếm / lọc sách đang bán
-      description: "sort: newest | price_asc | price_desc | best_selling. category\
-        \ lọc cả danh mục con."
+      description: "sort: newest | price_asc | price_desc | best_selling | popular\
+        \ (nhiều lượt yêu thích nhất). category lọc cả danh mục con."
       operationId: search_1
       parameters:
       - name: q
@@ -5014,22 +5015,6 @@ components:
           type: string
           maxLength: 1000
           minLength: 0
-    ReasonRequest:
-      type: object
-      properties:
-        reason:
-          type: string
-          maxLength: 500
-          minLength: 0
-      required:
-      - reason
-    DeliveryFault:
-      type: string
-      description: "Ai gây giao thất bại. BUYER = người mua từ chối nhận, sai địa chỉ, không liên lạc được"
-      enum:
-      - BUYER
-      - CARRIER
-      - SHOP
     DeliveryFailedRequest:
       type: object
       properties:
@@ -5041,6 +5026,12 @@ components:
           $ref: "#/components/schemas/DeliveryFault"
       required:
       - reason
+    DeliveryFault:
+      type: string
+      enum:
+      - BUYER
+      - CARRIER
+      - SHOP
     ReinspectRequest:
       type: object
       properties:
@@ -5077,6 +5068,15 @@ components:
         rounds:
           type: integer
           format: int32
+    ReasonRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 0
+      required:
+      - reason
     ConsignmentReviewRequest:
       type: object
       properties:
@@ -5397,7 +5397,6 @@ components:
           minLength: 0
         expectedTotal:
           type: number
-          description: "Tổng tiền người mua thấy ở bước xem trước; gửi kèm thì giá đổi bị từ chối với PRICE_CHANGED (409)"
       required:
       - addressId
       - paymentMethod
@@ -6189,6 +6188,9 @@ components:
           type: integer
           format: int32
         soldCount:
+          type: integer
+          format: int32
+        favoriteCount:
           type: integer
           format: int32
         status:

@@ -82,4 +82,13 @@ class SeedDataTest {
                 .isZero();
         assertThat(jdbc.queryForObject("SELECT sum(available_balance) FROM wallets", Long.class)).isEqualTo(13000000L);
     }
+
+    /** Lượt yêu thích mẫu có thật và favorite_count khớp bảng listing_favorites (để sort=popular có dữ liệu). */
+    @Test
+    void sampleFavoritesMatchTheirCounts() {
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM listing_favorites", Long.class)).isGreaterThan(20);
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM listings l WHERE l.favorite_count <> (SELECT count(*) FROM listing_favorites f WHERE f.listing_id = l.id)", Long.class))
+                .isZero();
+        assertThat(jdbc.queryForObject("SELECT max(favorite_count) FROM listings", Integer.class)).isGreaterThanOrEqualTo(2);
+    }
 }

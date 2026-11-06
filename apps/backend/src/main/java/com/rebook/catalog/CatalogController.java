@@ -47,7 +47,7 @@ public class CatalogController {
     }
 
     @Operation(summary = "Tìm kiếm / lọc sách đang bán",
-            description = "sort: newest | price_asc | price_desc | best_selling. category lọc cả danh mục con.")
+            description = "sort: newest | price_asc | price_desc | best_selling | popular (nhiều lượt yêu thích nhất). category lọc cả danh mục con.")
     @GetMapping("/listings")
     public PageResponse<ListingSummary> search(@RequestParam(required = false) String q,
                                                @RequestParam(required = false) Long category,
