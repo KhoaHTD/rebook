@@ -54,6 +54,9 @@ public class SystemConfigService {
     public static final String RETURN_CONFIRM_DAYS = "order.return_confirm_days";
     public static final String TOPUP_HOLD_HOURS = "wallet.topup_hold_hours";
     public static final String WITHDRAW_DAILY_LIMIT = "wallet.withdraw_daily_limit";
+    public static final String SELLER_HOLD_DAYS = "wallet.seller_hold_days";
+    public static final String SELLER_HOLD_MIN_ORDERS = "wallet.seller_hold_min_orders";
+    public static final String SELLER_HOLD_SHOP_DAYS = "wallet.seller_hold_shop_days";
     public static final String DEFAULT_PENALTY_PERCENT = "auction.default_penalty_percent";
     public static final String UNSOLD_DECISION_DAYS = "auction.unsold_decision_days";
     public static final String SHIP_DEADLINE_DAYS = "order.ship_deadline_days";

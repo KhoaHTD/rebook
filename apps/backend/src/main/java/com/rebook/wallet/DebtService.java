@@ -111,6 +111,18 @@ public class DebtService {
         return repository.findByUserIdOrderByIdDesc(userId).stream().map(DebtResponse::of).toList();
     }
 
+    /**
+     * Admin ghi nợ khi ngân hàng / cổng thanh toán đòi lại tiền nạp (chargeback, P0 mục 4). Thu ngay phần ví đang có;
+     * phần còn lại là nợ OPEN nên người đó không rút tiền, không đấu giá được tới khi trả.
+     * shortcut: tiền thu ghi loại FEE về ví sàn (chưa có loại giao dịch riêng); thêm loại CHARGEBACK khi cần báo cáo riêng.
+     */
+    @Transactional
+    public DebtResponse chargeback(Long adminId, Long userId, BigDecimal amount, String reason) {
+        AccountDebt d = create(userId, AccountDebt.Type.CHARGEBACK, amount, "CHARGEBACK", null, null, BigDecimal.ZERO,
+                "Ngân hàng đòi lại tiền nạp: " + reason.trim() + " (Admin #" + adminId + ")");
+        return DebtResponse.of(d);
+    }
+
     /** Admin miễn nợ. Không gỡ lệnh cấm đấu giá. */
     @Transactional
     public DebtResponse waive(Long adminId, Long debtId, String reason) {

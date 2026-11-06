@@ -32,8 +32,12 @@ public final class WalletDtos {
         }
     }
 
-    /** Số tiền rút được ngay: tiền mới nạp chưa dùng bị khoá tới {@code unlockAt} (xem WalletService.withdrawable). */
-    public record WithdrawableResponse(BigDecimal available, BigDecimal locked, BigDecimal withdrawable, Instant unlockAt) {
+    /**
+     * Số tiền rút được ngay: tiền mới nạp chưa dùng bị khoá tới {@code unlockAt}; tiền bán hàng của shop mới bị giữ
+     * ({@code saleHeld}) tới {@code saleUnlockAt} (xem WalletService.withdrawable).
+     */
+    public record WithdrawableResponse(BigDecimal available, BigDecimal locked, BigDecimal withdrawable, Instant unlockAt,
+                                       BigDecimal saleHeld, Instant saleUnlockAt) {
     }
 
     public record TopUpRequest(@NotNull @WholeVnd @DecimalMin(value = "10000", message = "Nạp tối thiểu 10.000đ") BigDecimal amount) {

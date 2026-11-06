@@ -32,6 +32,18 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 6MB
+  # SMTP gửi mail (Gmail mật khẩu ứng dụng, Brevo, Resend...). Chỉ dùng khi app.mail.enabled=true.
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USER:}
+    password: ${MAIL_PASS:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -51,6 +63,10 @@ management:
     web:
       exposure:
         include: health,info
+  health:
+    # SMTP chậm hay lỗi không được làm backend báo DOWN: mail có hàng đợi và thử lại riêng
+    mail:
+      enabled: false
 
 app:
   storage:
@@ -61,6 +77,10 @@ app:
     secret: ${JWT_SECRET:rebook-dev-secret-change-me-please-0123456789abcdef}
     access-token-minutes: 60
     refresh-token-days: 30
+  mail:
+    # false = không gửi, chỉ ghi log tiêu đề (dev, test). true = gửi SMTP thật; thiếu MAIL_HOST thì không khởi động.
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:ReBook <no-reply@rebook.vn>}
   otp:
     ttl-minutes: 10
     # true = trả OTP trong response (chỉ dùng khi dev, vì chưa có dịch vụ gửi mail/SMS)

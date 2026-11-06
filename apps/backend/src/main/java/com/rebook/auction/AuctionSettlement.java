@@ -10,6 +10,7 @@ import com.rebook.consignment.Consignment;
 import com.rebook.consignment.ConsignmentRepository;
 import com.rebook.consignment.WarehouseItem;
 import com.rebook.consignment.WarehouseItemRepository;
+import com.rebook.notification.EmailOutboxRepository;
 import com.rebook.notification.NotificationService;
 import com.rebook.order.CheckoutService;
 import com.rebook.order.Order;
@@ -23,7 +24,9 @@ import com.rebook.order.ShippingCalculator;
 import com.rebook.system.SystemConfigService;
 import com.rebook.user.Address;
 import com.rebook.user.AddressRepository;
+import com.rebook.user.Role;
 import com.rebook.user.User;
+import com.rebook.user.UserRepository;
 import com.rebook.user.UserService;
 import com.rebook.user.UserStatus;
 import com.rebook.wallet.AccountDebt;
@@ -60,6 +63,7 @@ public class AuctionSettlement {
     private static final String REF = "ORDER";
     /** shortcut: ân hạn cố định 15 phút cho ZaloPay báo về chậm; đưa vào system_configs nếu cần chỉnh. */
     private static final Duration GATEWAY_GRACE = Duration.ofMinutes(15);
+    private static final Duration NOTICE_EXTENSION = Duration.ofHours(24);
     static final Instant PERMANENT_BAN = Instant.parse("9999-12-31T00:00:00Z");
 
     private final LotRepository lotRepository;
@@ -82,6 +86,8 @@ public class AuctionSettlement {
     private final AuctionViews views;
     private final AuditLog audit;
     private final PaymentService payments;
+    private final EmailOutboxRepository outbox;
+    private final UserRepository userRepository;
 
     // =====================================================================
     // Sau khi phiên kết thúc
@@ -167,7 +173,7 @@ public class AuctionSettlement {
                 (secondChance ? "Người thắng không thanh toán. Bạn được mời mua \"" : "Bạn thắng \"")
                         + book.getTitle() + "\" với giá " + hammer.toPlainString() + "đ. Hãy thanh toán hoá đơn "
                         + saved.getCode() + " trước " + saved.getPaymentDueAt(),
-                Map.of("orderId", saved.getId(), "lotId", lot.getId()));
+                Map.of("orderId", saved.getId(), "lotId", lot.getId()), true);
         return saved;
     }
 
@@ -187,7 +193,27 @@ public class AuctionSettlement {
         }
         // Người bị khoá không đăng nhập được để trả: không phạt
         boolean locked = userService.getUser(o.getBuyerId()).getStatus() != UserStatus.ACTIVE;
+        if (!locked && !o.isSecondChance() && !o.isNoticeExtended() && outbox.winNoticeUndelivered(o.getBuyerId(), o.getId())) {
+            extendForMissingNotice(o);
+            return;
+        }
         cancelUnpaid(o, !locked, o.isSecondChance() ? "Không nhận lời mời mua lần hai" : "Quá hạn thanh toán lô thắng");
+    }
+
+    /**
+     * Mail báo thắng chưa tới và người thắng chưa đọc thông báo trong app: chưa đủ căn cứ để phạt (P0 mục 2).
+     * Gia hạn một lần, nhắc lại (có mail), báo Admin. Lần quá hạn sau thì phạt như thường.
+     */
+    private void extendForMissingNotice(Order o) {
+        o.setNoticeExtended(true);
+        o.setPaymentDueAt(Instant.now().plus(NOTICE_EXTENSION));
+        o.setPaymentReminderSent(false); // job nhắc gửi lại trước hạn mới
+        audit.record(EventCode.AUCTION_PAYMENT_EXTENDED, "ORDER", o.getId(), o.getCode(),
+                "Gia hạn hoá đơn vì người thắng chưa nhận được thông báo", "newDueAt", o.getPaymentDueAt());
+        notifications.notifyAll(userRepository.findActiveIdsByRoleIn(List.of(Role.ADMIN)), NotificationService.AUCTION,
+                "Gia hạn hoá đơn đấu giá", "Hoá đơn " + o.getCode() + " được gia hạn " + NOTICE_EXTENSION.toHours()
+                        + " giờ vì mail báo thắng chưa gửi được và người thắng chưa đọc thông báo. Hãy liên hệ người thắng",
+                Map.of("orderId", o.getId()));
     }
 
     /** Khoá tài khoản người thắng: huỷ hoá đơn lô chưa trả ngay, không phạt, hoàn cọc, mời người kế tiếp. */
@@ -395,7 +421,7 @@ public class AuctionSettlement {
                 "Do " + why + ", bạn bị phạt " + penalty.toPlainString()
                         + "đ (trừ vào tiền cọc, ví hoặc ghi nợ) và bị cấm đấu giá "
                         + (PERMANENT_BAN.equals(user.getAuctionBannedUntil()) ? "vĩnh viễn" : "đến " + user.getAuctionBannedUntil()),
-                Map.of("lotId", lot.getId()));
+                Map.of("lotId", lot.getId()), true);
     }
 
     /**

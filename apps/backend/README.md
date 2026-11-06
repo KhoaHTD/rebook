@@ -17,7 +17,8 @@ psql -U postgres -h localhost -f scripts/create-database.sql
 
 - API: http://localhost:8080 · Swagger UI: http://localhost:8080/swagger-ui.html
 - Spec OpenAPI: http://localhost:8080/v3/api-docs.yaml (bản xuất sẵn: [openapi.yaml](openapi.yaml))
-- Đổi kết nối DB bằng biến môi trường `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`.
+- Đổi kết nối DB bằng biến môi trường `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, hoặc chép [env.example](env.example) thành `.env` rồi điền (DB, mail, ZaloPay).
+- Gửi mail (OTP, thắng đấu giá, nhắc hạn): mặc định tắt, chỉ ghi log tiêu đề. Bật bằng `MAIL_ENABLED=true` cùng `MAIL_HOST`, `MAIL_USER`, `MAIL_PASS`, `MAIL_FROM` (xem [THIET_KE_GUI_MAIL.md](../../docs/ra-soat-nghiep-vu/THIET_KE_GUI_MAIL.md)).
 - Muốn làm lại dữ liệu mẫu từ đầu: xoá và tạo lại database `rebook_dev`, rồi chạy lại.
 
 ## Tài khoản mẫu (mật khẩu `Rebook@123`)

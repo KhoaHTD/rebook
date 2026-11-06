@@ -28,7 +28,7 @@ import java.time.Instant;
 public class AccountDebt {
 
     @Schema(name = "DebtType", enumAsRef = true)
-    public enum Type { AUCTION_PENALTY, STORAGE_FEE }
+    public enum Type { AUCTION_PENALTY, STORAGE_FEE, CHARGEBACK }
 
     @Schema(name = "DebtStatus", enumAsRef = true)
     public enum Status { OPEN, PAID, WAIVED }

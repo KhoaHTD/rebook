@@ -103,6 +103,8 @@ public class Order {
     private boolean shipReminderSent;
     private boolean cancelReminderSent;
     private boolean paymentReminderSent;
+    /** Hoá đơn đấu giá đã gia hạn một lần vì người thắng chưa nhận được thông báo (mail chưa tới, app chưa đọc). */
+    private boolean noticeExtended;
 
     /** Phí sàn (%) chụp lúc đặt; null = đơn cũ, dùng cấu hình hiện tại. */
     private BigDecimal feePercent;

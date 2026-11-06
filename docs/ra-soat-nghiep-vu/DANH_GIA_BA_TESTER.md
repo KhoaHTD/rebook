@@ -46,6 +46,8 @@ Hệ thống **đủ để demo đồ án**. **Chưa đủ để nhận tiền t
 | BE-46 | ZaloPay báo về chậm: hỏi lại ZaloPay và ân hạn 15 phút trước khi phạt |
 | BE-47 | Thu nợ song song không còn trừ ví hai lần |
 
+**Cập nhật cuối ngày 2026-11-06 (`./mvnw test` 199/200, trừ `SeedDataTest`):** P0 mục 2, 3, 4 làm một phần theo [THIET_KE_GUI_MAIL.md](THIET_KE_GUI_MAIL.md). Mục 2: mail cho các mốc có hạn, không phạt khi mail chưa tới và thông báo chưa đọc. Mục 3: OTP gửi qua email, giới hạn xin OTP (phần còn lại của BE-26), chặn biến thể email; chưa có SMS, CCCD. Mục 4: giữ tiền bán của shop mới 7 ngày, Admin ghi nợ chargeback.
+
 ### 3. Danh sách cần cải thiện, từ nặng đến nhẹ
 
 Thang mức:
@@ -59,9 +61,9 @@ Thang mức:
 | # | Vấn đề | Kịch bản lỗi (test case) | Đề xuất | Nguồn |
 |---|---|---|---|---|
 | 1 | Profile mặc định là `dev` | Deploy quên đặt `SPRING_PROFILES_ACTIVE`: OTP trả trong response, `POST /payments/{code}/simulate` bật. Ai cũng nạp ví miễn phí rồi mua hoặc rút | Mặc định `prod`. Thiếu `JWT_SECRET` thì không khởi động. Giả lập chỉ bật bằng biến môi trường tường minh | Đã biết BE-32 |
-| 2 | Không có thông báo ngoài app nhưng vẫn phạt theo hạn | Người thắng tắt app, không biết đã thắng. Sau 48 giờ bị mất cọc, phạt 10%, cấm 90 ngày. Khiếu nại có lý | Push / email cho các mốc có hạn. Chưa gửi được ngoài app thì không phạt | Đã biết BE-36, BR-8.1, BR-8.2 |
-| 3 | Không định danh người: OTP chỉ ghi log, không có CCCD | Bị cấm hoặc còn nợ thì tạo tài khoản mới là xong. "Đã xác thực SĐT" để đấu giá không có giá trị | OTP SMS thật. CCCD trước khi ký gửi, rút tiền lần đầu, đấu giá lô ≥ 5 triệu. Cấm và nợ áp theo CCCD / SĐT | Đã biết BR-1.1 đến BR-1.3 |
-| 4 | **Rút tiền thẻ trộm / rửa tiền qua shop phụ** (Mới, đã kiểm code) | Khoá 24 giờ chỉ áp cho lệnh rút trực tiếp tiền vừa nạp. Kẻ gian nạp ZaloPay bằng thẻ trộm, mua sách của shop phụ, shop bấm "đã giao", người mua bấm "đã nhận" ngay. Tiền bán vào ví shop và rút được trong vài phút. Không có xử lý hoàn tiền bị đòi lại từ ngân hàng (chargeback) | Tiền bán của shop mới (ví dụ dưới 10 đơn hoàn tất hoặc tạo dưới 30 ngày) giữ thêm N ngày sau hoàn tất. Chặn mua bán giữa hai tài khoản chung thiết bị / IP / tài khoản ngân hàng. Có trạng thái và luồng ghi nợ khi bị chargeback | Mới |
+| 2 | Không có thông báo ngoài app nhưng vẫn phạt theo hạn | Người thắng tắt app, không biết đã thắng. Sau 48 giờ bị mất cọc, phạt 10%, cấm 90 ngày. Khiếu nại có lý | Push / email cho các mốc có hạn. Chưa gửi được ngoài app thì không phạt | Đã biết BE-36, BR-8.1, BR-8.2. **Đã làm phần email 2026-11-06** ([THIET_KE_GUI_MAIL.md](THIET_KE_GUI_MAIL.md)); còn push |
+| 3 | Không định danh người: OTP chỉ ghi log, không có CCCD | Bị cấm hoặc còn nợ thì tạo tài khoản mới là xong. "Đã xác thực SĐT" để đấu giá không có giá trị | OTP SMS thật. CCCD trước khi ký gửi, rút tiền lần đầu, đấu giá lô ≥ 5 triệu. Cấm và nợ áp theo CCCD / SĐT | Đã biết BR-1.1 đến BR-1.3. **Đã làm một phần 2026-11-06:** OTP qua email, giới hạn xin OTP, chặn biến thể email; còn SMS, CCCD |
+| 4 | **Rút tiền thẻ trộm / rửa tiền qua shop phụ** (Mới, đã kiểm code) | Khoá 24 giờ chỉ áp cho lệnh rút trực tiếp tiền vừa nạp. Kẻ gian nạp ZaloPay bằng thẻ trộm, mua sách của shop phụ, shop bấm "đã giao", người mua bấm "đã nhận" ngay. Tiền bán vào ví shop và rút được trong vài phút. Không có xử lý hoàn tiền bị đòi lại từ ngân hàng (chargeback) | Tiền bán của shop mới (ví dụ dưới 10 đơn hoàn tất hoặc tạo dưới 30 ngày) giữ thêm N ngày sau hoàn tất. Chặn mua bán giữa hai tài khoản chung thiết bị / IP / tài khoản ngân hàng. Có trạng thái và luồng ghi nợ khi bị chargeback | Mới. **Đã làm một phần 2026-11-06:** giữ tiền bán shop mới 7 ngày (`SALE_HELD`), Admin ghi nợ `CHARGEBACK`; chưa có IP / thiết bị, chưa nhận chargeback tự động |
 | 5 | Giao hàng và trả hàng không kiểm chứng được | Shop để trống mã vận đơn thì hệ thống tự sinh mã. Người mua cũng nhập mã gửi trả tự do, nên nhập mã bịa là shop phải tự chứng minh. Admin phân xử không có dữ liệu thật nào. BE-44 mới giảm rủi ro phía người mua | Bắt buộc mã vận đơn của hãng có trong danh sách, kèm ảnh biên nhận bưu cục khi gửi trả. Lâu dài thì dùng webhook GHN / GHTK | Đã biết BE-04 (phần còn lại) + Mới |
 | 6 | Ảnh biên lai chuyển khoản (có số tài khoản) để công khai | `GET /files/*` công khai, cache 7 ngày, chung thư mục với ảnh sách | Tách thư mục, file biên lai cần quyền xem | Đã biết BE-34 |
 
@@ -123,6 +125,13 @@ Mỗi dòng là một nhóm test. ✅ là đã có test trong `src/test`, ⏳ l�
 - ⏳ ZaloPay báo thành công sau khi hoá đơn đấu giá đã bị huỷ vì quá ân hạn (tiền hoàn vào ví, phạt vẫn giữ).
 - ✅ Job đối soát ví với sổ cái (`MoneyRulesTest`). ⏳ Đối soát sau một chuỗi mua, hoàn, phạt, bù chênh liên tiếp.
 - ⏳ Ví sàn không đủ tiền khi phải hoàn phí hoặc bồi thường.
+- ✅ Shop mới không rút được tiền vừa bán, shop uy tín thì được; chargeback thu phần ví đang có và chặn rút phần còn lại (`SellerHoldAndChargebackTest`).
+
+**Mail và OTP**
+- ✅ Thư quan trọng vào hàng đợi, gửi đúng một lần; thông báo thường và email chưa xác thực không có thư; giao dịch huỷ thì không có thư; SMTP lỗi thử lại rồi `FAILED` (`MailOutboxTest`).
+- ✅ OTP tới hộp thư, tiêu đề không chứa mã; SMTP lỗi thì `EMAIL_SEND_FAILED` và không giữ mã; xin lại trong 60 giây bị chặn; quên mật khẩu bị giới hạn kể cả email không tồn tại; biến thể Gmail không đăng ký được (`MailOutboxTest`, `OtpAndEmailRulesTest`).
+- ✅ Người thắng chưa nhận được thư và chưa đọc thông báo: gia hạn một lần, lần sau mới phạt; đã nhận thư hoặc đã đọc: phạt đúng hạn (`MailOutboxTest`).
+- ⏳ Gửi qua một SMTP thật (Gmail / Brevo) và kiểm thư vào hộp thư đến, không vào thư rác.
 
 **Mua bán**
 - ✅ Hai người cùng mua cuốn cuối; bấm đặt hai lần; COD vượt hạn mức; người bom COD bị chặn.
@@ -251,7 +260,7 @@ Còn lại của đấu giá: BE-21 (chuyển bán thường do sàn giao hộ),
 
 | ID | Mức | Lỗi | Bằng chứng | Cách sửa | Người nhận | Trạng thái |
 |---|---|---|---|---|---|---|
-| BE-26 | P0 | **Đã sửa một phần.** Đã sửa: đăng nhập sai 10 lần trong 15 phút thì 429 `TOO_MANY_REQUESTS`, đếm theo email (email không tồn tại cũng bị đếm, không lộ email nào có thật); bộ đếm OTP sai trước đây bị rollback cùng lỗi nên thực tế dò OTP vô hạn, nay lưu bằng giao dịch riêng (`REQUIRES_NEW`), sai 5 lần thì mã đúng cũng bị từ chối. **Còn lại:** xin OTP mới (`sendOtp`, `forgotPassword`) không giới hạn, mỗi mã mới cho thêm 5 lần đoán; OTP vẫn chỉ ghi log, không gửi email / SMS nên "đã xác thực SĐT" để đấu giá không có nghĩa ngoài dev; SĐT `UNIQUE` kể cả chưa xác thực nên chiếm được số của người khác | `auth/AuthService.java:79-93` (đã sửa), `auth/OtpAttempts.java`, `auth/AuthService.java:114-130, 145-155` (còn lại), `V1__init_schema.sql:13` | Giới hạn tần suất `sendOtp` / `forgotPassword` theo user và email bằng `RateLimiter` sẵn có; dịch vụ email / SMS thật; `UNIQUE` chỉ cho SĐT đã xác thực | | Đã sửa một phần (`9d25426`, `1c04db7`) |
+| BE-26 | P0 | **Đã sửa một phần.** Đã sửa: đăng nhập sai 10 lần trong 15 phút thì 429 `TOO_MANY_REQUESTS`, đếm theo email (email không tồn tại cũng bị đếm, không lộ email nào có thật); bộ đếm OTP sai trước đây bị rollback cùng lỗi nên thực tế dò OTP vô hạn, nay lưu bằng giao dịch riêng (`REQUIRES_NEW`), sai 5 lần thì mã đúng cũng bị từ chối. **Còn lại:** xin OTP mới (`sendOtp`, `forgotPassword`) không giới hạn, mỗi mã mới cho thêm 5 lần đoán; OTP vẫn chỉ ghi log, không gửi email / SMS nên "đã xác thực SĐT" để đấu giá không có nghĩa ngoài dev; SĐT `UNIQUE` kể cả chưa xác thực nên chiếm được số của người khác | `auth/AuthService.java:79-93` (đã sửa), `auth/OtpAttempts.java`, `auth/AuthService.java:114-130, 145-155` (còn lại), `V1__init_schema.sql:13` | Giới hạn tần suất `sendOtp` / `forgotPassword` theo user và email bằng `RateLimiter` sẵn có; dịch vụ email / SMS thật; `UNIQUE` chỉ cho SĐT đã xác thực | | Đã sửa một phần (`9d25426`, `1c04db7`). Cập nhật 14: giới hạn xin OTP, OTP gửi qua email; còn SMS, `UNIQUE` SĐT |
 | BE-27 | P1 | Khoá tài khoản chỉ đổi trạng thái và thu hồi token; tin vẫn `ACTIVE`, yêu cầu rút tiền vẫn chờ, đơn dở và cọc đấu giá không được xử lý | `admin/AdminService.java:64-74` | Khoá có quy trình: ẩn tin, đóng băng ví, xử lý đơn dở | | Đã sửa, test đạt (ẩn tin, huỷ đơn chưa giao, hoàn cọc phiên chưa chốt) |
 | BE-28 | P2 | Admin một cấp: một người tự duyệt rút tiền, đổi vai trò, đổi phí; chỉ chặn tự khoá / tự đổi quyền chính mình | `admin/AdminService.java:64-97`, `wallet/WalletService.java:216` | Xác nhận hai người cho rút lớn và đổi quyền | | |
 | BE-29 | P2 | Dashboard "doanh thu" là tổng giá trị đơn hoàn tất (GMV), không phải phí sàn thực thu | `order/OrderRepository.java:75`, `admin/AdminService.java:128-129` | Tách GMV với phí thu được từ ví sàn | | |
@@ -266,7 +275,7 @@ Còn lại của đấu giá: BE-21 (chuyển bán thường do sàn giao hộ),
 | BE-33 | P1 | **Đã sửa một phần.** Đã sửa: ISBN rỗng hoặc đúng 10 / 13 ký tự (`^$\|^(\d{9}[\dXx]\|\d{13})$`, chỉ kiểm định dạng, không kiểm số kiểm tra, không nhận dấu gạch); số tài khoản khi rút `\d{6,19}`. **Còn lại:** không có cận trên giá / tồn kho (`price ≥ 1000`, `stock ≥ 0`, không `@Max`); tên chủ tài khoản không có pattern; số tài khoản của shop (`ShopRequest`) vẫn chỉ `@Size(max=50)`; cấu hình chỉ cần số nguyên ≥ 0 nên Admin đặt `order.payment_timeout_minutes=0` thì mọi đơn bị huỷ ngay, `order.auto_complete_days=0` thì hết thời hạn khiếu nại. (SĐT và mật khẩu 8–72 ký tự đã được kiểm đúng) | `catalog/CatalogDtos.java:41, 70-71`, `wallet/WalletDtos.java:40`, `user/UserDtos.java:71`, `system/SystemConfigService.java:116-121` | Khoảng min/max theo từng khoá cấu hình; cận trên giá / tồn kho; pattern tên chủ tài khoản và số tài khoản shop; cân nhắc kiểm số kiểm tra ISBN | | Đã sửa một phần (`9d25426`) |
 | BE-34 | P1 | Upload: biên lai chuyển khoản (có số tài khoản) và ảnh sách chung một thư mục, `GET /files/*` công khai và cache `public` 7 ngày; chỉ tin `Content-Type` do client khai; không quota; không dọn file mồ côi; lưu đĩa cục bộ nên mất khi deploy lại (SRS ghi Cloudinary) | `file/FileController.java:35-77`, `security/SecurityConfig.java:50-51` | Object storage; biên lai cần quyền xem; kiểm nội dung thật; giới hạn theo user; job dọn file mồ côi | | |
 | BE-35 | P1 | Nhiều lỗi nghiệp vụ dùng chung mã `FORBIDDEN`; frontend phải dò chuỗi tiếng Việt để phân biệt, đổi câu chữ là hỏng. Sửa cùng [FE-07](DANH_GIA_BA_TESTER.md) | `common/ApiException.java:32-34`, `auction/BidService.java:279, 283` | Thêm mã riêng `AUCTION_BANNED`, `NOT_REGISTERED`… | | Đã sửa, test đạt (AUCTION_BANNED, NOT_REGISTERED) |
-| BE-36 | P1 | Thông báo ngoài app: không gửi push / email / SMS (code ghi rõ không gửi FCM) và không có endpoint đăng ký thiết bị. Người thắng có 48h để trả, app tắt thì không biết rồi mất cọc oan. Làm cùng [FE-03](DANH_GIA_BA_TESTER.md) | `notification/NotificationService.java:16`, `openapi.yaml` (không có `device`) | Endpoint đăng ký FCM token; gửi FCM trong `notify`; email / SMS cho các mốc có hạn (thắng lô, hạn thanh toán, mời mua lần hai) | | |
+| BE-36 | P1 | Thông báo ngoài app: không gửi push / email / SMS (code ghi rõ không gửi FCM) và không có endpoint đăng ký thiết bị. Người thắng có 48h để trả, app tắt thì không biết rồi mất cọc oan. Làm cùng [FE-03](DANH_GIA_BA_TESTER.md) | `notification/NotificationService.java:16`, `openapi.yaml` (không có `device`) | Endpoint đăng ký FCM token; gửi FCM trong `notify`; email / SMS cho các mốc có hạn (thắng lô, hạn thanh toán, mời mua lần hai) | | Sửa một phần (cập nhật 14): email cho các mốc có hạn, không phạt khi chưa báo được. Còn FCM, SMS |
 | BE-37 | P1 | Phí ship so khớp "cùng tỉnh" bằng chuỗi tên; dữ liệu địa chỉ phía frontend là 63 tỉnh, trong khi địa giới đã đổi từ giữa 2025 (**cần xác minh lại**) nên so khớp và bảng phí sẽ lệch | `order/ShippingCalculator.java:20-39` | Danh mục địa giới có mã, bảng phí theo vùng, cân nặng thực; về lâu dài dùng API hãng vận chuyển | | |
 | BE-38 | P2 | WebSocket nhận JWT qua `?token=` trên URL (lộ trong log proxy); token chỉ kiểm lúc nối, hết hạn giữa phiên vẫn kết nối | `notification/RealtimeHub.java:55-57` | Vé WS ngắn hạn dùng một lần | | |
 | BE-39 | P2 | Chỉ chạy được một instance: `RealtimeHub` giữ kênh WS trong RAM, `AuctionEngine` tick trong tiến trình. Đây là giới hạn nhóm đã biết (ghi ở `AuctionEngine.java:19`), cần xử lý nếu mở rộng | `notification/RealtimeHub.java:41`, `auction/AuctionEngine.java:19` | Redis pub/sub cho kênh WS; ShedLock cho job | | |
@@ -326,7 +335,7 @@ Làm theo [THAY_DOI_SO_VOI_CODE_CU.md phần C](THAY_DOI_SO_VOI_CODE_CU.md) mụ
 | BR-6.1, BR-6.2, BR-6.5 | Cọc / phạt người bỏ thanh toán về sàn 100%; mời mua lần hai ở giá công bằng; sàn bù chênh cho người bán khi lô bán lại thấp hơn (trần = số đã thu từ người bỏ) |
 | BR-4.2, BR-4.8, BR-4.9 | Sự cố kho: Staff khai báo, Admin duyệt; bồi thường theo giai đoạn; mất → lô / kho / ký gửi `LOST`; hỏng → Admin chọn 0–100%, trả sách miễn phí lưu kho |
 
-Việc đi kèm: frontend chưa có màn sự cố kho, chưa hiện `isbnWarning`, chưa biết các mã lỗi mới (ghi ở `DANH_GIA_BA_TESTER.md phần D`). Bản sửa tìm kiếm không dấu của nhóm (chưa push, đang là `V9__unaccent_search.sql`) phải đổi số thành **V17** (V14 đến V16 đã dùng ở cập nhật 10 đến 12).
+Việc đi kèm: frontend chưa có màn sự cố kho, chưa hiện `isbnWarning`, chưa biết các mã lỗi mới (ghi ở `DANH_GIA_BA_TESTER.md phần D`). Bản sửa tìm kiếm không dấu của nhóm (chưa push, đang là `V9__unaccent_search.sql`) phải đổi số thành **V17** (V14 đến V16 đã dùng ở cập nhật 10 đến 12). *Cập nhật 14: V17 đã dùng cho gửi mail, bản này đổi thành **V18**.*
 
 ### Cập nhật 10: sửa hai lỗi P0 tìm thấy khi đánh giá lại luồng tiền, mua bán, đấu giá (2026-11-06)
 
@@ -370,6 +379,18 @@ Migration `V16__delivery_fault_high_value_lots_progressive_ban.sql` (3 cấu hì
 | ID | Lỗi | Đã sửa |
 |---|---|---|
 | BE-48 | Backend tắt lâu hơn thời gian còn lại của lô đang mở: bật lại thì nhịp đầu tiên chốt lô ngay theo `ends_at` cũ, người trả giá không có cơ hội trong lúc hệ thống tắt (`AuctionRunner.tick`) | `AuctionEngine` gọi `AuctionRunner.recoverAfterRestart` một lần ở nhịp đầu tiên: lô đang mở còn ít hơn thời gian soft close thì kéo dài cho đủ, báo cả phòng `SESSION_RESUMED`, ghi log WARN. Không đổi API, không migration. Test: 2 ca trong `MultiBidderTest`; chạy thật bằng `testdata/e2e_restart.sh` với 75 giây tắt máy. Giới hạn: chỉ nhận biết khởi động lại của chính tiến trình (một instance, BE-39) |
+
+### Cập nhật 14: gửi mail, OTP thật, giữ tiền shop mới (2026-11-06, tối)
+
+P0 mục 2, 3, 4 của phần A, theo [THIET_KE_GUI_MAIL.md](THIET_KE_GUI_MAIL.md). Migration `V17`; bản tìm kiếm không dấu chưa push của nhóm giờ phải đổi số thành **V18** (Flyway không nhận migration số nhỏ hơn số đã chạy). Thêm `spring-boot-starter-mail`. **Đã chạy test: 199/200 đạt** (trừ `SeedDataTest`). `apps/backend/openapi.yaml` **chưa xuất lại** (cần bật backend có DB).
+
+| ID | Đã sửa | API |
+|---|---|---|
+| BE-36 (phần email) | Bảng `email_outbox` ghi cùng giao dịch với thông báo, `EmailOutboxJob` gửi mỗi 30 giây, thử lại 4 lần. Thư cho: thắng lô / mời mua lần hai, nhắc thanh toán, bị phạt, shop sắp quá hạn giao / trả lời huỷ, các mốc ký gửi có hạn. Hoá đơn đấu giá tới hạn mà thư báo thắng chưa gửi được và thông báo chưa đọc: gia hạn 24 giờ một lần, báo Admin. Tắt health check mail của actuator | Không |
+| BE-26 (phần còn lại) | OTP gửi qua email, bỏ dòng log mã OTP. Xin mã cách nhau ≥ 60 giây, tối đa 5 / giờ, 10 / ngày cho mỗi tài khoản hoặc mỗi email (`TOO_MANY_REQUESTS`). Lỗi SMTP khi xin mã: 503 `EMAIL_SEND_FAILED`. Cột sinh `users.email_normalized` UNIQUE chặn đăng ký bằng biến thể của cùng hộp thư | Mã lỗi mới |
+| P0 mục 4 | Shop mới (chưa uy tín, mở < 30 ngày hoặc < 10 đơn hoàn tất) bị giữ tiền bán 7 ngày (`SALE_HELD`; `GET /wallet/withdrawable` thêm `saleHeld`, `saleUnlockAt`). Loại nợ `CHARGEBACK`, `POST /admin/debts/chargeback` | Thêm trường, endpoint, enum |
+
+Còn lại: SMS, CCCD, push (FE-03), mail khi duyệt rút tiền / khoá tài khoản, nhận chargeback tự động từ cổng, xuất lại spec.
 
 ---
 
@@ -437,6 +458,18 @@ Spec API **không đổi** trong đợt này. Frontend chỉ cần biết hành 
 | Khoá tài khoản ẩn tin, huỷ đơn chưa giao, hoàn cọc | Không cần đổi |
 | Mã lỗi `AUCTION_BANNED`, `NOT_REGISTERED` (trước đây dò chuỗi câu chữ) | Có thể bỏ đoạn dò chuỗi tiếng Việt trong `app_exception.dart` (FE-07); tạm thời vẫn chạy vì hằng số đã khớp |
 | Duyệt tin chuyển từ lô không bán bị từ chối `BOOK_IN_WAREHOUSE` khi sách còn trong kho | Dịch lỗi ở màn duyệt tin của Admin |
+
+### Việc frontend sau đợt gửi mail 2026-11-06 (tối)
+
+Spec **có đổi** (chỉ thêm) nhưng `apps/backend/openapi.yaml` chưa xuất lại; xuất xong thì chạy `/sync-api`.
+
+| Thay đổi backend | Frontend cần làm | Nếu chưa làm |
+|---|---|---|
+| `POST /auth/send-otp`, `/auth/forgot-password`: `TOO_MANY_REQUESTS` khi xin lại trong 60 giây hoặc quá 5 mã / giờ; `send-otp` có thể trả 503 `EMAIL_SEND_FAILED` | Đếm ngược 60 giây trước khi cho bấm "Gửi lại mã"; dịch hai mã lỗi | Người dùng thấy lỗi chung |
+| Câu trả lời `send-otp` là "Đã gửi mã OTP tới email a***@..." | Hiện câu này, nhắc kiểm hộp thư rác | Không lỗi |
+| `GET /wallet/withdrawable` thêm `saleHeld`, `saleUnlockAt`; rút tiền lỗi `SALE_HELD` | Màn rút tiền hiện "tiền bán hàng đang giữ đến ..."; dịch lỗi | Shop mới không hiểu vì sao không rút được |
+| `POST /admin/debts/chargeback` {userId, amount, reason}; `DebtType` thêm `CHARGEBACK` | Nút "Ghi nợ chargeback" ở màn người dùng của Admin; nhãn loại nợ mới | Admin phải gọi API tay; loại nợ mới rơi vào `$unknown` |
+| Cấu hình mới `wallet.seller_hold_days`, `wallet.seller_hold_min_orders`, `wallet.seller_hold_shop_days` | Nhãn tiếng Việt trong màn Cấu hình | Hiện khoá thô |
 
 ### Việc test còn nợ
 
@@ -522,8 +555,8 @@ Ngày 2026-11-06. Danh sách những việc **chưa làm**, tách theo lý do. M
 | Đồng bộ client: `/sync-api`, enum mới (`INSPECTING`, `CANCELLED` của đăng ký, `AWAITING_GOODS`, `EXPIRED`), mã lỗi mới (`DEBT_OPEN`, `COD_NOT_ALLOWED`, `TOPUP_LOCKED`, `WITHDRAW_DAILY_LIMIT`, `AUCTION_BANNED`, `NOT_REGISTERED`, `BOOK_IN_WAREHOUSE`), ẩn nút giả lập giao hàng ở production, sửa `env/prod.json` | `DANH_GIA_BA_TESTER.md phần C` | Điều kiện để dùng được những gì backend đã đổi |
 | Checkout gửi kèm giá người mua đã thấy; backend trả `PRICE_CHANGED` khi lệch; hộp thoại xác nhận lại | BE-12 | Hợp đồng API đổi |
 | Ảnh biên lai chuyển khoản không công khai (cần token khi xem) | BE-34 | Ảnh đang tải bằng URL công khai, không kèm header |
-| Thông báo ngoài app: endpoint đăng ký thiết bị, gửi FCM, email, SMS; frontend gọi `init()` và gửi token | BE-36, FE-03 | Cần frontend gửi token; nay phạt 48 giờ nên càng quan trọng |
-| Xin lại OTP có đếm ngược, giới hạn tần suất gửi OTP; gửi OTP thật qua email / SMS | BE-26 (phần còn lại) | Giao diện đếm ngược và báo khoá tạm; cần dịch vụ gửi |
+| Thông báo ngoài app: endpoint đăng ký thiết bị, gửi FCM, email, SMS; frontend gọi `init()` và gửi token | BE-36, FE-03 | Cần frontend gửi token. **Email đã có (cập nhật 14)**, người thắng chưa nhận được thư thì không bị phạt; còn FCM, SMS |
+| Xin lại OTP có đếm ngược, giới hạn tần suất gửi OTP; gửi OTP thật qua email / SMS | BE-26 (phần còn lại) | **Backend đã làm giới hạn và email (cập nhật 14)**; còn giao diện đếm ngược 60 giây, SMS |
 | OTP hoặc thời gian chờ khi thêm tài khoản ngân hàng mới | BE-02 (phần còn lại) | Thêm bước nhập OTP ở luồng rút tiền |
 | Hoàn một phần khi phân xử khiếu nại; shop nộp ảnh bằng chứng phản biện | BE-11 | Màn khiếu nại và đơn shop đổi |
 | KYC người ký gửi và người thắng giá trị cao | BE-23 | Màn tải giấy tờ |
