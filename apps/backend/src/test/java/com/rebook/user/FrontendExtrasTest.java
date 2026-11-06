@@ -91,6 +91,8 @@ class FrontendExtrasTest extends IntegrationTest {
         assertThat(body.indexOf("\"id\":" + popular + ",")).isLessThan(body.indexOf("\"id\":" + liked + ","));
         assertThat(body.indexOf("\"id\":" + liked + ",")).isLessThan(body.indexOf("\"id\":" + lonely + ","));
         assertThat(body).contains("\"favoriteCount\":2");
+        // Danh sách trả thêm thể loại, năm, số trang, nhà xuất bản, ngôn ngữ để trang Khám phá dựng bộ sưu tập.
+        assertThat(body).contains("\"categoryId\":");
 
         // Bỏ tim thì trừ lại; bỏ tim cuốn chưa thích không làm số âm.
         mvc.perform(delete("/listings/" + popular + "/favorite").with(as(a, Role.USER))).andExpect(status().isOk());

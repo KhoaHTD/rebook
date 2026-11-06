@@ -6208,6 +6208,19 @@ components:
         reviewedAt:
           type: string
           format: date-time
+        categoryId:
+          type: integer
+          format: int64
+        publishYear:
+          type: integer
+          format: int32
+        pages:
+          type: integer
+          format: int32
+        publisher:
+          type: string
+        language:
+          type: string
     PageResponseListingSummary:
       type: object
       properties:

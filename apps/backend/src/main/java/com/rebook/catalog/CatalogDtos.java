@@ -89,7 +89,9 @@ public final class CatalogDtos {
     /** reviewedBy / reviewedByName / reviewedAt: Admin duyệt hoặc từ chối tin (tên chỉ có ở danh sách của Admin). */
     public record ListingSummary(Long id, String title, String author, String coverUrl, ConditionGrade conditionGrade,
                                  BigDecimal price, int stock, int soldCount, int favoriteCount, ListingStatus status, ShopBrief shop,
-                                 Instant createdAt, Long reviewedBy, String reviewedByName, Instant reviewedAt) {
+                                 Instant createdAt, Long reviewedBy, String reviewedByName, Instant reviewedAt,
+                                 // Để trang Khám phá dựng bộ sưu tập (thể loại, năm, số trang, nhà xuất bản) mà không gọi chi tiết từng cuốn.
+                                 Long categoryId, Integer publishYear, Integer pages, String publisher, String language) {
 
         public static ListingSummary of(Listing l) {
             return of(l, null);
@@ -101,7 +103,8 @@ public final class CatalogDtos {
             return new ListingSummary(l.getId(), b.getTitle(), b.getAuthor(), b.coverUrl(), b.getConditionGrade(),
                     l.getPrice(), l.getStock(), l.getSoldCount(), l.getFavoriteCount(), l.getStatus(),
                     new ShopBrief(s.getId(), s.getName(), s.getPickupProvince(), s.getRatingAvg(), s.getRatingCount()),
-                    l.getCreatedAt(), l.getReviewedBy(), reviewedByName, l.getReviewedAt());
+                    l.getCreatedAt(), l.getReviewedBy(), reviewedByName, l.getReviewedAt(),
+                    b.getCategoryId(), b.getPublishYear(), b.getPages(), b.getPublisher(), b.getLanguage());
         }
     }
 
