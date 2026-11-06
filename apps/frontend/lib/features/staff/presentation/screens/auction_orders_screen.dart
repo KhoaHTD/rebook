@@ -22,9 +22,6 @@ bool _returnShipped(Order o) =>
     o.returnRequest?.status == ReturnStatus.awaitingGoods &&
     o.returnRequest?.returnShippedAt != null;
 
-bool _hasExtra(Order o) =>
-    o.status == OrderStatus.shipping || _returnPending(o) || _returnShipped(o);
-
 /// Lô đã thanh toán: kho đóng gói, xuất giao, xác nhận giao xong (SRS 6.6).
 class AuctionOrdersScreen extends ConsumerWidget {
   const AuctionOrdersScreen({super.key});
@@ -99,66 +96,37 @@ class AuctionOrdersScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       for (final o in list)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: OrderCard(
-                                order: o,
-                                showBuyer: true,
-                                onTap: () {},
-                              ),
-                            ),
-                            if (_hasExtra(o)) ...[
-                              const SizedBox(width: AppSpacing.md),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: AppSpacing.md,
+                        LayoutBuilder(
+                          builder: (context, box) {
+                            final narrow = box.maxWidth < 600;
+                            final buttons = <Widget>[
+                              if (o.status == OrderStatus.shipping)
+                                OutlinedButton(
+                                  onPressed: busy ? null : () => failed(o.id),
+                                  child: Text(l10n.stfCarrierFailed),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    if (o.status == OrderStatus.shipping)
-                                      OutlinedButton(
-                                        onPressed: busy
-                                            ? null
-                                            : () => failed(o.id),
-                                        child: Text(l10n.stfCarrierFailed),
-                                      ),
-                                    if (_returnPending(o)) ...[
-                                      FilledButton(
-                                        onPressed: busy
-                                            ? null
-                                            : () => decide(o.id, true),
-                                        child: Text(l10n.acceptReturn),
-                                      ),
-                                      OutlinedButton(
-                                        onPressed: busy
-                                            ? null
-                                            : () => decide(o.id, false),
-                                        child: Text(l10n.rejectReturn),
-                                      ),
-                                    ],
-                                    if (_returnShipped(o))
-                                      FilledButton(
-                                        onPressed: busy
-                                            ? null
-                                            : () => received(o.id),
-                                        child: Text(l10n.returnReceivedButton),
-                                      ),
-                                  ],
+                              if (_returnPending(o)) ...[
+                                FilledButton(
+                                  onPressed: busy
+                                      ? null
+                                      : () => decide(o.id, true),
+                                  child: Text(l10n.acceptReturn),
                                 ),
-                              ),
-                            ],
-                            if (o.status == OrderStatus.preparing ||
-                                o.status == OrderStatus.shipping) ...[
-                              const SizedBox(width: AppSpacing.md),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: AppSpacing.md,
+                                OutlinedButton(
+                                  onPressed: busy
+                                      ? null
+                                      : () => decide(o.id, false),
+                                  child: Text(l10n.rejectReturn),
                                 ),
-                                child: FilledButton(
+                              ],
+                              if (_returnShipped(o))
+                                FilledButton(
+                                  onPressed: busy ? null : () => received(o.id),
+                                  child: Text(l10n.returnReceivedButton),
+                                ),
+                              if (o.status == OrderStatus.preparing ||
+                                  o.status == OrderStatus.shipping)
+                                FilledButton(
                                   onPressed: busy
                                       ? null
                                       : () async {
@@ -180,9 +148,51 @@ class AuctionOrdersScreen extends ConsumerWidget {
                                         : l10n.advanceDelivered,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ],
+                            ];
+                            final card = OrderCard(
+                              order: o,
+                              showBuyer: true,
+                              onTap: () {},
+                            );
+                            if (buttons.isEmpty) return card;
+                            if (narrow) {
+                              // Điện thoại: nút nằm dưới thẻ để thẻ không bị ép hẹp.
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  card,
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: AppSpacing.md,
+                                    ),
+                                    child: Wrap(
+                                      spacing: AppSpacing.sm,
+                                      runSpacing: AppSpacing.sm,
+                                      alignment: WrapAlignment.end,
+                                      children: buttons,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(child: card),
+                                const SizedBox(width: AppSpacing.md),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: AppSpacing.md,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: buttons,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                     ],
                   ),

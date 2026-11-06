@@ -10,6 +10,7 @@ import 'package:book_marketplace/features/admin/domain/admin_repository.dart';
 import 'package:book_marketplace/features/admin/presentation/providers/admin_providers.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
 import 'package:book_marketplace/shared/domain/user.dart';
+import 'package:book_marketplace/shared/widgets/adaptive_tile.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/sheets.dart';
@@ -143,7 +144,7 @@ class UsersScreen extends ConsumerWidget {
                       for (final (i, u) in list.indexed) ...[
                         if (i > 0)
                           Divider(height: 1, indent: 72, color: c.separator),
-                        ListTile(
+                        AdaptiveTile(
                           leading: CircleAvatar(
                             backgroundColor: c.fill,
                             child: Text(

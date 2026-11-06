@@ -12,6 +12,7 @@ import 'package:book_marketplace/features/admin/presentation/providers/admin_pro
 import 'package:book_marketplace/core/utils/data_changes.dart';
 import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/shared/domain/enums.dart';
+import 'package:book_marketplace/shared/widgets/adaptive_tile.dart';
 import 'package:book_marketplace/shared/widgets/async_value_view.dart';
 import 'package:book_marketplace/shared/widgets/error_view.dart';
 import 'package:book_marketplace/shared/widgets/sheets.dart';
@@ -93,7 +94,7 @@ class SessionsScreen extends ConsumerWidget {
                     children: [
                       for (final (i, s) in items.indexed) ...[
                         if (i > 0) Divider(height: 1, indent: 16, color: sep),
-                        ListTile(
+                        AdaptiveTile(
                           onTap: isAdmin
                               ? () => context.go(AdminRoutes.session(s.id))
                               : s.isLive

@@ -70,10 +70,17 @@ class DisputesScreen extends ConsumerWidget {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        '${l10n.orderCode(o.code)} · ${o.buyerName ?? ''} → ${o.shop?.name ?? ''}',
+                                        [
+                                          l10n.orderCode(o.code),
+                                          if ((o.buyerName ?? '').isNotEmpty)
+                                            o.buyerName!,
+                                          if (o.shop?.name != null)
+                                            o.shop!.name,
+                                        ].join(' · '),
                                         style: context.textStyles.titleMedium,
                                       ),
                                     ),
+                                    const SizedBox(width: AppSpacing.md),
                                     PriceText(o.total),
                                   ],
                                 ),
