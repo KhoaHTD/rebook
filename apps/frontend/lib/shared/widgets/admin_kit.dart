@@ -95,7 +95,7 @@ class AdminKpi extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: text.bodySmall?.copyWith(color: AdminPalette.muted),
                 ),

@@ -263,13 +263,15 @@ class _PerformanceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: AppSpacing.sm,
             children: [
               Text(
                 l10n.admPerformance,
                 style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
               ),
-              const Spacer(),
               _RangeChips(days: days, onDays: onDays),
             ],
           ),
@@ -434,57 +436,78 @@ class _TodoCard extends ConsumerWidget {
       String path, {
       String? note,
       bool primary = false,
-    }) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: count == 0 ? AdminPalette.bg : AdminPalette.accentSoft,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              icon,
-              size: 19,
-              color: count == 0 ? AdminPalette.faint : AdminPalette.accent,
-            ),
+    }) {
+      final pill = StatusPill(
+        count == 0 ? l10n.admTodoDone : l10n.admTodoCount(count),
+        tone: count == 0 ? StatusTone.success : StatusTone.warning,
+      );
+      final button = primary && count > 0
+          ? FilledButton(
+              onPressed: () => context.go(path),
+              child: Text(l10n.adminReviewNow),
+            )
+          : OutlinedButton(
+              onPressed: () => context.go(path),
+              child: Text(l10n.adminView),
+            );
+      final lead = [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: count == 0 ? AdminPalette.bg : AdminPalette.accentSoft,
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: Icon(
+            icon,
+            size: 19,
+            color: count == 0 ? AdminPalette.faint : AdminPalette.accent,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              if (note != null)
                 Text(
-                  label,
-                  style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  note,
+                  style: text.bodySmall?.copyWith(color: AdminPalette.muted),
                 ),
-                if (note != null)
-                  Text(
-                    note,
-                    style: text.bodySmall?.copyWith(color: AdminPalette.muted),
-                  ),
+            ],
+          ),
+        ),
+      ];
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            if (box.maxWidth < 460) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(children: lead),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(children: [pill, const Spacer(), button]),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                ...lead,
+                pill,
+                const SizedBox(width: AppSpacing.md),
+                button,
               ],
-            ),
-          ),
-          StatusPill(
-            count == 0 ? l10n.admTodoDone : l10n.admTodoCount(count),
-            tone: count == 0 ? StatusTone.success : StatusTone.warning,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          primary && count > 0
-              ? FilledButton(
-                  onPressed: () => context.go(path),
-                  child: Text(l10n.adminReviewNow),
-                )
-              : OutlinedButton(
-                  onPressed: () => context.go(path),
-                  child: Text(l10n.adminView),
-                ),
-        ],
-      ),
-    );
+            );
+          },
+        ),
+      );
+    }
 
     const divider = Divider(height: 1, color: AdminPalette.lineSoft);
     return AdminCard(
