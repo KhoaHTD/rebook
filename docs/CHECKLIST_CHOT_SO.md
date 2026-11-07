@@ -23,6 +23,7 @@ Tình trạng chi tiết của đợt làm qua đêm nằm ở `apps/frontend/do
    node scripts/smoke.mjs http://localhost:8081      # kiểm tra nhanh API, kỳ vọng 0 lỗi
    ```
    Phiên đấu giá #3 tự mở sau ~4 phút kể từ lúc reset: reset xong thì nên dùng ngay, đừng để lâu mới mở app.
+1b. **Máy ảo Android:** chạy bằng `emulator -avd rebook_pixel -dns-server 1.1.1.1,8.8.8.8`. Không có cờ này máy ảo có thể không phân giải được tên miền (`res.cloudinary.com`, `accounts.google.com`), khi đó mọi ảnh bìa rơi về bìa vẽ và đăng nhập Google báo `DNS_PROBE_FINISHED_BAD_CONFIG`.
 2. Chạy app nối **backend thật** bằng file env, không dùng `env/dev.json` (mock):
    - Web: `flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.8081.json`
    - Android: build APK với file env trỏ `10.0.2.2:8081` (bản sao của `env/local.8081.json`, đừng commit bản đã đổi).
