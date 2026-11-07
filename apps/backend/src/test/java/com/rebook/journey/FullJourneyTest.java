@@ -487,6 +487,12 @@ class FullJourneyTest extends JourneySupport {
         assertThat(lotStatus(lot)).isEqualTo("UNSOLD");
         assertThat(closeResult(lot)).as("giá cuối 250.000 < giá sàn 300.000").isEqualTo("RESERVE_NOT_MET");
         assertThat(jdbc.queryForObject("SELECT hammer_price FROM lots WHERE id = ?", Long.class, lot)).as("không có giá búa").isNull();
+        // Người dẫn đầu (b2) được báo lô không bán, không lộ giá sàn; người đã bị vượt giá (b1) không nhận thông báo này
+        var notice = jdbc.queryForList("SELECT body FROM notifications WHERE user_id = ? AND title = 'Lô đấu giá chưa đạt giá sàn'", String.class, b2.id());
+        assertThat(notice).as("người trả cao nhất được báo lô không đạt giá sàn").hasSize(1);
+        assertThat(notice.get(0)).contains("250.000").doesNotContain("300.000").doesNotContain("300000");
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM notifications WHERE user_id = ? AND title = 'Lô đấu giá chưa đạt giá sàn'",
+                Long.class, b1.id())).isZero();
         openNext(first);
         assertThat(walletHeld(b1.id())).as("không ai thắng: hoàn cọc cả hai").isZero();
         assertThat(walletHeld(b2.id())).isZero();

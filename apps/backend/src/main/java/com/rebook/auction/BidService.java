@@ -297,7 +297,7 @@ public class BidService {
         for (Long u : outbid) {
             if (!Objects.equals(u, lot.getCurrentWinnerId())) {
                 notifications.notify(u, NotificationService.AUCTION_OUTBID, "Bạn đã bị trả giá cao hơn",
-                        "Lô " + lot.getLotNumber() + " hiện ở mức " + lot.getCurrentPrice().toPlainString() + "đ ("
+                        "Lô " + lot.getLotNumber() + " hiện ở mức " + com.rebook.common.Money.vnd(lot.getCurrentPrice()) + " ("
                                 + paddles.getOrDefault(lot.getCurrentWinnerId(), "") + ")",
                         Map.of("sessionId", session.getId(), "lotId", lot.getId()));
             }

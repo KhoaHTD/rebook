@@ -36,6 +36,7 @@ public class AuctionRunner {
     private final AuctionViews views;
     private final SystemConfigService config;
     private final NotificationService notifications;
+    private final com.rebook.catalog.BookRepository bookRepository;
     private final com.rebook.config.AppProperties props;
 
     // ---- Giai đoạn D: hết hạn đăng ký → đủ người? ----
@@ -179,6 +180,7 @@ public class AuctionRunner {
             // Không tiết lộ giá sàn
             lot.setStatus(lot.getStatus().moveTo(LotStatus.UNSOLD));
             lot.setCloseResult(Lot.CloseResult.RESERVE_NOT_MET);
+            notifyReserveNotMet(s, lot);
         }
         proxyRepository.deactivateAll(lot.getId());
         s.setNextLotAt(now.plus(Duration.ofSeconds(s.getLotGapSec())));
@@ -188,6 +190,22 @@ public class AuctionRunner {
             default -> "Lô " + lot.getLotNumber() + " không có người trả giá";
         };
         views.broadcast(s, "LOT_CLOSED", lot, msg);
+    }
+
+    /**
+     * Người trả giá cao nhất của lô không đạt giá sàn phải được báo: họ đang dẫn đầu nên tưởng đã thắng, nhưng lô không được bán
+     * và sẽ không có hoá đơn. Không ghi giá sàn trong thông báo (giá sàn là bí mật của người bán).
+     */
+    private void notifyReserveNotMet(AuctionSession s, Lot lot) {
+        Long topBidder = lot.getCurrentWinnerId();
+        if (topBidder == null) {
+            return;
+        }
+        String title = bookRepository.findById(lot.getBookId()).map(b -> "\"" + b.getTitle() + "\"").orElse("Lô " + lot.getLotNumber());
+        notifications.notify(topBidder, NotificationService.AUCTION, "Lô đấu giá chưa đạt giá sàn",
+                "Bạn trả cao nhất cho " + title + " (lô " + lot.getLotNumber() + ", " + com.rebook.common.Money.vnd(lot.getCurrentPrice())
+                        + ") nhưng giá chưa đạt mức tối thiểu người bán đặt, nên lô không được bán và bạn không phải thanh toán.",
+                java.util.Map.of("sessionId", s.getId(), "lotId", lot.getId()));
     }
 
     private void end(AuctionSession s, Instant now) {
