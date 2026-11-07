@@ -46,70 +46,93 @@ class CodScreen extends ConsumerWidget {
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
                           child: InfoPanel(
                             padding: const EdgeInsets.all(AppSpacing.lg),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(o.code, style: text.titleSmall),
-                                      Text(
-                                        formatVnd(o.total),
-                                        style: text.bodyMedium,
-                                      ),
-                                      if (o.deliveredAt != null)
-                                        Text(
-                                          l10n.admCodDeliveredAt(
-                                            formatShortDateTime(o.deliveredAt!),
+                            // Hẹp (điện thoại): nút xuống dưới thông tin đơn thay vì ép mã đơn thành từng ký tự.
+                            child: LayoutBuilder(
+                              builder: (context, box) {
+                                final narrow = box.maxWidth < 460;
+                                Widget side(Widget w) =>
+                                    narrow ? w : Expanded(child: w);
+                                return Flex(
+                                  direction: narrow
+                                      ? Axis.vertical
+                                      : Axis.horizontal,
+                                  crossAxisAlignment: narrow
+                                      ? CrossAxisAlignment.stretch
+                                      : CrossAxisAlignment.center,
+                                  children: [
+                                    side(
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(o.code, style: text.titleSmall),
+                                          Text(
+                                            formatVnd(o.total),
+                                            style: text.bodyMedium,
                                           ),
-                                          style: text.bodySmall,
-                                        ),
-                                      if (o.refundPending)
-                                        Text(
-                                          l10n.admCodRefundPending,
-                                          style: text.bodySmall?.copyWith(
-                                            color: c.warning,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.md),
-                                FilledButton(
-                                  onPressed: busy
-                                      ? null
-                                      : () async {
-                                          final ok = await confirmDialog(
-                                            context,
-                                            l10n.admCodConfirmQuestion(
-                                              formatVnd(o.total),
+                                          if (o.deliveredAt != null)
+                                            Text(
+                                              l10n.admCodDeliveredAt(
+                                                formatShortDateTime(
+                                                  o.deliveredAt!,
+                                                ),
+                                              ),
+                                              style: text.bodySmall,
                                             ),
-                                          );
-                                          if (!ok || !context.mounted) return;
-                                          final done = await ref
-                                              .read(
-                                                adminActionsProvider.notifier,
-                                              )
-                                              .remitCod(o.orderId, o.total);
-                                          if (!context.mounted) return;
-                                          if (done) {
-                                            showInfoSnack(
-                                              context,
-                                              l10n.admCodDone,
-                                            );
-                                          } else {
-                                            showErrorSnack(
-                                              context,
-                                              ref
-                                                  .read(adminActionsProvider)
-                                                  .error!,
-                                            );
-                                          }
-                                        },
-                                  child: Text(l10n.admCodConfirm),
-                                ),
-                              ],
+                                          if (o.refundPending)
+                                            Text(
+                                              l10n.admCodRefundPending,
+                                              style: text.bodySmall?.copyWith(
+                                                color: c.warning,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: AppSpacing.md,
+                                      height: AppSpacing.md,
+                                    ),
+                                    FilledButton(
+                                      onPressed: busy
+                                          ? null
+                                          : () async {
+                                              final ok = await confirmDialog(
+                                                context,
+                                                l10n.admCodConfirmQuestion(
+                                                  formatVnd(o.total),
+                                                ),
+                                              );
+                                              if (!ok) return;
+                                              if (!context.mounted) return;
+                                              final done = await ref
+                                                  .read(
+                                                    adminActionsProvider
+                                                        .notifier,
+                                                  )
+                                                  .remitCod(o.orderId, o.total);
+                                              if (!context.mounted) return;
+                                              if (done) {
+                                                showInfoSnack(
+                                                  context,
+                                                  l10n.admCodDone,
+                                                );
+                                              } else {
+                                                showErrorSnack(
+                                                  context,
+                                                  ref
+                                                      .read(
+                                                        adminActionsProvider,
+                                                      )
+                                                      .error!,
+                                                );
+                                              }
+                                            },
+                                      child: Text(l10n.admCodConfirm),
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
                           ),
                         ),

@@ -73,7 +73,10 @@ public class FileController {
         boolean sensitive = folder != null && SENSITIVE_FOLDERS.contains(folder);
         if (cloudinary.enabled() && !sensitive) {
             String url = cloudinary.upload(file);
-            audit.record(com.rebook.audit.EventCode.FILE_UPLOADED, "FILE", url, null, "Tải ảnh lên Cloudinary",
+            // target_id chỉ chứa 60 ký tự: URL Cloudinary dài hơn nên chỉ ghi tên tệp (đoạn cuối của URL).
+            String shortName = url.substring(url.lastIndexOf('/') + 1);
+            audit.record(com.rebook.audit.EventCode.FILE_UPLOADED, "FILE",
+                    shortName.length() > 60 ? shortName.substring(0, 60) : shortName, null, "Tải ảnh lên Cloudinary",
                     "contentType", file.getContentType(), "size", file.getSize());
             return new FileResponse(url, file.getContentType(), file.getSize());
         }
