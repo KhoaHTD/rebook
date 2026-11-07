@@ -138,7 +138,7 @@ public class PaymentService {
         }
     }
 
-    /** Có ZaloPay thật thì app đi qua ZaloPay, không hiện nút giả lập nữa (endpoint giả lập vẫn dùng được khi bật). */
+    /** Có ZaloPay thật thì app đi qua ZaloPay: không hiện nút giả lập và endpoint giả lập cũng bị chặn (không tự nạp tiền ảo). */
     private boolean simulateAvailable() {
         return props.payment().simulateEnabled() && !zalopay.isConfigured();
     }
@@ -146,7 +146,7 @@ public class PaymentService {
     /** Chỉ bật ở môi trường dev: giả lập cổng thanh toán trả về thành công. */
     @Transactional
     public PaymentResponse simulateSuccess(Long userId, String code) {
-        if (!props.payment().simulateEnabled()) {
+        if (!simulateAvailable()) {
             throw ApiException.forbidden("Giả lập thanh toán đang tắt");
         }
         Payment p = paymentRepository.lockByCode(code).orElseThrow(() -> ApiException.notFound("thanh toán"));

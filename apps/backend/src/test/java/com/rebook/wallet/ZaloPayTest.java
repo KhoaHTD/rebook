@@ -79,6 +79,21 @@ class ZaloPayTest extends IntegrationTest {
         return req;
     }
 
+    /** Có ZaloPay thật thì endpoint giả lập cũng phải bị chặn: nếu không ai cũng tự nạp tiền ảo được. */
+    @Test
+    void simulateIsRefusedWhenZaloPayIsConfigured() throws Exception {
+        long user = createUser(Role.USER, "Nạp thử", 0);
+        zaloCreates();
+        String code = topUp(user, 100_000);
+
+        mvc.perform(post("/payments/" + code + "/simulate").with(as(user, Role.USER)))
+                .andExpect(status().isForbidden());
+
+        org.assertj.core.api.Assertions.assertThat(walletAvailable(user)).isZero();
+        org.assertj.core.api.Assertions.assertThat(
+                jdbc.queryForObject("SELECT status FROM payments WHERE code = ?", String.class, code)).isEqualTo("PENDING");
+    }
+
     @Test
     @SuppressWarnings("unchecked")
     void createOrderIsSignedWithKey1() throws Exception {
