@@ -66,4 +66,5 @@ Tình trạng chi tiết của đợt làm qua đêm nằm ở `apps/frontend/do
 > web: `flutter run -d web-server --web-port 5199 --dart-define-from-file=env/local.8081.json` (trong `apps/frontend`);
 > Android: build APK với `env` trỏ `10.0.2.2:8081`, máy ảo `rebook_pixel`.
 
-- 2026-11-07: bắt đầu vòng chốt sổ. Chưa có bước nào xong.
+- 2026-11-07: bắt đầu vòng chốt sổ.
+- 2026-11-07: Staff web đã bấm tay: ký gửi (duyệt), lịch hẹn, kho, đối chiếu vận chuyển (ghi nhận đã giao), sự cố, giao lô đấu giá (xuất kho giao → đang giao), danh sách phiên đấu giá. Tìm và sửa 1 lỗi giao diện: màn "Giao lô đấu giá" trắng trang trên màn rộng (cột nút trong Row bị đòi chiều rộng vô hạn), sửa bằng IntrinsicWidth. Còn lại: Admin web (PDF/CSV), Seller, Buyer, Staff trên điện thoại, Google, ZaloPay.

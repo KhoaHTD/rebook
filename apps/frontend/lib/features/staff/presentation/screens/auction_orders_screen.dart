@@ -184,10 +184,13 @@ class AuctionOrdersScreen extends ConsumerWidget {
                                   padding: const EdgeInsets.only(
                                     top: AppSpacing.md,
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: buttons,
+                                  // Cột nút trong Row không có chiều rộng ràng buộc: IntrinsicWidth để `stretch` không đòi rộng vô hạn.
+                                  child: IntrinsicWidth(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: buttons,
+                                    ),
                                   ),
                                 ),
                               ],
