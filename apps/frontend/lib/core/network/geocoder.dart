@@ -139,6 +139,102 @@ class NominatimGeocoder implements Geocoder {
   }
 }
 
+/// Photon (komoot, dữ liệu OpenStreetMap): dự phòng khi Nominatim không tới được (một số mạng chặn tên miền
+/// openstreetmap.org nên không phân giải được DNS). Cùng cách dò từ chi tiết đến thô, kết quả phải nằm gần tỉnh.
+class PhotonGeocoder implements Geocoder {
+  PhotonGeocoder([Dio? dio, this.pause = const Duration(milliseconds: 400)])
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              baseUrl: 'https://photon.komoot.io',
+              connectTimeout: const Duration(seconds: 8),
+              receiveTimeout: const Duration(seconds: 8),
+              // Photon cũng từ chối User-Agent mặc định của Dart (403).
+              headers: {
+                'User-Agent':
+                    'rebook-book-marketplace/1.0 (PRM393 FPT University)',
+              },
+            ),
+          );
+
+  final Dio _dio;
+  final Duration pause;
+  var _first = true;
+
+  /// Một lần gọi Photon: toạ độ và tên đường / tên địa điểm của kết quả đầu tiên (để kiểm tra có đúng đường không).
+  Future<({GeoPoint point, String label})?> _search(String q) async {
+    if (!_first) await Future<void>.delayed(pause);
+    _first = false;
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/api/',
+      queryParameters: {
+        'q': q,
+        'limit': 1,
+        // lon_min, lat_min, lon_max, lat_max: chỉ trong lãnh thổ Việt Nam.
+        'bbox': '102.0,8.2,114.5,23.5',
+      },
+    );
+    final features = res.data?['features'];
+    if (features is! List || features.isEmpty) return null;
+    final first = features.first as Map<String, dynamic>;
+    final coords =
+        (first['geometry'] as Map<String, dynamic>?)?['coordinates']
+            as List<dynamic>?;
+    if (coords == null || coords.length < 2) return null;
+    final props = (first['properties'] as Map<String, dynamic>?) ?? const {};
+    return (
+      point: ((coords[1] as num).toDouble(), (coords[0] as num).toDouble()),
+      label: '${props['street'] ?? ''} ${props['name'] ?? ''}',
+    );
+  }
+
+  @override
+  Future<GeoPoint?> locate(AddressQuery address) async {
+    _first = true;
+    final ward = NominatimGeocoder.clean(address.ward);
+    final district = NominatimGeocoder.clean(address.district);
+    final province = NominatimGeocoder.clean(address.province);
+    final centre = VietnamGeo.province(address.province);
+    final street = address.street.split(',').first.trim();
+    // Tên đường (bỏ số nhà): kết quả theo địa chỉ chỉ nhận khi đúng đường này, tránh ghim nhầm sang đường khác.
+    final bare = VietnamGeo.normalize(
+      street.replaceFirst(RegExp(r'^\d+[A-Za-z]?([/-]\d+)*\s+'), ''),
+    );
+    String join(List<String> parts) =>
+        [...parts.where((e) => e.isNotEmpty), 'Việt Nam'].join(', ');
+    final byStreet = <String>{
+      if (street.isNotEmpty) join([street, ward, district, province]),
+      if (street.isNotEmpty) join([street, district, province]),
+    };
+    final byArea = <String>{
+      join([ward, district, province]),
+      join([district, province]),
+    };
+    try {
+      for (final q in byStreet) {
+        final hit = await _search(q);
+        debugPrint('Photon $q -> ${hit?.point} ${hit?.label}');
+        if (hit != null &&
+            NominatimGeocoder._nearProvince(hit.point, centre) &&
+            (bare.isEmpty || VietnamGeo.normalize(hit.label).contains(bare))) {
+          return hit.point;
+        }
+      }
+      for (final q in byArea) {
+        final hit = await _search(q);
+        if (hit != null && NominatimGeocoder._nearProvince(hit.point, centre)) {
+          return hit.point;
+        }
+      }
+      return null;
+    } on DioException catch (e) {
+      debugPrint('Photon: ${e.response?.statusCode ?? e.type}');
+      return null;
+    }
+  }
+}
+
 /// Thử [primary] trước; không ra kết quả (mất mạng, địa chỉ lạ) thì lấy [fallback].
 class FallbackGeocoder implements Geocoder {
   FallbackGeocoder(this.primary, this.fallback);
@@ -151,7 +247,9 @@ class FallbackGeocoder implements Geocoder {
       await primary.locate(address) ?? await fallback.locate(address);
 }
 
-/// Mock cũng định vị thật bằng Nominatim (cần mạng); không có mạng thì ghim ở tâm tỉnh.
+/// Mock cũng định vị thật (cần mạng): Nominatim, không tới được thì Photon, cuối cùng ghim ở tâm tỉnh.
 @Riverpod(keepAlive: true)
-Geocoder geocoder(Ref ref) =>
-    FallbackGeocoder(NominatimGeocoder(), FakeGeocoder());
+Geocoder geocoder(Ref ref) => FallbackGeocoder(
+  NominatimGeocoder(),
+  FallbackGeocoder(PhotonGeocoder(), FakeGeocoder()),
+);

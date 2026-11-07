@@ -95,4 +95,42 @@ void main() {
     expect(NominatimGeocoder.clean('Q. 3'), 'Quận 3');
     expect(NominatimGeocoder.clean('TP. Thủ Đức'), 'Thủ Đức');
   });
+
+  test('Photon dò từ chi tiết đến thô và bỏ kết quả ở tỉnh khác', () async {
+    String geo(double lat, double lon) =>
+        '{"features":[{"geometry":{"coordinates":[$lon,$lat]},"properties":{"street":"Võ Văn Kiệt"}}]}';
+    // câu đầu ra Hà Nội (sai tỉnh) → bỏ; câu thứ hai ra TP.HCM → nhận.
+    final stub = _Stub([geo(21.03, 105.85), geo(10.771, 106.695)]);
+    final photon = PhotonGeocoder(
+      Dio()..httpClientAdapter = stub,
+      Duration.zero,
+    );
+    expect(await photon.locate(address), (10.771, 106.695));
+    expect(stub.queries.length, 2);
+  });
+
+  test('Photon: kết quả sai đường bị bỏ, rơi xuống cấp phường / quận', () async {
+    String geo(double lat, double lon, String street) =>
+        '{"features":[{"geometry":{"coordinates":[$lon,$lat]},"properties":{"street":"$street"}}]}';
+    final stub = _Stub([
+      geo(10.78, 106.70, 'Nguyễn Huệ'),
+      geo(10.78, 106.70, 'Lê Lợi'),
+      geo(10.775, 106.69, 'Phường Nguyễn Thái Bình'),
+    ]);
+    final photon = PhotonGeocoder(
+      Dio()..httpClientAdapter = stub,
+      Duration.zero,
+    );
+    expect(await photon.locate(address), (10.775, 106.69));
+    expect(stub.queries.length, 3);
+  });
+
+  test('Photon không có kết quả thì trả null', () async {
+    final stub = _Stub(List.filled(4, '{"features":[]}'));
+    final photon = PhotonGeocoder(
+      Dio()..httpClientAdapter = stub,
+      Duration.zero,
+    );
+    expect(await photon.locate(address), isNull);
+  });
 }

@@ -116,8 +116,11 @@ class _OsmMapState extends State<OsmMap> {
             },
           ),
           children: [
+            // Ô bản đồ Esri làm chính (không cần khoá, tên miền ít bị chặn): một số mạng chặn openstreetmap.org nên bản đồ
+            // trống; ô OSM chỉ là dự phòng. Esri đánh số ô theo thứ tự z/y/x.
             TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+              fallbackUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'vn.edu.fpt.book_marketplace',
             ),
             MarkerLayer(
