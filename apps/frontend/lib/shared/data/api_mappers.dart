@@ -1265,7 +1265,14 @@ extension OrEmptyList<T> on List<T>? {
 
 /// Sách mẫu có bìa đóng gói sẵn thì dùng bìa đó (backend chỉ trả ảnh giả);
 /// sách khác giữ ảnh từ API.
+/// Ảnh giả (picsum) của backend cũ: chỉ loại này mới bị bìa đóng gói sẵn thay thế.
+bool _isPlaceholderUrl(String? url) =>
+    url == null || url.contains('picsum.photos');
+
+/// Ảnh thật từ backend luôn thắng; bìa đóng gói sẵn chỉ thay ảnh giả hoặc khi backend không có ảnh,
+/// nếu không tên sách trùng tên mẫu (ví dụ "Dế Mèn") sẽ ghi đè ảnh người bán vừa đăng.
 List<BookImage> _cover(String? title, String? url) {
+  if (!_isPlaceholderUrl(url)) return [BookImage(url: url!)];
   final bundled = bundledCoversFor(title ?? '');
   if (bundled.isNotEmpty) return [for (final p in bundled) BookImage(url: p)];
   return [if (url != null) BookImage(url: url)];
@@ -1295,11 +1302,14 @@ String? _historyNote(String? note) => note
 
 /// Ảnh bìa của một dòng đơn hàng: bìa đóng gói sẵn nếu có, không thì ảnh từ API.
 String? _coverUrl(String? title, String? url) {
+  if (!_isPlaceholderUrl(url)) return url;
   final bundled = bundledCoversFor(title ?? '');
   return bundled.isEmpty ? url : bundled.first;
 }
 
 List<BookImage> _bundledOr(String? title, List<BookImage> fallback) {
+  final real = fallback.where((i) => !_isPlaceholderUrl(i.url)).toList();
+  if (real.isNotEmpty) return fallback;
   final bundled = bundledCoversFor(title ?? '');
   return bundled.isEmpty
       ? fallback

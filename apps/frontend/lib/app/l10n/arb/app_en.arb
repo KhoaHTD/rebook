@@ -150,7 +150,7 @@
   "isbn": "ISBN",
   "pages": "Pages",
   "language": "Language",
-  "weight": "Weight",
+  "weight": "Weight (g)",
   "weightGram": "{grams} g",
   "description": "Description",
   "conditionExplained": "Condition: {grade}",

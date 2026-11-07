@@ -213,7 +213,7 @@
   "isbn": "ISBN",
   "pages": "Số trang",
   "language": "Ngôn ngữ",
-  "weight": "Khối lượng",
+  "weight": "Khối lượng (g)",
   "weightGram": "{grams} g",
   "@weightGram": {
     "placeholders": {
