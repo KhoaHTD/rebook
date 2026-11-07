@@ -6,6 +6,8 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/auth/session_controller.dart';
+import 'package:book_marketplace/core/settings/app_settings_controller.dart';
+import 'package:book_marketplace/shared/widgets/cart_fly.dart';
 import 'package:book_marketplace/shared/widgets/login_prompt.dart';
 import 'package:book_marketplace/features/catalog/presentation/providers/catalog_providers.dart';
 import 'package:book_marketplace/features/catalog/presentation/widgets/favorite_button.dart';
@@ -56,12 +58,15 @@ class ListingDetailScreen extends ConsumerWidget {
             children: [
               if (compact) ...[
                 Center(
-                  child: BookPoster(
-                    title: l.book.title,
-                    author: l.book.author,
-                    coverUrl: l.book.coverUrl,
-                    seed: l.book.id,
-                    width: 220,
+                  child: FlightSource(
+                    token: l.id,
+                    child: BookPoster(
+                      title: l.book.title,
+                      author: l.book.author,
+                      coverUrl: l.book.coverUrl,
+                      seed: l.book.id,
+                      width: 220,
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -73,12 +78,15 @@ class ListingDetailScreen extends ConsumerWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    BookPoster(
-                      title: l.book.title,
-                      author: l.book.author,
-                      coverUrl: l.book.coverUrl,
-                      seed: l.book.id,
-                      width: 300,
+                    FlightSource(
+                      token: l.id,
+                      child: BookPoster(
+                        title: l.book.title,
+                        author: l.book.author,
+                        coverUrl: l.book.coverUrl,
+                        seed: l.book.id,
+                        width: 300,
+                      ),
                     ),
                     const SizedBox(width: 48),
                     Expanded(
@@ -119,15 +127,37 @@ Future<void> _addToCart(
   } else if (goToCart) {
     context.go(Routes.cart);
   } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.l10n.addedToCart),
-        action: SnackBarAction(
-          label: context.l10n.viewCart,
-          onPressed: () => context.go(Routes.cart),
-        ),
+    final compact = context.windowSize.isCompact;
+    final router = GoRouter.of(context);
+    // Bìa sách bay vào một bong bóng giỏ hàng ở góc nút điều hướng; bấm bong bóng để mở giỏ.
+    CartFly.play(
+      context,
+      token: listing.id,
+      onRight: ref.read(appSettingsControllerProvider).navSide == NavSide.right,
+      // Điện thoại: nằm ngay trên thanh mua hàng.
+      bottomInset: compact ? 96 : 18,
+      onTap: () => router.go(Routes.cart),
+      cover: (size) => BookPoster(
+        square: compact,
+        title: listing.book.title,
+        author: listing.book.author,
+        coverUrl: listing.book.coverUrl,
+        seed: listing.book.id,
+        width: size.width,
       ),
     );
+    // Điện thoại: hiệu ứng đã báo rồi; máy tính vẫn có thanh thông báo kèm nút "Xem giỏ".
+    if (!compact) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.addedToCart),
+          action: SnackBarAction(
+            label: context.l10n.viewCart,
+            onPressed: () => context.go(Routes.cart),
+          ),
+        ),
+      );
+    }
   }
 }
 
@@ -501,13 +531,16 @@ class _CompactBookBody extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
       children: [
         Center(
-          child: BookPoster(
-            square: true,
-            title: book.title,
-            author: book.author,
-            coverUrl: book.coverUrl,
-            seed: book.id,
-            width: width * 0.55,
+          child: FlightSource(
+            token: listing.id,
+            child: BookPoster(
+              square: true,
+              title: book.title,
+              author: book.author,
+              coverUrl: book.coverUrl,
+              seed: book.id,
+              width: width * 0.55,
+            ),
           ),
         ),
         const SizedBox(height: 28),

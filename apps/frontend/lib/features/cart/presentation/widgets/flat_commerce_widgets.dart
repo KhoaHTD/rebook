@@ -23,6 +23,7 @@ class FlatCommercePage extends StatelessWidget {
     this.trailing,
     this.bottom,
     this.onBack,
+    this.showBack = true,
   });
 
   final String title;
@@ -32,6 +33,9 @@ class FlatCommercePage extends StatelessWidget {
   final Widget? trailing;
   final Widget? bottom;
   final VoidCallback? onBack;
+
+  /// false khi trang là một mục gốc của thanh tab (giỏ hàng): không có mũi tên quay lại.
+  final bool showBack;
 
   @override
   Widget build(BuildContext context) {
@@ -45,17 +49,20 @@ class FlatCommercePage extends StatelessWidget {
               height: 60,
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 20,
-                    ),
-                    onPressed:
-                        onBack ??
-                        () => context.canPop()
-                            ? context.pop()
-                            : context.go(Routes.home),
-                  ),
+                  if (showBack)
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        size: 20,
+                      ),
+                      onPressed:
+                          onBack ??
+                          () => context.canPop()
+                              ? context.pop()
+                              : context.go(Routes.home),
+                    )
+                  else
+                    const SizedBox(width: 56),
                   Expanded(
                     child: Text(
                       title,
