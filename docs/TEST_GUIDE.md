@@ -24,7 +24,7 @@ Tester chỉ cần trình duyệt và **link do Khoa gửi** (cách 1). Tự ch�
 
 **Cách 2 — tự chạy trên máy.** Cần PostgreSQL, Java 21, Flutter.
 
-1. Backend: trong `apps/backend` chạy `./mvnw spring-boot:run`, đợi dòng `Started ReBookApplication`. Kiểm tra `http://localhost:8080/categories` ra chữ JSON.
+1. Backend: trong `apps/backend` chạy `./scripts/reset-demo.ps1 -Port 8081 -Db rebook_books` (làm lại DB, nạp dữ liệu demo, chạy backend; khoảng 3 phút). Chạy tay thì phải đặt `SPRING_PROFILES_ACTIVE=dev`, nếu không backend ở profile `prod` và không có dữ liệu mẫu. Kiểm tra `http://localhost:8081/categories` ra chữ JSON. Các lệnh `localhost:8080` / `env/local.json` bên dưới đổi thành `8081` / `env/local.8081.json` nếu bạn chạy ở cổng 8081.
 2. App web: trong `apps/frontend` chạy `dart run build_runner build --delete-conflicting-outputs` (lần đầu hoặc sau khi pull), rồi `flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.json`. Giữ đúng cổng **5199** để trang thanh toán quay về đúng app.
 3. App Android (máy ảo): chép `env/local.json` thành `env/android.local.json`, đổi mọi `localhost` thành `10.0.2.2` (máy ảo gọi máy thật qua địa chỉ này, file này không commit), rồi chạy `flutter run -d emulator-5554 --dart-define-from-file=env/android.local.json`.
 

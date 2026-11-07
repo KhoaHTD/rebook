@@ -141,3 +141,5 @@ gọi `GET /sessions/{id}/state` trước rồi mới nghe tiếp WebSocket. M�
 
 Test tích hợp chạy trên PostgreSQL thật (cùng server với `rebook_dev`) nhưng trong schema riêng `rebook_test`
 (và `rebook_seedtest` cho test dữ liệu mẫu), nên không đụng dữ liệu dev. Đổi bằng biến `TEST_DB_URL`.
+
+Nếu shell đã nạp `.env.local` (có `CLOUDINARY_URL`) thì 3 test tải ảnh lên sẽ đỏ vì ảnh đi lên Cloudinary thật; chạy `env -u CLOUDINARY_URL ./mvnw test` (hoặc mở shell không nạp biến này).

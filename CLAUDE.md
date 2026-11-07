@@ -14,7 +14,7 @@ Chợ sách cũ: bán giá cố định + đấu giá.
   backend đổi API thì xuất lại, đối chiếu với bản của frontend rồi chạy `/sync-api`.
 - Chạy lệnh Maven **trong `apps/backend`** (`./mvnw ...`). Schema đổi bằng migration Flyway mới, không sửa file đã chạy.
 - Workflow CI nằm ở `.github/workflows/` (gốc repo), mỗi app một file `<app>-*.yml`, lọc theo `paths`.
-- Hooks trong `.claude/settings.json` chủ yếu tác động lên file trong `apps/frontend/`; riêng luật "không có code `apps/backend` trên `interface`" áp cho cả repo.
+- Hooks trong `.claude/settings.json` chủ yếu tác động lên file trong `apps/frontend/` (chặn package lạ, file sinh tự động, lệnh nguy hiểm).
 
 ## Giai đoạn hiện tại: frontend ĐÃ XONG theo SRS (GĐ0–7) — tiếp theo là thêm thắt theo yêu cầu người dùng (đọc `apps/frontend/docs/PROGRESS.md`)
 
@@ -40,6 +40,6 @@ Chợ sách cũ: bán giá cố định + đấu giá.
 - Nhánh `interface` đã merge vào `main` (2026-11-04); luật "không đưa backend lên `interface`" và ba lớp chặn (pre-push, hook Claude, CI "Backend Guard") đã gỡ.
   Làm frontend hay backend đều cắt nhánh từ `main`.
 - Đọc `apps/frontend/docs/TEAM_GUIDE.md` nếu bạn là Claude của một thành viên nhóm.
-- Không push thẳng `main` / `interface`: nhánh riêng + PR. Không tự đổi file hạ tầng (`pubspec`, `core/`, `app/`, `api/`, `openapi/`, `env/`, `tool/`, `.github/`, `.claude/`, `android/ios/web`) và không thêm package: hỏi chủ repo.
+- Không push thẳng `main`: nhánh riêng + PR. Không tự đổi file hạ tầng (`pubspec`, `core/`, `app/`, `api/`, `openapi/`, `env/`, `tool/`, `.github/`, `.claude/`, `android/ios/web`) và không thêm package: hỏi chủ repo.
 - Bố cục màn Admin / Staff do người làm tự sáng tạo, chỉ cần hợp gu chung (đọc `apps/frontend/docs/ADMIN_VIBE.md` để hiểu bối cảnh). Giao diện phần người mua sửa thoải mái, miễn đúng style Liquid Glass; mọi thứ qua `arch_check` + test.
 - Web và app là một sản phẩm: mọi thay đổi giao diện phải đúng ở điện thoại (375px / app Android) **và** desktop (≥ 1400px).

@@ -31,7 +31,7 @@ Feature hiện có:
 |---|---|
 | `auth` | đăng nhập, đăng ký + OTP, quên mật khẩu |
 | `catalog` | trang Mua sách (kệ poster), tìm kiếm + lọc, chi tiết sách (kèm các bản khác của cùng cuốn), trang shop, thêm giỏ |
-| `cart` | giỏ nhiều shop, đặt hàng (COD / ví / VNPay), kết quả thanh toán |
+| `cart` | giỏ nhiều shop, đặt hàng (COD / ví / ZaloPay), kết quả thanh toán |
 | `orders` | đơn mua + hóa đơn đấu giá: hủy, đã nhận, trả hàng, đánh giá, thanh toán lại |
 | `wallet` | số dư, nạp, rút, sổ giao dịch |
 | `notifications` | hộp thông báo |
@@ -75,7 +75,7 @@ provider đọc gọi `ref.watchArea(DataArea.cart)`, thao tác ghi gọi `ref.r
 Ví dụ: thêm giỏ ở `catalog` → số trên icon giỏ (`cart`) tự cập nhật. Ở chế độ mock, FakeStore tự phát tín hiệu khi dữ liệu đổi.
 
 ### Realtime + action (auction)
-- `liveRoomProvider(sessionId)`: lấy ảnh chụp `GET /sessions/{id}/state`, rồi nghe `/topic/sessions/{id}` (STOMP).
+- `liveRoomProvider(sessionId)`: lấy ảnh chụp `GET /sessions/{id}/state`, rồi nghe WebSocket JSON thuần `/ws/sessions/{id}` (`core/realtime/realtime_client.dart`, tự nối lại khi rớt mạng).
   Mỗi sự kiện được áp bằng hàm thuần `applyAuctionEvent` (`features/auction/domain/live_reducer.dart`, có test).
 - Kết nối lại → tải lại ảnh chụp. Đồng hồ đếm theo giờ server (`RoomState.serverOffset`).
 - `bidActionProvider`: `AsyncLoading` → gọi repo → `AsyncData`/`AsyncError`. Server quyết định bid hợp lệ (409 `PRICE_CHANGED`, `ALREADY_LEADING`, `LIMIT_EXCEEDED`...);
@@ -117,9 +117,7 @@ DTO dùng `json_serializable` (swagger_parser chưa sinh được cú pháp free
 
 Style **Liquid Glass** (chuẩn: `docs/design/lg-desktop.png`, `lg-mobile.png`):
 
-- **Tiêu đề serif mềm** (`AppFonts.serif` = Newsreader, giống New York của Apple): `displaySmall`, `headlineMedium`, `headlineSmall` và dòng sự kiện trong băng chuyền; nhãn nhỏ phía trên là chữ hoa tracking rộng.
-- **Chữ San Francisco** (nội dung): `AppFonts.family` = `null` trên iOS / macOS (Flutter dùng SF của hệ thống) và `Inter` trên web / Android
-  (`assets/fonts/Inter-*.ttf`). Giấy phép Apple không cho đóng gói SF vào app, nên **không thêm file SF vào assets**.
+- **Chữ hệ thống** (tiêu đề và nội dung): `AppFonts` trong `app_tokens.dart` trả `null`, nên Flutter dùng San Francisco trên iOS / macOS, Roboto trên Android, Segoe UI trên Windows. Không đóng gói font riêng (giấy phép Apple không cho đóng gói SF); nhãn nhỏ phía trên là chữ hoa giãn chữ.
 - **Nền màu loang** (`AmbientBackground`, `shared/widgets/glass.dart`): các vệt màu lấy tông từ bìa sách (`AmbientPalette`), tính theo
   toạ độ màn hình. Vẽ ở `MaterialApp.builder` (sau sidebar) **và** trong mỗi `AppPage` — hai lớp khớp nhau nên trang vẫn đặc khi chuyển trang.
 - **Kính** (`Glass`): làm mờ + tăng bão hoà phía sau, dải trắng trong, viền sáng, vệt phản chiếu, bóng mềm.

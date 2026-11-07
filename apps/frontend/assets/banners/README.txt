@@ -1,1 +1,1 @@
-Đặt tranh banner vào đây (live.webp, picks.webp, consign.webp, new.webp, shop.webp, rare.webp). Xem docs/BANNERS.md.
+Tranh banner trang chủ (JPG, gọi theo tên file). Thiếu file thì app dùng nền bìa sách mờ. Xem docs/BANNERS.md.

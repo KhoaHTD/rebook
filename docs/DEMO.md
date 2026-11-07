@@ -27,27 +27,29 @@
 | `seller1@rebook.vn` | Người bán: shop "Nhà Sách Cũ Sài Gòn", tin đăng, đơn, ký gửi |
 | `staff@rebook.vn` | Nhân viên kho |
 | `admin@rebook.vn` | Quản trị |
+| `seller2..4@rebook.vn`, `buyer2..7@rebook.vn` | Thêm shop và người mua để thử đấu giá nhiều người; `seller4` là shop mới (tiền bán còn bị giữ) |
+| `locked@rebook.vn`, `banned@rebook.vn` | Tài khoản bị khoá / bị cấm đấu giá (có nợ phạt), để minh hoạ luật |
 
 ---
 
 ## 2. Chuẩn bị TRƯỚC giờ demo (làm tối nay, đừng để sáng mai)
 
-**Làm sạch dữ liệu** (xóa các thứ thừa do test; sau lệnh này dữ liệu về đúng như ban đầu):
+**Làm sạch và nạp dữ liệu demo** (một lệnh, khoảng 3 phút; xoá hết thứ thừa do test, mốc thời gian tính theo lúc chạy):
 
-**Tắt backend trước** (nếu không DB đang bị kết nối nên không xóa được), rồi chạy:
-
-```bash
-psql -U postgres -h localhost -c "DROP DATABASE rebook_dev;" -c "CREATE DATABASE rebook_dev OWNER rebook ENCODING 'UTF8' TEMPLATE template0;"
+```powershell
+cd apps/backend
+./scripts/reset-demo.ps1 -Port 8081 -Db rebook_books
+node scripts/smoke.mjs http://localhost:8081      # (tuỳ chọn) kiểm nhanh API, kỳ vọng 0 lỗi
 ```
 
-Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài PostgreSQL. Xong thì bật lại backend, nó tự tạo bảng và nạp lại dữ liệu mẫu.
+Script tự bật Docker PostgreSQL `rebook-db`, làm lại database và chạy backend. **Phiên đấu giá #3 tự mở sau khoảng 4 phút kể từ lúc reset**: reset xong thì đi demo ngay, đừng để lâu.
 
 **Thứ tự bật:**
-1. PostgreSQL (thường tự chạy).
-2. Backend: IntelliJ chạy `ReBookApplication`, đợi thấy dòng `Started ReBookApplication`. Kiểm tra `http://localhost:8080/categories` ra JSON.
-3. Frontend:
-   - Demo trên **Chrome**: `flutter run -d chrome --dart-define-from-file=env/local.json`
-   - Demo trên **máy ảo Android**: `flutter run -d emulator-5554 --dart-define-from-file=env/android.local.json`
+1. Docker Desktop (cho PostgreSQL), rồi chạy lệnh reset ở trên.
+2. Kiểm tra `http://localhost:8081/categories` ra JSON.
+3. Frontend (trong `apps/frontend`, dùng file env nối backend thật, **không** dùng `env/dev.json` vì đó là dữ liệu giả):
+   - Demo trên **Chrome**: `flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.8081.json`
+   - Demo trên **máy ảo Android**: chép `env/local.8081.json`, đổi `localhost` thành `10.0.2.2`, chạy `flutter run -d emulator-5554 --dart-define-from-file=<file đã đổi>`; máy ảo khởi động bằng `emulator -avd <tên> -dns-server 1.1.1.1,8.8.8.8` (không có cờ này ảnh bìa có thể không hiện).
 4. Trước khi demo, đăng nhập thử cả 4 tài khoản một lần để chắc chắn chạy.
 
 **Mẹo:**
@@ -67,8 +69,8 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 4. Bấm vào một cuốn → **chi tiết**: ảnh bìa, tình trạng, giá, shop (điểm đánh giá), mô tả → **Thêm vào giỏ**.
 5. **Giỏ hàng**: giỏ chia theo shop, đổi số lượng, xóa. Nhớ: tin chỉ còn 1 cuốn thì không tăng được.
 6. **Thanh toán**: chọn địa chỉ nhận → app hiện **phí ship** (nội tỉnh rẻ hơn liên tỉnh, tính theo khối lượng) → chọn phương thức:
-   - **COD** (trả khi nhận), **Ví ReBook**, hoặc **VNPay**.
-   - Demo nên chọn **Ví ReBook** (nhanh, không cần cổng ngoài). buyer1 có ví khoảng 4,9 triệu.
+   - **COD** (trả khi nhận), **Ví ReBook**, hoặc **ZaloPay** (cổng sandbox, thẻ test).
+   - Demo nên chọn **Ví ReBook** (nhanh, không cần cổng ngoài). buyer1 có sẵn số dư trong ví.
 7. Đặt xong, hệ thống **tách đơn theo shop**. Vào **Đơn mua** xem trạng thái.
 
 > Điểm nói: "Giỏ nhiều shop thì tự tách thành nhiều đơn, mỗi shop giao riêng."
@@ -94,7 +96,7 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 ### 3.4. Ví ReBook (`buyer1`)
 
 - **Ví ReBook**: số dư khả dụng và số dư đang bị giữ (đặt cọc đấu giá, tiền chờ giải ngân).
-- **Nạp tiền**: tạo giao dịch nạp; môi trường dev có nút **giả lập thanh toán thành công** (không cần VNPay thật).
+- **Nạp tiền**: tạo giao dịch nạp qua **ZaloPay sandbox** (tiền giả); trả xong app tự quay lại và cập nhật số dư.
 - **Lịch sử giao dịch**: mỗi dòng là một bút toán (nạp, thanh toán, hoàn tiền, cọc, phí…). Sổ cái **chỉ ghi thêm, không sửa**.
 - Người bán có thêm **Rút tiền** (dùng tài khoản ngân hàng đã khai khi mở shop), admin duyệt sau.
 
@@ -118,7 +120,7 @@ Mật khẩu của user `postgres` là mật khẩu bạn đặt lúc cài Postg
 2. **Xếp lô**: chọn lô "sẵn sàng" (lô đã kiểm định và chờ xếp phiên) vào phiên.
 3. **Công bố** phiên.
 4. Đăng nhập `buyer1` (cửa sổ khác) → **Đấu giá** → vào phiên → **Đăng ký + đặt cọc**.
-5. Đến giờ bắt đầu, hệ thống **tự mở phiên** (đủ người đăng ký). Muốn bắt đầu ngay: mở `http://localhost:8080/swagger-ui.html`, đăng nhập admin lấy token, bấm Authorize, gọi `POST /admin/sessions/{id}/start`.
+5. Đến giờ bắt đầu, hệ thống **tự mở phiên** (đủ người đăng ký). Muốn bắt đầu ngay: mở `http://localhost:8081/swagger-ui.html`, đăng nhập admin lấy token, bấm Authorize, gọi `POST /admin/sessions/{id}/start`.
 
 **Trình diễn:**
 1. `buyer1` vào **phòng đấu giá**: thấy lô đang mở, giá hiện tại, đồng hồ đếm ngược, danh sách người trả giá (hiện số paddle `#001`, không lộ tên).
@@ -204,9 +206,8 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 
 ## 6. Những điều KHÔNG nên hứa / nên nói thật (tránh bị hỏi vặn)
 
-- **VNPay** chưa nối cổng thật: dùng nút giả lập thanh toán thành công (chế độ dev).
+- **ZaloPay** chỉ là **sandbox** (tiền giả), chưa nối cổng thật.
 - **Email / SMS OTP**: chưa gửi thật, mã hiện ở log / phản hồi dev.
-- **Upload ảnh**: backend chưa có dịch vụ lưu ảnh (Cloudinary). Ảnh người dùng chọn hiện được trên máy nhưng gửi lên server là **ảnh mẫu thay thế**.
 - **Vận chuyển**: giả lập bằng nút bấm (đã giao / giao thất bại), chưa nối hãng vận chuyển.
 - **Thông báo đẩy (FCM)**: chưa làm; thông báo trong app qua WebSocket.
 - **Trang chủ, thống kê người bán**: backend không có endpoint riêng, app tự ghép từ danh sách tin / đơn.
@@ -218,9 +219,10 @@ Nếu thiếu giờ, **bỏ 3.6 và 3.8**, giữ đấu giá.
 
 | Hiện tượng | Xử lý |
 |---|---|
-| App quay mãi / lỗi mạng | Backend chưa chạy hoặc sai cổng. Kiểm tra `http://localhost:8080/categories`. |
-| Máy ảo không vào được API | Phải chạy bằng `env/android.local.json` (dùng `10.0.2.2`). |
-| "Cổng 8080 đang được sử dụng" | Còn một backend cũ đang chạy. Dùng luôn bản đó hoặc tắt rồi chạy lại. |
+| App quay mãi / lỗi mạng | Backend chưa chạy hoặc sai cổng. Kiểm tra `http://localhost:8081/categories`. |
+| Máy ảo không vào được API | Phải dùng file env trỏ `10.0.2.2` thay cho `localhost`. |
+| Ảnh bìa không hiện trên máy ảo | Máy ảo không phân giải được `res.cloudinary.com`: khởi động lại với `-dns-server 1.1.1.1,8.8.8.8`. |
+| "Cổng 8080 đang được sử dụng" | Chương trình khác chiếm cổng. Chạy backend ở 8081 như trên. |
 | Đấu giá báo "chưa đăng ký" | Quên đăng ký + cọc phiên cho tài khoản đang dùng. |
 | Phiên không tự bắt đầu | Chưa đủ người đăng ký, hoặc chưa tới giờ. Dùng Swagger gọi `POST /admin/sessions/{id}/start`. |
 | Trả giá bị từ chối "vượt hạn mức" | Cọc chưa đủ (hạn mức = cọc × 10). Đặt cọc thêm. |

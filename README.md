@@ -38,7 +38,7 @@ Tiền đi qua **ví của sàn (escrow)**: người mua trả, sàn giữ, ngư
 | `apps/frontend/` | Ứng dụng Flutter (web, Android, iOS). Xem [apps/frontend/README.md](apps/frontend/README.md) |
 | `apps/backend/` | Spring Boot 3.5 + PostgreSQL: REST API và WebSocket. Xem [apps/backend/README.md](apps/backend/README.md) |
 | `demo/` | Script bật app ra Internet bằng một link (Cloudflare Tunnel), chạy app Android trên máy ảo |
-| `docs/` | Đặc tả (SRS), kịch bản demo, hướng dẫn demo online |
+| `docs/` | Việc còn lại trước demo, kịch bản demo, hướng dẫn test, rà soát nghiệp vụ. Mục lục: [docs/README.md](docs/README.md) |
 
 Ba loại người dùng:
 
@@ -65,66 +65,60 @@ flutter run -d chrome --dart-define-from-file=env/dev.json
 
 Chế độ này dùng backend giả trong bộ nhớ, có cả phiên đấu giá chạy thật với người trả giá ảo. Tài khoản mẫu của chế độ này nằm trong [apps/frontend/README.md](apps/frontend/README.md).
 
-### Cách 2: chạy đầy đủ (backend + PostgreSQL thật)
+### Cách 2: chạy đầy đủ (backend + PostgreSQL thật, có dữ liệu demo)
 
-Cần JDK 21+ và PostgreSQL chạy ở `localhost:5432`.
+Cần JDK 21+, Docker Desktop (container PostgreSQL `rebook-db`) hoặc PostgreSQL ở `localhost:5432`. Cách nhanh nhất là một lệnh làm lại toàn bộ dữ liệu demo và chạy backend (khoảng 3 phút):
 
-```bash
-# Tạo user + database (một lần, bằng tài khoản postgres)
-psql -U postgres -h localhost -f apps/backend/scripts/create-database.sql
-
-# Chạy backend (tự tạo bảng và nạp dữ liệu mẫu)
+```powershell
 cd apps/backend
-./mvnw spring-boot:run
+./scripts/reset-demo.ps1 -Port 8081 -Db rebook_books      # bản bash: PORT=8081 DB=rebook_books ./scripts/reset-demo.sh
+node scripts/smoke.mjs http://localhost:8081              # (tuỳ chọn) kiểm nhanh API, kỳ vọng 0 lỗi
 ```
 
-Đợi thấy dòng `Started ReBookApplication`. Kiểm tra bằng cách mở <http://localhost:8080/categories> (ra JSON là được). Swagger UI ở <http://localhost:8080/swagger-ui.html>.
+Dùng cổng 8081 vì cổng 8080 có thể bị chương trình khác chiếm; bỏ `-Port` thì backend chạy ở 8080. Muốn chạy backend tay (không dữ liệu demo): xem [apps/backend/README.md](apps/backend/README.md) (mặc định là profile `prod`, máy dev đặt `SPRING_PROFILES_ACTIVE=dev`).
+Swagger UI ở <http://localhost:8081/swagger-ui.html>.
 
 Sau đó chạy frontend trong `apps/frontend`:
 
 ```bash
-# App người dùng trên Chrome
-flutter run -d chrome --dart-define-from-file=env/local.json
+# Web (cổng 5199 khớp địa chỉ đã khai báo cho đăng nhập Google và trang quay về sau ZaloPay)
+flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.8081.json
 
-# App người dùng trên máy ảo Android
-flutter run -d emulator-5554 --dart-define-from-file=env/android.local.json
-
-# Web quản trị (Staff, Admin)
-flutter run -d chrome -t lib/main_admin.dart --dart-define-from-file=env/local.json
+# Máy ảo Android: chép env/local.8081.json, đổi localhost thành 10.0.2.2 (đừng commit bản đã đổi)
+flutter run -d emulator-5554 --dart-define-from-file=<file env đã đổi>
 ```
 
-> Nên dùng **hai cửa sổ**: một cho admin, một cho người mua (hoặc cửa sổ ẩn danh), để khỏi đăng xuất liên tục.
+Admin và Staff đăng nhập ở cùng địa chỉ web, app tự chuyển sang khung quản trị. Nên dùng **hai cửa sổ** (một Admin, một người mua / cửa sổ ẩn danh) để khỏi đăng xuất liên tục.
+Chạy máy ảo bằng `emulator -avd <tên> -dns-server 1.1.1.1,8.8.8.8` để máy ảo tải được ảnh bìa (Cloudinary) và mở được trang Google.
+Có mạng ổn định cho: Cloudinary (ảnh bìa), Google Fonts (xuất PDF), Esri + Photon (bản đồ địa chỉ).
 
 ### Cách 3: cho bạn bè ở xa vào xem bằng một link
 
 Chạy backend rồi nhấp đúp `demo\start-demo.cmd`. Script mở ra Internet một link dạng `https://xxxx.trycloudflare.com`. Hướng dẫn chi tiết: [docs/DEMO_ONLINE.md](docs/DEMO_ONLINE.md).
 
-### Làm lại dữ liệu mẫu từ đầu
+### Làm lại dữ liệu từ đầu
 
-Tắt backend, rồi chạy:
-
-```bash
-psql -U postgres -h localhost -c "DROP DATABASE rebook_dev;" -c "CREATE DATABASE rebook_dev OWNER rebook ENCODING 'UTF8' TEMPLATE template0;"
-```
-
-Bật lại backend, nó tự tạo bảng và nạp lại dữ liệu mẫu.
+Chạy lại `./scripts/reset-demo.ps1` ở trên (xoá và tạo lại database rồi nạp dữ liệu).
 
 ---
 
 ## 3. Tài khoản mẫu
 
-Với backend thật, mật khẩu chung là **`Rebook@123`**.
+Với backend thật (sau `reset-demo`), mật khẩu chung là **`Rebook@123`**.
 
 | Email | Vai trò | Ghi chú |
 |---|---|---|
-| `buyer1@rebook.vn` | Người mua | Ví khoảng 4,9 triệu, đã đăng ký và đặt cọc phiên đấu giá #1 |
-| `buyer2@rebook.vn`, `buyer3@rebook.vn` | Người mua | Ví 3 đến 5 triệu, cũng đã đăng ký phiên #1 |
-| `seller1@rebook.vn` | Người bán | Shop "Nhà Sách Cũ Sài Gòn" (HCM, uy tín), 6 tin đăng, 4 yêu cầu ký gửi |
-| `seller2@rebook.vn` | Người bán | Shop "Tiệm Sách Hà Nội Xưa" (Hà Nội), 1 tin chờ duyệt |
-| `staff@rebook.vn` | Nhân viên kho | |
 | `admin@rebook.vn` | Quản trị | |
+| `staff@rebook.vn` | Nhân viên kho | |
+| `seller1@rebook.vn` | Người bán | Shop "Nhà Sách Cũ Sài Gòn" (HCM, uy tín), nhiều tin đăng và ký gửi |
+| `seller2@rebook.vn` | Người bán | Shop "Tiệm Sách Hà Nội Xưa" (Hà Nội) |
+| `seller3@rebook.vn` | Người bán | Shop ở Đà Nẵng |
+| `seller4@rebook.vn` | Người bán | Shop mới, tiền bán còn bị giữ |
+| `buyer1..7@rebook.vn` | Người mua | `buyer1..5` đã đăng ký + cọc phiên đấu giá sắp mở; `buyer7` còn nợ phạt |
+| `locked@rebook.vn` | Người mua | Tài khoản bị khoá |
+| `banned@rebook.vn` | Người mua | Bị cấm đấu giá, có nợ phạt |
 
-Dữ liệu mẫu có: 10 danh mục, 16 sách, 9 tin đăng (mỗi tin còn từ 3 đến 8 cuốn để thử mua nhiều cuốn), 3 đơn hàng, 7 yêu cầu ký gửi ở các bước khác nhau và 1 phiên đấu giá 3 lô.
+Dữ liệu demo gồm khoảng 80 đơn rải 30 ngày ở mọi trạng thái, 5 phiên đấu giá (một phiên tự mở sau khoảng 4 phút kể từ lúc reset: nên dùng ngay), 24 lô sách hiếm, ký gửi ở mọi bước, rút tiền, khiếu nại, COD chờ đối soát. Chi tiết: [apps/backend/README.md](apps/backend/README.md).
 
 ---
 
@@ -133,14 +127,14 @@ Dữ liệu mẫu có: 10 danh mục, 16 sách, 9 tin đăng (mỗi tin còn t�
 ### 4.1 Đăng ký, đăng nhập và tài khoản
 
 - **Đăng ký**: nhập họ tên, email, mật khẩu. Hệ thống gửi mã **OTP** để xác thực email. *Cần xác thực email mới đặt hàng được.*
-- **Đăng nhập**: dùng email và mật khẩu. Phiên đăng nhập tự gia hạn, không phải đăng nhập lại liên tục.
+- **Đăng nhập**: dùng email và mật khẩu, hoặc **Tiếp tục với Google** (cần cấu hình OAuth: xem [apps/backend/README.md](apps/backend/README.md)). Phiên đăng nhập tự gia hạn, không phải đăng nhập lại liên tục. Nút "Bỏ qua" ở màn đăng nhập cho vào xem sách bằng tài khoản khách.
 - **Quên mật khẩu**: nhập email, nhận mã OTP, đặt mật khẩu mới.
 - **Hồ sơ**: đổi họ tên, số điện thoại, ảnh đại diện.
 - **Sổ địa chỉ**: thêm nhiều địa chỉ nhận hàng, chọn một địa chỉ mặc định.
 - **Thông báo**: biểu tượng chuông hiện các sự kiện như đơn đổi trạng thái, bị người khác trả giá vượt, trúng đấu giá.
 - **Cài đặt**: đổi ngôn ngữ và các tuỳ chọn hiển thị.
 
-> Môi trường dev chưa gửi email thật. Mã OTP hiện trong phản hồi của API (trường `devOtp`) và ghi trong log backend.
+> Môi trường dev chưa gửi email thật (gửi mail mặc định tắt). Mã OTP hiện trong phản hồi của API (trường `devOtp`) và ghi trong log backend.
 
 ### 4.2 Tìm và xem sách
 
@@ -158,7 +152,7 @@ Dữ liệu mẫu có: 10 danh mục, 16 sách, 9 tin đăng (mỗi tin còn t�
 5. **Thanh toán**: chọn địa chỉ nhận hàng, xem phí ship, chọn phương thức:
    - **COD**: trả tiền khi nhận hàng.
    - **Ví ReBook**: trừ thẳng vào ví (cần đủ số dư).
-   - **VNPay**: thanh toán qua cổng VNPay (môi trường dev dùng nút giả lập thanh toán thành công).
+   - **ZaloPay**: chuyển sang cổng ZaloPay sandbox (tiền giả), thanh toán bằng thẻ test; xong tự quay lại app và cập nhật kết quả.
 6. Đơn chưa thanh toán sẽ **tự huỷ sau 15 phút**. Hàng được giữ ngay khi đặt, nên nếu người khác vừa mua hết, bạn sẽ nhận thông báo hết hàng.
 
 **Phí ship**: tính theo tỉnh gửi và tỉnh nhận (nội tỉnh rẻ hơn liên tỉnh) cộng thêm theo khối lượng sách.
@@ -179,7 +173,7 @@ Ngoài ra có các nhánh **Huỷ**, **Trả hàng** và **Giao thất bại**.
 ### 4.5 Ví ReBook
 
 - Ví có hai số: **khả dụng** (dùng được ngay) và **đang giữ** (tiền cọc đấu giá, tiền chờ giải ngân, tiền đang chờ duyệt rút).
-- **Nạp tiền**: tạo giao dịch nạp qua VNPay (dev có nút giả lập thành công).
+- **Nạp tiền**: tạo giao dịch nạp qua ZaloPay sandbox (tối thiểu 10.000đ).
 - **Lịch sử giao dịch**: mỗi dòng là một bút toán (nạp, thanh toán, hoàn tiền, cọc, phí...). Sổ cái chỉ ghi thêm, không sửa được.
 - **Rút tiền** (người bán):
   1. Nhập số tiền (tối thiểu **50.000đ**) và thông tin ngân hàng nhận tiền (tên ngân hàng, số tài khoản, chủ tài khoản).
@@ -323,17 +317,20 @@ Người đến sau nhận thông báo "giá đã thay đổi" và trả lại t
 **Tôi thắng đấu giá nhưng chưa có tiền?**
 Hãy nạp ví và thanh toán trong 48 giờ. Quá hạn bạn sẽ mất cọc và bị cấm đấu giá 90 ngày.
 
+**Ảnh bìa không hiện trên máy ảo Android?**
+Máy ảo không phân giải được tên miền `res.cloudinary.com`. Chạy máy ảo với `-dns-server 1.1.1.1,8.8.8.8`.
+
 **Tôi quên mã OTP / không nhận được mã?**
 Môi trường dev không gửi email thật. Mã nằm trong log backend (hoặc trường `devOtp` trong phản hồi API).
 
 **Đăng nhập báo sai mật khẩu?**
-Mật khẩu mẫu là `Rebook@123`, phân biệt hoa thường. Với chế độ dữ liệu giả (`USE_MOCK`), mật khẩu là `123456`.
+Mật khẩu mẫu là `Rebook@123`, phân biệt hoa thường. Với chế độ dữ liệu giả (`env/dev.json`, `USE_MOCK`), mật khẩu là `123456`.
 
 **App quay mãi hoặc báo lỗi mạng?**
-Backend chưa chạy hoặc sai cổng. Kiểm tra <http://localhost:8080/categories>. Trên máy ảo Android phải dùng `env/android.local.json` (địa chỉ `10.0.2.2`).
+Backend chưa chạy hoặc sai cổng. Kiểm tra <http://localhost:8081/categories> (hoặc 8080 nếu bạn chạy ở cổng đó). Trên máy ảo Android phải dùng file env trỏ `10.0.2.2` thay cho `localhost`.
 
 **Báo "Cổng 8080 đang được sử dụng"?**
-Đang có một backend khác chạy sẵn. Dùng luôn bản đó hoặc tắt rồi chạy lại.
+Đang có chương trình khác chiếm cổng. Tắt nó, hoặc chạy backend ở cổng khác (`PORT=8081`, và dùng `env/local.8081.json`).
 
 **Đấu giá báo "chưa đăng ký" hoặc "vượt hạn mức"?**
 Tài khoản đang dùng chưa đăng ký và đặt cọc cho phiên đó, hoặc tiền cọc chưa đủ (hạn mức bằng cọc nhân 10).
@@ -351,14 +348,14 @@ Backend chạy trong IntelliJ thì xem cửa sổ **Run** (Alt+4) hoặc **Servi
 - Backend: [apps/backend/README.md](apps/backend/README.md): cấu trúc module, điểm nghiệp vụ chính, realtime WebSocket, cách chạy test (`./mvnw test`).
 - Frontend: [apps/frontend/README.md](apps/frontend/README.md), [apps/frontend/docs/ARCHITECTURE.md](apps/frontend/docs/ARCHITECTURE.md), [apps/frontend/docs/DECISIONS.md](apps/frontend/docs/DECISIONS.md).
 - Hợp đồng API giữa frontend và backend: `apps/frontend/openapi/openapi.yaml`. Spec do backend sinh ra: `apps/backend/openapi.yaml` (xuất từ `/v3/api-docs.yaml`).
-- Kịch bản demo và câu hỏi hay gặp: [docs/DEMO.md](docs/DEMO.md). Chạy online cho bạn bè: [docs/DEMO_ONLINE.md](docs/DEMO_ONLINE.md).
+- Kịch bản demo và câu hỏi hay gặp: [docs/DEMO.md](docs/DEMO.md). Chạy online cho bạn bè: [docs/DEMO_ONLINE.md](docs/DEMO_ONLINE.md). Việc còn lại trước demo: [docs/CHECKLIST_CHOT_SO.md](docs/CHECKLIST_CHOT_SO.md).
 - Đặc tả nghiệp vụ gốc: [apps/frontend/docs/SRS.txt](apps/frontend/docs/SRS.txt).
 
 ### Những điểm còn giả lập
 
-- **VNPay**: chưa nối cổng thật; dùng nút giả lập thanh toán thành công ở môi trường dev.
-- **Email / SMS OTP**: chưa gửi thật.
-- **Vận chuyển**: giả lập bằng nút bấm (đã giao, giao thất bại), chưa nối hãng vận chuyển.
+- **ZaloPay**: dùng cổng **sandbox** (tiền giả, thẻ test), chưa nối cổng thật.
+- **Email / SMS OTP**: gửi mail mặc định tắt (chỉ ghi log); bật bằng cấu hình `MAIL_*` của backend.
+- **Vận chuyển**: giả lập bằng nút bấm (đã giao, giao thất bại, đối chiếu hãng vận chuyển), chưa nối hãng vận chuyển.
 - **Thông báo đẩy (FCM)**: chưa làm; thông báo trong app đi qua WebSocket.
-- **Biên lai rút tiền**: backend đã nhận đủ thông tin và ảnh biên lai (`POST /files`, `POST /admin/withdrawals/{id}`), màn hình quản trị trên app đang được bổ sung form nhập tương ứng.
+- **Đăng nhập Google**: chỉ chạy khi backend có `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`; trên máy ảo Android cần địa chỉ công khai (tunnel) làm redirect URI.
 - Bộ máy chạy phiên đấu giá chỉ chạy đúng với **một** bản backend.

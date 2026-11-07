@@ -404,7 +404,7 @@ Cột "Người nhận" và "Trạng thái" để nhóm tự điền; trạng th
 
 ### Cập nhật sau khi pull (đến commit `6af440c`, 2026-11-05)
 
-Đã đối chiếu các commit frontend mới (`3ea1ff6`, `48e8087`, `79b4123` và tài liệu QA `QA_FINDINGS_2026-11-05.md`, `FIXES_2026-11-05.md`) với bảng này.
+Đã đối chiếu các commit frontend mới (`3ea1ff6`, `48e8087`, `79b4123` và hai tài liệu QA ngày 05/11 đã xoá khỏi repo, xem lịch sử git) với bảng này.
 
 | Mục | Kết quả | Ghi chú |
 |---|---|---|

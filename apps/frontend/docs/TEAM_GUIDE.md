@@ -19,23 +19,9 @@ thoải mái, chỉ giữ chặt vài thứ làm sập app**. Có hai máy kiể
 
 Không dùng `--no-verify`, không force-push, không `reset --hard` lên nhánh chung.
 
-## 2. (Đã gỡ 2026-11-04) Luật cứng về backend
+## 2. Backend
 
-`interface` đã merge hết vào `main`, nên ba lớp chặn dưới đây đã gỡ (xoá `.githooks/pre-push`, `backend-guard.yml`, phần backend trong hook Claude).
-Giữ lại để biết lịch sử:
-
-Luật số 1 có ba lớp, cái nào cũng đủ để ngăn. Hai lớp đầu cần bật một lần ở máy bạn:
-
-| Lớp | Chặn ở đâu | Bật |
-|---|---|---|
-| **Hook push của git** (`.githooks/pre-push`) | `git push` lên `interface` mà có file `apps/backend` bị từ chối ngay tại máy. | `git config core.hooksPath .githooks` (một lần sau khi clone) |
-| **Hook Claude** (`.claude/settings.json`) | Khi đang ở `interface` hoặc nhánh con của nó, Claude không sửa / tạo file trong `apps/backend`, không `git commit` / `git push` mang theo file backend, không dùng `--no-verify`. | Tự bật khi mở Claude trong repo |
-| **CI "Backend Guard"** (`backend-guard.yml`) | Push / PR ở `interface` hoặc nhánh con của nó có file `apps/backend` thì đánh hỏng. Không có nhãn hay cách bỏ qua. | Chủ repo đặt làm check bắt buộc (mục 9) |
-
-"Nhánh con" = nhánh có chứa commit của `interface`. Nhánh backend cắt từ `main` thì không bị ảnh hưởng.
-
-Nếu bạn lỡ kéo `main` vào nhánh này rồi thấy bị chặn: đó là chủ đích. Muốn lấy thay đổi frontend của `main` thì
-`cherry-pick` từng commit frontend, hoặc hỏi chủ repo.
+`interface` đã merge vào `main` (2026-11-04) nên luật cấm đưa `apps/backend` lên `interface` và ba lớp chặn của nó (hook push, hook Claude, CI "Backend Guard") đã gỡ. Làm frontend hay backend đều cắt nhánh từ `main`. Nếu branch protection còn bắt check `Backend Guard` thì bỏ nó đi.
 
 ## 3. Thiết lập máy (một lần)
 

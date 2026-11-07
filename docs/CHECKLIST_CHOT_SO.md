@@ -1,40 +1,41 @@
-# Việc cần làm trước khi chốt sổ và đi demo (cập nhật 2026-11-07)
+# Việc còn lại trước khi chốt sổ và đi demo (cập nhật 2026-11-07)
 
-Tình trạng chi tiết của đợt làm qua đêm nằm ở `apps/frontend/docs/NIGHT_REPORT.md`. File này chỉ liệt kê **những gì còn phải làm / phải kiểm tra**.
+Ô `[x]` là đã xong, `[ ]` là còn phải làm hoặc phải kiểm. Lịch sử từng bước nằm trong git.
 
-## 1. Chưa được kiểm tra bằng tay (làm trước khi chốt)
+## 1. Đã kiểm xong
 
-Đã bấm tay trên máy ảo: toàn bộ màn Admin (điện thoại), Seller (thông báo, kênh người bán, xác nhận đơn, giao cho shipper), Buyer (khám phá, chi tiết sách, giỏ, thanh toán ví, đơn mua), sàn đấu giá và phòng đấu giá live, sổ địa chỉ + bản đồ. Còn thiếu:
-
-- [ ] **Seller:** đăng bán sách (chụp ảnh, tách bìa), sửa / ẩn tin, ký gửi đấu giá từ đầu đến cuối, trả lời yêu cầu trả hàng, Ví và **rút tiền** (giao diện người dùng, có thông báo "tiền bán đang bị giữ" của shop mới: `seller4@rebook.vn`).
-- [ ] **Buyer:** thanh toán ZaloPay sandbox, COD, huỷ đơn, yêu cầu trả hàng, đánh giá shop, đăng ký + cọc + trả giá thật trong phòng đấu giá (cần hai máy hoặc máy ảo + web), mua lô đã thắng, nạp ví.
-- [ ] **Staff (web, desktop):** mọi màn: yêu cầu ký gửi, lịch hẹn & nhận sách, kho, đối chiếu vận chuyển, sự cố & kiểm lại, giao lô đấu giá, giám sát phiên đang chạy (tạm dừng / tiếp tục).
-- [ ] **Admin (web, desktop):** dashboard + Báo cáo ở 1400px, bấm **Xuất PDF** và **Xuất CSV**, mở file PDF xem tiếng Việt có dấu (font tải từ Google Fonts, cần mạng) và bố cục.
-- [ ] **Staff trên điện thoại:** mới kiểm bằng tài khoản Admin; đăng nhập `staff@rebook.vn` và duyệt các màn của Staff.
-- [ ] **Bản đồ địa chỉ trên web:** đã sửa và kiểm trên Android, chưa mở trên web.
-- [ ] **Đăng nhập Google:** mới có test backend (Google giả) và deep link; cần client ID thật để thử cả vòng (xem mục 3).
+- [x] **Tự động:** `dart analyze --fatal-infos`, `dart run tool/arch_check.dart`, `flutter test` (201 test) sạch; `node apps/backend/scripts/smoke.mjs` (96 lời gọi, 0 lỗi).
+- [x] **Admin (web):** dashboard, Báo cáo, xuất **CSV** và **PDF** (tiếng Việt đủ dấu, biểu đồ, bảng), duyệt tin, danh mục, khiếu nại (hoàn tiền người mua), đối soát COD, danh sách rút tiền. Tất cả màn Admin trên điện thoại (máy ảo).
+- [x] **Staff:** mọi màn trên web và trên điện thoại (yêu cầu ký gửi, lịch hẹn, kho, đối chiếu vận chuyển, sự cố, giao lô đấu giá, phiên đấu giá).
+- [x] **Buyer (máy ảo):** khám phá, chi tiết sách, giỏ, thanh toán bằng ví, đơn mua, huỷ đơn, ví, mở cổng ZaloPay khi nạp tiền, sàn đấu giá, phòng đấu giá live, sổ địa chỉ + bản đồ.
+- [x] **Seller (máy ảo):** thông báo, kênh người bán, xác nhận đơn, giao cho shipper, chọn ảnh bìa + làm phẳng + tải lên.
+- [x] **Qua API trên backend thật:** đăng bán 3 ảnh, sửa tin, ẩn / hiện, sửa tồn kho; đặt COD, huỷ, nhận hàng, đánh giá, yêu cầu trả hàng + shop quyết định, nạp ví (ra link ZaloPay sandbox); phiên đấu giá LIVE (trả giá hợp lệ, "đang giữ giá cao nhất", giá đã đổi, người nợ phạt bị chặn).
+- [x] **Lỗi đã sửa trong vòng chốt sổ:** tải ảnh lên Cloudinary trả 409 (cột `audit_events.target_id` 60 ký tự, URL Cloudinary dài hơn); Staff "Giao lô đấu giá" trắng trang trên màn rộng; Admin "Đối soát COD" bị bóp chữ trên điện thoại; ảnh bìa không hiện trên máy ảo (DNS, xem mục 2).
 
 ## 2. Việc bắt buộc ngay trước giờ demo
 
-1. Bật Docker Desktop, rồi **reset dữ liệu** (mất khoảng 3 phút, in sẵn tài khoản):
+1. Bật Docker Desktop, rồi **reset dữ liệu** (khoảng 3 phút, in sẵn tài khoản):
    ```powershell
    cd apps/backend
    ./scripts/reset-demo.ps1 -Port 8081 -Db rebook_books
-   node scripts/smoke.mjs http://localhost:8081      # kiểm tra nhanh API, kỳ vọng 0 lỗi
+   node scripts/smoke.mjs http://localhost:8081      # kiểm nhanh API, kỳ vọng 0 lỗi
    ```
-   Phiên đấu giá #3 tự mở sau ~4 phút kể từ lúc reset: reset xong thì nên dùng ngay, đừng để lâu mới mở app.
-1b. **Máy ảo Android:** chạy bằng `emulator -avd rebook_pixel -dns-server 1.1.1.1,8.8.8.8`. Không có cờ này máy ảo có thể không phân giải được tên miền (`res.cloudinary.com`, `accounts.google.com`), khi đó mọi ảnh bìa rơi về bìa vẽ và đăng nhập Google báo `DNS_PROBE_FINISHED_BAD_CONFIG`.
-2. Chạy app nối **backend thật** bằng file env, không dùng `env/dev.json` (mock):
-   - Web: `flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.8081.json`
-   - Android: build APK với file env trỏ `10.0.2.2:8081` (bản sao của `env/local.8081.json`, đừng commit bản đã đổi).
-3. Đóng chương trình đang chiếm cổng 8080 (MTAgentService) hoặc giữ backend ở 8081 như trên.
-4. Có mạng ổn định: Cloudinary (ảnh bìa), Google Fonts (PDF), Photon + Esri (bản đồ địa chỉ). Mạng đang dùng **chặn tên miền openstreetmap.org**, app đã né nhưng đừng đổi nguồn ô bản đồ lại.
+   Phiên đấu giá #3 tự mở sau khoảng 4 phút kể từ lúc reset: reset xong thì dùng ngay, đừng để lâu mới mở app.
+   Dữ liệu hiện tại đã lẫn thao tác kiểm thử (đơn, tin "QA", một khoản COD đã đối soát), nên **phải reset lại**.
+2. Chạy máy ảo Android bằng `emulator -avd <tên> -dns-server 1.1.1.1,8.8.8.8`. Không có cờ này máy ảo có thể không phân giải được `res.cloudinary.com` / `accounts.google.com`: mọi ảnh bìa rơi về bìa vẽ và Google báo `DNS_PROBE_FINISHED_BAD_CONFIG`.
+3. Chạy app nối **backend thật** bằng file env, không dùng `env/dev.json` (mock):
+   - Web: `flutter run -d chrome --web-port 5199 --dart-define-from-file=env/local.8081.json` (trong `apps/frontend`).
+   - Android: chép `env/local.8081.json`, đổi `localhost` thành `10.0.2.2` (đừng commit bản đã đổi).
+4. Có mạng ổn định: Cloudinary (ảnh bìa), Google Fonts (xuất PDF), Photon + Esri (bản đồ địa chỉ). Mạng đang dùng **chặn openstreetmap.org**, app đã né nhưng đừng đổi nguồn ô bản đồ lại.
 5. Đăng nhập thử từng vai một lần trước khi vào phòng (mật khẩu mọi tài khoản `Rebook@123`): `admin@`, `staff@`, `seller1..4@`, `buyer1..7@`, `locked@` (bị khoá), `banned@` (bị cấm đấu giá).
 
-## 3. Cấu hình còn thiếu
+## 3. Chưa làm / cần người thật
 
-- [ ] **Google OAuth** (nếu muốn demo đăng nhập Google): tạo OAuth client loại *Web application*, khai báo redirect URI `http://localhost:<PORT>/auth/google/callback`, đặt `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` trong `apps/backend/.env.local`. Máy ảo Android cần địa chỉ công khai (tunnel) vì không gọi được `localhost` của máy host. Hướng dẫn: `apps/backend/README.md`. Chưa cấu hình thì nút báo "chưa được cấu hình".
-- [ ] **Thư mục `uploads` / Cloudinary:** `CLOUDINARY_URL` đã nằm trong `.env.local` (không commit). Ảnh biên lai chuyển khoản luôn lưu trên máy chủ (BE-34).
+- [ ] **Đăng nhập Google:** cấu hình đã có trong `apps/backend/.env.local` (không commit). Cần **bạn** bấm "Tiếp tục với Google" ở `http://localhost:5199/login` bằng tài khoản của mình, và tài khoản đó phải nằm trong danh sách **Test users** ở Google console. Máy ảo Android cần địa chỉ công khai (tunnel) làm redirect URI vì không gọi được `localhost` của máy host: nên demo Google trên web.
+- [ ] **ZaloPay sandbox:** cần nhập thẻ test trên cổng ZaloPay (thẻ test: README backend, mục ZaloPay). Mới kiểm tới bước mở cổng.
+- [ ] **Bấm tay trên giao diện (mới kiểm bằng API):** điền hết form đăng sách, sửa / ẩn tin, ký gửi đấu giá từ đầu đến cuối, trả lời yêu cầu trả hàng, ví và rút tiền của người bán (có thông báo "tiền bán đang bị giữ" ở `seller4@`), yêu cầu trả hàng / đánh giá của người mua, đăng ký + cọc + trả giá + mua lô thắng (cần hai máy: web và máy ảo).
+- [ ] **Buyer / Seller trên web** (desktop và 375px) và **bản đồ địa chỉ trên web**: chưa mở bằng tay (bản đồ đã chạy trên Android).
+- [ ] **Admin web:** các màn còn lại chưa bấm (Người dùng, Phiên đấu giá, Cấu hình, Nhật ký hoạt động); nút "Đã chuyển khoản" của Rút tiền cần tải ảnh biên lai.
 
 ## 4. Phải báo cho team khi đẩy lên GitHub
 
@@ -42,30 +43,23 @@ Tình trạng chi tiết của đợt làm qua đêm nằm ở `apps/frontend/do
 - Migration của backend đã **đánh lại số V18–V21** sau khi merge `improve_bussinessrule`; ai kéo bản cũ (V17/V18 trên `ui-sync-business-rules`) phải tạo lại DB.
 - Backend nay **mặc định profile `prod`**: muốn có dữ liệu mẫu phải đặt `SPRING_PROFILES_ACTIVE=dev`. Dữ liệu demo nằm ở `db/demo`, chỉ nạp khi chạy `scripts/reset-demo` (biến `REBOOK_DEMO`).
 - Seed mới `V21_2` cắt viền bìa 24 sách hiếm bằng Cloudinary `e_trim:40`. Sách hiếm thêm sau từ Excel cũng phải dùng địa chỉ có `e_trim:40`.
-- Test backend: chạy `env -u CLOUDINARY_URL ./mvnw test` (nếu đã nạp `.env.local`, 3 test upload sẽ đỏ vì ảnh lên Cloudinary thật).
 - Endpoint mới `GET /admin/reports` (mục B10 của `apps/frontend/docs/BACKEND_HANDOFF.md`) và `/auth/google/*`; spec `apps/backend/openapi.yaml` đã xuất lại.
-- Frontend: web giữ landing cuộn, nhưng đăng nhập / đăng ký web nay dùng chung giao diện với điện thoại.
+- Sửa lỗi backend: `POST /files` lên Cloudinary không còn 409 (xem `FileController`). Chưa có test hồi quy riêng cho trường hợp URL dài.
+- Frontend: web giữ landing cuộn, nhưng đăng nhập / đăng ký web dùng chung giao diện với điện thoại.
+- Đã **xoá tài liệu cũ**: báo cáo QA 05/11, `UI_TEST_PROGRESS`, `qa-tools/`, `NIGHT_REPORT`, hai file prompt / brief vẽ banner. Lịch sử vẫn trong git.
 
 ## 5. Việc nên làm nếu còn thời gian (không chặn demo)
 
 - [ ] Màn splash gốc của Android vẫn là logo Flutter vài giây trước khi app lên (cấu hình hệ thống, chưa đổi).
-- [ ] `env/dev.json` vẫn là mock (quy ước repo); nếu muốn bỏ hẳn mock thì sửa file này và cập nhật `CLAUDE.md`.
-- [ ] `dart run tool/api_gap.dart` còn liệt kê vài endpoint cũ lệch spec frontend (có từ trước, không phải do đợt này).
-- [ ] Danh sách Người dùng / Phiên đấu giá / Giao lô đã sửa cho điện thoại; các màn danh sách khác chưa rà hết ở 375px (test bố cục tự động đạt, nhưng không thay được mắt người).
+- [ ] `env/dev.json` vẫn là mock (quy ước repo); muốn bỏ hẳn mock thì sửa file này và cập nhật `CLAUDE.md`.
+- [ ] `dart run tool/api_gap.dart` còn liệt kê vài endpoint cũ lệch spec frontend (có từ trước).
+- [ ] Gói `stomp_dart_client` vẫn nằm trong `pubspec.yaml` và allowlist nhưng không còn code nào dùng (realtime là WebSocket JSON thuần): có thể gỡ.
+- [ ] `env/android.tunnel.json` đang giữ một link Cloudflare đã hết hạn.
+- [ ] Ảnh banner `upcoming`, `season-school`, `season-tet`, `auth` chưa được code gọi tới.
+- [ ] Rà thêm các màn danh sách ở 375px (test bố cục tự động đạt, nhưng không thay được mắt người).
 - [ ] Chưa push nhánh `ui-sync-business-rules` (chỉ push lên `main`).
 
 ## 6. Việc cuối cùng
 
-- [ ] Chạy `dart analyze --fatal-infos`, `dart run tool/arch_check.dart`, `flutter test` trong `apps/frontend` (kỳ vọng sạch, 201 test).
-- [ ] Cập nhật `apps/frontend/docs/PROGRESS.md` nếu thầy cần xem tiến độ.
+- [ ] Chạy lại `dart analyze --fatal-infos`, `dart run tool/arch_check.dart`, `flutter test` trong `apps/frontend` sau mọi thay đổi cuối.
 - [ ] Ghi tên các thành viên và phân công nếu bài nộp yêu cầu.
-
-## 7. Nhật ký tiến độ chốt sổ (cập nhật sau mỗi bước, commit + push `main` từng bước)
-
-> Nếu phiên làm việc bị ngắt (mất mạng...), phiên sau đọc mục này và các ô `[ ]` ở trên để làm tiếp.
-> Cách dựng môi trường để test: bật Docker Desktop → `apps/backend/scripts/reset-demo.ps1 -Port 8081 -Db rebook_books` →
-> web: `flutter run -d web-server --web-port 5199 --dart-define-from-file=env/local.8081.json` (trong `apps/frontend`);
-> Android: build APK với `env` trỏ `10.0.2.2:8081`, máy ảo `rebook_pixel`.
-
-- 2026-11-07: bắt đầu vòng chốt sổ.
-- 2026-11-07: Staff web đã bấm tay: ký gửi (duyệt), lịch hẹn, kho, đối chiếu vận chuyển (ghi nhận đã giao), sự cố, giao lô đấu giá (xuất kho giao → đang giao), danh sách phiên đấu giá. Tìm và sửa 1 lỗi giao diện: màn "Giao lô đấu giá" trắng trang trên màn rộng (cột nút trong Row bị đòi chiều rộng vô hạn), sửa bằng IntrinsicWidth. Admin web: dashboard + Báo cáo ở 800px đúng, **Xuất CSV và Xuất PDF chạy được** (PDF mở ra có tiếng Việt đủ dấu, biểu đồ, bảng). Duyệt tin đăng (Duyệt → "Đang bán") và Danh mục đúng. Chưa kiểm xong: đối soát COD, khiếu nại (nút "Hoàn tiền người mua" — lần bấm cuối trùng lúc người dùng đang thao tác trong khung trình duyệt nên chưa rõ có ghi nhận), rút tiền. [Vòng 2] Khiếu nại (hoàn tiền người mua), Đối soát COD (sửa bố cục điện thoại), Rút tiền (danh sách) đúng. **Lỗi backend nặng đã sửa:** tải ảnh lên Cloudinary trả 409 `DATA_CONFLICT` (cột `audit_events.target_id` chỉ 60 ký tự mà URL Cloudinary dài hơn) nên không đăng bán / ký gửi được ảnh nào; nay ghi tên tệp ngắn. Bằng API trên backend thật đã chạy đúng: đăng bán 3 ảnh, sửa tin, ẩn / hiện, sửa tồn kho; người mua đặt COD, huỷ, nhận hàng, đánh giá, yêu cầu trả hàng + shop quyết định, nạp ví (ra link ZaloPay sandbox); phiên đấu giá LIVE: trả giá, luật "đang giữ giá cao nhất", giá đổi, người nợ phạt bị chặn. Staff trên điện thoại (máy ảo): mọi màn hiển thị đúng. Máy ảo: chọn ảnh bìa + làm phẳng + tải lên đã chạy; chưa đi hết form đăng sách bằng tay (gõ chậm). Chưa làm được: Google (cần bạn bấm), ZaloPay sandbox (cần tài khoản), trả giá bằng hai máy cùng lúc trên giao diện. Máy ảo (buyer1): huỷ đơn "Chờ xác nhận" bằng giao diện (chọn lý do → "Đã hủy", ví được hoàn tiền) và Nạp tiền (nhập số → mở cổng ZaloPay sandbox trong Chrome; trang cổng tải chậm trên máy ảo, chưa thanh toán thử). Còn lại (cũ): Seller, Buyer, Staff trên điện thoại, Google, ZaloPay.

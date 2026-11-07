@@ -41,7 +41,7 @@ flutter run -d chrome --dart-define-from-file=env/local.json
 - Khi người dùng nói "chạy nối backend / chạy thật / ghép backend" → dùng `env/local.json`, không phải `dev.json`.
 - Thanh toán ZaloPay sandbox trên web: chạy với `--web-port 5199` (backend đưa trình duyệt về `APP_URL=http://localhost:5199/home/payments/{mã}` sau khi trả tiền). Cấu hình và thẻ test xem README backend.
 - Máy ảo Android gọi máy host bằng `10.0.2.2`: đổi `localhost` thành `10.0.2.2` trong bản sao của file env (đừng commit bản đã đổi).
-- Backend (README ở `apps/backend`): cần Java 21 + PostgreSQL `localhost:5432`, tạo DB bằng `scripts/create-database.sql`, chạy `./mvnw spring-boot:run`. Tài khoản mẫu `buyer1@rebook.vn` / `Rebook@123`. Cổng 8080 bị chiếm → đặt biến môi trường `PORT` và đổi cổng trong file env.
+- Backend (README ở `apps/backend`): cần Java 21 + PostgreSQL `localhost:5432`, tạo DB bằng `scripts/create-database.sql`, chạy `./mvnw spring-boot:run`. Tài khoản mẫu `buyer1@rebook.vn` / `Rebook@123`. Cổng 8080 bị chiếm → đặt biến môi trường `PORT` và đổi cổng trong file env. Có sẵn `env/local.8081.json` cho backend ở cổng 8081. Muốn đủ dữ liệu demo: `apps/backend/scripts/reset-demo.ps1 -Port 8081 -Db rebook_books`. Máy ảo Android khởi động bằng `emulator -avd <tên> -dns-server 1.1.1.1,8.8.8.8` (không thì không tải được ảnh Cloudinary / trang Google).
 - Client sinh từ `../backend/openapi.yaml` (spec thật, xuất từ `http://localhost:8080/v3/api-docs.yaml`). Gọi API lỗi / sai field → xuất lại spec đó, chạy `/sync-api`, sửa mapper (`shared/data/api_mappers.dart`).
 
 ## Stack đã chốt — KHÔNG thêm công nghệ khác
@@ -126,7 +126,7 @@ Giao diện được phép nhiều hơn SRS (người dùng quyết). Mỗi th�
 - `interface` đã merge vào `main` (2026-11-04), luật chặn backend đã gỡ; cắt nhánh từ `main`. Luật nhẹ: PR + review, không tự đổi file hạ tầng / thêm package, giao diện sửa thoải mái.
 - Phần quản trị chia hai module: `features/admin/**` và `features/staff/**` (+ `test/features/<vai>/`), mỗi vai một file module nên ít đụng nhau.
 - **Router và sidebar quản trị do module quyết định**: thêm màn = sửa `features/<vai>/presentation/<vai>_module.dart` (route + mục sidebar + `smokePaths`) + file màn hình. Không sửa `app/router/admin_router.dart`, `admin_shell.dart`, `admin_modules.dart`.
-- **Bố cục màn Admin / Staff do người làm tự sáng tạo.** Gu chung (sáng, phẳng, nút đen, tiêu đề serif, dữ liệu là nhân vật chính) và đồ nghề có sẵn (`AppPage`, `AdminCard`, `AdminKpi`, `AdminPalette`) nằm ở [docs/ADMIN_VIBE.md](docs/ADMIN_VIBE.md): đọc để hiểu bối cảnh, không phải luật. Không có máy nào chặn kiểu dáng.
+- **Bố cục màn Admin / Staff do người làm tự sáng tạo.** Gu chung (sáng, mềm, thẻ nổi bo góc, màu nhấn xanh, chữ hệ thống, dữ liệu là nhân vật chính) và đồ nghề có sẵn (`AppPage`, `AdminCard`, `AdminKpi`, `AdminPalette`) nằm ở [docs/ADMIN_VIBE.md](docs/ADMIN_VIBE.md): đọc để hiểu bối cảnh, không phải luật. Không có máy nào chặn kiểu dáng.
 - Chuỗi mới: `node tool/l10n_add.mjs <file.json> --zone adm|stf` (key bắt đầu `adm` / `stf`, không đổi key cũ).
 - Responsive: điểm gãy khung quản trị 900px (dưới đó sidebar là ngăn kéo). Mọi màn phải ổn ở 375 / 800 / 1400px. `test/layout/admin_staff_layout_test.dart` quét các route đã khai báo và chỉ hỏng khi có lỗi tràn / dựng hình; đừng sửa test này để "xanh".
 - Bị hook chặn (package lạ, file sinh tự động, lệnh nguy hiểm) → dừng và báo người dùng; không lách.

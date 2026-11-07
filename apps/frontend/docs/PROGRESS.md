@@ -1,69 +1,29 @@
-# Tiến độ triển khai frontend theo SRS
+# Tiến độ frontend
 
-Nhánh `design/apple-books` (commit local, **không push**). SRS: `docs/SRS.txt` + `docs/srs-*.png`.
-Quyết định tự đưa ra: `docs/DECISIONS.md`. Giao diện chuẩn: `docs/design/lg-desktop.png`, `lg-mobile.png`.
-Logic lấy từ tag `backup/srs-frontend-2026-10-22`; UI làm mới theo style Apple Books.
+Cập nhật 2026-11-07. Làm trên nhánh `main`. Đặc tả: [SRS.txt](SRS.txt) + 3 sơ đồ `srs-*.png`. Quyết định ở chỗ SRS chưa nói: [DECISIONS.md](DECISIONS.md), [DECISIONS_V2.md](DECISIONS_V2.md).
+Việc còn lại trước demo: [docs/CHECKLIST_CHOT_SO.md](../../../docs/CHECKLIST_CHOT_SO.md).
 
-## Khi bị ngắt
+## Đã xong theo SRS (giai đoạn 0 đến 7)
 
-1. `git switch design/apple-books` trong `D:\Study\FPTUniversity\Semester8\PRM393\rebook`.
-2. Đọc file này, làm tiếp mục `[ ]` đầu tiên. Đọc `CLAUDE.md` + `docs/ARCHITECTURE.md` trước khi code.
-3. Xong mỗi mục: `dart analyze --fatal-infos && dart run tool/arch_check.dart && flutter test` → commit → đánh `[x]`.
+| Nhóm | Nội dung |
+|---|---|
+| Nền | Client sinh từ OpenAPI, entity + mapper, `FakeStore` (chạy không cần backend), core (auth, WebSocket realtime, FCM, data_changes) |
+| Giao diện | Liquid Glass, chữ hệ thống, theme sáng (khu đấu giá luôn tối), `AppPage` / `Glass` / `InfoPanel`, `BookPoster` + `DrawnCover` |
+| Người mua | Đăng nhập / đăng ký / OTP / quên mật khẩu, trang chủ, tìm kiếm, chi tiết sách, giỏ nhiều shop, thanh toán (COD / ví / ZaloPay), đơn mua, hủy, trả hàng, đánh giá, ví, thông báo, sổ địa chỉ + bản đồ |
+| Đấu giá | Lịch phiên, catalogue, đăng ký + cọc, phòng trực tiếp (đồng hồ server, soft close, proxy bid), kết quả, hóa đơn lô thắng; khu đấu giá riêng (khung, theme tối, `ModeSwitch`) |
+| Người bán | Mở shop, đăng / sửa / ẩn sách (chụp, làm phẳng bìa), tồn kho, xử lý đơn, ký gửi + lịch hẹn, kết quả kiểm định, doanh thu, rút tiền |
+| Staff | Yêu cầu ký gửi, lịch hẹn và nhận sách, kho, đối chiếu vận chuyển, sự cố và kiểm lại, giao lô đấu giá, giám sát phiên |
+| Admin | Dashboard, Báo cáo (biểu đồ, xuất PDF / CSV), duyệt tin, đối soát COD, khiếu nại, rút tiền, người dùng, danh mục, phiên đấu giá, cấu hình, nhật ký |
 
-## Giai đoạn 0 — Chuẩn bị
-- [x] SRS (`docs/SRS.txt`, 3 sơ đồ), `docs/DECISIONS.md` từ backup
-- [x] Allowlist + 5 package đã duyệt: stomp_dart_client, image_picker, url_launcher, firebase_core, firebase_messaging
-- [x] Font Be Vietnam Pro (400–800) giữ trong `assets/fonts` chỉ để test bố cục (`test/layout/admin_staff_layout_test.dart`) vẽ chữ có dấu đúng bề rộng; app dùng font hệ thống, pubspec không khai báo. Các font khác (Playfair Display, Plus Jakarta Sans) đã xoá 2026-11-01.
-- [x] Luật mới trong CLAUDE.md (Firebase chỉ cho FCM, style Apple Books)
+## Đợt 2026-11-04 đến 2026-11-07
 
-## Giai đoạn 1 — Tầng dữ liệu (từ backup)
-- [x] `openapi/openapi.yaml` đầy đủ + sinh client
-- [x] Entity `shared/domain`, mapper `shared/data/api_mappers.dart`, `FakeStore` + bộ máy phiên giả lập
-- [x] Core: data_changes, realtime STOMP, notifications (FCM), auth/session, settings (mặc định theme sáng)
-- [x] Repository + provider của từng feature (không lấy màn hình), 43 test logic pass
-- Ghi chú: `app_router.dart` đang là router TẠM (1 trang chờ); `ErrorView` tối giản; `status_labels` cũ đã bỏ (làm lại ở GĐ2).
-  Bảng đường dẫn đầy đủ: `lib/app/router/routes.dart` (từ backup).
+- Ghép lại với backend thật; thanh toán ZaloPay sandbox thay VNPay.
+- Intro + đăng nhập mới (splash, 3 trang giới thiệu, đăng nhập dùng chung giao diện ở mọi nền tảng, nút "Bỏ qua" vào bằng tài khoản khách).
+- Đăng nhập Google (luồng OAuth chạy ở server, không thêm package): xem [apps/backend/README.md](../../backend/README.md).
+- Admin / Staff đổi sang giao diện mới (sidebar thẻ nổi, KPI, biểu đồ), dùng được ở điện thoại (ngăn kéo dưới 900px).
+- Bản đồ địa chỉ: ô Esri làm chính (một số mạng chặn openstreetmap.org), tìm toạ độ bằng Nominatim, dự phòng Photon.
+- Sửa lỗi sau test: tải ảnh lên Cloudinary (backend), bố cục điện thoại ở Đối soát COD / Giao lô đấu giá / danh sách Người dùng.
 
-## Giai đoạn 2 — Bộ giao diện Apple Books + khung app
-- [x] Theme sáng/tối (`app/theme`), token `AppColors`, `CoverPalette`; mặc định nền sáng + tiếng Việt
-- [x] Widget: `book_poster.dart` (BookPoster gáy + bóng, DrawnCover), `poster_grid.dart` (PosterTile, PosterGrid 4/3/2 cột, Shelf),
-      `ui.dart` (AppPage, CircleBackButton, DotsButton, SectionHeader, PillBadge, PriceText, EmptyState, InfoPanel), `status_labels.dart`
-- [x] AppShell: sidebar nổi (`sidebar.dart` dùng chung) · tab bar viên thuốc nổi; router đủ cây SRS, màn chưa làm = `PlaceholderPage`
-- [x] Hai entrypoint: `main.dart` (người dùng), `main_admin.dart` (Staff/Admin, `admin_router` + `admin_shell`)
-- Xem trước: `flutter build web --release --dart-define-from-file=env/dev.json` rồi phục vụ `build/web` (SPA).
+## Kiểm tra
 
-## Giai đoạn 3 — Người mua
-- [x] Đăng nhập / đăng ký / OTP / quên mật khẩu (`AuthLayout`: tấm giới thiệu + form; dùng lại cho web quản trị)
-- [x] Trang chủ (desktop lưới 4/hàng, mobile kệ ngang), tìm kiếm + lọc + sắp xếp, chi tiết sách + "Các bản khác của cuốn này"
-      (provider `otherOffers`: cùng tên sách, shop khác), trang shop
-- [x] Giỏ nhiều shop, checkout (COD / ví / VNPay + cổng giả lập), đơn mua, chi tiết + hành trình, hủy / yêu cầu hủy,
-      đã nhận, trả hàng (ảnh), đánh giá, thanh toán hóa đơn đấu giá (giao tận nơi / nhận tại kho)
-- [x] Ví (số dư, nạp, rút cho người bán, lịch sử), thông báo, tài khoản, hồ sơ, sổ địa chỉ, cài đặt (theme, ngôn ngữ)
-- Widget dùng chung mới: `listing_tile`, `session_tile`, `app_image` (mem:// khi mock), `photo_picker`, `money_summary`,
-  `order_widgets` (OrderCard, StatusTimeline, OrderMoney, OrderItemsList), `SelectTile` trong `ui.dart`
-
-## Giai đoạn 4 — Đấu giá
-- [x] Lịch phiên, catalogue, chi tiết lô (báo cáo tình trạng), theo dõi lô
-- [x] Đăng ký + đặt cọc (hạn mức = cọc × 10), số bài
-- [x] Phòng trực tiếp: đồng hồ server, soft close, "Lần thứ nhất / thứ hai / Bán!", nút "Trả Xđ", proxy bid
-- [x] Kết quả phiên, hóa đơn lô thắng (đơn AUCTION)
-
-## Giai đoạn 5 — Người bán
-- [x] Bật shop, đăng / sửa / ẩn sách, quản lý tin, tồn kho
-- [x] Đơn của shop: xác nhận, chuẩn bị, giao, hủy
-- [x] Ký gửi + đặt lịch, kết quả kiểm định, quyết định giá, kết quả phiên, doanh thu / rút tiền
-
-## Giai đoạn 6 — Web quản trị (Flutter Web)
-- [x] Staff: lịch hẹn, nhận sách, phiếu kiểm định, kho, giám sát phiên
-- [x] Admin: duyệt tin, khóa tài khoản, danh mục, tạo phiên + xếp lô, cấu hình phí, khiếu nại, dashboard
-
-## Giai đoạn 7 — Hoàn thiện
-- [x] analyze + arch_check + test sạch, build web 2 app, chụp màn hình so mockup, cập nhật README/ARCHITECTURE
-
-## 2026-11-04 — Ghép lại với backend thật
-- [x] Merge 3 chiều `interface` + `main` (khôi phục lớp API nối backend, giữ giao diện mới)
-- [x] Backend: yêu thích sách, theo dõi phiên, tài khoản ngân hàng đã dùng, ghim bản đồ địa chỉ, khiếu nại đã phân xử, `secondChance` / `lotId` trong `OrderSummary`, `/files` nhận multipart
-- [x] Gỡ luật chặn backend (pre-push, hook Claude, CI Backend Guard)
-- [x] Upload ảnh thật (`POST /files`), ghi chú khi rút tiền, người duyệt tin đăng
-- [x] Chạy thử web với `env/local.json`: đăng nhập, trang chủ, yêu thích, giỏ, ví gọi backend thật không lỗi
-- [x] Cổng thanh toán đổi sang ZaloPay sandbox (thay VNPay): thanh toán thật bằng thẻ test, app tự cập nhật kết quả
+`dart analyze --fatal-infos` + `dart run tool/arch_check.dart` + `flutter test` sạch (201 test). Dữ liệu demo và kiểm tra API: `apps/backend/scripts/reset-demo.ps1`, `apps/backend/scripts/smoke.mjs`.
