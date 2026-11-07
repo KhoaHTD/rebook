@@ -643,7 +643,8 @@ extension OrderDetailMapper on api.OrderDetail {
     shippingFee: _n(shippingFee),
     buyerPremium: _n(buyerPremium),
     depositApplied: _n(depositApplied),
-    total: _n(total),
+    // Số phải trả sau khi trừ cọc (mock cũng tính vậy); `total` của backend là tổng chưa trừ cọc.
+    total: _n(amountDue ?? total),
     createdAt: _t(createdAt),
     history: [
       for (final h in history ?? const <api.HistoryResponse>[])
@@ -698,7 +699,7 @@ extension OrderSummaryMapper on api.OrderSummary {
     shippingFee: 0,
     buyerPremium: 0,
     depositApplied: 0,
-    total: _n(total),
+    total: _n(amountDue ?? total),
     createdAt: _t(createdAt),
     history: const [],
     canReview: false,
