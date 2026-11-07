@@ -41,7 +41,11 @@ Say '      Backend OK.' 'Green'
 
 # --- 2. Build web (chi khi can) ---
 Say '[2/4] Kiem tra ban build web...' 'Cyan'
-if ($Rebuild -or -not (Test-Path $stamp)) {
+# Build lai khi: ep -Rebuild, chua co dau, hoac build/web da bi build de bang env khac (vd env/local.json -> API localhost)
+$mainJs = Join-Path $fe 'build\web\main.dart.js'
+$stale = (Test-Path $stamp) -and (Test-Path $mainJs) -and ((Get-Item $mainJs).LastWriteTime -gt (Get-Item $stamp).LastWriteTime.AddMinutes(1))
+if ($stale) { Say '      Ban build web hien tai khong phai ban cho tunnel -> build lai.' 'Yellow' }
+if ($Rebuild -or $stale -or -not (Test-Path $stamp)) {
     Say '      Dang build web (khoang 1-2 phut)...' 'Yellow'
     Push-Location $fe
     try {
