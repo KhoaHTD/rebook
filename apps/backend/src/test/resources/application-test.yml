@@ -1,7 +1,8 @@
 # Test chạy trên cùng PostgreSQL nhưng trong schema riêng rebook_test để không đụng dữ liệu dev.
 spring:
   datasource:
-    url: ${TEST_DB_URL:jdbc:postgresql://localhost:5432/rebook_dev?currentSchema=rebook_test}
+    # ",public": extension unaccent (tìm kiếm không dấu) nằm ở schema public, xem V23.
+    url: ${TEST_DB_URL:jdbc:postgresql://localhost:5432/rebook_dev?currentSchema=rebook_test,public}
   flyway:
     schemas: rebook_test
     default-schema: rebook_test
