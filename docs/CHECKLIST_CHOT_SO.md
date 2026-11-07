@@ -58,3 +58,12 @@ Tình trạng chi tiết của đợt làm qua đêm nằm ở `apps/frontend/do
 - [ ] Chạy `dart analyze --fatal-infos`, `dart run tool/arch_check.dart`, `flutter test` trong `apps/frontend` (kỳ vọng sạch, 201 test).
 - [ ] Cập nhật `apps/frontend/docs/PROGRESS.md` nếu thầy cần xem tiến độ.
 - [ ] Ghi tên các thành viên và phân công nếu bài nộp yêu cầu.
+
+## 7. Nhật ký tiến độ chốt sổ (cập nhật sau mỗi bước, commit + push `main` từng bước)
+
+> Nếu phiên làm việc bị ngắt (mất mạng...), phiên sau đọc mục này và các ô `[ ]` ở trên để làm tiếp.
+> Cách dựng môi trường để test: bật Docker Desktop → `apps/backend/scripts/reset-demo.ps1 -Port 8081 -Db rebook_books` →
+> web: `flutter run -d web-server --web-port 5199 --dart-define-from-file=env/local.8081.json` (trong `apps/frontend`);
+> Android: build APK với `env` trỏ `10.0.2.2:8081`, máy ảo `rebook_pixel`.
+
+- 2026-11-07: bắt đầu vòng chốt sổ. Chưa có bước nào xong.
