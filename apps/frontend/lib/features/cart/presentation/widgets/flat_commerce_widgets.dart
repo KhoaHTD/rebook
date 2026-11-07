@@ -24,6 +24,7 @@ class FlatCommercePage extends StatelessWidget {
     this.bottom,
     this.onBack,
     this.showBack = true,
+    this.bottomPadding = const EdgeInsets.fromLTRB(20, 8, 20, 12),
   });
 
   final String title;
@@ -36,6 +37,9 @@ class FlatCommercePage extends StatelessWidget {
 
   /// false khi trang là một mục gốc của thanh tab (giỏ hàng): không có mũi tên quay lại.
   final bool showBack;
+
+  /// Lề quanh [bottom]. Giỏ hàng đặt lề để nút ghim đáy thẳng hàng với nút điều hướng nổi.
+  final EdgeInsets bottomPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +100,7 @@ class FlatCommercePage extends StatelessWidget {
               color: flatPageColor(context),
               child: SafeArea(
                 top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-                  child: bottom,
-                ),
+                child: Padding(padding: bottomPadding, child: bottom),
               ),
             ),
     );

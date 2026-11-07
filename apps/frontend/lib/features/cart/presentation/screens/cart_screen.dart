@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/router/routes.dart';
+import 'package:book_marketplace/app/router/glass_tab_bar.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
 import 'package:book_marketplace/core/settings/app_settings_controller.dart';
 import 'package:book_marketplace/features/cart/presentation/providers/cart_providers.dart';
@@ -134,22 +135,29 @@ class _CompactCart extends ConsumerWidget {
       // Giỏ là một mục của thanh tab (như Thông báo, Tài khoản): không có mũi tên quay lại và không tự vẽ
       // thêm biểu tượng túi + số ở góc, số lượng nằm trên biểu tượng giỏ của thanh tab.
       showBack: false,
+      // Nút thanh toán thẳng hàng với nút điều hướng nổi: cùng cao (58), cùng tâm (đáy cách mép 23 = lề 18 + đệm
+      // 5 của nút), cách nút 12, và cùng lề ngoài với nút ở phía bên kia.
+      bottomPadding: () {
+        final edge = ExpandingTabBar.buttonEdge(
+          MediaQuery.sizeOf(context).width,
+        );
+        final beside = edge + ExpandingTabBar.button + 12;
+        return EdgeInsets.fromLTRB(
+          navSide == NavSide.left ? beside : edge,
+          8,
+          navSide == NavSide.right ? beside : edge,
+          18 + ExpandingTabBar.pad,
+        );
+      }(),
       bottom: empty
           ? null
-          : Padding(
-              // Chừa chỗ cho nút điều hướng nổi ở góc dưới để không đè lên nút thanh toán.
-              padding: EdgeInsets.only(
-                left: navSide == NavSide.left ? 64 : 0,
-                right: navSide == NavSide.right ? 64 : 0,
-              ),
-              child: FlatBlackButton(
-                label: ref.watch(selectedCartItemIdsProvider).isEmpty
-                    ? l10n.cartNothingSelected
-                    : l10n.cartToCheckout,
-                onPressed: ref.watch(selectedCartItemIdsProvider).isEmpty
-                    ? null
-                    : () => context.go(Routes.checkout),
-              ),
+          : FlatBlackButton(
+              label: ref.watch(selectedCartItemIdsProvider).isEmpty
+                  ? l10n.cartNothingSelected
+                  : l10n.cartToCheckout,
+              onPressed: ref.watch(selectedCartItemIdsProvider).isEmpty
+                  ? null
+                  : () => context.go(Routes.checkout),
             ),
       children: [
         AsyncValueView(

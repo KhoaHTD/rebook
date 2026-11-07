@@ -71,6 +71,17 @@ class ExpandingTabBar extends StatelessWidget {
   /// Đường kính của nút khi thanh thu lại = chiều cao của một ô icon (viên chọn của ô đang chọn cũng cao bằng).
   static const button = height - pad * 2;
 
+  /// Số ô của thanh tab người dùng (Mua sách, Khám phá, Giỏ hàng, Thông báo, Tài khoản).
+  static const userTabCount = 5;
+
+  /// Khoảng cách từ mép màn hình tới mép ngoài của nút khi thanh thu lại (nút nằm giữa ô đầu / ô cuối), để
+  /// các thành phần khác (nút ghim đáy của giỏ hàng) căn thẳng hàng với nút.
+  static double buttonEdge(double screenWidth, {int items = userTabCount}) {
+    final cellW = (fullWidth(screenWidth) - pad * 2) / items;
+    return sideMargin +
+        (pad + (cellW - button) / 2).clamp(0.0, double.infinity);
+  }
+
   /// Bề rộng thanh khi mở, theo bề ngang màn hình.
   static double fullWidth(double screenWidth) => screenWidth - sideMargin * 2;
 
