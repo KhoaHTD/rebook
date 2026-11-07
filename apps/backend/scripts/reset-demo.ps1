@@ -24,20 +24,53 @@ $ErrorActionPreference = 'Stop'
 $backend = Split-Path -Parent $PSScriptRoot
 Set-Location $backend
 
-function Psql([string]$sql) {
-    docker exec $Container psql -U $DbUser -d postgres -v ON_ERROR_STOP=1 -q -c $sql | Out-Null
+# Không có Docker (PostgreSQL cài thẳng trên Windows): dùng psql.exe cài sẵn, kết nối localhost bằng $DbUser.
+$useDocker = [bool](Get-Command docker -ErrorAction SilentlyContinue)
+$psqlExe = $null
+if (-not $useDocker) {
+    $psqlExe = (Get-Command psql -ErrorAction SilentlyContinue).Source
+    if (-not $psqlExe) {
+        $svc = Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'postgresql*' } | Select-Object -First 1
+        if ($svc -and $svc.PathName -match '"([^"]+\\bin)\\pg_ctl\.exe"') { $psqlExe = Join-Path $Matches[1] 'psql.exe' }
+    }
+    if (-not $psqlExe) { $psqlExe = Get-ChildItem 'C:\Program Files\PostgreSQL\*\bin\psql.exe', 'D:\PostgreSQL\*\bin\psql.exe' -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName }
+    if (-not $psqlExe -or -not (Test-Path $psqlExe)) { throw 'Không có Docker và không tìm thấy psql.exe. Thêm thư mục bin của PostgreSQL vào PATH.' }
+    if (-not $env:PGPASSWORD) { $env:PGPASSWORD = if ($env:DB_PASSWORD) { $env:DB_PASSWORD } else { 'rebook' } }
+}
+
+function Psql([string]$sql, [string]$database = 'postgres') {
+    if ($useDocker) { docker exec $Container psql -U $DbUser -d $database -v ON_ERROR_STOP=1 -q -c $sql | Out-Null }
+    else { & $psqlExe -h localhost -U $DbUser -d $database -v ON_ERROR_STOP=1 -q -c $sql | Out-Null }
     if ($LASTEXITCODE -ne 0) { throw "psql lỗi: $sql" }
 }
 
+function PsqlValue([string]$sql) {
+    if ($useDocker) { return (docker exec $Container psql -U $DbUser -d postgres -tAc $sql) }
+    return (& $psqlExe -h localhost -U $DbUser -d postgres -tAc $sql)
+}
+
 Write-Host '1/4 Bật PostgreSQL...' -ForegroundColor Cyan
-if (-not (docker ps --format '{{.Names}}' | Select-String -SimpleMatch $Container)) { docker start $Container | Out-Null; Start-Sleep -Seconds 4 }
+if ($useDocker) {
+    if (-not (docker ps --format '{{.Names}}' | Select-String -SimpleMatch $Container)) { docker start $Container | Out-Null; Start-Sleep -Seconds 4 }
+} else {
+    Write-Host "    Không có Docker: dùng PostgreSQL trên máy ($psqlExe)" -ForegroundColor Gray
+}
 
 Write-Host "2/4 Tắt backend cổng $Port và làm lại database $Db..." -ForegroundColor Cyan
 $conn = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
 if ($conn) { Stop-Process -Id $conn.OwningProcess -Force; Start-Sleep -Seconds 2 }
-Psql "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$Db' AND pid <> pg_backend_pid()"
-Psql "DROP DATABASE IF EXISTS $Db"
-Psql "CREATE DATABASE $Db OWNER $DbUser ENCODING 'UTF8' TEMPLATE template0"
+Psql "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$Db' AND pid <> pg_backend_pid() AND usename = current_user"
+$canCreateDb = (PsqlValue "SELECT rolcreatedb OR rolsuper FROM pg_roles WHERE rolname = current_user") -match 't'
+if ($canCreateDb) {
+    Psql "DROP DATABASE IF EXISTS $Db"
+    Psql "CREATE DATABASE $Db OWNER $DbUser ENCODING 'UTF8' TEMPLATE template0"
+} else {
+    # User không có quyền tạo database: giữ database, xoá sạch schema public (bảng, dữ liệu, lịch sử Flyway, extension)
+    # rồi tạo lại rỗng. Kết quả như database mới. Các schema test (rebook_test...) không bị đụng tới.
+    Write-Host "    $DbUser không có quyền tạo database: làm sạch schema public trong $Db" -ForegroundColor Gray
+    Psql "DROP SCHEMA IF EXISTS public CASCADE" $Db
+    Psql "CREATE SCHEMA public AUTHORIZATION $DbUser" $Db
+}
 if ($NoStart) { Write-Host "Đã tạo lại database $Db. Chạy backend (profile dev) để nạp dữ liệu." -ForegroundColor Green; return }
 
 Write-Host '3/4 Chạy backend (Flyway nạp dữ liệu demo)...' -ForegroundColor Cyan
