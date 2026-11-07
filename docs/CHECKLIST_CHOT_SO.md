@@ -8,8 +8,11 @@
 - [x] **Admin (web):** dashboard, Báo cáo, xuất **CSV** và **PDF** (tiếng Việt đủ dấu, biểu đồ, bảng), duyệt tin, danh mục, khiếu nại (hoàn tiền người mua), đối soát COD, danh sách rút tiền. Tất cả màn Admin trên điện thoại (máy ảo).
 - [x] **Staff:** mọi màn trên web và trên điện thoại (yêu cầu ký gửi, lịch hẹn, kho, đối chiếu vận chuyển, sự cố, giao lô đấu giá, phiên đấu giá).
 - [x] **Buyer (máy ảo):** khám phá, chi tiết sách, giỏ, thanh toán bằng ví, đơn mua, huỷ đơn, ví, mở cổng ZaloPay khi nạp tiền, sàn đấu giá, phòng đấu giá live, sổ địa chỉ + bản đồ.
-- [x] **Seller (máy ảo):** thông báo, kênh người bán, xác nhận đơn, giao cho shipper, chọn ảnh bìa + làm phẳng + tải lên.
+- [x] **Seller (máy ảo):** thông báo, kênh người bán, xác nhận đơn, giao cho shipper; **đăng sách trọn form** (ảnh bìa làm phẳng, 3 ảnh, thể loại, giá), sửa tin, ẩn / hiện tin; **ký gửi trọn vòng** (gửi yêu cầu, đặt lịch hẹn, xem phiếu kiểm định, ký hợp đồng); ví + **rút tiền**; đồng ý yêu cầu trả hàng. Staff duyệt / nhận sách / kiểm định đi qua API.
+- [x] **Buyer (máy ảo):** yêu cầu trả hàng (có ảnh minh chứng), xác nhận đã nhận, đánh giá shop, đăng ký + đặt cọc phiên đấu giá, trả giá trong phòng live (realtime), thắng lô, **thanh toán hoá đơn lô thắng** bằng ví.
+- [x] **Admin + Staff ở 375px trên web:** dashboard, Người dùng, Phiên đấu giá, Cấu hình phí, Nhật ký hoạt động, Yêu cầu ký gửi, Lịch hẹn & nhận sách (cùng các màn đã xem ở vòng trước).
 - [x] **Qua API trên backend thật:** đăng bán 3 ảnh, sửa tin, ẩn / hiện, sửa tồn kho; đặt COD, huỷ, nhận hàng, đánh giá, yêu cầu trả hàng + shop quyết định, nạp ví (ra link ZaloPay sandbox); phiên đấu giá LIVE (trả giá hợp lệ, "đang giữ giá cao nhất", giá đã đổi, người nợ phạt bị chặn).
+- [x] **Lỗi đã sửa ở vòng test tay giao diện (Android):** form sửa tin không lưu được khi tên sách trùng sách mẫu (ảnh mẫu ghi đè ảnh thật); nhãn "Khối lượng" thiếu đơn vị (g); liên kết "Lô thắng cần thanh toán" mở Đơn mua của khu sách (không có hoá đơn đấu giá) thay vì "Lô đã thắng"; hoá đơn lô thắng ghi "Tổng cộng 724.000" dù đã trừ cọc (đúng: 324.000, nay dùng amountDue); thông báo trúng lô / phiên đấu giá hiện "640000đ" và giờ ISO thô (nay 640.000đ và giờ Việt Nam).
 - [x] **Lỗi đã sửa trong vòng chốt sổ:** tải ảnh lên Cloudinary trả 409 (cột `audit_events.target_id` 60 ký tự, URL Cloudinary dài hơn); Staff "Giao lô đấu giá" trắng trang trên màn rộng; Admin "Đối soát COD" bị bóp chữ trên điện thoại; ảnh bìa không hiện trên máy ảo (DNS, xem mục 2).
 
 ## 2. Việc bắt buộc ngay trước giờ demo
@@ -33,9 +36,8 @@
 
 - [ ] **Đăng nhập Google:** cấu hình đã có trong `apps/backend/.env.local` (không commit). Cần **bạn** bấm "Tiếp tục với Google" ở `http://localhost:5199/login` bằng tài khoản của mình, và tài khoản đó phải nằm trong danh sách **Test users** ở Google console. Máy ảo Android cần địa chỉ công khai (tunnel) làm redirect URI vì không gọi được `localhost` của máy host: nên demo Google trên web.
 - [ ] **ZaloPay sandbox:** cần nhập thẻ test trên cổng ZaloPay (thẻ test: README backend, mục ZaloPay). Mới kiểm tới bước mở cổng.
-- [ ] **Bấm tay trên giao diện (mới kiểm bằng API):** điền hết form đăng sách, sửa / ẩn tin, ký gửi đấu giá từ đầu đến cuối, trả lời yêu cầu trả hàng, ví và rút tiền của người bán (có thông báo "tiền bán đang bị giữ" ở `seller4@`), yêu cầu trả hàng / đánh giá của người mua, đăng ký + cọc + trả giá + mua lô thắng (cần hai máy: web và máy ảo).
+- [ ] **Chưa bấm tay:** thông báo "tiền bán đang bị giữ" ở `seller4@`; trả giá giữa **hai máy thật cùng lúc** (đã trả giá trên máy ảo, người còn lại qua API); Admin duyệt rút tiền với ảnh biên lai (cần tải ảnh); từ chối / phân xử khiếu nại; ZaloPay hoàn tất.
 - [ ] **Buyer / Seller trên web** (desktop và 375px) và **bản đồ địa chỉ trên web**: chưa mở bằng tay (bản đồ đã chạy trên Android).
-- [ ] **Admin web:** các màn còn lại chưa bấm (Người dùng, Phiên đấu giá, Cấu hình, Nhật ký hoạt động); nút "Đã chuyển khoản" của Rút tiền cần tải ảnh biên lai.
 
 ## 4. Phải báo cho team khi đẩy lên GitHub
 

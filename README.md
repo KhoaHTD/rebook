@@ -67,7 +67,7 @@ Chế độ này dùng backend giả trong bộ nhớ, có cả phiên đấu gi
 
 ### Cách 2: chạy đầy đủ (backend + PostgreSQL thật, có dữ liệu demo)
 
-Cần JDK 21+, Docker Desktop (container PostgreSQL `rebook-db`) hoặc PostgreSQL ở `localhost:5432`. Cách nhanh nhất là một lệnh làm lại toàn bộ dữ liệu demo và chạy backend (khoảng 3 phút):
+Cần JDK 21+ và Docker Desktop. Máy mới chưa có container PostgreSQL thì tạo một lần bằng lệnh `docker run` trong [apps/backend/README.md](apps/backend/README.md) (container tên `rebook-db`); `reset-demo` chỉ bật container này, không tự tạo. Cách nhanh nhất là một lệnh làm lại toàn bộ dữ liệu demo và chạy backend (khoảng 3 phút):
 
 ```powershell
 cd apps/backend

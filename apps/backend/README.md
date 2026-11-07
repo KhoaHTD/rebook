@@ -7,6 +7,15 @@ Spring Boot 3.5 · Java 21 · PostgreSQL · Flyway · JWT · WebSocket.
 
 Cần: JDK 21+ (JDK kèm IntelliJ cũng được), PostgreSQL đang chạy ở `localhost:5432`.
 
+**Chưa có PostgreSQL? Dùng Docker** (cách các script `reset-demo` giả định, container phải tên `rebook-db`):
+
+```bash
+# Một lần: tạo container PostgreSQL tên rebook-db (user rebook là superuser nên reset-demo xoá / tạo DB được)
+docker run -d --name rebook-db -e POSTGRES_USER=rebook -e POSTGRES_PASSWORD=rebook -e POSTGRES_DB=rebook_dev -p 5432:5432 -v rebook-pgdata:/var/lib/postgresql/data postgres:16
+```
+
+Các lần sau chỉ cần bật Docker Desktop (`docker start rebook-db`, `reset-demo` tự làm bước này). Nếu dùng container này thì bỏ qua bước 1 bên dưới (user và DB `rebook_dev` đã có sẵn).
+
 ```bash
 # 1. Tạo user + database (một lần, bằng tài khoản postgres)
 psql -U postgres -h localhost -f scripts/create-database.sql
