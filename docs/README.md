@@ -5,7 +5,8 @@ Tài liệu người dùng cuối và cách chạy: [README gốc](../README.md)
 | Cần gì | Đọc file |
 |---|---|
 | **Việc còn lại trước demo** (đọc đầu tiên) | [CHECKLIST_CHOT_SO.md](CHECKLIST_CHOT_SO.md) |
-| Kịch bản demo, câu hỏi hay gặp | [DEMO.md](DEMO.md) |
+| **Kịch bản demo từng bước, kèm chữ cần gõ** | [KICH_BAN_DEMO.md](KICH_BAN_DEMO.md) |
+| Giải thích nghiệp vụ khi demo, câu hỏi hay gặp | [DEMO.md](DEMO.md) |
 | Chạy online cho bạn bè qua Cloudflare Tunnel | [DEMO_ONLINE.md](DEMO_ONLINE.md) |
 | Kịch bản test theo vai | [TEST_GUIDE.md](TEST_GUIDE.md) |
 | Nghiệp vụ toàn hệ thống | [Nghiep-vu-toan-he-thong.md](Nghiep-vu-toan-he-thong.md) |
