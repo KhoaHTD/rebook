@@ -41,6 +41,9 @@ enum PaymentMethod { cod, wallet, zalopay }
 
 enum PaymentStatus { pending, success, failed, expired }
 
+/// Một lệnh thanh toán trả cho việc gì: quyết định nút ở màn kết quả (nạp ví thì về ví, đơn hàng thì xem đơn).
+enum PaymentPurpose { order, topUp }
+
 enum ReturnStatus {
   pending,
   accepted,

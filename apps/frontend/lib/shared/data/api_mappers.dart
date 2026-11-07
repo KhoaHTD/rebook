@@ -728,6 +728,9 @@ extension PaymentResponseMapper on api.PaymentResponse {
     paymentUrl:
         paymentUrl ?? ((simulateAvailable ?? false) ? 'mock://simulate' : null),
     expiresAt: expiresAt,
+    purpose: purpose == api.PaymentPurpose.topUp
+        ? PaymentPurpose.topUp
+        : PaymentPurpose.order,
   );
 }
 

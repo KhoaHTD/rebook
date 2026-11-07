@@ -536,6 +536,7 @@ extension FakeCommerce on FakeStore {
       status: PaymentStatus.pending,
       paymentUrl: 'mock://zalopay-sandbox',
       expiresAt: DateTime.now().add(const Duration(minutes: 15)),
+      purpose: topUp ? PaymentPurpose.topUp : PaymentPurpose.order,
     );
     payments[p.id] = p;
     _paymentTarget[p.id] = (userId: userId, orderIds: orderIds, topUp: topUp);

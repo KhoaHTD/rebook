@@ -204,10 +204,17 @@ class _Body extends ConsumerWidget {
             ),
           ],
         ] else ...[
-          FilledButton(
-            onPressed: () => context.go(Routes.orders),
-            child: Text(l10n.viewOrders),
-          ),
+          // Nạp ví thì không có đơn nào để xem: nút chính đưa về ví.
+          if (payment.purpose == PaymentPurpose.topUp)
+            FilledButton(
+              onPressed: () => context.go(Routes.wallet),
+              child: Text(l10n.backToWallet),
+            )
+          else
+            FilledButton(
+              onPressed: () => context.go(Routes.orders),
+              child: Text(l10n.viewOrders),
+            ),
           const SizedBox(height: AppSpacing.sm),
           OutlinedButton(
             onPressed: () => context.go(Routes.home),

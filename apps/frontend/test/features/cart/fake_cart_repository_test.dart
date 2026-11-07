@@ -84,4 +84,20 @@ void main() {
       ),
     );
   });
+
+  test('lệnh nạp ví mang mục đích topUp, lệnh trả đơn mang mục đích order', () {
+    final topUp = store.topUp(100000);
+    expect(topUp.purpose, PaymentPurpose.topUp);
+
+    final l = store
+        .searchListings(const ListingQuery())
+        .items
+        .firstWhere((l) => l.shop.id != 's1');
+    store.addToCart(l.id, 1);
+    final order = store.checkout(
+      addressId: store.myAddresses().first.id,
+      method: PaymentMethod.zalopay,
+    );
+    expect(order.payment?.purpose, PaymentPurpose.order);
+  });
 }

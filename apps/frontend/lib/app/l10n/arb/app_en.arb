@@ -191,6 +191,7 @@
   "orderPlaced": "Order placed",
   "ordersCreated": "{count, plural, =1{1 order created} other{{count} orders created}}",
   "viewOrders": "View orders",
+  "backToWallet": "Back to ReBook wallet",
   "continueShopping": "Keep shopping",
   "paymentTitle": "Payment",
   "paymentPending": "Waiting for payment",

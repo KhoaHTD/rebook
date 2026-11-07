@@ -306,6 +306,7 @@
     }
   },
   "viewOrders": "Xem đơn hàng",
+  "backToWallet": "Về ví ReBook",
   "continueShopping": "Tiếp tục mua sắm",
   "paymentTitle": "Thanh toán",
   "paymentPending": "Đang chờ thanh toán",

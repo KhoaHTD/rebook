@@ -147,6 +147,7 @@ abstract class Payment with _$Payment {
     required PaymentStatus status,
     String? paymentUrl,
     DateTime? expiresAt,
+    @Default(PaymentPurpose.order) PaymentPurpose purpose,
   }) = _Payment;
 }
 
