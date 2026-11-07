@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:book_marketplace/features/staff/presentation/widgets/staff_order_sheet.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
@@ -152,7 +153,7 @@ class AuctionOrdersScreen extends ConsumerWidget {
                             final card = OrderCard(
                               order: o,
                               showBuyer: true,
-                              onTap: () {},
+                              onTap: () => showStaffOrderSheet(context, o),
                             );
                             if (buttons.isEmpty) return card;
                             if (narrow) {

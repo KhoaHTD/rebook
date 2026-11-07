@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:book_marketplace/app/router/routes.dart';
 
 import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
@@ -160,6 +163,8 @@ class _WarehouseScreenState extends ConsumerState<WarehouseScreen> {
                     if (i > 0)
                       Divider(height: 1, indent: 104, color: c.separator),
                     ListTile(
+                      onTap: () =>
+                          context.go(AdminRoutes.consignment(w.consignmentId)),
                       leading: Container(
                         width: 72,
                         alignment: Alignment.center,

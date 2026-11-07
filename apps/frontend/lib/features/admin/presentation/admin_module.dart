@@ -12,6 +12,7 @@ import 'package:book_marketplace/features/admin/presentation/screens/dashboard_s
 import 'package:book_marketplace/features/admin/presentation/screens/disputes_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/listing_review_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/monitor_screen.dart';
+import 'package:book_marketplace/features/admin/presentation/screens/session_detail_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/session_edit_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/reports_screen.dart';
 import 'package:book_marketplace/features/admin/presentation/screens/sessions_screen.dart';
@@ -36,11 +37,11 @@ final adminModule = AdminModule(
     AdminRoutes.cod,
     AdminRoutes.reports,
   ],
-  // Staff chỉ xem danh sách phiên và màn giám sát; tạo / sửa phiên chỉ Admin (SRS 2).
+  // Staff xem danh sách phiên, chi tiết phiên (chỉ xem) và màn giám sát; tạo / sửa phiên chỉ Admin (SRS 2).
   staffCanOpen: (location) =>
       location == AdminRoutes.sessions ||
       (location.startsWith('${AdminRoutes.sessions}/') &&
-          location.endsWith('/monitor')),
+          location != AdminRoutes.newSession),
   smokePaths: (c) async {
     final sessions = await c.read(adminRepositoryProvider).sessions();
     if (sessions.isEmpty) return const [AdminRoutes.newSession];
@@ -60,7 +61,7 @@ final adminModule = AdminModule(
         adminPage('new', (_) => const SessionEditScreen()),
         adminPage(
           ':id',
-          (s) => SessionEditScreen(sessionId: s.pathParameters['id']),
+          (s) => SessionPage(sessionId: s.pathParameters['id']!),
           routes: [
             adminPage(
               'monitor',

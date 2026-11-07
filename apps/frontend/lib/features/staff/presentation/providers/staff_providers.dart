@@ -37,6 +37,10 @@ Future<List<WarehouseItem>> warehouseItems(Ref ref) {
 }
 
 @riverpod
+Future<Order> staffOrder(Ref ref, String id) =>
+    ref.watch(staffRepositoryProvider).order(id);
+
+@riverpod
 Future<List<Order>> staffAuctionOrders(Ref ref) {
   ref.watchArea(DataArea.orders);
   return ref.watch(staffRepositoryProvider).auctionOrders();

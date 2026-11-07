@@ -126,6 +126,11 @@ class ApiStaffRepository implements StaffRepository {
 
   /// Đẩy đơn đấu giá sang bước kế: xác nhận → giao vận chuyển → đã giao.
   @override
+  Future<Order> order(String id) => guardApi(
+    () async => (await _client.order.getOrdersId(id: apiId(id))).toDomain(),
+  );
+
+  @override
   Future<Order> advanceOrder(
     String id, {
     String? trackingCode,

@@ -42,6 +42,9 @@ abstract interface class StaffRepository {
   /// Chuẩn bị → đang giao → đã giao.
   Future<Order> advanceOrder(String id, {String? trackingCode});
 
+  /// Chi tiết đầy đủ của một đơn (địa chỉ, tiền, hành trình); Staff được xem mọi đơn.
+  Future<Order> order(String id);
+
   /// Đơn thường đang giao, cũ nhất trước, để đối chiếu với hãng vận chuyển.
   Future<List<TransitOrder>> inTransit();
 

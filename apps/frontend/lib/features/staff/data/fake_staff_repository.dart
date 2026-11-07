@@ -57,6 +57,9 @@ class FakeStaffRepository implements StaffRepository {
   Future<List<Order>> auctionOrders() => fakeCall(_store.auctionOrders);
 
   @override
+  Future<Order> order(String id) => fakeCall(() => _store.order(id));
+
+  @override
   Future<Order> advanceOrder(String id, {String? trackingCode}) =>
       fakeCall(() => _store.advanceAuctionOrder(id, trackingCode));
 

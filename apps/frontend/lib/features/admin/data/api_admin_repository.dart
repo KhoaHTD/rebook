@@ -191,7 +191,9 @@ class ApiAdminRepository implements AdminRepository {
 
   @override
   Future<(AuctionSession, List<Lot>)> session(String id) => guardApi(() async {
-    final detail = await _client.auction.getAdminSessionsId(id: apiId(id));
+    final detail = staffView
+        ? await _client.auction.getSessionsId(id: apiId(id))
+        : await _client.auction.getAdminSessionsId(id: apiId(id));
     return (detail.sessionToDomain(), detail.lotsToDomain());
   });
 

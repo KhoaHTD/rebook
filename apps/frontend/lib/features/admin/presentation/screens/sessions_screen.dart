@@ -95,11 +95,7 @@ class SessionsScreen extends ConsumerWidget {
                       for (final (i, s) in items.indexed) ...[
                         if (i > 0) Divider(height: 1, indent: 16, color: sep),
                         AdaptiveTile(
-                          onTap: isAdmin
-                              ? () => context.go(AdminRoutes.session(s.id))
-                              : s.isLive
-                              ? () => context.go(AdminRoutes.monitor(s.id))
-                              : null,
+                          onTap: () => context.go(AdminRoutes.session(s.id)),
                           title: Text(s.title),
                           subtitle: Text(
                             [
