@@ -69,6 +69,8 @@ Add-Type -Namespace Win -Name Power -MemberDefinition '[System.Runtime.InteropSe
 
 try {
     Say "[3/4] Bat may chu demo (cong $Port)..." 'Cyan'
+    # Xoa link cu: may chu demo doc file nay de bao link cong khai cho backend (ZaloPay quay ve dung link)
+    Remove-Item (Join-Path $PSScriptRoot 'LINK.txt') -ErrorAction SilentlyContinue
     & (Join-Path $PSScriptRoot 'stop-demo.ps1') -Port $Port | Out-Null   # don tien trinh cu con sot
     $busy = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
     if ($busy) { Fail "Cong $Port dang bi chiem (PID $($busy[0].OwningProcess)). Tat chuong trinh do hoac dung -Port 8001." }

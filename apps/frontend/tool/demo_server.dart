@@ -29,6 +29,7 @@ const _dropRequestHeaders = {
   'host',
   'origin',
   'referer',
+  'x-public-url',
   'accept-encoding',
   'content-length',
 };
@@ -69,6 +70,9 @@ late final Uri _backend;
 late final Directory _root;
 final _client = HttpClient()..autoUncompress = false;
 
+/// File chứa link công khai (start-demo ghi sau khi mở tunnel). Backend dùng nó để ZaloPay đưa người dùng quay về đúng link.
+File? _publicUrlFile;
+
 Future<void> main(List<String> args) async {
   String? opt(String name) {
     final i = args.indexOf(name);
@@ -78,6 +82,7 @@ Future<void> main(List<String> args) async {
   final port = int.tryParse(opt('--port') ?? '') ?? 8000;
   _backend = Uri.parse(opt('--backend') ?? 'http://localhost:8080');
   _root = Directory(opt('--root') ?? 'build/web');
+  _publicUrlFile = File(opt('--public-url-file') ?? '../../demo/LINK.txt');
   if (!File('${_root.path}/index.html').existsSync()) {
     stderr.writeln(
       'Không thấy ${_root.path}/index.html. Build web trước: '
@@ -146,6 +151,8 @@ Future<void> _proxyHttp(HttpRequest req) async {
       out.headers.add(name, v);
     }
   });
+  final publicUrl = _publicUrl(req);
+  if (publicUrl != null) out.headers.set('x-public-url', publicUrl);
   if (req.contentLength >= 0) out.contentLength = req.contentLength;
   await out.addStream(req);
   final HttpClientResponse resp;
@@ -241,4 +248,17 @@ Future<void> _serveStatic(HttpRequest req) async {
   if (req.method == 'HEAD') return res.close();
   await res.addStream(file.openRead());
   await res.close();
+}
+
+/// Link công khai cho yêu cầu này, chỉ khi nó đi qua Cloudflare (có header cf-ray). Vào thẳng localhost thì không gắn gì,
+/// để người dùng trên máy mình vẫn quay về localhost.
+String? _publicUrl(HttpRequest req) {
+  final file = _publicUrlFile;
+  if (file == null || req.headers.value('cf-ray') == null) return null;
+  try {
+    final url = file.readAsStringSync().trim();
+    return url.startsWith('https://') ? url : null;
+  } on FileSystemException {
+    return null;
+  }
 }

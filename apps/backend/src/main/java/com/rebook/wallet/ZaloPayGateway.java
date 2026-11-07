@@ -61,10 +61,15 @@ public class ZaloPayGateway {
 
     /** Tạo đơn trên ZaloPay, trả về link thanh toán ({@code order_url}). */
     public String createOrder(String appTransId, Long userId, BigDecimal amount, String description, Duration ttl) {
+        return createOrder(appTransId, userId, amount, description, ttl, null);
+    }
+
+    /** [returnUrl] khác null thì ZaloPay đưa trình duyệt về địa chỉ đó thay vì địa chỉ trong cấu hình. */
+    public String createOrder(String appTransId, Long userId, BigDecimal amount, String description, Duration ttl, String returnUrl) {
         var z = props.payment().zalopay();
         String appTime = String.valueOf(Instant.now().toEpochMilli());
         String appUser = "rebook_" + userId;
-        String embedData = toJson(Map.of("redirecturl", z.returnUrl()));
+        String embedData = toJson(Map.of("redirecturl", returnUrl == null || returnUrl.isBlank() ? z.returnUrl() : returnUrl));
         String item = "[]";
         String amountText = amount.toBigInteger().toString();
         String mac = hmac(z.key1(), String.join("|", z.appId(), appTransId, appUser, amountText, appTime, embedData, item));

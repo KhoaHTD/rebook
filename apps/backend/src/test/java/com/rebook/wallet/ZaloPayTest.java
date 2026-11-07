@@ -112,6 +112,67 @@ class ZaloPayTest extends IntegrationTest {
         assertThat(f.get("mac")).isEqualTo(expected);
     }
 
+    /** Gọi qua link Cloudflare (máy chủ demo gắn X-Public-Url) thì ZaloPay phải đưa người dùng về đúng link đó, không phải localhost. */
+    @Test
+    @SuppressWarnings("unchecked")
+    void returnUrlFollowsThePublicLinkWhenTheDemoServerSendsIt() throws Exception {
+        zaloCreates();
+        long user = createUser(Role.USER, "Người nạp", 0);
+        mvc.perform(post("/wallet/top-up").with(as(user, Role.USER)).header("X-Public-Url", "https://abc-def.trycloudflare.com")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"amount\":50000}"))
+                .andExpect(status().isCreated());
+
+        ArgumentCaptor<Map<String, String>> form = ArgumentCaptor.forClass(Map.class);
+        verify(client).post(eq("https://zalopay.test/v2/create"), form.capture());
+        assertThat(form.getValue().get("embed_data"))
+                .contains("https:\\/\\/abc-def.trycloudflare.com\\/api\\/payments\\/zalopay\\/return".replace("\\/", "/"))
+                .doesNotContain("localhost");
+    }
+
+    /** Header lạ (tên miền ngoài danh sách, http, có đường dẫn) bị bỏ qua: không ai bắt ZaloPay đưa người dùng sang trang tuỳ ý. */
+    @Test
+    @SuppressWarnings("unchecked")
+    void foreignPublicUrlHeaderIsIgnored() throws Exception {
+        zaloCreates();
+        long user = createUser(Role.USER, "Người nạp", 0);
+        for (String bad : new String[]{"https://evil.example.com", "http://abc.trycloudflare.com",
+                "https://abc.trycloudflare.com/x", "https://evil.com/.trycloudflare.com", "https://trycloudflare.com.evil.com"}) {
+            mvc.perform(post("/wallet/top-up").with(as(user, Role.USER)).header("X-Public-Url", bad)
+                            .contentType(MediaType.APPLICATION_JSON).content("{\"amount\":50000}"))
+                    .andExpect(status().isCreated());
+        }
+        ArgumentCaptor<Map<String, String>> form = ArgumentCaptor.forClass(Map.class);
+        verify(client, org.mockito.Mockito.times(5)).post(eq("https://zalopay.test/v2/create"), form.capture());
+        for (Map<String, String> f : form.getAllValues()) {
+            assertThat(f.get("embed_data")).doesNotContain("evil").doesNotContain("abc.trycloudflare.com");
+        }
+    }
+
+    /** Điện thoại Android quay về từ ZaloPay: trang kết quả mở lại app bằng deep link, có đường lui về bản web. */
+    @Test
+    void returnPageOpensTheAndroidAppAndFallsBackToTheWeb() throws Exception {
+        zaloCreates();
+        long user = createUser(Role.USER, "Người nạp", 0);
+        String code = topUp(user, 50_000);
+        zaloQueryReturns(1, 50_000);
+        var req = returnRequest(redirect(appTransId(code), 50_000, "test-key2"))
+                .header("X-Public-Url", "https://abc-def.trycloudflare.com")
+                .header("User-Agent", "Mozilla/5.0 (Linux; Android 16) Chrome/130 Mobile");
+
+        mvc.perform(req)
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("rebook:///home/payments/" + code)))
+                .andExpect(content().string(containsString("https://abc-def.trycloudflare.com/home/payments/" + code)))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("localhost"))));
+
+        // Trình duyệt máy tính: vẫn chuyển thẳng về bản web, không dùng deep link
+        mvc.perform(returnRequest(redirect(appTransId(code), 50_000, "test-key2"))
+                        .header("X-Public-Url", "https://abc-def.trycloudflare.com")
+                        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0) Chrome/130"))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("rebook:///"))))
+                .andExpect(content().string(containsString("https://abc-def.trycloudflare.com/home/payments/" + code)));
+    }
+
     @Test
     void returnConfirmsWithQueryCreditsOnceAndShowsAPage() throws Exception {
         zaloCreates();

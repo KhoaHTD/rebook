@@ -13,6 +13,14 @@ final class PaymentReturnPage {
 
     /** [appUrl] khác rỗng và biết mã thanh toán: thêm nút "Quay lại ReBook" và tự chuyển về app sau 3 giây. */
     static String render(Payment.Status status, String paymentCode, String appUrl) {
+        return render(status, paymentCode, appUrl, null);
+    }
+
+    /**
+     * [userAgent] là Android: thử mở lại app đã cài bằng deep link {@code rebook:///home/payments/<mã>} (app tự về màn kết quả),
+     * không mở được thì sau vài giây chuyển sang bản web. Trình duyệt khác chuyển thẳng về bản web như cũ.
+     */
+    static String render(Payment.Status status, String paymentCode, String appUrl, String userAgent) {
         boolean success = status == Payment.Status.SUCCESS;
         boolean pending = status == Payment.Status.PENDING;
         String title = success ? "Thanh toán thành công" : pending ? "Đang chờ xác nhận" : "Thanh toán không thành công";
@@ -31,6 +39,15 @@ final class PaymentReturnPage {
             String target = HtmlUtils.htmlEscape(base + "/home/payments/" + paymentCode);
             back = "<a class=\"btn\" href=\"" + target + "\">Quay lại ReBook</a>";
             redirect = "<meta http-equiv=\"refresh\" content=\"3;url=" + target + "\">";
+            if (userAgent != null && userAgent.contains("Android")) {
+                String deepLink = "rebook:///home/payments/" + paymentCode;
+                back = "<a class=\"btn\" href=\"" + deepLink + "\">Mở ứng dụng ReBook</a>"
+                        + "<p><a class=\"alt\" href=\"" + target + "\">Hoặc tiếp tục trên trình duyệt</a></p>";
+                // Mở app trước; app không mở được (chưa cài) thì sau 2,5 giây dùng bản web. Trang bị ẩn tức là app đã mở: không chuyển nữa.
+                redirect = "<script>(function(){var t=setTimeout(function(){location.replace('" + target + "')},2500);"
+                        + "document.addEventListener('visibilitychange',function(){if(document.hidden)clearTimeout(t)});"
+                        + "location.href='" + deepLink + "';})();</script>";
+            }
         }
         return """
                 <!doctype html>
@@ -50,6 +67,7 @@ final class PaymentReturnPage {
                   h1 { font-size: 22px; margin: 0 0 8px; }
                   p { margin: 0 0 8px; line-height: 1.5; color: #48484a; }
                   .code { font-size: 13px; color: #8e8e93; }
+                  .alt { color: #48484a; font-size: 14px; }
                   .btn { display: inline-block; margin-top: 16px; padding: 12px 24px; border-radius: 999px;
                          background: #1c1c1e; color: #fff; text-decoration: none; font-weight: 600; }
                 </style>

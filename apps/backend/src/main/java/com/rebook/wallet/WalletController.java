@@ -40,6 +40,7 @@ public class WalletController {
     private final PaymentService paymentService;
     private final AppProperties props;
     private final DebtService debtService;
+    private final PublicUrl publicUrl;
 
     @Operation(summary = "Số dư ví")
     @GetMapping("/wallet")
@@ -125,8 +126,11 @@ public class WalletController {
      */
     @Operation(summary = "Redirect URL của ZaloPay: xác nhận giao dịch rồi hiện trang kết quả cho người dùng")
     @GetMapping(value = "/payments/zalopay/return", produces = MediaType.TEXT_HTML_VALUE)
-    public String zalopayReturn(@RequestParam Map<String, String> params) {
+    public String zalopayReturn(@RequestParam Map<String, String> params, HttpServletRequest request) {
         PaymentService.ReturnResult r = paymentService.handleZaloPayReturn(params);
-        return PaymentReturnPage.render(r.status(), r.code(), props.payment().appUrl());
+        // Vào qua link công khai (Cloudflare) thì quay về đúng link đó, không phải APP_URL trong cấu hình
+        String origin = publicUrl.current();
+        return PaymentReturnPage.render(r.status(), r.code(), origin != null ? origin : props.payment().appUrl(),
+                request.getHeader("User-Agent"));
     }
 }

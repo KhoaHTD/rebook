@@ -27,6 +27,7 @@ public class PaymentService {
     private final ApplicationEventPublisher events;
     private final AppProperties props;
     private final ObjectMapper json;
+    private final PublicUrl publicUrl;
 
     public record PaymentResponse(Long id, String code, Payment.Purpose purpose, Payment.Method method,
                                   BigDecimal amount, Payment.Status status, String paymentUrl,
@@ -59,10 +60,16 @@ public class PaymentService {
         p.setGatewayRef(ZaloPayGateway.appTransId(Instant.now(), p.getCode()));
         p = paymentRepository.save(p);
         String url = zalopay.isConfigured()
-                ? zalopay.createOrder(p.getGatewayRef(), userId, amount, description, ttl)
+                ? zalopay.createOrder(p.getGatewayRef(), userId, amount, description, ttl, returnUrlForRequest())
                 : null;
         p.setPaymentUrl(url);
         return PaymentResponse.of(p, url, simulateAvailable());
+    }
+
+    /** Vào app qua link công khai (Cloudflare) thì ZaloPay đưa người dùng về đúng link đó; còn lại dùng địa chỉ trong cấu hình. */
+    private String returnUrlForRequest() {
+        String origin = publicUrl.current();
+        return origin == null ? null : publicUrl.zaloPayReturn(origin);
     }
 
     /** Payment nội bộ (ví / COD) — ghi lại để đối soát, ví thì thành công ngay. */
