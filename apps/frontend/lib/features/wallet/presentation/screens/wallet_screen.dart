@@ -6,7 +6,6 @@ import 'package:book_marketplace/app/l10n/l10n.dart';
 import 'package:book_marketplace/core/utils/input_rules.dart';
 import 'package:book_marketplace/app/router/routes.dart';
 import 'package:book_marketplace/app/theme/app_tokens.dart';
-import 'package:book_marketplace/core/auth/session_controller.dart';
 import 'package:book_marketplace/core/utils/external_link.dart';
 import 'package:book_marketplace/core/utils/formatters.dart';
 import 'package:book_marketplace/features/wallet/presentation/providers/wallet_providers.dart';
@@ -120,8 +119,6 @@ class WalletScreen extends ConsumerWidget {
         );
     final withdrawals =
         ref.watch(myWithdrawalsProvider).value ?? const <Withdrawal>[];
-    final isSeller =
-        ref.watch(sessionControllerProvider).user?.hasShop ?? false;
     final busy = ref.watch(walletControllerProvider).isLoading;
 
     Future<void> topUp() async {
@@ -197,7 +194,7 @@ class WalletScreen extends ConsumerWidget {
                             icon: const Icon(Icons.add_rounded, size: 18),
                             label: Text(l10n.topUp),
                           ),
-                          if (isSeller && !auction)
+                          if (!auction)
                             OutlinedButton(
                               onPressed: busy
                                   ? null
