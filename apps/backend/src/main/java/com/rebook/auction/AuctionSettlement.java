@@ -171,8 +171,8 @@ public class AuctionSettlement {
         notifications.notify(buyerId, NotificationService.AUCTION_WON,
                 secondChance ? "Cơ hội mua lô đấu giá" : "Bạn đã thắng đấu giá!",
                 (secondChance ? "Người thắng không thanh toán. Bạn được mời mua \"" : "Bạn thắng \"")
-                        + book.getTitle() + "\" với giá " + hammer.toPlainString() + "đ. Hãy thanh toán hoá đơn "
-                        + saved.getCode() + " trước " + saved.getPaymentDueAt(),
+                        + book.getTitle() + "\" với giá " + com.rebook.common.Money.vnd(hammer) + ". Hãy thanh toán hoá đơn "
+                        + saved.getCode() + " trước " + com.rebook.common.Money.vnTime(saved.getPaymentDueAt()),
                 Map.of("orderId", saved.getId(), "lotId", lot.getId()), true);
         return saved;
     }

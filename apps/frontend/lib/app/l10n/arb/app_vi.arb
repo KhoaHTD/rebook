@@ -1559,7 +1559,7 @@
   "historySub": "Các phiên đã kết thúc và lô bạn đã thắng.",
   "historyEmpty": "Chưa có phiên nào kết thúc",
   "historyViewResults": "Xem kết quả",
-  "historyWonHint": "Lô thắng cần thanh toán nằm ở Đơn mua",
+  "historyWonHint": "Lô thắng cần thanh toán nằm ở Lô đã thắng",
   "auctionAccountTitle": "Tài khoản đấu giá",
   "auctionAccountAvailable": "Khả dụng",
   "auctionAccountHeld": "Đang giữ cọc",

@@ -964,7 +964,7 @@
   "historySub": "Finished sessions and the lots you won.",
   "historyEmpty": "No session has finished yet",
   "historyViewResults": "View results",
-  "historyWonHint": "Won lots to pay are under My orders",
+  "historyWonHint": "Won lots to pay are under Won lots",
   "auctionAccountTitle": "Auction account",
   "auctionAccountAvailable": "Available",
   "auctionAccountHeld": "Held as deposit",

@@ -52,7 +52,7 @@ public class AuctionRunner {
             Set<Long> audience = new HashSet<>(regs.stream().map(AuctionRegistration::getUserId).toList());
             audience.addAll(sellerIds(sessionId));
             notifications.notifyAll(audience, NotificationService.AUCTION_REMINDER, "Phiên đấu giá đã được xác nhận",
-                    "Phiên \"" + s.getTitle() + "\" sẽ diễn ra lúc " + s.getStartAt(), Map.of("sessionId", sessionId));
+                    "Phiên \"" + s.getTitle() + "\" sẽ diễn ra lúc " + com.rebook.common.Money.vnTime(s.getStartAt()), Map.of("sessionId", sessionId));
             log.info("Phiên {} đủ {} người → CONFIRMED", sessionId, regs.size());
         } else if (s.getPostponeCount() == 0) {
             // Dời lịch một lần, mở lại đăng ký
@@ -63,7 +63,7 @@ public class AuctionRunner {
             s.setRegistrationDeadline(s.getRegistrationDeadline().plus(delay));
             s.setStatus(s.getStatus().moveTo(SessionStatus.PUBLISHED));
             notifications.notifyAll(regs.stream().map(AuctionRegistration::getUserId).toList(), NotificationService.AUCTION,
-                    "Phiên đấu giá dời lịch", "Phiên \"" + s.getTitle() + "\" chưa đủ người, dời sang " + s.getStartAt(),
+                    "Phiên đấu giá dời lịch", "Phiên \"" + s.getTitle() + "\" chưa đủ người, dời sang " + com.rebook.common.Money.vnTime(s.getStartAt()),
                     Map.of("sessionId", sessionId));
             log.info("Phiên {} thiếu người ({}/{}) → dời lịch", sessionId, regs.size(), s.getMinParticipants());
         } else {
@@ -87,7 +87,7 @@ public class AuctionRunner {
             audience.addAll(watcherRepository.findUserIdsByLotIds(lotIds));
         }
         notifications.notifyAll(audience, NotificationService.AUCTION_REMINDER, "Sắp tới phiên đấu giá",
-                "Phiên \"" + s.getTitle() + "\" bắt đầu lúc " + s.getStartAt() + ". Phòng chờ đã mở!",
+                "Phiên \"" + s.getTitle() + "\" bắt đầu lúc " + com.rebook.common.Money.vnTime(s.getStartAt()) + ". Phòng chờ đã mở!",
                 Map.of("sessionId", sessionId));
     }
 

@@ -60,7 +60,7 @@ class AuctionHistoryScreen extends ConsumerWidget {
                 Glass(
                   blur: false,
                   shadow: false,
-                  onTap: () => context.go(Routes.orders),
+                  onTap: () => context.go(Routes.auctionOrders),
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Row(
                     children: [
